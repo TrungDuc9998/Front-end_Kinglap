@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {publicRoutes} from "./routes/route"
 import DefaultLayout from "./components/layout/DefaultLayout/index";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
 import 'antd/dist/antd.css'; 
 function App() {
   return (

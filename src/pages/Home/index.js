@@ -1,6 +1,9 @@
+import Img from "../../image/5be98e06c77ea.jpg"
 function Home() {
     return ( 
-        <h2>Home</h2>
+        <div>
+          <img src={Img} width={"100%"} height={"50%"} style={{margin:"0",padding:"0"}}/>
+       </div>
      );
 }
 
