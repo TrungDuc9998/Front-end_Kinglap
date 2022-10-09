@@ -8,6 +8,7 @@ import {
   PieChartOutlined,
   TeamOutlined,
   UserOutlined,
+  UserSwitchOutlined
 } from "@ant-design/icons";
 import { Breadcrumb, Layout, Menu } from "antd";
 import React, { useState } from "react";
@@ -77,8 +78,12 @@ const DefaultLayout = ({ children }) => {
           className="site-layout-background"
           style={{
             padding: 0,
-          }}
-        />
+            textAlign: "center"
+          }}>
+          <div className="d-flex justify-content-end me-5">
+            <Link to={'login'} className="acc"><UserSwitchOutlined className="me-2 ic" style={{ fontSize: '22px' }} />Đăng nhập</Link>
+          </div>
+        </Header>
         <Content
           style={{
             margin: "0 16px",
@@ -110,7 +115,7 @@ const DefaultLayout = ({ children }) => {
           Ant Design ©2022 Created by Ant UED
         </Footer>
       </Layout>
-    </Layout>
+    </Layout >
   );
 };
 

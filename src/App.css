@@ -26,8 +26,15 @@
   background: url('./image/logo192.png')no-repeat;
 }
 
+.acc:hover {
+  color: #fff;
+  transition: all 0.2s ease;
+}
 
-
-
-
-
+.acc {
+  color: rgb(159, 159, 159);
+  margin: 0;
+  display: block;
+  font-size: 16px;
+  text-decoration: none;
+}

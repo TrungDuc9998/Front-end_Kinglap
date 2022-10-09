@@ -4,6 +4,7 @@ import Product from "../pages/Product/Product";
 import { Children, Component } from "react";
 import CreateProduct from "../pages/Product/CreateProduct";
 import Order from "../pages/Order/Order";
+import Login from "../components/users/Login";
 // import Statistical from '../pages/Statistical'
 const publicRoutes = [
   {
@@ -25,6 +26,11 @@ const publicRoutes = [
   {
     path: "/admin/order",
     component: Order,
+  },
+  {
+    path: "/login",
+    component: Login,
+    Layout: null
   },
 ];
 
