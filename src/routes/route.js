@@ -3,6 +3,7 @@ import Category from "../pages/Category";
 import Product from "../pages/Product/Product";
 import { Children, Component } from "react";
 import CreateProduct from "../pages/Product/CreateProduct";
+import Order from "../pages/Order/Order";
 // import Statistical from '../pages/Statistical'
 const publicRoutes = [
   {
@@ -10,16 +11,20 @@ const publicRoutes = [
     component: Home,
   },
   {
-    path: "/category",
+    path: "/admin/category",
     component: Category,
   },
   {
-    path: "/product",
+    path: "/admin/product",
     component: Product,
   },
   {
-    path: "/product/create",
+    path: "/admin/product/create",
     component: CreateProduct,
+  },
+  {
+    path: "/admin/order",
+    component: Order,
   },
 ];
 

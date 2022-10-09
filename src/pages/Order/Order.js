@@ -1,4 +1,4 @@
-import { Table, Slider, Select, Input, Button, Modal, InputNumber } from "antd";
+import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -10,6 +10,8 @@ import {
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 const { Option } = Select;
+//date
+const { RangePicker } = DatePicker;
 
 const onDelete = (record) => {
   Modal.confirm({
@@ -23,12 +25,8 @@ const getRandomuserParams = (params) => ({
   page: params.pagination?.current,
   ...params,
 });
-const onChange = (value) => {
-  //change value input number
-  console.log("changed", value);
-};
 
-const Product = () => {
+const Order = () => {
   const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -42,33 +40,19 @@ const Product = () => {
 
   const columns = [
     {
-      title: "Mã sản phẩm",
+      title: "Mã đơn đặt",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "20%",
     },
     {
-      title: "Tên sản phẩm",
+      title: "Người đặt",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "20%",
     },
-    {
-      title: "Đơn giá",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
-    },
-    // {
-    //   title: "Loại sản phẩm",
-    //   dataIndex: "name",
-    //   sorter: true,
-    //   render: (name) => `${name.first} ${name.last}`,
-    //   width: "20%",
-    // },
     {
       title: "Ngày tạo",
       dataIndex: "name",
@@ -77,28 +61,35 @@ const Product = () => {
       width: "15%",
     },
     {
-      title: "Người tạo",
+      title: "Tổng tiền",
+      dataIndex: "name",
+      sorter: true,
+      render: (name) => `${name.first} ${name.last}`,
+      width: "20%",
+    },
+    {
+      title: "Hình thức đặt",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
+    // {
+    //   title: "Email",
+    //   dataIndex: "email",
+    // },
     {
-      title: "Ngày cập nhật",
-      dataIndex: "email",
-    },
-    {
-      title: "Loại sản phẩm",
+      title: "Trạng thái",
       dataIndex: "Trạng thái",
       with: "30%",
       render: (record) => {
         return (
           <>
             <div
-              className="bg-success text-center text-light"
+              className="bg-primary text-center text-light"
               style={{ width: "100px", borderRadius: "5px" }}
             >
-              Laptop
+              Đã thanh toán
             </div>
           </>
         );
@@ -203,69 +194,38 @@ const Product = () => {
     setOpen(false);
   };
 
-  const marks = {
-    0: "0đ",
-    40: "20.000.000đ",
-    80: "40.000.000đ",
-    100: {
-      style: {
-        color: "#f50",
-      },
-      label: <strong>60.000.000đ</strong>,
-    },
-  };
 
+  //xử lý date
+  const [size, setSize] = useState('middle');
+
+  const handleSizeChange = (e) => {
+    setSize(e.target.value);
+  };
   return (
+
+    
     <div>
       <div
         className="row"
         style={{
           borderRadius: "20px",
-          height: "250px",
+          height: "auto",
+          paddingBottom:"40px",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
       >
-        <div className="col-12">
-          <div className="row">
-            <div className="col-12 text-center mt-3">
-              Đơn giá:
-              <InputNumber
-                min={1}
-                max={10}
-                defaultValue={3}
-                onChange={onChange}
-              />
-              --{" "}
-              <InputNumber
-                min={1}
-                max={10}
-                defaultValue={3}
-                onChange={onChange}
-              />
-            </div>
-          </div>
-          <div className="col-12 text-center">
-            <Slider
-            
-              range
-              marks={marks}
-              style={{ width: "900px" ,marginLeft:"200px"}}
-              defaultValue={[0, 100]}
-            />
-          </div>
+        <div className="col-4 mt-4">
+          <label>Tên sản phẩm</label>
+          <Input placeholder="Nhập tên sản phẩm" />
         </div>
-        <div className="col-4 mt-3">
-          <label>Từ khoá</label>
-          <Input placeholder="Nhập tên, mã hoặc giá" />
-        </div>
-        <div className="col-4 mt-3">
-          <label>Loại sản phẩm</label>
+        <div className="col-4 mt-4">
+          <label>Tên thể loại</label>
           <br />
           <Select
             style={{ width: "300px", borderRadius: "5px" }}
             showSearch
-            placeholder="Loại sản phẩm"
+            placeholder="Chọn thể loại"
             optionFilterProp="children"
             onChange={onChange}
             onSearch={onSearch}
@@ -277,6 +237,34 @@ const Product = () => {
             <Option value="lucy">Linh kiện</Option>
             <Option value="lucy">Phụ kiện</Option>
           </Select>
+        </div>
+        <div className="col-4 mt-4">
+          <label>Trạng thái</label>
+          <br />
+          <Select
+            style={{ width: "300px", borderRadius: "5px" }}
+            showSearch
+            placeholder="Chọn trạng thái"
+            optionFilterProp="children"
+            onChange={onChange}
+            onSearch={onSearch}
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+          >
+            <Option value="jack">Hoạt động</Option>
+            <Option value="lucy">Không hoạt động</Option>
+          </Select>
+        </div>
+        <div className="col-6">
+          <label>Người đặt</label>
+          <Input placeholder="Tên người đặt" />
+        </div>
+        <div className="col-6 mt-4">
+          <label>Thời gian đặt: </label>
+          <Space className="mx-2" direction="vertical" size={12}>
+            <RangePicker size={"middle"} />
+          </Space>
         </div>
         <div className="col-12 text-center ">
           <Button
@@ -307,7 +295,7 @@ const Product = () => {
             onClick={showModal}
             style={{ borderRadius: "10px" }}
           >
-           <a href="/product/create"></a>
+            <PlusOutlined /> Thêm mới
           </Button>
           <Modal
             title="Tạo mới"
@@ -382,4 +370,4 @@ const Product = () => {
   );
 };
 
-export default Product;
+export default Order;

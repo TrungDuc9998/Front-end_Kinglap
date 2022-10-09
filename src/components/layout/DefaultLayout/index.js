@@ -23,23 +23,28 @@ function getItem(label, key, icon, children) {
 }
 const items = [
   getItem("Trang chủ", "/", <PieChartOutlined />),
-  getItem("Quản lý thể loại", "/category", <DesktopOutlined />),
-  // getItem("Quản lý sản phẩm", "/product", <DesktopOutlined />),
+  getItem("Quản lý dịch vụ", "/dichvu", <PieChartOutlined />),
   getItem("Quản lý sản phẩm", "sub1", <UserOutlined />, [
-    getItem("Danh sách sản phẩm", "/product"),
-    getItem("Tạo sản phẩm", "/product/create"),
-    // getItem("Đơn hàng đã huỷ", "/order/cancel"),
+    getItem("Quản lý thể loại", "/admin/category"),
+    getItem("Danh sách sản phẩm", "/admin/product"),
+    getItem("Tạo sản phẩm", "/admin/product/create"),
   ]),
-  getItem("Quản đơn hàng", "sub3", <UserOutlined />, [
-    getItem("Xác nhận đơn hàng", "/order"),
-    getItem("Đơn hàng đã đặt", "/order/checked"),
-    getItem("Đơn hàng đã huỷ", "/order/cancel"),
+  getItem("Quản đơn hàng", "sub2", <UserOutlined />, [
+    getItem("Quản lý đơn đặt hàng", "/admin/order"),
+    getItem("Xác nhận đơn hàng", "/admin/order1"),
+    getItem("Đơn hàng đã đặt", "/admin/order/checked"),
+    getItem("Đơn hàng đã huỷ", "/admin/order/cancel"),
   ]),
-  getItem("Team", "sub2", <TeamOutlined />, [
-    getItem("Team 1", "6"),
-    getItem("Team 2", "8"),
+  getItem("Quản lý hệ thống", "sub3", <TeamOutlined />, [
+    getItem("Quản lý người dùng", "/admin/setting/user"),
+    getItem("Quản lý nhân viên", "/admin/setting/employee"),
+    getItem("Quản lý vai trò", "/admin/setting/role"),
   ]),
-  getItem("Files", "9", <FileOutlined />),
+  getItem("Yêu cầu hỗ tợ", "sub4", <UserOutlined />, [
+    getItem("Yêu cầu trả hàng", "/admin/order"),
+    getItem("Yêu cầu đổi hàng", "/admin/order/checked"),
+  ]),
+  getItem("Thống kê", "/statistical", <FileOutlined />),
 ];
 
 const DefaultLayout = ({ children }) => {
