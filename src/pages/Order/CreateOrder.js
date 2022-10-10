@@ -1,25 +1,20 @@
-import { Table, Space, Select, Input, Button, Modal } from "antd";
-import React, { useState } from "react";
-import { AudioOutlined } from "@ant-design/icons";
-//select
-const { Option } = Select;
+import { Button, Tabs } from "antd";
+import React, { useRef, useState } from "react";
+import Table1 from "./Table";
 
-const handleChange = (value) => {
-  console.log(`selected ${value}`);
-};
-
+//xử lý table
 const columns = [
   {
-    title: "Name",
-    dataIndex: "name",
+    title: 'Name',
+    dataIndex: 'name',
   },
   {
-    title: "Age",
-    dataIndex: "age",
+    title: 'Age',
+    dataIndex: 'age',
   },
   {
-    title: "Address",
-    dataIndex: "address",
+    title: 'Address',
+    dataIndex: 'address',
   },
 ];
 const data = [];
@@ -33,113 +28,95 @@ for (let i = 0; i < 46; i++) {
   });
 }
 
-//xử lý search
-const { Search } = Input;
-const suffix = (
-  <AudioOutlined
-    style={{
-      fontSize: 16,
-      color: "#1890ff",
-    }}
-  />
-);
 
-const onSearch = (value) => console.log(value);
+//xử lý tab
+const defaultPanes = new Array(2).fill(null).map((_, index) => {
+  const id = String(index + 1);
+  return {
+    label: `Tab ${id}`,
+    children: <Table1/>,
+    key: id,
+  };
+});
 
 function CreateOrder() {
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [activeKey, setActiveKey] = useState(defaultPanes[0].key);
+  const [items, setItems] = useState(defaultPanes);
+  const newTabIndex = useRef(0);
 
-  const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", selectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
+  const onChange = (key) => {
+    setActiveKey(key);
   };
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-    selections: [
-      Table.SELECTION_ALL,
-      Table.SELECTION_INVERT,
-      Table.SELECTION_NONE,
+  const add = () => {
+    const newActiveKey = `newTab${newTabIndex.current++}`;
+    setItems([
+      ...items,
       {
-        key: "odd",
-        text: "Select Odd Row",
-        onSelect: (changableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return false;
-            }
-
-            return true;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
+        label: `Tab ${newTabIndex.current}`,
+        children:<Table1/>,
+        key: newActiveKey,
       },
-      {
-        key: "even",
-        text: "Select Even Row",
-        onSelect: (changableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return true;
-            }
-
-            return false;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
-      },
-    ],
+    ]);
+    setActiveKey(newActiveKey);
   };
+
+  const remove = (targetKey) => {
+    const targetIndex = items.findIndex((pane) => pane.key === targetKey);
+    const newPanes = items.filter((pane) => pane.key !== targetKey);
+
+    if (newPanes.length && targetKey === activeKey) {
+      const { key } =
+        newPanes[
+          targetIndex === newPanes.length ? targetIndex - 1 : targetIndex
+        ];
+      setActiveKey(key);
+    }
+
+    setItems(newPanes);
+  };
+
+  const onEdit = (targetKey, action) => {
+    if (action === "add") {
+      add();
+    } else {
+      remove(targetKey);
+    }
+  };
+
+
+
+
+
   return (
-    <div className="row bg-primary" style={{ borderRadius: "10px" }}>
-      <div className="col-12">
-        <div className="row">
-          <div className="col-4">
-            <label>Người đặt</label>
-            <Input placeholder="Người đặt" />
-          </div>
-          <div className="col-4">
-            <label>Hình thức nhận hàng</label>
-            <br />
-            <Select
-              defaultValue="lucy"
-              style={{
-                width: 200,
-              }}
-              onChange={handleChange}
-            >
-              <Option value="jack">Tại cửa hàng</Option>
-              <Option value="lucy">Tại nhà</Option>
-             
-            </Select>
-          </div>
-          <div className="col-4">
-            <label>Hình thức thanh toán</label>
-            <Input placeholder="Người đặt" />
-          </div>
-        </div>
+    //xử lý table
+    
+    <div
+      className="row"
+      style={{
+        borderRadius: "20px",
+        height: "auto",
+        paddingBottom: "40px",
+        border: "1px solid #d9d9d9",
+        background: "#fafafa",
+      }}
+    >
+      <div
+      className="mt-4"
+        style={{
+          marginBottom: 16,
+        }}
+      >
+        <Button onClick={add}>Thêm hoá đơn</Button>
       </div>
-      <div className="col-12 mt-2">
-        <Space direction="vertical">
-          <Search
-            placeholder="input search text"
-            onSearch={onSearch}
-            style={{
-              width: 200,
-            }}
-          />
-        </Space>
-      </div>
-      <div className="col-12 mt-2">
-        <Table
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={data}
-        />
-      </div>
+      <Tabs
+        hideAdd
+        onChange={onChange}
+        activeKey={activeKey}
+        type="editable-card"
+        onEdit={onEdit}
+        items={items}
+      />
     </div>
   );
 }

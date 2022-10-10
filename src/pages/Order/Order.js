@@ -19,6 +19,7 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 //date
 const { RangePicker } = DatePicker;
@@ -210,7 +211,10 @@ const Order = () => {
   const handleSizeChange = (e) => {
     setSize(e.target.value);
   };
+  const navigate = useNavigate();
+  const [keyOrder,setKey] = useState("/order/create")
   return (
+
     <div>
       <div
         className="row"
@@ -299,8 +303,12 @@ const Order = () => {
           <Button
             className="offset-11 "
             type="primary"
-            onClick={showModal}
+            // onClick={showModal}
             style={{ borderRadius: "10px" }}
+            onClick={() => {
+            console.log('key key')
+            navigate('create');
+          }}
           >
             <PlusOutlined /> Thêm mới
           </Button>
@@ -408,11 +416,14 @@ const Order = () => {
               setView(false);
             }}
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+           
+            Laptop G3 15 3500 : 3
+            <br/>
+            Laptop G3 15 3500 : 2
+            <br/>
+            Laptop G3 15 3500 : 1
+            <br/>
+            Laptop G3 15 3500 : 0
           </Modal>
         </div>
       </div>
