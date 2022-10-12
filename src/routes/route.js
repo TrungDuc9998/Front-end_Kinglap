@@ -5,6 +5,10 @@ import Product from "../pages/Product/Product";
 import CreateProduct from "../pages/Product/CreateProduct";
 import Order from "../pages/Order/Order";
 import Login from "../components/users/Login";
+import CreateOrder from "../pages/Order/CreateOrder";
+import ConfirmOrder from "../pages/Order/ConfirmOrder";
+import OrderSuccess from "../pages/Order/OrderSuccess";
+import OrderCancel from "../pages/Order/CancelOrder";
 // import Statistical from '../pages/Statistical'
 const publicRoutes = [
   {
@@ -30,8 +34,24 @@ const publicRoutes = [
   {
     path: "/login",
     component: Login,
-    Layout: null
+    Layout: null,
   },
+  {
+    path: "/admin/order/confirm",
+    component: ConfirmOrder,
+  },
+  {
+    path: "/admin/order/success",
+    component: OrderSuccess,
+  },
+  {
+    path: "/admin/order/cancel",
+    component: OrderCancel,
+  },
+  {
+    path: "/admin/order/create",
+    component: CreateOrder,
+  }
 ];
 
 const privateRoutes = [];

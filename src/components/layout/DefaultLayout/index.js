@@ -13,7 +13,8 @@ import {
 import { Breadcrumb, Layout, Menu } from "antd";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-const { Header, Content, Footer, Sider } = Layout;
+import {Header1} from './Header'
+const {  Header,Content, Footer, Sider } = Layout;
 function getItem(label, key, icon, children) {
   return {
     key: key,
@@ -32,8 +33,8 @@ const items = [
   ]),
   getItem("Quản đơn hàng", "sub2", <UserOutlined />, [
     getItem("Quản lý đơn đặt hàng", "/admin/order"),
-    getItem("Xác nhận đơn hàng", "/admin/order1"),
-    getItem("Đơn hàng đã đặt", "/admin/order/checked"),
+    getItem("Xác nhận đơn hàng", "/admin/order/confirm"),
+    getItem("Đơn hàng đã đặt", "/admin/order/success"),
     getItem("Đơn hàng đã huỷ", "/admin/order/cancel"),
   ]),
   getItem("Quản lý hệ thống", "sub3", <TeamOutlined />, [
@@ -53,14 +54,43 @@ const DefaultLayout = ({ children }) => {
   const navigate = useNavigate();
   return (
     <Layout
-      style={{
-        minHeight: "100vh",
-      }}
+    style={{
+      minHeight: "100vh",
+    }}
+  >
+    <Sider
+      collapsible
+      collapsed={collapsed}
+      onCollapse={(value) => setCollapsed(value)}
     >
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
+      <div className="logo">
+        <Link to={'/'}><img style={{ width: '100%' }} src={logo} /></Link>
+      </div>
+      <Menu
+        theme="dark"
+        defaultValue={[items.label]}
+        mode="inline"
+        items={items}
+        onClick={({ key }) => {
+          navigate(key);
+        }}
+      ></Menu>
+    </Sider>
+    <Layout className="site-layout">
+      <Header
+        className="site-layout-background"
+        style={{
+          padding: 0,
+          textAlign: "center"
+        }}>
+        <div className="d-flex justify-content-end me-5">
+          <Link to={'login'} className="acc"><UserSwitchOutlined className="me-2 ic" style={{ fontSize: '22px' }} />Đăng nhập</Link>
+        </div>
+      </Header>
+      <Content
+        style={{
+          margin: "0 16px",
+        }}
       >
         <div className="logo" >
           <Link to={'/'}>
@@ -80,17 +110,9 @@ const DefaultLayout = ({ children }) => {
       <Layout className="site-layout">
         <Header
           className="site-layout-background"
+        {/* <Breadcrumb
           style={{
-            padding: 0,
-            textAlign: "center"
-          }}>
-          <div className="d-flex justify-content-end me-5">
-            <Link to={'login'} className="acc"><UserSwitchOutlined className="me-2 ic" style={{ fontSize: '22px' }} />Đăng nhập</Link>
-          </div>
-        </Header>
-        <Content
-          style={{
-            margin: "0 16px",
+            margin: "16px 0",
           }}
         >
           {/* <Breadcrumb
@@ -112,14 +134,32 @@ const DefaultLayout = ({ children }) => {
           </div>
         </Content>
         {/* <Footer
+          <Breadcrumb.Item>User</Breadcrumb.Item>
+          <Breadcrumb.Item>Bill</Breadcrumb.Item>
+        </Breadcrumb> */}
+        <div
+          className="site-layout-background"
           style={{
-            textAlign: "center",
+            padding: 24,
+            minHeight: 360,
           }}
         >
           Ant Design ©2022 Created by Ant UED
         </Footer> */}
       </Layout>
     </Layout >
+          {children}
+        </div>
+      </Content>
+      {/* <Footer
+        style={{
+          textAlign: "center",
+        }}
+      >
+        Ant Design ©2022 Created by Ant UED
+      </Footer> */}
+    </Layout>
+  </Layout >
   );
 };
 
