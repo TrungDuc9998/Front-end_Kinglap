@@ -1,5 +1,4 @@
 import "../../../App.css";
-
 import "antd/dist/antd.css";
 import logo from "../../../image/4-48497_s.jpg";
 import {
@@ -12,7 +11,8 @@ import {
 import { Breadcrumb, Layout, Menu } from "antd";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-const { Header, Content, Footer, Sider } = Layout;
+import {Header1} from './Header'
+const {  Header,Content, Footer, Sider } = Layout;
 function getItem(label, key, icon, children) {
   return {
     key: key,
@@ -31,8 +31,8 @@ const items = [
   ]),
   getItem("Quản đơn hàng", "sub2", <UserOutlined />, [
     getItem("Quản lý đơn đặt hàng", "/admin/order"),
-    getItem("Xác nhận đơn hàng", "/admin/order1"),
-    getItem("Đơn hàng đã đặt", "/admin/order/checked"),
+    getItem("Xác nhận đơn hàng", "/admin/order/confirm"),
+    getItem("Đơn hàng đã đặt", "/admin/order/success"),
     getItem("Đơn hàng đã huỷ", "/admin/order/cancel"),
   ]),
   getItem("Quản lý hệ thống", "sub3", <TeamOutlined />, [
@@ -84,14 +84,6 @@ const DefaultLayout = ({ children }) => {
             margin: "0 16px",
           }}
         >
-          {/* <Breadcrumb
-            style={{
-              margin: "16px 0",
-            }}
-          >
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb> */}
           <div
             className="site-layout-background"
             style={{

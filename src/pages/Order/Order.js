@@ -1,4 +1,14 @@
-import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space } from "antd";
+import {
+  Table,
+  Slider,
+  Select,
+  Input,
+  Button,
+  Modal,
+  DatePicker,
+  Radio,
+  Space,
+} from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -9,6 +19,7 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 //date
 const { RangePicker } = DatePicker;
@@ -194,23 +205,23 @@ const Order = () => {
     setOpen(false);
   };
 
-
   //xử lý date
-  const [size, setSize] = useState('middle');
+  const [size, setSize] = useState("middle");
 
   const handleSizeChange = (e) => {
     setSize(e.target.value);
   };
+  const navigate = useNavigate();
+  const [keyOrder,setKey] = useState("/order/create")
   return (
 
-    
     <div>
       <div
         className="row"
         style={{
           borderRadius: "20px",
           height: "auto",
-          paddingBottom:"40px",
+          paddingBottom: "40px",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
@@ -292,8 +303,12 @@ const Order = () => {
           <Button
             className="offset-11 "
             type="primary"
-            onClick={showModal}
+            // onClick={showModal}
             style={{ borderRadius: "10px" }}
+            onClick={() => {
+            console.log('key key')
+            navigate('create');
+          }}
           >
             <PlusOutlined /> Thêm mới
           </Button>
@@ -303,10 +318,53 @@ const Order = () => {
             onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            width={800}
           >
             <div className="form group">
-              <label>Tên thể loại</label>
-              <Input placeholder="Tên thể loại" />
+              <div className="row">
+                <div className="col-6">
+                  <label>Tên thể loại</label>
+                  <br />
+                  <Select
+                    style={{ width: "300px", borderRadius: "5px" }}
+                    showSearch
+                    placeholder="Chọn thể loại"
+                    optionFilterProp="children"
+                    onChange={onChange}
+                    onSearch={onSearch}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    <Option value="jack">Laptop</Option>
+                    <Option value="lucy">Linh kiện</Option>
+                    <Option value="lucy1">Phụ kiện</Option>
+                  </Select>
+                </div>
+                <div className="col-6">
+                  <label>Người đặt</label>
+                  <br />
+                  <Select
+                    style={{ width: "300px", borderRadius: "5px" }}
+                    showSearch
+                    placeholder="Người đặt"
+                    optionFilterProp="children"
+                    onChange={onChange}
+                    onSearch={onSearch}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    <Option value="jack">DucNT</Option>
+                    <Option value="lucy">BangNV</Option>
+                    <Option value="lucy1">KienHT</Option>
+                  </Select>
+                </div>
+              </div>
             </div>
           </Modal>
         </div>
@@ -358,11 +416,14 @@ const Order = () => {
               setView(false);
             }}
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+           
+            Laptop G3 15 3500 : 3
+            <br/>
+            Laptop G3 15 3500 : 2
+            <br/>
+            Laptop G3 15 3500 : 1
+            <br/>
+            Laptop G3 15 3500 : 0
           </Modal>
         </div>
       </div>
