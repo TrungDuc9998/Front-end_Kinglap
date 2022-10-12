@@ -34,9 +34,7 @@ const publicRoutes = [
   {
     path: "/login",
     component: Login,
-    Layout: null
-    path: "/admin/order/create",
-    component: CreateOrder,
+    Layout: null,
   },
   {
     path: "/admin/order/confirm",
@@ -50,6 +48,10 @@ const publicRoutes = [
     path: "/admin/order/cancel",
     component: OrderCancel,
   },
+  {
+    path: "/admin/order/create",
+    component: CreateOrder,
+  }
 ];
 
 const privateRoutes = [];
