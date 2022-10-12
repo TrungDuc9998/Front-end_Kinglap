@@ -1,7 +1,7 @@
 import "../../../App.css";
-
 import "antd/dist/antd.css";
-import logo from "../../../image/4-48497_s.jpg";
+import logo from '../../../asset/images/logo_kinglap.png';
+
 import {
   DesktopOutlined,
   FileOutlined,
@@ -62,7 +62,11 @@ const DefaultLayout = ({ children }) => {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
       >
-        <div className="logo" />
+        <div className="logo" >
+          <Link to={'/'}>
+            <img src={logo} className="logo-content" />
+          </Link>
+        </div>
         <Menu
           theme="dark"
           defaultValue={[items.label]}
@@ -107,13 +111,13 @@ const DefaultLayout = ({ children }) => {
             {children}
           </div>
         </Content>
-        <Footer
+        {/* <Footer
           style={{
             textAlign: "center",
           }}
         >
           Ant Design ©2022 Created by Ant UED
-        </Footer>
+        </Footer> */}
       </Layout>
     </Layout >
   );

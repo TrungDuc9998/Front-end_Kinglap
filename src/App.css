@@ -23,7 +23,11 @@
   display: block;
   height: 120px;
   width: 100%;
-  background: url('./image/logo192.png')no-repeat;
+}
+
+.logo-content {
+  width: 100%;
+  min-height: 60%;
 }
 
 .acc:hover {
