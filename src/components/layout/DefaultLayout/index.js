@@ -92,48 +92,11 @@ const DefaultLayout = ({ children }) => {
           margin: "0 16px",
         }}
       >
-        <div className="logo" >
-          <Link to={'/'}>
-            <img src={logo} className="logo-content" />
-          </Link>
-        </div>
-        <Menu
-          theme="dark"
-          defaultValue={[items.label]}
-          mode="inline"
-          items={items}
-          onClick={({ key }) => {
-            navigate(key);
-          }}
-        ></Menu>
-      </Sider>
-      <Layout className="site-layout">
-        <Header
-          className="site-layout-background"
         {/* <Breadcrumb
           style={{
             margin: "16px 0",
           }}
         >
-          {/* <Breadcrumb
-            style={{
-              margin: "16px 0",
-            }}
-          >
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb> */}
-          <div
-            className="site-layout-background"
-            style={{
-              padding: 24,
-              minHeight: 360,
-            }}
-          >
-            {children}
-          </div>
-        </Content>
-        {/* <Footer
           <Breadcrumb.Item>User</Breadcrumb.Item>
           <Breadcrumb.Item>Bill</Breadcrumb.Item>
         </Breadcrumb> */}
@@ -144,10 +107,6 @@ const DefaultLayout = ({ children }) => {
             minHeight: 360,
           }}
         >
-          Ant Design ©2022 Created by Ant UED
-        </Footer> */}
-      </Layout>
-    </Layout >
           {children}
         </div>
       </Content>
