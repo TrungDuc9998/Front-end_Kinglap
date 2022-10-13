@@ -4,7 +4,7 @@ import Product from "../pages/Product/Product";
 // import { Children, Component } from "react";
 import CreateProduct from "../pages/Product/CreateProduct";
 import Order from "../pages/Order/Order";
-// import Login from "../components/users/Login";
+import Login from "../components/users/Login";
 import CreateOrder from "../pages/Order/CreateOrder";
 import ConfirmOrder from "../pages/Order/ConfirmOrder";
 import OrderSuccess from "../pages/Order/OrderSuccess";
@@ -30,11 +30,11 @@ const publicRoutes = [
     path: "/admin/order",
     component: Order,
   },
-  // {
-  //   path: "/login",
-  //   component: Login,
-  //   Layout: null,
-  // },
+  {
+    path: "/login",
+    component: Login,
+    Layout: null,
+  },
   {
     path: "/admin/order/confirm",
     component: ConfirmOrder,
