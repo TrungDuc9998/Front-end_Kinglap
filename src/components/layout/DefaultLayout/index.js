@@ -54,48 +54,17 @@ const DefaultLayout = ({ children }) => {
   const navigate = useNavigate();
   return (
     <Layout
-    style={{
-      minHeight: "100vh",
-    }}
-  >
-    <Sider
-      collapsible
-      collapsed={collapsed}
-      onCollapse={(value) => setCollapsed(value)}
+      style={{
+        minHeight: "100vh",
+      }}
     >
-      <div className="logo">
-        <Link to={'/'}><img style={{ width: '100%' }} src={logo} /></Link>
-      </div>
-      <Menu
-        theme="dark"
-        defaultValue={[items.label]}
-        mode="inline"
-        items={items}
-        onClick={({ key }) => {
-          navigate(key);
-        }}
-      ></Menu>
-    </Sider>
-    <Layout className="site-layout">
-      <Header
-        className="site-layout-background"
-        style={{
-          padding: 0,
-          textAlign: "center"
-        }}>
-        <div className="d-flex justify-content-end me-5">
-          <Link to={'login'} className="acc"><UserSwitchOutlined className="me-2 ic" style={{ fontSize: '22px' }} />Đăng nhập</Link>
-        </div>
-      </Header>
-      <Content
-        style={{
-          margin: "0 16px",
-        }}
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
       >
-        <div className="logo" >
-          <Link to={'/'}>
-            <img src={logo} className="logo-content" />
-          </Link>
+        <div className="logo">
+          <Link to={'/'}><img style={{ width: '100%' }} src={logo} /></Link>
         </div>
         <Menu
           theme="dark"
@@ -110,9 +79,17 @@ const DefaultLayout = ({ children }) => {
       <Layout className="site-layout">
         <Header
           className="site-layout-background"
-        {/* <Breadcrumb
           style={{
-            margin: "16px 0",
+            padding: 0,
+            textAlign: "center"
+          }}>
+          <div className="d-flex justify-content-end me-5">
+            <Link to={'login'} className="acc"><UserSwitchOutlined className="me-2 ic" style={{ fontSize: '22px' }} />Đăng nhập</Link>
+          </div>
+        </Header>
+        <Content
+          style={{
+            margin: "0 16px",
           }}
         >
           {/* <Breadcrumb
@@ -134,32 +111,14 @@ const DefaultLayout = ({ children }) => {
           </div>
         </Content>
         {/* <Footer
-          <Breadcrumb.Item>User</Breadcrumb.Item>
-          <Breadcrumb.Item>Bill</Breadcrumb.Item>
-        </Breadcrumb> */}
-        <div
-          className="site-layout-background"
           style={{
-            padding: 24,
-            minHeight: 360,
+            textAlign: "center",
           }}
         >
           Ant Design ©2022 Created by Ant UED
         </Footer> */}
       </Layout>
     </Layout >
-          {children}
-        </div>
-      </Content>
-      {/* <Footer
-        style={{
-          textAlign: "center",
-        }}
-      >
-        Ant Design ©2022 Created by Ant UED
-      </Footer> */}
-    </Layout>
-  </Layout >
   );
 };
 
