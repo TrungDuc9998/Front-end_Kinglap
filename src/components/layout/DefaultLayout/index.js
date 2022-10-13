@@ -36,7 +36,7 @@ const items = [
     getItem("Đơn hàng đã huỷ", "/admin/order/cancel"),
   ]),
   getItem("Quản lý hệ thống", "sub3", <TeamOutlined />, [
-    getItem("Quản lý người dùng", "/admin/setting/user"),
+    getItem("Quản lý người dùng", "/admin/user"),
     getItem("Quản lý nhân viên", "/admin/setting/employee"),
     getItem("Quản lý vai trò", "/admin/setting/role"),
   ]),
