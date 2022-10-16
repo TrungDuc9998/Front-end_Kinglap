@@ -1,14 +1,4 @@
-import {
-  Table,
-  Slider,
-  Select,
-  Input,
-  Button,
-  Modal,
-  DatePicker,
-  Radio,
-  Space,
-} from "antd";
+import { Table, Slider, Select, Input, Button, Modal } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -19,15 +9,12 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 const { Option } = Select;
-//date
-const { RangePicker } = DatePicker;
 
 const onDelete = (record) => {
   Modal.confirm({
     title: "Xoá thể loại",
-    content: "Bạn có muốn xoá bản ghi này không?",
+    content: "Bạn có  xoá bản ghi này không?",
   });
 };
 
@@ -37,7 +24,7 @@ const getRandomuserParams = (params) => ({
   ...params,
 });
 
-const Order = () => {
+const Configuration = () => {
   const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -45,20 +32,13 @@ const Order = () => {
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize:5,
+      pageSize: 10,
     },
   });
 
   const columns = [
     {
-      title: "Mã đơn đặt",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
-    },
-    {
-      title: "Người đặt",
+      title: "Tên thể loại",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
@@ -69,17 +49,24 @@ const Order = () => {
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
+      width: "20%",
+    },
+    {
+      title: "Người tạo",
+      dataIndex: "name",
+      sorter: true,
+      render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
     {
-      title: "Tổng tiền",
+      title: "Ngày cập nhật",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "20%",
     },
     {
-      title: "Hình thức đặt",
+      title: "Người cập nhật",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
@@ -97,10 +84,10 @@ const Order = () => {
         return (
           <>
             <div
-              className="bg-primary text-center text-light"
+              className="bg-success text-center text-light"
               style={{ width: "100px", borderRadius: "5px" }}
             >
-              Đã thanh toán
+              Hoạt động
             </div>
           </>
         );
@@ -204,50 +191,20 @@ const Order = () => {
     console.log("Clicked cancel button");
     setOpen(false);
   };
-
-  //xử lý date
-  const [size, setSize] = useState("middle");
-
-  const handleSizeChange = (e) => {
-    setSize(e.target.value);
-  };
-  const navigate = useNavigate();
-  const [keyOrder,setKey] = useState("/order/create")
   return (
-
     <div>
       <div
         className="row"
         style={{
           borderRadius: "20px",
-          height: "auto",
-          paddingBottom: "40px",
+          height: "150px",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
       >
         <div className="col-4 mt-4">
-          <label>Tên sản phẩm</label>
-          <Input placeholder="Nhập tên sản phẩm" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn thể loại"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
-          </Select>
+          <label>Từ khoá</label>
+          <Input placeholder="Nhập tên cấu hình " />
         </div>
         <div className="col-4 mt-4">
           <label>Trạng thái</label>
@@ -267,34 +224,22 @@ const Order = () => {
             <Option value="lucy">Không hoạt động</Option>
           </Select>
         </div>
-        <div className="col-6">
-          <label>Người đặt</label>
-          <Input placeholder="Tên người đặt" />
-        </div>
-        <div className="col-6 mt-4">
-          <label>Thời gian đặt: </label>
-          <Space className="mx-2" direction="vertical" size={12}>
-            <RangePicker size={"middle"} />
-          </Space>
-        </div>
         <div className="col-12 text-center ">
-          <Button
+        <Button
             className="mt-2"
             type="primary-uotline"
             // onClick={showModal}
             style={{ borderRadius: "10px" }}
           >
-            <ReloadOutlined />
-            Đặt lại
+          <ReloadOutlined/>Đặt lại
           </Button>
-          <Button
+        <Button
             className="mx-2  mt-2"
             type="primary"
             // onClick={showModal}
             style={{ borderRadius: "10px" }}
           >
-            <SearchOutlined />
-            Tìm kiếm
+          <SearchOutlined />Tìm kiếm
           </Button>
         </div>
       </div>
@@ -303,12 +248,8 @@ const Order = () => {
           <Button
             className="offset-11 "
             type="primary"
-            // onClick={showModal}
+            onClick={showModal}
             style={{ borderRadius: "10px" }}
-            onClick={() => {
-            console.log('key key')
-            navigate('create');
-          }}
           >
             <PlusOutlined /> Thêm mới
           </Button>
@@ -318,53 +259,10 @@ const Order = () => {
             onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
-            width={800}
           >
             <div className="form group">
-              <div className="row">
-                <div className="col-6">
-                  <label>Tên thể loại</label>
-                  <br />
-                  <Select
-                    style={{ width: "300px", borderRadius: "5px" }}
-                    showSearch
-                    placeholder="Chọn thể loại"
-                    optionFilterProp="children"
-                    onChange={onChange}
-                    onSearch={onSearch}
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                  >
-                    <Option value="jack">Laptop</Option>
-                    <Option value="lucy">Linh kiện</Option>
-                    <Option value="lucy1">Phụ kiện</Option>
-                  </Select>
-                </div>
-                <div className="col-6">
-                  <label>Người đặt</label>
-                  <br />
-                  <Select
-                    style={{ width: "300px", borderRadius: "5px" }}
-                    showSearch
-                    placeholder="Người đặt"
-                    optionFilterProp="children"
-                    onChange={onChange}
-                    onSearch={onSearch}
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                  >
-                    <Option value="jack">DucNT</Option>
-                    <Option value="lucy">BangNV</Option>
-                    <Option value="lucy1">KienHT</Option>
-                  </Select>
-                </div>
-              </div>
+              <label>Tên thể loại</label>
+              <Input placeholder="Tên thể loại" />
             </div>
           </Modal>
         </div>
@@ -416,14 +314,11 @@ const Order = () => {
               setView(false);
             }}
           >
-           
-            Laptop G3 15 3500 : 3
-            <br/>
-            Laptop G3 15 3500 : 2
-            <br/>
-            Laptop G3 15 3500 : 1
-            <br/>
-            Laptop G3 15 3500 : 0
+            <label>
+              Tên thể loại
+              <span className="text-danger"> *</span>
+            </label>
+            <Input placeholder="Tên thể loại" />
           </Modal>
         </div>
       </div>
@@ -431,4 +326,4 @@ const Order = () => {
   );
 };
 
-export default Order;
+export default Configuration;

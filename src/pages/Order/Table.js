@@ -60,6 +60,10 @@ const columns = [
     dataIndex: "name",
   },
   {
+    title: "Hình ảnh",
+    dataIndex: "name",
+  },
+  {
     title: "Giá tiền",
     dataIndex: "age",
   },
@@ -206,6 +210,10 @@ function Table1() {
             onSearch={(value) => console.log(value)}
           />
         </div>
+        <div className="col-4 offset-6">
+          <h3 className="text-danger">Tổng tiền: 10.000.0000 vnd</h3>
+        </div>
+        
         <div className="col-12">
           <Table
             rowSelection={rowSelection}
@@ -215,9 +223,15 @@ function Table1() {
         </div>
       </div>
       <div className="row">
-        <div className="col-12 offset-6">
-          <Button className="text-center" type="primary">
+        <div className="col-12 offset-4">
+          <Button className="text-center mx-2" type="primary-outline">
+            Huỷ bỏ
+          </Button>
+          <Button className="text-center mx-2" type="primary">
             Hoàn tất đặt hàng
+          </Button>
+          <Button className="text-center mx-2" type="danger">
+            Lưu nháp
           </Button>
         </div>
       </div>
