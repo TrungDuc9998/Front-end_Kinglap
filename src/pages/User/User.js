@@ -1,26 +1,24 @@
-import { Table, Slider, Select, Input, Button, Modal, InputNumber, Alert } from "antd";
 import {
   DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  LockOutlined,
+  EditOutlined, LockOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  UnlockOutlined
 } from "@ant-design/icons";
+import { Button, Input, Modal, Select, Table } from "antd";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
+import 'toastr/build/toastr.min.css';
+import toastrs from "toastr";
 const { Option } = Select;
 
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
+  searchUsername: params.pagination?.search1,
+  searchStatus: params.pagination?.search2,
 });
-
-const onChange = (value) => {
-  //change value input number
-  console.log("changed", value);
-};
 
 const User = () => {
   const [data, setData] = useState();
@@ -28,19 +26,22 @@ const User = () => {
   const [isEditing, setEditing] = useState(false);
   const [isDelete, setDelete] = useState(false);
   const [id, setId] = useState();
-  const [isView, setView] = useState(false);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
+      search1: '',
+      search2: '',
     },
   });
+
+  var i = 0;
 
   const columns = [
     {
       title: "Tài khoản",
       dataIndex: "username",
-      width: "55%",
+      width: "45%",
     },
     {
       title: "Trạng thái",
@@ -74,34 +75,71 @@ const User = () => {
       },
     },
     {
+      title: "Kích hoạt",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "10%",
+      render: (id, data) => {
+        if (data.status == 1) {
+          return (
+            <>
+              <UnlockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/users/close/${data.id}`, { method: "PUT" }).then(() => load());
+                  toastrs.options = {
+                    timeOut: 6000,
+                  }
+                  toastrs.success("Khóa thành công!");
+                }}
+              />
+            </>
+          );
+        } else {
+          return (
+            <>
+              <LockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/users/open/${data.id}`, { method: "PUT" }).then(() => load());
+                  toastrs.options = {
+                    timeOut: 6000
+                  }
+                  toastrs.success("Mở khóa thành công!");
+                }}
+              />
+            </>
+          );
+        }
+      },
+    },
+    {
       title: "Thao tác",
       dataIndex: "id",
+      dataIndex: "data",
       width: "20%",
-      render: (id) => {
+      render: (id, data) => {
         return (
           <>
-            <LockOutlined
-              onClick={() => {
-                onView(id);
-              }}
-            />
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
-                onEdit(id);
+                onEdit(data.id, data.username);
               }}
             />
             <DeleteOutlined
-              onClick={() => onDelete(id)}
+              onClick={() => onDelete(data.id)}
               style={{ color: "red", marginLeft: 12 }}
             />
           </>
         );
-      },
+      }
     },
   ];
 
-  const fetchData = () => {
+  const load = () => {
     setLoading(true);
     fetch(
       `http://localhost:8080/api/users?${qs.stringify(
@@ -123,15 +161,31 @@ const User = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [JSON.stringify(tableParams)]);
+    load();
+  }, []);
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
+  const handleTableChange = (pagination) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchUsername;
+    tableParams.pagination.search2 = searchStatus;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/users?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
   };
 
   const onChange = (value) => {
@@ -141,6 +195,8 @@ const User = () => {
   const onSearch = (value) => {
     console.log("search:", value);
   };
+  const [searchUsername, setSearchUsername] = useState();
+  const [searchStatus, setSearchStatus] = useState();
   const [username, setUsername] = useState();
   const [password1, setPassword1] = useState();
   const [password2, setPassword2] = useState();
@@ -150,27 +206,32 @@ const User = () => {
   const [modalText, setModalText] = useState("Content of the modal");
 
   const search = () => {
+    tableParams.pagination.search1 = searchUsername;
+    tableParams.pagination.search2 = searchStatus;
+    tableParams.pagination.current = 1;
+    setLoading(true);
     fetch(
       `http://localhost:8080/api/users?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}&searchUsername=${username}`
+      )}`
     )
       .then((res) => res.json())
       .then((results) => {
         setData(results.data.data);
         setLoading(false);
-        // setTableParams({
-        //   pagination: {
-        //     current: results.data.current_page,
-        //     pageSize: 10,
-        //     total: results.data.total,
-        //   },
-        // });
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          }
+        })
       });
   }
 
   const clearSearchForm = () => {
-    setUsername("");
+    setSearchUsername("");
+    searchStatus("");
   }
 
   const showModal = () => {
@@ -180,12 +241,41 @@ const User = () => {
   const handleOk = () => {
     if (password2 === password1) {
       fetch(
-        `http://localhost:8080/api/users`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password1, status: 1 }) }).then(() => fetchData());
-      setUsername("");
-      setPassword1("");
-      setPassword2("");
-      setOpen(false);
+        `http://localhost:8080/api/users`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, newPassword: password1, status: 1 }) }).then((res) => res.json())
+        .then((results) => {
+          toastrs.options = {
+            timeOut: 6000
+          }
+          toastrs.clear();
+          if (results.data == null) {
+            toastrs.error(results.message);
+          } else {
+            toastrs.success("Thêm mới thành công!");
+            load();
+            setUsername("");
+            setPassword3("");
+            setPassword1("");
+            setPassword2("");
+            setEditing(false);
+          }
+        });
+    } else {
+      toastrs.options = {
+        timeOut: 6000
+      }
+      toastrs.clear();
+      toastrs.error("Xác nhận tài khoản không chính xác!");
     }
+  };
+
+  const changeSearchUserName = (event) => {
+    setSearchUsername(event.target.value);
+  };
+
+
+
+  const changeSearchStatus = (value) => {
+    setSearchStatus(value);
   };
 
   const changeUsername = (event) => {
@@ -204,19 +294,15 @@ const User = () => {
     setPassword3(event.target.value);
   };
 
-  const onEdit = (id) => {
+  const onEdit = (id, username) => {
     setId(id);
     setEditing(true);
+    setUsername(username);
   };
 
   const onDelete = (id) => {
     setId(id);
-
     setDelete(true);
-  };
-
-  const onView = (id) => {
-    setView(true);
   };
 
   const handleCancel = () => {
@@ -236,24 +322,24 @@ const User = () => {
       >
         <div className="col-4 mt-3">
           <label>Từ khoá</label>
-          <Input type="text" name="username" value={username} placeholder="Nhập tên tài khoản người dùng" onChange={changeUsername} />
+          <Input type="text" name="searchUsername" value={searchUsername} placeholder="Nhập tên tài khoản người dùng" onChange={changeSearchUserName} />
         </div>
         <div className="col-4 mt-3">
           <label>Trạng thái</label>
           <br />
-          <Select
+          <Select allowClear={true}
             style={{ width: "400px", borderRadius: "5px" }}
             showSearch
             placeholder="Chọn trạng thái"
             optionFilterProp="children"
-            onChange={onChange}
+            onChange={changeSearchStatus}
             onSearch={onSearch}
             filterOption={(input, option) =>
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="0">Đang hoạt động</Option>
-            <Option value="1">Không hoạt động</Option>
+            <Option value="0">Đã khóa</Option>
+            <Option value="1">Không khóa</Option>
           </Select>
         </div>
         <div className="col-12 text-center ">
@@ -342,21 +428,48 @@ const User = () => {
               setEditing(false);
             }}
             onOk={() => {
-              if (password2 === password1) {
-                fetch(
-                  `http://localhost:8080/api/users/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password1 }) }).then(() => fetchData());
-                setUsername("");
-                setPassword1("");
-                setPassword2("");
-                setEditing(false);
+              if (password1 == null || password2 == null || password3 == null) {
+                toastrs.options = {
+                  timeOut: 6000
+                }
+                toastrs.clear();
+                toastrs.error("Vui lòng nhập đầy đủ thông tin!");
+              } else {
+                if (password2 != password1) {
+                  toastrs.options = {
+                    timeOut: 6000
+                  }
+                  toastrs.clear();
+                  toastrs.error("Nhập lại mật khẩu không chính xác!");
+                } else {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/users/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password3, newPassword: password1 }) }).then((res) => res.json())
+                    .then((results) => {
+                      toastrs.options = {
+                        timeOut: 6000
+                      }
+                      toastrs.clear();
+                      if (results.data == null) {
+                        toastrs.error(results.message);
+                      } else {
+                        toastrs.success("Cập nhật thành công!");
+                        load();
+                        setUsername("");
+                        setPassword3("");
+                        setPassword1("");
+                        setPassword2("");
+                        setEditing(false);
+                      }
+                    });
+                }
               }
             }}
           >
             <label>
               Tài khoản
-              <span className="text-danger"> *</span>
             </label>
-            <Input type="text" name="username" value={username} placeholder="Nhập tài khoản" onChange={changeUsername} />
+            <Input type="text" name="username" value={username} placeholder="Nhập tài khoản" onChange={changeUsername} disabled={true} />
             <label>
               Mật khẩu cũ
               <span className="text-danger"> *</span>
@@ -381,8 +494,13 @@ const User = () => {
             }}
             onOk={() => {
               fetch(
-                `http://localhost:8080/api/users/${id}`, { method: 'DELETE' }).then(() => fetchData());
+                `http://localhost:8080/api/users/${id}`, { method: 'DELETE' }).then(() => load());
               setDelete(false);
+              toastrs.options = {
+                timeOut: 6000
+              }
+              toastrs.clear();
+              toastrs.success("Xóa thành công!");
             }}
           >
             Bạn muốn xóa người dùng này chứ?
