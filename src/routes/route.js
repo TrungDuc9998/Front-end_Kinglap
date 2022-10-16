@@ -9,6 +9,7 @@ import CreateOrder from "../pages/Order/CreateOrder";
 import ConfirmOrder from "../pages/Order/ConfirmOrder";
 import OrderSuccess from "../pages/Order/OrderSuccess";
 import OrderCancel from "../pages/Order/CancelOrder";
+import User from "../pages/User/User";
 const publicRoutes = [
   {
     path: "/",
@@ -50,6 +51,10 @@ const publicRoutes = [
   {
     path: "/admin/order/create",
     component: CreateOrder,
+  },
+  {
+    path: "/admin/user",
+    component: User,
   }
 ];
 
