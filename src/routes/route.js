@@ -10,6 +10,8 @@ import Order from "../pages/Order/Order";
 // import OrderSuccess from "../pages/Order/OrderSuccess";
 // import OrderCancel from "../pages/Order/CancelOrder";
 // import Statistical from '../pages/Statistical'
+import User from "../pages/User/User";
+
 const publicRoutes = [
   {
     path: "/",
@@ -30,6 +32,10 @@ const publicRoutes = [
   {
     path: "/admin/order",
     component: Order,
+  },
+  {
+    path: "/admin/user",
+    component: User,
   },
   // {
   //   path: "/login",
