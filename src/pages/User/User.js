@@ -126,7 +126,7 @@ const User = () => {
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
-                onEdit(data.id, data.username);
+                onEdit(data.id, data.username, data.status);
               }}
             />
             <DeleteOutlined
@@ -198,6 +198,7 @@ const User = () => {
   const [searchUsername, setSearchUsername] = useState();
   const [searchStatus, setSearchStatus] = useState();
   const [username, setUsername] = useState();
+  const [status, setStatus] = useState();
   const [password1, setPassword1] = useState();
   const [password2, setPassword2] = useState();
   const [password3, setPassword3] = useState();
@@ -256,7 +257,7 @@ const User = () => {
             setPassword3("");
             setPassword1("");
             setPassword2("");
-            setEditing(false);
+            setOpen(false);
           }
         });
     } else {
@@ -294,10 +295,11 @@ const User = () => {
     setPassword3(event.target.value);
   };
 
-  const onEdit = (id, username) => {
+  const onEdit = (id, username, status) => {
     setId(id);
     setEditing(true);
     setUsername(username);
+    setStatus(status);
   };
 
   const onDelete = (id) => {
@@ -382,23 +384,21 @@ const User = () => {
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
           >
-            <form>
-              <label>
-                Tài khoản
-                <span className="text-danger"> *</span>
-              </label>
-              <Input type="text" name="username" value={username} placeholder="Nhập tài khoản" onChange={changeUsername} />
-              <label>
-                Mật khẩu
-                <span className="text-danger"> *</span>
-              </label>
-              <Input type="password" name="password1" value={password1} placeholder="Nhập mật khẩu" onChange={changePassword1} />
-              <label>
-                Xác nhận mật khẩu
-                <span className="text-danger"> *</span>
-              </label>
-              <Input type="password" name="password2" value={password2} placeholder="Nhập lại mật khẩu" onChange={changePassword2} />
-            </form>
+            <label>
+              Tài khoản
+              <span className="text-danger"> *</span>
+            </label>
+            <Input type="text" name="username" value={username} placeholder="Nhập tài khoản" onChange={changeUsername} />
+            <label>
+              Mật khẩu
+              <span className="text-danger"> *</span>
+            </label>
+            <Input type="password" name="password1" value={password1} placeholder="Nhập mật khẩu" onChange={changePassword1} />
+            <label>
+              Xác nhận mật khẩu
+              <span className="text-danger"> *</span>
+            </label>
+            <Input type="password" name="password2" value={password2} placeholder="Nhập lại mật khẩu" onChange={changePassword2} />
           </Modal>
         </div>
       </div>
@@ -444,7 +444,7 @@ const User = () => {
                 } else {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/users/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password3, newPassword: password1 }) }).then((res) => res.json())
+                    `http://localhost:8080/api/users/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password3, newPassword: password1, status: status }) }).then((res) => res.json())
                     .then((results) => {
                       toastrs.options = {
                         timeOut: 6000
