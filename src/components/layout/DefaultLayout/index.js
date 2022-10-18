@@ -13,8 +13,8 @@ import {
 import { Breadcrumb, Layout, Menu } from "antd";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {Header1} from './Header'
-const {  Header,Content, Footer, Sider } = Layout;
+import { Header1 } from './Header'
+const { Header, Content, Footer, Sider } = Layout;
 function getItem(label, key, icon, children) {
   return {
     key: key,
