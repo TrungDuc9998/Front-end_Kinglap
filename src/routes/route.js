@@ -10,6 +10,7 @@ import ConfirmOrder from "../pages/Order/ConfirmOrder";
 import OrderSuccess from "../pages/Order/OrderSuccess";
 import OrderCancel from "../pages/Order/CancelOrder";
 import User from "../pages/User/User";
+import Discount from "../pages/Discount";
 const publicRoutes = [
   {
     path: "/",
@@ -55,7 +56,11 @@ const publicRoutes = [
   {
     path: "/admin/user",
     component: User,
-  }
+  },
+  {
+    path: "/admin/discount",
+    component: Discount,
+  },
 ];
 
 const privateRoutes = [];

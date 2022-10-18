@@ -25,7 +25,7 @@ function getItem(label, key, icon, children) {
 }
 const items = [
   getItem("Trang chủ", "/", <PieChartOutlined />),
-  getItem("Quản lý dịch vụ", "/dichvu", <PieChartOutlined />),
+  getItem("Quản lý dịch vụ", "/admin/discount", <PieChartOutlined />),
   getItem("Quản lý sản phẩm", "sub1", <UserOutlined />, [
     getItem("Quản lý thể loại", "/admin/category"),
     getItem("Danh sách sản phẩm", "/admin/product"),
