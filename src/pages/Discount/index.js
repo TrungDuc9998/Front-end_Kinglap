@@ -178,17 +178,15 @@ const getRandomuserParams = (params) => ({
   ];
 
   //APILoadList
-  const fetchData = () => {
+  const getData = () => {
     setLoading(true);
-    fetch(
-      url+`?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
+    axios.get(url+`?${qs.stringify(
+      getRandomuserParams(tableParams)
+    )}`)
+      // .then((res) => res.json())
       .then((results ) => {
-        setData(results.data.data);
-        setTotal(results.data.total);
+        setData(results.data.data.data);
+        setTotal(results.data.data.total);
         setLoading(false);
         setTableParams({
           ...tableParams,
@@ -202,7 +200,7 @@ const getRandomuserParams = (params) => ({
 
   //LoadList
   useEffect(() => {
-    fetchData();
+    getData();
   }, [JSON.stringify(tableParams)]);
 
 
@@ -240,7 +238,7 @@ const getRandomuserParams = (params) => ({
     axios.post(url+"/draft",form)
       .then(res => {
         window.alert('Save draft success!')
-        fetchData();
+        getData();
         setValues(formDefault);
         console.log(res.data);
       })
@@ -261,7 +259,7 @@ const getRandomuserParams = (params) => ({
     axios.post(url,form)
       .then(res => {
           window.alert('Add success!')
-          fetchData();
+          getData();
           setValues(formDefault);
           console.log(res.data);
       }).catch((error)=>{
@@ -285,7 +283,7 @@ const getRandomuserParams = (params) => ({
       axios.put(url+"/"+form.id, form)
       .then(res => {
         window.alert('Edit success!')
-        fetchData();
+        getData();
         setEditing(false);
         setValues(formDefault);
         console.log(res.data);
@@ -305,7 +303,7 @@ const onDelete = (id) => {
       axios.delete(url+"/"+id)
       .then(res => {
         window.alert('Delete success!')
-        fetchData();
+        getData();
         console.log(res.data);
       }).catch((errorMessage) => {
         window.alert('Delete fail!');
@@ -328,8 +326,9 @@ const onDelete = (id) => {
   //onChange Active
   const handleChange =(e) => {
     setValues({...form,
-      active:e.value
+      active:e
     });
+    console.log("active",e);
   };
 
   const handleChangeDate =(e) => {
@@ -378,15 +377,13 @@ const onDelete = (id) => {
     tableParams.pagination.searchEndDate = searchEndDate;
     tableParams.pagination.current = 1;
     setLoading(true);
-    fetch(
-      `http://localhost:8080/api/discount?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
+    axios.get(url+`?${qs.stringify(
+      getRandomuserParams(tableParams)
+    )}`)
+      // .then((res) => res.json())
       .then((results) => {
-        setData(results.data.data);
-        setTotal(results.data.total);
+        setData(results.data.data.data);
+        setTotal(results.data.data.total);
         setLoading(false);
         setTableParams({
           ...tableParams,
@@ -419,7 +416,7 @@ const onDelete = (id) => {
     axios.put(url+"/active/"+id)
       .then(res => {
         window.alert('Active success!')
-        fetchData();
+        getData();
         console.log(res.data);
       })
   }
@@ -748,7 +745,7 @@ const onDelete = (id) => {
               <label>Trạng thái<span className="text-danger"> *</span></label>
               <br />
               <Select
-                style={{width: "472px", borderRadius: "5px" }}
+                style={{width: "472px",borderRadius: "5px" }}
                 showSearch
                 placeholder="Chọn trạng thái"
                 optionFilterProp="children"
