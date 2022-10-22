@@ -10,10 +10,14 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import { Formik, Field,Form, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
+// import { Formik, Field,Form, ErrorMessage } from 'formik';
+// import * as Yup from 'yup';
 import moment from "moment";
 import axios from "axios";
+import 'toastr/build/toastr.min.css';
+import toastrs from "toastr";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const url = 'http://localhost:8080/api/discount';
@@ -35,7 +39,7 @@ const Discount = () => {
     ratio:null,
     startDate:getDateTime(),
     endDate:getDateTime(),
-    active:null,
+    active:1,
   }
   );
   const [form, setValues] = useState({
@@ -44,7 +48,7 @@ const Discount = () => {
     ratio:null,
     startDate:getDateTime(),
     endDate:getDateTime(),
-    active:null,
+    active:1,
   }
   );
   const [totalSet, setTotal] = useState(10);
@@ -56,6 +60,31 @@ const Discount = () => {
   const [searchStartDate, setSearchStartDate] = useState(getDateTime());
   const [searchEndDate, setSearchEndDate] = useState(getDateTime());
   const [modalText, setModalText] = useState("Content of the modal");
+
+  const notifySuccess=(message)=>{
+    toast.success(message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
+  const notifyError=(message)=>{
+    toast.error(message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
 
   function getDateTime() {
     var now     = new Date(); 
@@ -124,7 +153,7 @@ const getRandomuserParams = (params) => ({
       width: "20%",
     },
     {
-      title: "Tỉ lệ",
+      title: "Tỉ lệ (%)",
       dataIndex: "ratio",
       sorter: true,
       render: (ratio) => `${ratio}`, 
@@ -264,7 +293,8 @@ const getRandomuserParams = (params) => ({
   const draft=()=>{
     axios.post(url+"/draft",form)
       .then(res => {
-        window.alert('Save draft success!')
+        notifySuccess('Lưu bản nháp thành công!')
+        setAdd(false);
         getData();
         setValues(formDefault);
         console.log(res.data);
@@ -277,22 +307,27 @@ const getRandomuserParams = (params) => ({
     setConfirmLoading(true);
     submitAdd(e);
     setTimeout(() => {
-      setAdd(false);
       setConfirmLoading(false);
     }, 2000);
   };
   function submitAdd(e) {
-    e.preventDefault();
-    axios.post(url,form)
-      .then(res => {
-          window.alert('Add success!')
-          getData();
-          setValues(formDefault);
-          console.log(res.data);
-      }).catch((error)=>{
-        window.alert('Add fail!');
-        return;
-      })
+    if(form.ratio<0||form.ratio>100){
+      notifyError('Tỉ lệ phải từ 0-100!');
+    }else{
+      e.preventDefault();
+      axios.post(url,form)
+        .then(res => {
+            notifySuccess('Thêm bản ghi thành công')
+            setAdd(false);
+            getData();
+            setValues(formDefault);
+            console.log(res.data);
+        }).catch((error)=>{
+          notifyError('Yêu cầu nhập đủ các trường!');
+          return;
+        })
+    }
+    
   }
 
   //btn Edit
@@ -301,23 +336,26 @@ const getRandomuserParams = (params) => ({
     setConfirmLoading(true);
     submitEdit(e);
     setTimeout(() => {
-      setAdd(false);
       setConfirmLoading(false);
     }, 2000);
   };
   function submitEdit(e) {
+    if(form.ratio<0||form.ratio>100){
+      notifyError('Tỉ lệ phải từ 0-100!');
+    }else{
       e.preventDefault();
       axios.put(url+"/"+form.id, form)
       .then(res => {
-        window.alert('Edit success!')
+        notifySuccess('Sửa bản ghi thành công')
         getData();
         setEditing(false);
         setValues(formDefault);
         console.log(res.data);
       }).catch((error)=>{
-        window.alert('Edit fail!');
+        notifyError('Yêu cầu nhập đủ các trường!');
         return;
       })
+    }
     
   }
 
@@ -329,11 +367,11 @@ const onDelete = (id) => {
     onOk() {
       axios.delete(url+"/"+id)
       .then(res => {
-        window.alert('Delete success!')
+        notifySuccess('Xóa bản ghi thành công!')
         getData();
         console.log(res.data);
       }).catch((errorMessage) => {
-        window.alert('Delete fail!');
+        notifyError('Chỉ xóa bản nháp!');
         return;
       })
     },
@@ -432,62 +470,73 @@ const onDelete = (id) => {
   
 
   const clearSearchForm = () => {
-    setSearchStartDate(moment(new Date(), "yyyy-MM-DD HH:mm:ss"));
-    setSearchEndDate(moment(new Date(), "yyyy-MM-DD HH:mm:ss"));
+    setSearchStartDate(getDateTime());
+    setSearchEndDate(getDateTime());
+    setTableParams({
+      ...tableParams,
+      pagination: {
+        ...tableParams.pagination.current= 1,
+        ...tableParams.pagination.pageSize=10,
+        ...tableParams.pagination.searchStartDate="",
+        ...tableParams.pagination.searchEndDate=""
+      }
+    });
+    getData();
   }
-  const activeItem = id => {
-    let activeItem = window.confirm('Active item?')
+  const activeItem = (id) => {
+    let activeItem = window.confirm('Chuyển trạng thái thành hoạt động?')
     if(activeItem){
       handleConfirmActive(id)
     }
   }
-  function handleConfirmActive(id) {
+  const handleConfirmActive=(id) =>{
     axios.put(url+"/active/"+id)
       .then(res => {
-        window.alert('Active success!')
+        notifySuccess('Chuyển trạng thái hoạt động thành công!')
         getData();
         console.log(res.data);
-      })
+      }
+      )
   }
 
-  const validationSchema=Yup.object({
-    name: Yup.string()
-    .max(15, 'Must be 15 characters or less')
-    .required('Name is required'),
-    ratio: Yup.number().min(0,"Giá trị thấp nhất là 0").required("Không được để trống").nullable(),
-    startDate: Yup.date()
-    .transform(function transformDate(castValue, originalValue) {
-      return originalValue ? new Date(originalValue) : castValue;
-    })
-    .typeError("Thời gian không đúng định dạng")
-    .required("Không được để trống")
-    .nullable(),
-    endDate: Yup.date()
-    .test(
-      "is-greater-time",
-      "Thời gian kết thúc phải lớn hơn thời gian bắt đầu",
-      function (value) {
-        const { discount } = this.data;
-        if (discount && value) {
-          let startDate = moment(discount?.startDate).format("dd-MM-yyyy HH:mm:ss");
-          let endDate = moment(discount?.endDate).format("dd-MM-yyyy HH:mm:ss");
-          if (startDate <= endDate) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-        return true;
-      }
-    )
-    .transform(function transformDate(castValue, originalValue) {
-      return originalValue ? new Date(originalValue) : castValue;
-    })
-    .typeError("Thời gian không đúng định dạng")
-    .required("Không được để trống")
-    .nullable(),
+  // const validationSchema=Yup.object({
+  //   name: Yup.string()
+  //   .max(15, 'Must be 15 characters or less')
+  //   .required('Name is required'),
+  //   ratio: Yup.number().min(0,"Giá trị thấp nhất là 0").required("Không được để trống").nullable(),
+  //   startDate: Yup.date()
+  //   .transform(function transformDate(castValue, originalValue) {
+  //     return originalValue ? new Date(originalValue) : castValue;
+  //   })
+  //   .typeError("Thời gian không đúng định dạng")
+  //   .required("Không được để trống")
+  //   .nullable(),
+  //   endDate: Yup.date()
+  //   .test(
+  //     "is-greater-time",
+  //     "Thời gian kết thúc phải lớn hơn thời gian bắt đầu",
+  //     function (value) {
+  //       const { discount } = this.data;
+  //       if (discount && value) {
+  //         let startDate = moment(discount?.startDate).format("dd-MM-yyyy HH:mm:ss");
+  //         let endDate = moment(discount?.endDate).format("dd-MM-yyyy HH:mm:ss");
+  //         if (startDate <= endDate) {
+  //           return true;
+  //         } else {
+  //           return false;
+  //         }
+  //       }
+  //       return true;
+  //     }
+  //   )
+  //   .transform(function transformDate(castValue, originalValue) {
+  //     return originalValue ? new Date(originalValue) : castValue;
+  //   })
+  //   .typeError("Thời gian không đúng định dạng")
+  //   .required("Không được để trống")
+  //   .nullable(),
 
-    })
+  //   })
   return (
     <div>
       {/* <div
@@ -598,19 +647,19 @@ const onDelete = (id) => {
       </div> */}
 
 
-        
+      <ToastContainer />
       <div className="row">
         <div className="col-12 mt-4">
-          {/* Add */}
-          <Button
-            className="offset-12 "
-            type="primary"
-            onClick={showModalAdd}
-            style={{ borderRadius: "10px" }}
+          <div
+            className="row"
+            style={{
+              borderRadius: "20px",
+              height: "150px",
+              border: "1px solid #d9d9d9",
+              background: "#fafafa",
+            }}
           >
-            <PlusOutlined /> Thêm mới
-          </Button>
-          <div className="col-4 mt-3">
+            <div className="col-4 mt-3">
             <label>Từ khoá</label>
             <Space direction="vertical" size={12} style={{width: "472px",borderRadius: "5px" }}>
                 <RangePicker
@@ -622,91 +671,109 @@ const onDelete = (id) => {
                 type="datetime"
                 />
               </Space>
-            {/* <Input type="text" name="searchStartDate" value={searchStartDate} placeholder="Nhập ngày bắt đầu" onChange={changeSearchStartDate} />
-            <Input type="text" name="searchEndDate" value={searchEndDate} placeholder="Nhập ngày kết thúc" onChange={changeSearchEndDate} /> */}
-          </div>
-          <Button
-            className="mx-2  mt-2"
-            type="primary"
-            onClick={search}
-            style={{ borderRadius: "10px" }}
-          >
-            <SearchOutlined />
-            Tìm kiếm
-          </Button>
-          <Button
-            className="mt-2"
-            type="primary-uotline"
-            onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
-          >
-            <ReloadOutlined />
-            Đặt lại
-          </Button>
-          <Modal
-            title="Tạo mới"
-            open={isAdd}
-            onOk={handleAdd}
-            confirmLoading={confirmLoading}
-            onCancel={handleCancel}
-          >
-            <div className="form group">
-              <div className="row">
-            <div className="col-12 mt-4">
-              <label>Tiêu đề<span className="text-danger"> *</span></label>
-              <br></br>
-              <Input placeholder="Nhập tiêu đề" 
-              onChange={(e) => handle(e)} name="name" value={form.name} type="text"/>
             </div>
-            <div className="col-12 mt-4">
-              <label>Tỉ lệ<span className="text-danger"> *</span></label>
-              <br></br>
-              <Input placeholder="Nhập tỉ lệ" 
-              onChange={(e) => handle(e)} name="ratio" value={form.ratio} type="number" min="0" max="100"/>
-            </div>
-            <div className="col-12 mt-4">
-              <label>Thời gian giảm giá<span className="text-danger"> *</span></label>
-              <br></br>
-              <Space direction="vertical" size={12} style={{width: "472px",borderRadius: "5px" }}>
-                <RangePicker
-                showTime={{ format: 'HH:mm:ss' }}
-                format={"yyyy-MM-DD HH:mm:ss"}
-                onChange={handleChangeDate} 
-                onCalendarChange={setDates}
-                value={[moment(form.startDate, "yyyy-MM-DD HH:mm:ss"), moment(form.endDate, "yyyy-MM-DD HH:mm:ss")]}
-                type="datetime"
-                />
-              </Space>
-            </div>
-            <div className="col-12 mt-4">
-              <label>Trạng thái<span className="text-danger"> *</span></label>
-              <br />
-              <Select
-                style={{width: "472px",borderRadius: "5px" }}
-                showSearch
-                placeholder="Chọn trạng thái"
-                optionFilterProp="children"
-                onChange={(e) => handleChange(e)} name="active" value={form.active}
-                // onSearch={onSearch}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-              >
-                <Option value={1}>Hoạt động</Option>
-                <Option value={0}>Không hoạt động</Option>
-              </Select>
-            </div>
-          </div>
-          <Button
-              className="mt-2"
-              onClick={() => draft()}
+            
+            <div className="col-12 text-center ">
+            <Button
+              className="mx-2  mt-2"
+              type="primary"
+              onClick={search}
               style={{ borderRadius: "10px" }}
             >
-            <ReloadOutlined />
-            Nháp
-          </Button>
+              <SearchOutlined />
+              Tìm kiếm
+            </Button>
+            <Button
+              className="mt-2"
+              type="primary-uotline"
+              onClick={clearSearchForm}
+              style={{ borderRadius: "10px" }}
+            >
+              <ReloadOutlined />
+              Đặt lại
+            </Button>
+              
             </div>
-          </Modal>
+          </div>
+
+          {/* Add */}
+          <div className="row">
+            <div className="col-12 mt-4">
+              <Button
+                className="offset-11 "
+                type="primary"
+                onClick={showModalAdd}
+                style={{ borderRadius: "10px" }}
+              >
+                <PlusOutlined />
+                Thêm mới
+              </Button>
+
+              <Modal
+                title="Tạo mới"
+                visible={isAdd}
+                onOk={handleAdd}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancel}
+              >
+                <div className="form group">
+                  <div className="row">
+                <div className="col-12 mt-1">
+                  <label>Tiêu đề<span className="text-danger"> *</span></label>
+                  <Input placeholder="Nhập tiêu đề" 
+                  onChange={(e) => handle(e)} name="name" value={form.name} type="text"/>
+                </div>
+                <div className="col-12 mt-1">
+                  <label>Tỉ lệ (%)<span className="text-danger"> *</span></label>
+                  <Input placeholder="Nhập tỉ lệ" 
+                  onChange={(e) => handle(e)} name="ratio" value={form.ratio} type="number" min="0" max="100"/>
+                </div>
+                <div className="col-12 mt-1">
+                  <label>Thời gian giảm giá<span className="text-danger"> *</span></label>
+                  <Space direction="vertical" size={12} style={{width: "472px",borderRadius: "5px" }}>
+                    <RangePicker
+                    showTime={{ format: 'HH:mm:ss' }}
+                    format={"yyyy-MM-DD HH:mm:ss"}
+                    onChange={handleChangeDate} 
+                    onCalendarChange={setDates}
+                    value={[moment(form.startDate, "yyyy-MM-DD HH:mm:ss"), moment(form.endDate, "yyyy-MM-DD HH:mm:ss")]}
+                    type="datetime"
+                    />
+                  </Space>
+                </div>
+                <div className="col-12 mt-1">
+                  <label>Trạng thái<span className="text-danger"> *</span></label>
+                  <Select
+                    style={{width: "472px",borderRadius: "5px" }}
+                    showSearch
+                    placeholder="Chọn trạng thái"
+                    optionFilterProp="children"
+                    onChange={(e) => handleChange(e)} name="active" value={form.active}
+                    // onSearch={onSearch}
+                    filterOption={(input, option) =>
+                      option.children.toLowerCase().includes(input.toLowerCase())
+                    }
+                  >
+                    <Option value={1}>Hoạt động</Option>
+                    <Option value={0}>Không hoạt động</Option>
+                  </Select>
+                </div>
+              </div>
+              <Button
+                  className="mt-2"
+                  onClick={() => draft()}
+                  style={{ borderRadius: "10px" }}
+                >
+                <ReloadOutlined />
+                Nháp
+              </Button>
+                </div>
+              </Modal>
+            </div>
+          </div>
+
+
+          
         </div>
       </div>
 
@@ -740,21 +807,18 @@ const onDelete = (id) => {
           >
             <div className="form group">
               <div className="row">
-            <div className="col-12 mt-4">
+            <div className="col-12 mt-1">
               <label>Tiêu đề<span className="text-danger"> *</span></label>
-              <br></br>
               <Input placeholder="Nhập tiêu đề" 
               onChange={(e) => handle(e)} name="name" value={form.name} type="text"/>
             </div>
-            <div className="col-12 mt-4">
-              <label>Tỉ lệ<span className="text-danger"> *</span></label>
-              <br></br>
+            <div className="col-12 mt-1">
+              <label>Tỉ lệ (%)<span className="text-danger"> *</span></label>
               <Input placeholder="Nhập tỉ lệ" 
               onChange={(e) => handle(e)} name="ratio" value={form.ratio} type="number" min="0" max="100"/>
             </div>
-            <div className="col-12 mt-4">
+            <div className="col-12 mt-1">
               <label>Thời gian giảm giá<span className="text-danger"> *</span></label>
-              <br></br>
               <Space direction="vertical" size={12} style={{width: "472px",borderRadius: "5px" }}>
                 <RangePicker
                 showTime={{ format: 'HH:mm:ss' }}
@@ -766,9 +830,8 @@ const onDelete = (id) => {
                 />
               </Space>
             </div>
-            <div className="col-12 mt-4">
+            <div className="col-12 mt-1">
               <label>Trạng thái<span className="text-danger"> *</span></label>
-              <br />
               <Select
                 style={{width: "472px",borderRadius: "5px" }}
                 showSearch
