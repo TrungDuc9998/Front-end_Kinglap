@@ -28,8 +28,8 @@ const handleChange = (value) => {
 function CreateProduct() {
   const [imageUpload, setImageUpload] = useState(null);
   const [imageUrls, setImageUrls] = useState([]);
-  const [images, setImages] = useState([{name: ""}]);
-  const [image,SetImage] = useState();
+  const [images, setImages] = useState([{ name: "" }]);
+  const [image, SetImage] = useState();
   const imagesListRef = ref(storage, "images/");
   const uploadFile = () => {
     if (imageUpload == null) return;
@@ -42,10 +42,8 @@ function CreateProduct() {
       console.log(imageRef.fullPath);
       console.log(imageRef.fullPath.slice(7));
       const img1 = imageRef.fullPath.slice(7);
-      images.push(
-        name = img1
-      )
-      setImages((prev) => [...prev,img]);
+      images.push((name = img1));
+      setImages((prev) => [...prev, img]);
       // setImages(imageRef.fullPath.slice(7));
       alert("upload image success");
     });
@@ -60,9 +58,7 @@ function CreateProduct() {
       });
     });
     console.log("--------------- ảnh ------------");
-    images.forEach((image) => (
-      console.log(image)
-    ))
+    images.forEach((image) => console.log(image));
   }, []);
   //xử lý hình ảnh
   const [screenSize, setScreenSize] = useState();
@@ -78,7 +74,7 @@ function CreateProduct() {
   const [debut, setDebut] = useState();
   const [origin, setOrigin] = useState();
   const [imei, setImei] = useState();
-  const [security, setSecurity] = useState();
+  const [secutity, setSecutity] = useState();
   const [hard_drive, setHardDrive] = useState();
   const [screen, setScreen] = useState();
   const [win, setWin] = useState();
@@ -173,7 +169,7 @@ function CreateProduct() {
   useEffect(() => {
     loadDataCategory();
     loadDataManufacture();
-    console.log('image sau khi upload')
+    console.log("image sau khi upload");
     console.log(images);
   }, []);
 
@@ -192,13 +188,12 @@ function CreateProduct() {
       origin,
       categoryId,
       manufactureId,
-      images:images,
       configurationEntity: {
         processor,
         ram,
         slot,
         battery,
-        security,
+        secutity,
         screen: screenSize + " " + resolution + " " + frequency,
         optical,
         hard_drive,
@@ -210,32 +205,31 @@ function CreateProduct() {
     fetch("http://localhost:8080/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      // body: JSON.stringify({
-      //   name: "Laptop G3 3500 i12576",
-      //   quantity: 12,
-      //   price: 1.2e7,
-      //   imei: "123",
-      //   weight: 12,
-      //   size: 12,
-      //   debut: "09/2021",
-      //   p_n: "90099",
-      //   origin: "Laptop Lenovo IdeaPad 5 Pro 16ACH6 82L500F5US",
-      //   categoryId: "1",
-      //   manufactureId: "1",
-      //   images: images,
-      //   configurationEntity: {
-      //     processor: "5",
-      //     ram: "3",
-      //     slot: "2",
-      //     battery: "1",
-      //     secutity: "bé cường",
-      //     screen: "2",
-      //     optical: "3",
-      //     hard_drive:"",
-      //     win: "capacity",
-      //     capacity: "capacity"
-      // }
-      // }),
+      body: JSON.stringify({
+        name: product.name,
+        quantity: product.quantity,
+        price: product.price,
+        imei: product.imei,
+        weight: product.weight,
+        size: product.size,
+        debut: product.debut,
+        p_n: product.p_n,
+        origin: product.origin,
+        categoryId: categoryId,
+        manufactureId: manufactureId,
+        configurationEntity: {
+          processor: product.configurationEntity.processor,
+          ram: product.configurationEntity.ram,
+          slot : product.configurationEntity.slot,
+          battery: product.configurationEntity.battery,
+          secutity: product.configurationEntity.secutity,
+          screen: product.configurationEntity.screen,
+          optical: product.configurationEntity.optical,
+          hard_drive: product.configurationEntity.hard_drive,
+          win: product.configurationEntity.win,
+          capacity: product.configurationEntity.capacity
+        },
+      }),
     }).then((res) => {
       res.json();
       notify();
@@ -454,8 +448,8 @@ function CreateProduct() {
             <label>Bảo mật công nghệ</label>
             <Input
               placeholder="Bảo mật công nghệ"
-              value={security}
-              onChange={(e) => setSecurity(e.target.value)}
+              value={secutity}
+              onChange={(e) => setSecutity(e.target.value)}
             />
           </div>
           <div className="col-4">
@@ -633,12 +627,12 @@ function CreateProduct() {
         </div>
       </div>
       <div className="row">
-        <input
+        {/* <input
           type="file"
           onChange={(event) => {
             setImageUpload(event.target.files[0]);
           }}
-        />
+        /> */}
         {/* <button onClick={uploadFile}> Upload Image</button> */}
         {/* {imageUrls.map((url,index) => {
           return <img key={index} src={url} />;
