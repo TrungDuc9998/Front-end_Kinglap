@@ -460,7 +460,10 @@ import qs from "qs";
 import React, { useEffect, useState } from "react";
 import 'toastr/build/toastr.min.css';
 import toastrs from "toastr";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const { Option } = Select;
+
 
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -528,6 +531,65 @@ const Category = () => {
               >
                 Không hoạt động
               </div>
+            </>
+          );
+        }
+      },
+    },
+    {
+      title: "Kích hoạt",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "10%",
+      render: (id, data) => {
+        if (data.status == "ACTIVE") {
+          return (
+            <>
+              <UnlockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/category/close/${data.id}`, { method: "PUT" }).then(() => load());
+                  toastrs.options = {
+                    timeOut: 6000,
+                  }
+                  toast.success('Khóa thành công!', {
+                    position: "top-right",
+                    autoClose: 1000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                }}
+              />
+            </>
+          );
+        } else if (data.status == "INACTIVE") {
+          return (
+            <>
+              <LockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/category/open/${data.id}`, { method: "PUT" }).then(() => load());
+                  toastrs.options = {
+                    timeOut: 6000
+                  }
+                  toast.success('Mở khóa thành công!', {
+                    position: "top-right",
+                    autoClose: 1000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                }}
+              />
             </>
           );
         }
@@ -645,9 +707,9 @@ const Category = () => {
   }
 
   const clearSearchForm = () => {
+    load();
     setSearchName("");
     searchStatus("");
-    load();
   }
 
   const showModal = () => {
@@ -656,7 +718,7 @@ const Category = () => {
 
   const handleOk = () => {
     fetch(
-      `http://localhost:8080/api/category`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, updatedAt: Date, status: 1 }) }).then((res) => res.json())
+      `http://localhost:8080/api/category`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, status: 1 }) }).then((res) => res.json())
       .then((results) => {
         toastrs.options = {
           timeOut: 6000
@@ -665,7 +727,16 @@ const Category = () => {
         if (results.data == null) {
           toastrs.error(results.message);
         } else {
-          toastrs.success("Thêm mới thành công!");
+          toast.success('Thêm mới thành công!', {
+            position: "top-right",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
           load();
           setName("");
           setEditing(false);
@@ -766,6 +837,7 @@ const Category = () => {
             <a href="/product/create"></a>
             <PlusOutlined />
             Thêm mới
+            <ToastContainer />
           </Button>
           <Modal
             title="Tạo mới"
@@ -821,7 +893,16 @@ const Category = () => {
                   if (results.data == null) {
                     toastrs.error(results.message);
                   } else {
-                    toastrs.success("Cập nhật thành công!");
+                    toast.success('Cập nhật thành công!', {
+                      position: "top-right",
+                      autoClose: 1000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      theme: "light",
+                    });
                     load();
                     setName("");
                     setEditing(false);
@@ -849,7 +930,16 @@ const Category = () => {
                 timeOut: 6000
               }
               toastrs.clear();
-              toastrs.success("Xóa thành công danh mục!");
+              toast.success('Xóa danh mục thành công!', {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
             }}
           >
             Bạn muốn xóa danh mục này chứ?
