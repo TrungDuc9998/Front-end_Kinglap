@@ -6,11 +6,11 @@ import {
   SearchOutlined,
   UnlockOutlined
 } from "@ant-design/icons";
-import { Button, Input, Modal, Select, Table } from "antd";
+import { Button, Input, message, Modal, Select, Table } from "antd";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import 'toastr/build/toastr.min.css';
-import toastrs from "toastr";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const { Option } = Select;
 
 const getRandomuserParams = (params) => ({
@@ -19,6 +19,32 @@ const getRandomuserParams = (params) => ({
   searchUsername: params.pagination?.search1,
   searchStatus: params.pagination?.search2,
 });
+
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  })
+};
+
+const toastError = (message) => {
+  toast.error(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+}
 
 const User = () => {
   const [data, setData] = useState();
@@ -83,15 +109,13 @@ const User = () => {
         if (data.status == 1) {
           return (
             <>
+              <ToastContainer></ToastContainer>
               <UnlockOutlined
                 onClick={() => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/users/close/${data.id}`, { method: "PUT" }).then(() => load());
-                  toastrs.options = {
-                    timeOut: 6000,
-                  }
-                  toastrs.success("Khóa thành công!");
+                  toastSuccess("Khóa thành công!");
                 }}
               />
             </>
@@ -99,15 +123,13 @@ const User = () => {
         } else {
           return (
             <>
+              <ToastContainer></ToastContainer>
               <LockOutlined
                 onClick={() => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/users/open/${data.id}`, { method: "PUT" }).then(() => load());
-                  toastrs.options = {
-                    timeOut: 6000
-                  }
-                  toastrs.success("Mở khóa thành công!");
+                  toastSuccess("Mở khóa thành công!");
                 }}
               />
             </>
@@ -244,14 +266,10 @@ const User = () => {
       fetch(
         `http://localhost:8080/api/users`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, newPassword: password1, status: 1 }) }).then((res) => res.json())
         .then((results) => {
-          toastrs.options = {
-            timeOut: 6000
-          }
-          toastrs.clear();
           if (results.data == null) {
-            toastrs.error(results.message);
+            toastError(results.message);
           } else {
-            toastrs.success("Thêm mới thành công!");
+            toastSuccess("Thêm mới thành công!");
             load();
             setUsername("");
             setPassword3("");
@@ -261,11 +279,7 @@ const User = () => {
           }
         });
     } else {
-      toastrs.options = {
-        timeOut: 6000
-      }
-      toastrs.clear();
-      toastrs.error("Xác nhận tài khoản không chính xác!");
+      toastError("Xác nhận tài khoản không chính xác!");
     }
   };
 
@@ -429,31 +443,19 @@ const User = () => {
             }}
             onOk={() => {
               if (password1 == null || password2 == null || password3 == null) {
-                toastrs.options = {
-                  timeOut: 6000
-                }
-                toastrs.clear();
-                toastrs.error("Vui lòng nhập đầy đủ thông tin!");
+                toastError("Vui lòng nhập đầy đủ thông tin!")
               } else {
                 if (password2 != password1) {
-                  toastrs.options = {
-                    timeOut: 6000
-                  }
-                  toastrs.clear();
-                  toastrs.error("Nhập lại mật khẩu không chính xác!");
+                  toastError("Nhập lại mật khẩu không chính xác!");
                 } else {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/users/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password3, newPassword: password1, status: status }) }).then((res) => res.json())
                     .then((results) => {
-                      toastrs.options = {
-                        timeOut: 6000
-                      }
-                      toastrs.clear();
                       if (results.data == null) {
-                        toastrs.error(results.message);
+                        toastError(results.message);
                       } else {
-                        toastrs.success("Cập nhật thành công!");
+                        toastSuccess("Cập nhật thành công!");
                         load();
                         setUsername("");
                         setPassword3("");
@@ -496,11 +498,7 @@ const User = () => {
               fetch(
                 `http://localhost:8080/api/users/${id}`, { method: 'DELETE' }).then(() => load());
               setDelete(false);
-              toastrs.options = {
-                timeOut: 6000
-              }
-              toastrs.clear();
-              toastrs.success("Xóa thành công!");
+              toastSuccess("Xóa thành công!")
             }}
           >
             Bạn muốn xóa người dùng này chứ?
