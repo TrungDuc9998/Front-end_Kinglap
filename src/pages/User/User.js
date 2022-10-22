@@ -264,7 +264,16 @@ const User = () => {
   const handleOk = () => {
     if (password2 === password1) {
       fetch(
-        `http://localhost:8080/api/users`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, newPassword: password1, status: 1 }) }).then((res) => res.json())
+        `http://localhost:8080/api/users`,
+         { 
+            method: "POST", 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ 
+            username: username,
+            newPassword: password1, 
+            status: 1 }) }
+        )
+        .then((res) => res.json())
         .then((results) => {
           if (results.data == null) {
             toastError(results.message);
