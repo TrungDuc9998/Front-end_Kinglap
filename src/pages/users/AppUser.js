@@ -1,4 +1,5 @@
 import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "../../components/layout/users/Footer";
 import Menu from "../../components/layout/users/menu";
 import Navbar from "../../components/layout/users/Navbar";
@@ -10,7 +11,6 @@ function AppUser() {
         <>
             <Menu />
             <Navbar />
-            <HomeUser></HomeUser>
             <Newletter />
             <Footer />
         </>

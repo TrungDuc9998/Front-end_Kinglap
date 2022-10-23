@@ -5,6 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import 'antd/dist/antd.css';
 import { Fragment } from "react";
+import AppUser from "./pages/users/AppUser";
+import { Menu } from "react-feather";
 function App() {
   return (
     <Router>
@@ -19,6 +21,8 @@ function App() {
               </Layout>
             } />
           })}
+
+          <Route path="user" element={<AppUser></AppUser>}></Route>
         </Routes>
       </div>
     </Router>

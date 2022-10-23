@@ -4,7 +4,7 @@ import { Phone, Mail, MapPin } from 'react-feather';
 import { Link } from "react-router-dom";
 function Footer() {
     return (<>
-        <footer id="footer-user">
+        <footer id=" ">
             <div class="section">
                 <div class="container">
                     <div class="row">
