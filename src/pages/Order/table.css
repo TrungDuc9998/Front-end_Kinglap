@@ -1,0 +1,17 @@
+.btn-submit {
+    text-align: center;
+}
+
+.title {
+    text-align: center;
+}
+
+.btn-search {
+    height: 38px;
+    position: relative;
+}
+
+.timk {
+    position: absolute;
+    right: 2%;
+}

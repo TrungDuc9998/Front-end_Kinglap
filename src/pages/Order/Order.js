@@ -17,6 +17,7 @@ import {
   ReloadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
+import '../Order/order.css';
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";

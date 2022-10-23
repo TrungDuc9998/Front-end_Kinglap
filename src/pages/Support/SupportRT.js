@@ -1,4 +1,15 @@
-import { Table, Slider, Select, Input, Button, Modal, InputNumber } from "antd";
+import {
+  Table,
+  Slider,
+  Select,
+  Input,
+  Button,
+  Modal,
+  DatePicker,
+  Radio,
+  Space,
+} from "antd";
+import logo from '../../asset/images/logo_kinglap.png';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -9,8 +20,10 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import productService from '../../services/product.service'
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
+//date
+const { RangePicker } = DatePicker;
 
 const onDelete = (record) => {
   Modal.confirm({
@@ -24,36 +37,8 @@ const getRandomuserParams = (params) => ({
   page: params.pagination?.current,
   ...params,
 });
-const onChange = (value) => {
-  //change value input number
-  console.log("changed", value);
-};
 
-const Product = () => {
-
-
-  const [employees, setEmployees] = useState([]);
-
-  const init = () => {
-    productService.getAll()
-      .then(response => {
-        console.log('Printing employees data', response.data);
-        setEmployees(response.data);
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.log('Something went wrong', error);
-      })
-  }
-
-  useEffect(() => {
-    init();
-  }, []);
-
-
-
-
-
+const SupportRT = () => {
   const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -67,33 +52,19 @@ const Product = () => {
 
   const columns = [
     {
-      title: "Mã sản phẩm",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
-    },
-    {
-      title: "Đơn giá",
+      title: "Mã đơn đặt",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
-    // {
-    //   title: "Loại sản phẩm",
-    //   dataIndex: "name",
-    //   sorter: true,
-    //   render: (name) => `${name.first} ${name.last}`,
-    //   width: "20%",
-    // },
+    {
+      title: "Người đặt",
+      dataIndex: "name",
+      sorter: true,
+      render: (name) => `${name.first} ${name.last}`,
+      width: "15%",
+    },
     {
       title: "Ngày tạo",
       dataIndex: "name",
@@ -102,28 +73,52 @@ const Product = () => {
       width: "15%",
     },
     {
-      title: "Người tạo",
+      title: "Hình thức đặt",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
     {
-      title: "Ngày cập nhật",
-      dataIndex: "email",
+      title: "Tổng tiền",
+      dataIndex: "name",
+      sorter: true,
+      render: (name) => `${name.first} ${name.last}`,
+      width: "15%",
     },
     {
-      title: "Loại sản phẩm",
-      dataIndex: "Trạng thái",
-      with: "30%",
+      title: "Nội dung",
+      dataIndex: "name",
+      sorter: true,
       render: (record) => {
         return (
           <>
             <div
-              className="bg-success text-center text-light"
+              className="bg-primary text-center text-light"
+              style={{ width: "100px", borderRadius: "5px" }}
+              onClick={() => {
+                onView(record);
+              }}
+            >
+              Chi tiết
+            </div>
+          </>
+        );
+      },
+      width: "10%",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "Trạng thái",
+      width: "10%",
+      render: (record) => {
+        return (
+          <>
+            <div
+              className="bg-primary text-center text-light"
               style={{ width: "100px", borderRadius: "5px" }}
             >
-              Laptop
+              Trả hàng
             </div>
           </>
         );
@@ -132,13 +127,14 @@ const Product = () => {
     {
       title: "Thao tác",
       dataIndex: "Thao tác",
-      width: "30%",
+      width: "15%",
       render: (record) => {
         return (
           <>
             <EyeOutlined
               onClick={() => {
-                onView(record);
+                console.log('key key')
+                navigate('detail');
               }}
             />
             <EditOutlined
@@ -146,10 +142,6 @@ const Product = () => {
               onClick={() => {
                 onEdit(record);
               }}
-            />
-            <DeleteOutlined
-              onClick={() => onDelete(record)}
-              style={{ color: "red", marginLeft: 12 }}
             />
           </>
         );
@@ -228,69 +220,38 @@ const Product = () => {
     setOpen(false);
   };
 
-  const marks = {
-    0: "0đ",
-    40: "20.000.000đ",
-    80: "40.000.000đ",
-    100: {
-      style: {
-        color: "#f50",
-      },
-      label: <strong>60.000.000đ</strong>,
-    },
-  };
+  //xử lý date
+  const [size, setSize] = useState("middle");
 
+  const handleSizeChange = (e) => {
+    setSize(e.target.value);
+  };
+  const navigate = useNavigate();
+  const [keyOrder, setKey] = useState("/order/create")
   return (
+
     <div>
       <div
         className="row"
         style={{
           borderRadius: "20px",
-          height: "250px",
+          height: "auto",
+          paddingBottom: "40px",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
       >
-        <div className="col-12">
-          <div className="row">
-            <div className="col-12 text-center mt-3">
-              Đơn giá:
-              <InputNumber
-                min={1}
-                max={10}
-                defaultValue={3}
-                onChange={onChange}
-              />
-              --{" "}
-              <InputNumber
-                min={1}
-                max={10}
-                defaultValue={3}
-                onChange={onChange}
-              />
-            </div>
-          </div>
-          <div className="col-12 text-center">
-            <Slider
-
-              range
-              marks={marks}
-              style={{ width: "900px", marginLeft: "200px" }}
-              defaultValue={[0, 100]}
-            />
-          </div>
+        <div className="col-6 mt-4">
+          <label>Mã đơn hàng</label>
+          <Input placeholder="Nhập mã đơn hàng" />
         </div>
-        <div className="col-4 mt-3">
-          <label>Từ khoá</label>
-          <Input placeholder="Nhập tên, mã hoặc giá" />
-        </div>
-        <div className="col-4 mt-3">
-          <label>Loại sản phẩm</label>
+        <div className="col-6 mt-4">
+          <label>Trạng thái</label>
           <br />
           <Select
-            style={{ width: "300px", borderRadius: "5px" }}
+            style={{ width: "500px", borderRadius: "5px" }}
             showSearch
-            placeholder="Loại sản phẩm"
+            placeholder="Chọn trạng thái"
             optionFilterProp="children"
             onChange={onChange}
             onSearch={onSearch}
@@ -298,10 +259,19 @@ const Product = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
+            <Option value="jack">Xác nhận</Option>
+            <Option value="lucy">Chờ xác nhận</Option>
           </Select>
+        </div>
+        <div className="col-6">
+          <label>Người đặt</label>
+          <Input placeholder="Tên người đặt" />
+        </div>
+        <div className="col-6 mt-4">
+          <label>Thời gian đặt: </label>
+          <Space className="mx-2" direction="vertical" size={12}>
+            <RangePicker size={"middle"} />
+          </Space>
         </div>
         <div className="col-12 text-center ">
           <Button
@@ -324,30 +294,6 @@ const Product = () => {
           </Button>
         </div>
       </div>
-      <div className="row">
-        <div className="col-12 mt-4">
-          <Button
-            className="offset-11 "
-            type="primary"
-            onClick={showModal}
-            style={{ borderRadius: "10px" }}
-          >
-            <a href="/product/create"></a>
-          </Button>
-          <Modal
-            title="Tạo mới"
-            open={open}
-            onOk={handleOk}
-            confirmLoading={confirmLoading}
-            onCancel={handleCancel}
-          >
-            <div className="form group">
-              <label>Tên thể loại</label>
-              <Input placeholder="Tên thể loại" />
-            </div>
-          </Modal>
-        </div>
-      </div>
 
       <div
         className="mt-4 row"
@@ -359,36 +305,16 @@ const Product = () => {
         }}
       >
         <div className="col-12">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>a</th>
-                <th>c</th>
-                <th>b</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                employees.map(employee => (
-                  <tr key={employee.id}>
-                    <td>{employee.id}</td>
-                    <td>{employee.name}</td>
-                    <td>{employee.price}</td>
-                  </tr>
-                ))
-              }
-            </tbody>
-          </table>
-          {/* <Table
+          <Table
             columns={columns}
             rowKey={(record) => record.login.uuid}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
             onChange={handleTableChange}
-          /> */}
+          />
           <Modal
-            title="Cập nhật"
+            title="Thông báo!!!"
             visible={isEditing}
             onCancel={() => {
               setEditing(false);
@@ -398,10 +324,9 @@ const Product = () => {
             }}
           >
             <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
+              Bạn có chắc chắn muốn chuyển trạng thái đơn hàng
+              <span className="text-danger"> ???</span>
             </label>
-            <Input placeholder="Tên thể loại" />
           </Modal>
 
           <Modal
@@ -415,11 +340,11 @@ const Product = () => {
               setView(false);
             }}
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+            <div>
+              <img src={logo} width="70%" />
+              <br />
+              <img src={logo} width="70%" />
+            </div>
           </Modal>
         </div>
       </div>
@@ -427,4 +352,4 @@ const Product = () => {
   );
 };
 
-export default Product;
+export default SupportRT;
