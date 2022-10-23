@@ -10,7 +10,11 @@ import ConfirmOrder from "../pages/Order/ConfirmOrder";
 import OrderSuccess from "../pages/Order/OrderSuccess";
 import OrderCancel from "../pages/Order/CancelOrder";
 import User from "../pages/User/User";
+<<<<<<< HEAD
 import AppUser from "../pages/users/AppUser";
+=======
+import Staff from "../pages/Staff/Staff";
+>>>>>>> 6b66b13196be31ccdb31ffd8a3b2c619c899453e
 const publicRoutes = [
   {
     path: "/",
@@ -58,10 +62,16 @@ const publicRoutes = [
     component: User,
   },
   {
+<<<<<<< HEAD
     path: "/user",
     component: AppUser,
     Layout: null
   }
+=======
+    path: "/admin/staff",
+    component: Staff,
+  },
+>>>>>>> 6b66b13196be31ccdb31ffd8a3b2c619c899453e
 ];
 
 const privateRoutes = [];

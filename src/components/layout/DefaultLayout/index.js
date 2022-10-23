@@ -39,7 +39,7 @@ const items = [
   ]),
   getItem("Quản lý hệ thống", "sub3", <TeamOutlined />, [
     getItem("Quản lý người dùng", "/admin/user"),
-    getItem("Quản lý nhân viên", "/admin/setting/employee"),
+    getItem("Quản lý nhân viên", "/admin/staff"),
     getItem("Quản lý vai trò", "/admin/setting/role"),
   ]),
   getItem("Yêu cầu hỗ tợ", "sub4", <UserOutlined />, [

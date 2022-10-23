@@ -9,6 +9,7 @@ import {
   Radio,
   Space,
 } from "antd";
+import logo from '../../asset/images/logo_kinglap.png';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -17,7 +18,6 @@ import {
   ReloadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import '../Order/order.css';
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +38,7 @@ const getRandomuserParams = (params) => ({
   ...params,
 });
 
-const Order = () => {
+const SupportRT = () => {
   const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -56,17 +56,24 @@ const Order = () => {
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Người đặt",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Ngày tạo",
+      dataIndex: "name",
+      sorter: true,
+      render: (name) => `${name.first} ${name.last}`,
+      width: "15%",
+    },
+    {
+      title: "Hình thức đặt",
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
@@ -77,23 +84,33 @@ const Order = () => {
       dataIndex: "name",
       sorter: true,
       render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
-    },
-    {
-      title: "Hình thức đặt",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
-    // {
-    //   title: "Email",
-    //   dataIndex: "email",
-    // },
+    {
+      title: "Nội dung",
+      dataIndex: "name",
+      sorter: true,
+      render: (record) => {
+        return (
+          <>
+            <div
+              className="bg-primary text-center text-light"
+              style={{ width: "100px", borderRadius: "5px" }}
+              onClick={() => {
+                onView(record);
+              }}
+            >
+              Chi tiết
+            </div>
+          </>
+        );
+      },
+      width: "10%",
+    },
     {
       title: "Trạng thái",
       dataIndex: "Trạng thái",
-      with: "30%",
+      width: "10%",
       render: (record) => {
         return (
           <>
@@ -101,7 +118,7 @@ const Order = () => {
               className="bg-primary text-center text-light"
               style={{ width: "100px", borderRadius: "5px" }}
             >
-              Đã thanh toán
+              Trả hàng
             </div>
           </>
         );
@@ -110,13 +127,14 @@ const Order = () => {
     {
       title: "Thao tác",
       dataIndex: "Thao tác",
-      width: "30%",
+      width: "15%",
       render: (record) => {
         return (
           <>
             <EyeOutlined
               onClick={() => {
-                onView(record);
+                console.log('key key')
+                navigate('detail');
               }}
             />
             <EditOutlined
@@ -124,10 +142,6 @@ const Order = () => {
               onClick={() => {
                 onEdit(record);
               }}
-            />
-            <DeleteOutlined
-              onClick={() => onDelete(record)}
-              style={{ color: "red", marginLeft: 12 }}
             />
           </>
         );
@@ -213,7 +227,7 @@ const Order = () => {
     setSize(e.target.value);
   };
   const navigate = useNavigate();
-  const [keyOrder,setKey] = useState("/order/create")
+  const [keyOrder, setKey] = useState("/order/create")
   return (
 
     <div>
@@ -227,34 +241,15 @@ const Order = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Tên sản phẩm</label>
-          <Input placeholder="Nhập tên sản phẩm" />
+        <div className="col-6 mt-4">
+          <label>Mã đơn hàng</label>
+          <Input placeholder="Nhập mã đơn hàng" />
         </div>
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn thể loại"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
-          </Select>
-        </div>
-        <div className="col-4 mt-4">
+        <div className="col-6 mt-4">
           <label>Trạng thái</label>
           <br />
           <Select
-            style={{ width: "300px", borderRadius: "5px" }}
+            style={{ width: "500px", borderRadius: "5px" }}
             showSearch
             placeholder="Chọn trạng thái"
             optionFilterProp="children"
@@ -264,8 +259,8 @@ const Order = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
+            <Option value="jack">Xác nhận</Option>
+            <Option value="lucy">Chờ xác nhận</Option>
           </Select>
         </div>
         <div className="col-6">
@@ -299,77 +294,6 @@ const Order = () => {
           </Button>
         </div>
       </div>
-      <div className="row">
-        <div className="col-12 mt-4">
-          <Button
-            className="offset-11 "
-            type="primary"
-            // onClick={showModal}
-            style={{ borderRadius: "10px" }}
-            onClick={() => {
-            console.log('key key')
-            navigate('create');
-          }}
-          >
-            <PlusOutlined /> Thêm mới
-          </Button>
-          <Modal
-            title="Tạo mới"
-            open={open}
-            onOk={handleOk}
-            confirmLoading={confirmLoading}
-            onCancel={handleCancel}
-            width={800}
-          >
-            <div className="form group">
-              <div className="row">
-                <div className="col-6">
-                  <label>Tên thể loại</label>
-                  <br />
-                  <Select
-                    style={{ width: "300px", borderRadius: "5px" }}
-                    showSearch
-                    placeholder="Chọn thể loại"
-                    optionFilterProp="children"
-                    onChange={onChange}
-                    onSearch={onSearch}
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                  >
-                    <Option value="jack">Laptop</Option>
-                    <Option value="lucy">Linh kiện</Option>
-                    <Option value="lucy1">Phụ kiện</Option>
-                  </Select>
-                </div>
-                <div className="col-6">
-                  <label>Người đặt</label>
-                  <br />
-                  <Select
-                    style={{ width: "300px", borderRadius: "5px" }}
-                    showSearch
-                    placeholder="Người đặt"
-                    optionFilterProp="children"
-                    onChange={onChange}
-                    onSearch={onSearch}
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                  >
-                    <Option value="jack">DucNT</Option>
-                    <Option value="lucy">BangNV</Option>
-                    <Option value="lucy1">KienHT</Option>
-                  </Select>
-                </div>
-              </div>
-            </div>
-          </Modal>
-        </div>
-      </div>
 
       <div
         className="mt-4 row"
@@ -390,7 +314,7 @@ const Order = () => {
             onChange={handleTableChange}
           />
           <Modal
-            title="Cập nhật"
+            title="Thông báo!!!"
             visible={isEditing}
             onCancel={() => {
               setEditing(false);
@@ -400,10 +324,9 @@ const Order = () => {
             }}
           >
             <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
+              Bạn có chắc chắn muốn chuyển trạng thái đơn hàng
+              <span className="text-danger"> ???</span>
             </label>
-            <Input placeholder="Tên thể loại" />
           </Modal>
 
           <Modal
@@ -417,14 +340,11 @@ const Order = () => {
               setView(false);
             }}
           >
-           
-            Laptop G3 15 3500 : 3
-            <br/>
-            Laptop G3 15 3500 : 2
-            <br/>
-            Laptop G3 15 3500 : 1
-            <br/>
-            Laptop G3 15 3500 : 0
+            <div>
+              <img src={logo} width="70%" />
+              <br />
+              <img src={logo} width="70%" />
+            </div>
           </Modal>
         </div>
       </div>
@@ -432,4 +352,4 @@ const Order = () => {
   );
 };
 
-export default Order;
+export default SupportRT;
