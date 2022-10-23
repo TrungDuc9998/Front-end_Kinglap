@@ -1,243 +1,329 @@
-import { Table, Slider, Select, Input, Button, Modal, InputNumber } from "antd";
 import {
   DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
+  EditOutlined, LockOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  UnlockOutlined
 } from "@ant-design/icons";
+import { Button, Input, Modal, Select, Table } from "antd";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import productService from '../../services/product.service'
+import 'toastr/build/toastr.min.css';
+import toastrs from "toastr";
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
-  });
-};
-
 const getRandomuserParams = (params) => ({
-  results: params.pagination?.pageSize,
+  limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  ...params,
+  searchUsername: params.pagination?.search1,
+  searchStatus: params.pagination?.search2,
 });
-const onChange = (value) => {
-  //change value input number
-  console.log("changed", value);
-};
 
 const Product = () => {
-
-
-  const [employees, setEmployees] = useState([]);
-
-  const init = () => {
-    productService.getAll()
-      .then(response => {
-        console.log('Printing employees data', response.data);
-        setEmployees(response.data);
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.log('Something went wrong', error);
-      })
-  }
-
-  useEffect(() => {
-    init();
-  }, []);
-
-
-
-
-
   const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
-  const [isView, setView] = useState(false);
+  const [isDelete, setDelete] = useState(false);
+  const [id, setId] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
+      search1: '',
+      search2: '',
     },
   });
 
+  var i = 0;
+
   const columns = [
-    {
-      title: "Mã sản phẩm",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
-    },
     {
       title: "Tên sản phẩm",
       dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
       width: "20%",
     },
     {
-      title: "Đơn giá",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
-    },
-    // {
-    //   title: "Loại sản phẩm",
-    //   dataIndex: "name",
-    //   sorter: true,
-    //   render: (name) => `${name.first} ${name.last}`,
-    //   width: "20%",
-    // },
-    {
-      title: "Ngày tạo",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
+      title: "Giá tiền",
+      dataIndex: "price",
+      width: "20%",
     },
     {
-      title: "Người tạo",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
+      title: "Số lượng",
+      dataIndex: "quantity",
+      width: "10%",
     },
     {
-      title: "Ngày cập nhật",
-      dataIndex: "email",
+      title: "Xuất xứ",
+      dataIndex: "origin",
+      width: "10%",
     },
     {
-      title: "Loại sản phẩm",
-      dataIndex: "Trạng thái",
-      with: "30%",
-      render: (record) => {
-        return (
-          <>
-            <div
-              className="bg-success text-center text-light"
-              style={{ width: "100px", borderRadius: "5px" }}
-            >
-              Laptop
-            </div>
-          </>
-        );
+      title: "Trạng thái",
+      dataIndex: "status",
+      with: "25%",
+      render: (status) => {
+        if (status == 'ACTIVE') {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100px", borderRadius: "5px" }}
+              >
+                Không khóa
+              </div>
+            </>
+          );
+        }
+        if (status == 0) {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100px", borderRadius: "5px" }}
+              >
+                Đã khóa
+              </div>
+            </>
+          );
+        }
+      },
+    },
+    {
+      title: "Kích hoạt",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "10%",
+      render: (id, data) => {
+        if (data.status == 1) {
+          return (
+            <>
+              <UnlockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/users/close/${data.id}`, { method: "PUT" }).then(() => load());
+                  toastrs.options = {
+                    timeOut: 6000,
+                  }
+                  toastrs.success("Khóa thành công!");
+                }}
+              />
+            </>
+          );
+        } else {
+          return (
+            <>
+              <LockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/users/open/${data.id}`, { method: "PUT" }).then(() => load());
+                  toastrs.options = {
+                    timeOut: 6000
+                  }
+                  toastrs.success("Mở khóa thành công!");
+                }}
+              />
+            </>
+          );
+        }
       },
     },
     {
       title: "Thao tác",
-      dataIndex: "Thao tác",
-      width: "30%",
-      render: (record) => {
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
         return (
           <>
-            <EyeOutlined
-              onClick={() => {
-                onView(record);
-              }}
-            />
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
-                onEdit(record);
+                onEdit(data.id, data.username, data.status);
               }}
             />
             <DeleteOutlined
-              onClick={() => onDelete(record)}
+              onClick={() => onDelete(data.id)}
               style={{ color: "red", marginLeft: 12 }}
             />
           </>
         );
-      },
+      }
     },
   ];
 
-  const fetchData = () => {
+  const loadDataProduct = () => {
     setLoading(true);
     fetch(
-      `https://randomuser.me/api?${qs.stringify(
+      `http://localhost:8080/api/products?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`
     )
       .then((res) => res.json())
-      .then(({ results }) => {
-        setData(results);
+      .then((results) => {
+        console.log(results.data.data);
+        setData(results.data.data);
         setLoading(false);
         setTableParams({
-          ...tableParams,
           pagination: {
-            ...tableParams.pagination,
-            total: 200, // 200 is mock data, you should read it from server
-            // total: data.totalCount,
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
           },
         });
       });
   };
 
   useEffect(() => {
-    fetchData();
-  }, [JSON.stringify(tableParams)]);
+    loadDataProduct();
+  }, []);
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
+  const handleTableChange = (pagination) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchUsername;
+    tableParams.pagination.search2 = searchStatus;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/products?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
 
   const onSearch = (value) => {
     console.log("search:", value);
   };
+  const [searchUsername, setSearchUsername] = useState();
+  const [searchStatus, setSearchStatus] = useState();
+  const [username, setUsername] = useState();
+  const [status, setStatus] = useState();
+  const [password1, setPassword1] = useState();
+  const [password2, setPassword2] = useState();
+  const [password3, setPassword3] = useState();
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
+  const navigate = useNavigate();
+
+  const search = () => {
+    tableParams.pagination.search1 = searchUsername;
+    tableParams.pagination.search2 = searchStatus;
+    tableParams.pagination.current = 1;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/users?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          }
+        })
+      });
+  }
+
+  const clearSearchForm = () => {
+    setSearchUsername("");
+    searchStatus("");
+  }
 
   const showModal = () => {
     setOpen(true);
   };
 
   const handleOk = () => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
+    if (password2 === password1) {
+      fetch(
+        `http://localhost:8080/api/users`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, newPassword: password1, status: 1 }) }).then((res) => res.json())
+        .then((results) => {
+          toastrs.options = {
+            timeOut: 6000
+          }
+          toastrs.clear();
+          if (results.data == null) {
+            toastrs.error(results.message);
+          } else {
+            toastrs.success("Thêm mới thành công!");
+            load();
+            setUsername("");
+            setPassword3("");
+            setPassword1("");
+            setPassword2("");
+            setOpen(false);
+          }
+        });
+    } else {
+      toastrs.options = {
+        timeOut: 6000
+      }
+      toastrs.clear();
+      toastrs.error("Xác nhận tài khoản không chính xác!");
+    }
   };
 
-  const onEdit = (record) => {
+  const changeSearchUserName = (event) => {
+    setSearchUsername(event.target.value);
+  };
+
+
+
+  const changeSearchStatus = (value) => {
+    setSearchStatus(value);
+  };
+
+  const changeUsername = (event) => {
+    setUsername(event.target.value);
+  };
+
+  const changePassword1 = (event) => {
+    setPassword1(event.target.value);
+  };
+
+  const changePassword2 = (event) => {
+    setPassword2(event.target.value);
+  };
+
+  const changePassword3 = (event) => {
+    setPassword3(event.target.value);
+  };
+
+  const onEdit = (id, username, status) => {
+    setId(id);
     setEditing(true);
+    setUsername(username);
+    setStatus(status);
   };
 
-  const onView = (record) => {
-    setView(true);
+  const onDelete = (id) => {
+    setId(id);
+    setDelete(true);
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
-  };
-
-  const marks = {
-    0: "0đ",
-    40: "20.000.000đ",
-    80: "40.000.000đ",
-    100: {
-      style: {
-        color: "#f50",
-      },
-      label: <strong>60.000.000đ</strong>,
-    },
   };
 
   return (
@@ -246,68 +332,38 @@ const Product = () => {
         className="row"
         style={{
           borderRadius: "20px",
-          height: "250px",
+          height: "150px",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
       >
-        <div className="col-12">
-          <div className="row">
-            <div className="col-12 text-center mt-3">
-              Đơn giá:
-              <InputNumber
-                min={1}
-                max={10}
-                defaultValue={3}
-                onChange={onChange}
-              />
-              --{" "}
-              <InputNumber
-                min={1}
-                max={10}
-                defaultValue={3}
-                onChange={onChange}
-              />
-            </div>
-          </div>
-          <div className="col-12 text-center">
-            <Slider
-
-              range
-              marks={marks}
-              style={{ width: "900px", marginLeft: "200px" }}
-              defaultValue={[0, 100]}
-            />
-          </div>
-        </div>
         <div className="col-4 mt-3">
           <label>Từ khoá</label>
-          <Input placeholder="Nhập tên, mã hoặc giá" />
+          <Input type="text" name="searchUsername" value={searchUsername} placeholder="Nhập tên tài khoản người dùng" onChange={changeSearchUserName} />
         </div>
         <div className="col-4 mt-3">
-          <label>Loại sản phẩm</label>
+          <label>Trạng thái</label>
           <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
+          <Select allowClear={true}
+            style={{ width: "400px", borderRadius: "5px" }}
             showSearch
-            placeholder="Loại sản phẩm"
+            placeholder="Chọn trạng thái"
             optionFilterProp="children"
-            onChange={onChange}
+            onChange={changeSearchStatus}
             onSearch={onSearch}
             filterOption={(input, option) =>
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
+            <Option value="0">Đã khóa</Option>
+            <Option value="1">Không khóa</Option>
           </Select>
         </div>
         <div className="col-12 text-center ">
           <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={showModal}
+            onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -316,7 +372,7 @@ const Product = () => {
           <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={showModal}
+            onClick={search}
             style={{ borderRadius: "10px" }}
           >
             <SearchOutlined />
@@ -329,10 +385,13 @@ const Product = () => {
           <Button
             className="offset-11 "
             type="primary"
-            onClick={showModal}
+            onClick={() => {
+              navigate('/admin/product/create')
+            }}
             style={{ borderRadius: "10px" }}
           >
-            <a href="/product/create"></a>
+            <PlusOutlined />
+            Thêm mới
           </Button>
           <Modal
             title="Tạo mới"
@@ -341,10 +400,21 @@ const Product = () => {
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
           >
-            <div className="form group">
-              <label>Tên thể loại</label>
-              <Input placeholder="Tên thể loại" />
-            </div>
+            <label>
+              Tài khoản
+              <span className="text-danger"> *</span>
+            </label>
+            <Input type="text" name="username" value={username} placeholder="Nhập tài khoản" onChange={changeUsername} />
+            <label>
+              Mật khẩu
+              <span className="text-danger"> *</span>
+            </label>
+            <Input type="password" name="password1" value={password1} placeholder="Nhập mật khẩu" onChange={changePassword1} />
+            <label>
+              Xác nhận mật khẩu
+              <span className="text-danger"> *</span>
+            </label>
+            <Input type="password" name="password2" value={password2} placeholder="Nhập lại mật khẩu" onChange={changePassword2} />
           </Modal>
         </div>
       </div>
@@ -359,34 +429,14 @@ const Product = () => {
         }}
       >
         <div className="col-12">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>a</th>
-                <th>c</th>
-                <th>b</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                employees.map(employee => (
-                  <tr key={employee.id}>
-                    <td>{employee.id}</td>
-                    <td>{employee.name}</td>
-                    <td>{employee.price}</td>
-                  </tr>
-                ))
-              }
-            </tbody>
-          </table>
-          {/* <Table
+          <Table
             columns={columns}
-            rowKey={(record) => record.login.uuid}
+            rowKey={(record) => record++}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
             onChange={handleTableChange}
-          /> */}
+          />
           <Modal
             title="Cập nhật"
             visible={isEditing}
@@ -394,32 +444,82 @@ const Product = () => {
               setEditing(false);
             }}
             onOk={() => {
-              setEditing(false);
+              if (password1 == null || password2 == null || password3 == null) {
+                toastrs.options = {
+                  timeOut: 6000
+                }
+                toastrs.clear();
+                toastrs.error("Vui lòng nhập đầy đủ thông tin!");
+              } else {
+                if (password2 != password1) {
+                  toastrs.options = {
+                    timeOut: 6000
+                  }
+                  toastrs.clear();
+                  toastrs.error("Nhập lại mật khẩu không chính xác!");
+                } else {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/users/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password3, newPassword: password1, status: status }) }).then((res) => res.json())
+                    .then((results) => {
+                      toastrs.options = {
+                        timeOut: 6000
+                      }
+                      toastrs.clear();
+                      if (results.data == null) {
+                        toastrs.error(results.message);
+                      } else {
+                        toastrs.success("Cập nhật thành công!");
+                        load();
+                        setUsername("");
+                        setPassword3("");
+                        setPassword1("");
+                        setPassword2("");
+                        setEditing(false);
+                      }
+                    });
+                }
+              }
             }}
           >
             <label>
-              Tên thể loại
+              Tài khoản
+            </label>
+            <Input type="text" name="username" value={username} placeholder="Nhập tài khoản" onChange={changeUsername} disabled={true} />
+            <label>
+              Mật khẩu cũ
               <span className="text-danger"> *</span>
             </label>
-            <Input placeholder="Tên thể loại" />
+            <Input type="password" name="password3" value={password3} placeholder="Nhập mật khẩu cũ" onChange={changePassword3} />
+            <label>
+              Mật khẩu mới
+              <span className="text-danger"> *</span>
+            </label>
+            <Input type="password" name="password1" value={password1} placeholder="Nhập mật khẩu mới" onChange={changePassword1} />
+            <label>
+              Xác nhận mật khẩu
+              <span className="text-danger"> *</span>
+            </label>
+            <Input type="password" name="password2" value={password2} placeholder="Nhập lại mật khẩu" onChange={changePassword2} />
           </Modal>
-
           <Modal
-            // style={{borderRadius:"10px"}}
-            title="Hiển thị"
-            visible={isView}
+            title="Xóa người dùng"
+            visible={isDelete}
             onCancel={() => {
-              setView(false);
+              setDelete(false);
             }}
             onOk={() => {
-              setView(false);
+              fetch(
+                `http://localhost:8080/api/users/${id}`, { method: 'DELETE' }).then(() => load());
+              setDelete(false);
+              toastrs.options = {
+                timeOut: 6000
+              }
+              toastrs.clear();
+              toastrs.success("Xóa thành công!");
             }}
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+            Bạn muốn xóa người dùng này chứ?
           </Modal>
         </div>
       </div>

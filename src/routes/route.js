@@ -54,6 +54,15 @@ const publicRoutes = [
     path: "/admin/order/create",
     component: CreateOrder,
   },
+
+  {
+    path: "/admin/user",
+    component: User,
+  },
+  {
+    path: "/admin/staff",
+    component: Staff,
+  },
   {
     path: "/admin/support/return",
     component: SupportRT,
