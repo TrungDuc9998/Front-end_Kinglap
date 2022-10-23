@@ -9,9 +9,8 @@ import CreateOrder from "../pages/Order/CreateOrder";
 import ConfirmOrder from "../pages/Order/ConfirmOrder";
 import OrderSuccess from "../pages/Order/OrderSuccess";
 import OrderCancel from "../pages/Order/CancelOrder";
-import SupportRT from "../pages/Support/SupportRT";
-import SupportRT_detail from "../pages/Support/SupportRT_detail";
-// import Statistical from '../pages/Statistical'
+import User from "../pages/User/User";
+import Staff from "../pages/Staff/Staff";
 const publicRoutes = [
   {
     path: "/",
@@ -54,7 +53,6 @@ const publicRoutes = [
     path: "/admin/order/create",
     component: CreateOrder,
   },
-
   {
     path: "/admin/user",
     component: User,
@@ -63,14 +61,6 @@ const publicRoutes = [
     path: "/admin/staff",
     component: Staff,
   },
-  {
-    path: "/admin/support/return",
-    component: SupportRT,
-  },
-  {
-    path: "/admin/support/return/detail",
-    component: SupportRT_detail,
-  }
 ];
 
 const privateRoutes = [];

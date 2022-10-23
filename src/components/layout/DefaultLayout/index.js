@@ -13,8 +13,8 @@ import {
 import { Breadcrumb, Layout, Menu } from "antd";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {Header1} from './Header'
-const {  Header,Content, Footer, Sider } = Layout;
+import { Header1 } from './Header'
+const { Header, Content, Footer, Sider } = Layout;
 function getItem(label, key, icon, children) {
   return {
     key: key,
@@ -38,15 +38,13 @@ const items = [
     getItem("Đơn hàng đã huỷ", "/admin/order/cancel"),
   ]),
   getItem("Quản lý hệ thống", "sub3", <TeamOutlined />, [
-    getItem("Quản lý người dùng", "/admin/setting/user"),
-    getItem("Quản lý nhân viên", "/admin/setting/employee"),
+    getItem("Quản lý người dùng", "/admin/user"),
+    getItem("Quản lý nhân viên", "/admin/staff"),
     getItem("Quản lý vai trò", "/admin/setting/role"),
   ]),
   getItem("Yêu cầu hỗ tợ", "sub4", <UserOutlined />, [
     getItem("Yêu cầu trả hàng", "/admin/order"),
     getItem("Yêu cầu đổi hàng", "/admin/order/checked"),
-    getItem("Yêu cầu trả hàng", "/admin/support/return"),
-    getItem("Yêu cầu đổi hàng", "/admin/support/return/detail"),
   ]),
   getItem("Thống kê", "/statistical", <FileOutlined />),
 ];
@@ -121,7 +119,7 @@ const DefaultLayout = ({ children }) => {
         </Footer> */}
       </Layout>
     </Layout >
-  )
+  );
 };
 
 export default DefaultLayout;
