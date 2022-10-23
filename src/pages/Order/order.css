@@ -1,0 +1,6 @@
+.ant-spin-nested-loading .ant-spin-container .ant-pagination.ant-table-pagination.ant-table-pagination-right .ant-pagination-item
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
