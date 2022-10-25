@@ -15,7 +15,7 @@ import Discount from "../pages/Discount";
 import HomeUser from "../pages/customer/HomeUser";
 const publicRoutes = [
   {
-    path: "/",
+    path: "/admin",
     component: Home,
   },
   {
