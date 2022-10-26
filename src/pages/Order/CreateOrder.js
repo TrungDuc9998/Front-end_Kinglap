@@ -1,20 +1,20 @@
 import { Button, Tabs } from "antd";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Table1 from "./Table";
 
 //xử lý table
 const columns = [
   {
-    title: 'Name',
-    dataIndex: 'name',
+    title: "Name",
+    dataIndex: "name",
   },
   {
-    title: 'Age',
-    dataIndex: 'age',
+    title: "Age",
+    dataIndex: "age",
   },
   {
-    title: 'Address',
-    dataIndex: 'address',
+    title: "Address",
+    dataIndex: "address",
   },
 ];
 const data = [];
@@ -28,13 +28,12 @@ for (let i = 0; i < 46; i++) {
   });
 }
 
-
 //xử lý tab
 const defaultPanes = new Array(2).fill(null).map((_, index) => {
   const id = String(index + 1);
   return {
     label: `Tab ${id}`,
-    children: <Table1/>,
+    children: <Table1 />,
     key: id,
   };
 });
@@ -43,6 +42,7 @@ function CreateOrder() {
   const [activeKey, setActiveKey] = useState(defaultPanes[0].key);
   const [items, setItems] = useState(defaultPanes);
   const newTabIndex = useRef(0);
+  const [ProvinceName, setProvinceName] = useState([])
 
   const onChange = (key) => {
     setActiveKey(key);
@@ -54,7 +54,7 @@ function CreateOrder() {
       ...items,
       {
         label: `Tab ${newTabIndex.current}`,
-        children:<Table1/>,
+        children: <Table1 />,
         key: newActiveKey,
       },
     ]);
@@ -84,13 +84,12 @@ function CreateOrder() {
     }
   };
 
-
-
+  //call Api tỉnh thành
 
 
   return (
     //xử lý table
-    
+
     <div
       className="row"
       style={{
@@ -102,7 +101,7 @@ function CreateOrder() {
       }}
     >
       <div
-      className="mt-4"
+        className="mt-4"
         style={{
           marginBottom: 16,
         }}
