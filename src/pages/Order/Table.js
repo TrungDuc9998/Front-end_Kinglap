@@ -528,14 +528,14 @@ function Table1() {
                   />
                   <div className="dropdown">
                     {Ward.filter((item) => {
-                      const searchTerm = valueWard;
-                      const fullName = item.WardName;
+                      const searchTerm = valueWard.toString().toLowerCase();
+                      const fullName = item.WardName !== undefined 
+                      ? item.WardName.toLowerCase() : "";
 
                       return (
                         searchTerm &&
                         fullName.startsWith(searchTerm) &&
-                        fullName !== searchTerm &&
-                        fullName === searchTerm
+                        fullName !== searchTerm 
                       );
                     })
                       .slice(0, 10)
