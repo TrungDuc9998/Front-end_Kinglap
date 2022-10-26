@@ -12,6 +12,7 @@ import OrderCancel from "../pages/Order/CancelOrder";
 import User from "../pages/User/User";
 import Staff from "../pages/Staff/Staff";
 import Discount from "../pages/Discount";
+import HomeUser from "../pages/customer/HomeUser";
 const publicRoutes = [
   {
     path: "/",
@@ -66,6 +67,11 @@ const publicRoutes = [
     path: "/admin/discount",
     component: Discount,
   },
+  {
+    path: "/user",
+    component: HomeUser,
+  }
+
 ];
 
 const privateRoutes = [];
