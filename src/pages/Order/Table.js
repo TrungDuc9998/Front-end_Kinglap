@@ -41,8 +41,8 @@ function Table1() {
 
   const _handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      console.log("do validate" +e.target.value );
-      setValueDistrict(e.target.value)
+      console.log("do validate" + e.target.value);
+      setValueDistrict(e.target.value);
     }
   };
 
@@ -489,17 +489,16 @@ function Table1() {
                 <div className="dropdown">
                   {district
                     .filter((item) => {
-                      const searchTerm = valueDistrict;
-                      const fullName = item.DistrictName;
+                      const searchTerm = valueDistrict.toString().toLowerCase();
+                      const fullName =
+                        item.DistrictName !== undefined
+                          ? item.DistrictName.toLowerCase()
+                          : "";
 
                       return (
-                       
-                       
-                        (searchTerm &&
+                        searchTerm &&
                         fullName.startsWith(searchTerm) &&
-                        fullName !== searchTerm) || (searchTerm &&
-                        fullName.startsWith(searchTerm) &&
-                        fullName === searchTerm)
+                        fullName !== searchTerm
                       );
                     })
                     .slice(0, 5)
@@ -535,7 +534,8 @@ function Table1() {
                       return (
                         searchTerm &&
                         fullName.startsWith(searchTerm) &&
-                        fullName !== searchTerm && fullName === searchTerm
+                        fullName !== searchTerm &&
+                        fullName === searchTerm
                       );
                     })
                       .slice(0, 10)
