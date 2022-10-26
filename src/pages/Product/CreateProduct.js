@@ -43,7 +43,7 @@ function CreateProduct() {
       console.log(imageRef.fullPath.slice(7));
       const img1 = imageRef.fullPath.slice(7);
       images.push((name = img1));
-      setImages((prev) => [...prev, img]);
+      // setImages((prev) => [...prev, img]);
       // setImages(imageRef.fullPath.slice(7));
       alert("upload image success");
     });
