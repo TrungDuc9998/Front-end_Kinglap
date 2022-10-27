@@ -43,7 +43,7 @@ function CreateProduct() {
             console.log(imageRef.fullPath.slice(7));
             const img1 = imageRef.fullPath.slice(7);
             images.push((name = img1));
-            setImages((prev) => [...prev, img]);
+            // setImages((prev) => [...prev, img]);
             // setImages(imageRef.fullPath.slice(7));
             alert("upload image success");
         });
@@ -628,15 +628,15 @@ function CreateProduct() {
             </div>
             <div className="row">
                 {/* <input
-          type="file"
-          onChange={(event) => {
-            setImageUpload(event.target.files[0]);
-          }}
-        /> */}
+            type="file"
+            onChange={(event) => {
+              setImageUpload(event.target.files[0]);
+            }}
+          /> */}
                 {/* <button onClick={uploadFile}> Upload Image</button> */}
                 {/* {imageUrls.map((url,index) => {
-          return <img key={index} src={url} />;
-        })} */}
+            return <img key={index} src={url} />;
+          })} */}
             </div>
         </div>
     );
