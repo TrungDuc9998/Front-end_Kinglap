@@ -46,7 +46,7 @@ function Login() {
             <div className="log">
                 <div className="container1" id="container">
                     <div className="form-container sign-up-container">
-                        <form action="#">
+                        <form className="form-log" action="#">
                             <h1>Create Account</h1>
                             <div className="social-container">
                                 <a href="#" className="social"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-facebook" viewBox="0 0 16 16">
@@ -57,14 +57,14 @@ function Login() {
                                 </svg></a>
                             </div>
                             <span>or use your email for registration</span>
-                            <input type="text" className="form-control" placeholder="Name" />
-                            <input type="email" className="form-control mt-2" placeholder="Email" />
-                            <input type="password" className="form-control mt-2" placeholder="Password" />
+                            <input type="text" className="form-control ip" placeholder="Name" />
+                            <input type="email" className="form-control mt-2 ip" placeholder="Email" />
+                            <input type="password" className="form-control mt-2 ip" placeholder="Password" />
                             <button>Sign Up</button>
                         </form>
                     </div>
                     <div className="form-container sign-in-container">
-                        <form action="#">
+                        <form className="form-log" action="#">
                             <h1>Sign in</h1>
                             <div className="social-container">
                                 <a href="#" className="social"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-facebook" viewBox="0 0 16 16">
@@ -75,13 +75,13 @@ function Login() {
                                 </svg></a>
                             </div>
                             <span>or use your account</span>
-                            <input type="text" className="form-control" placeholder="Username"
+                            <input type="text" className="form-control ip" placeholder="Username"
                                 value={username}
                                 onChange={e => setUsername(e.target.value)}
                                 name="username"
                                 autoComplete="off"
                             />
-                            <input type="password" className="form-control mt-2"
+                            <input type="password" className="form-control mt-2 ip"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
                                 name="password" placeholder="Password" autoComplete="off"

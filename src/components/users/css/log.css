@@ -69,7 +69,7 @@ button.ghost {
     border-color: #FFFFFF;
 }
 
-form {
+.form-log {
     background-color: #FFFFFF;
     display: flex;
     align-items: center;
@@ -80,7 +80,7 @@ form {
     text-align: center;
 }
 
-input {
+input.ip {
     background-color: #eee;
     border: none;
     padding: 12px 15px;

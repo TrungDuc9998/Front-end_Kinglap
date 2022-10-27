@@ -13,6 +13,8 @@ import User from "../pages/User/User";
 import Staff from "../pages/Staff/Staff";
 import Discount from "../pages/Discount";
 import HomeUser from "../pages/customer/HomeUser";
+import Cart from "../pages/customer/Cart";
+import Checkout from "../pages/customer/checkout";
 const publicRoutes = [
   {
     path: "/",
@@ -70,6 +72,14 @@ const publicRoutes = [
   {
     path: "/user",
     component: HomeUser,
+  },
+  {
+    path: "/user/cart",
+    component: Cart,
+  },
+  {
+    path: "/user/checkout",
+    component: Checkout,
   }
 
 ];
