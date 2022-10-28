@@ -7,6 +7,7 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  UnlockOutlined
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
@@ -18,6 +19,7 @@ import 'toastr/build/toastr.min.css';
 import toastrs from "toastr";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Moment from 'react-moment';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const url = 'http://localhost:8080/api/discount';
@@ -25,30 +27,30 @@ const url = 'http://localhost:8080/api/discount';
 
 const Discount = () => {
   const [data, setData] = useState([{
-    id:"",
-    name:"",
-    ratio:null,
-    startDate:getDateTime(),
-    endDate:getDateTime(),
-    active:1,
+    id: "",
+    name: "",
+    ratio: null,
+    startDate: getDateTime(),
+    endDate: getDateTime(),
+    active: 1,
   }]
   );
   const [formDefault, setValuesDefault] = useState({
-    id:"",
-    name:"",
-    ratio:null,
-    startDate:getDateTime(),
-    endDate:getDateTime(),
-    active:1,
+    id: "",
+    name: "",
+    ratio: null,
+    startDate: getDateTime(),
+    endDate: getDateTime(),
+    active: 1,
   }
   );
   const [form, setValues] = useState({
-    id:"",
-    name:"",
-    ratio:null,
-    startDate:getDateTime(),
-    endDate:getDateTime(),
-    active:1,
+    id: "",
+    name: "",
+    ratio: null,
+    startDate: getDateTime(),
+    endDate: getDateTime(),
+    active: 1,
   }
   );
   const [totalSet, setTotal] = useState(10);
@@ -61,7 +63,7 @@ const Discount = () => {
   const [searchEndDate, setSearchEndDate] = useState(getDateTime());
   const [modalText, setModalText] = useState("Content of the modal");
 
-  const notifySuccess=(message)=>{
+  const notifySuccess = (message) => {
     toast.success(message, {
       position: "top-right",
       autoClose: 1000,
@@ -73,7 +75,7 @@ const Discount = () => {
       theme: "light",
     });
   }
-  const notifyError=(message)=>{
+  const notifyError = (message) => {
     toast.error(message, {
       position: "top-right",
       autoClose: 1000,
@@ -87,45 +89,45 @@ const Discount = () => {
   }
 
   function getDateTime() {
-    var now     = new Date(); 
-    var year    = now.getFullYear();
-    var month   = now.getMonth()+1; 
-    var day     = now.getDate();
-    var hour    = now.getHours();
-    var minute  = now.getMinutes();
-    var second  = now.getSeconds(); 
-    if(month.toString().length == 1) {
-         month = '0'+month;
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var second = now.getSeconds();
+    if (month.toString().length == 1) {
+      month = '0' + month;
     }
-    if(day.toString().length == 1) {
-         day = '0'+day;
-    }   
-    if(hour.toString().length == 1) {
-         hour = '0'+hour;
+    if (day.toString().length == 1) {
+      day = '0' + day;
     }
-    if(minute.toString().length == 1) {
-         minute = '0'+minute;
+    if (hour.toString().length == 1) {
+      hour = '0' + hour;
     }
-    if(second.toString().length == 1) {
-         second = '0'+second;
-    }   
-    var dateTime = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;   
-     return dateTime;
-}
+    if (minute.toString().length == 1) {
+      minute = '0' + minute;
+    }
+    if (second.toString().length == 1) {
+      second = '0' + second;
+    }
+    var dateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+    return dateTime;
+  }
   //loadParam getList
-const getRandomuserParams = (params) => ({
-  limit: params.pagination?.pageSize,
-  page: params.pagination?.current,
-  searchStartDate: params.pagination?.searchStartDate,
-  searchEndDate: params.pagination?.searchEndDate,
-});
+  const getRandomuserParams = (params) => ({
+    limit: params.pagination?.pageSize,
+    page: params.pagination?.current,
+    searchStartDate: params.pagination?.searchStartDate,
+    searchEndDate: params.pagination?.searchEndDate,
+  });
   //phân trang Table
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
-      searchStartDate:"",
-      searchEndDate:""
+      searchStartDate: "",
+      searchEndDate: ""
     },
   });
 
@@ -142,53 +144,65 @@ const getRandomuserParams = (params) => ({
       title: "Ngày bắt đầu",
       dataIndex: "startDate",
       sorter: true,
-      render: (startDate) => `${startDate}`,
+      render(startDate) {
+        return (
+          <Moment format="DD-MM-YYYY HH:mm:ss">
+            {startDate}
+          </Moment>
+        );
+      },
       width: "20%",
     },
     {
       title: "Ngày kết thúc",
       dataIndex: "endDate",
       sorter: true,
-      render: (endDate) => `${endDate}`,
+      render(endDate) {
+        return (
+          <Moment format="DD-MM-YYYY HH:mm:ss">
+            {endDate}
+          </Moment>
+        );
+      },
       width: "20%",
     },
     {
       title: "Tỉ lệ (%)",
       dataIndex: "ratio",
       sorter: true,
-      render: (ratio) => `${ratio}`, 
-      width: "20%",
+      render: (ratio) => `${ratio}`,
+      width: "10%",
     },
     {
       title: "Trạng thái",
       dataIndex: "active",
-      with: "30%",
+      with: "35%",
       render: (active) => {
         return (
           <>
-            {active==1&& (
+            {active == 1 && (
               <div
-              className="bg-success text-center text-light"
-              style={{ width: "100px", borderRadius: "5px" }}
-            >
-              Hoạt động
-            </div>
+                className="bg-success text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              >
+                Hoạt động
+              </div>
             )}
-            {active==0&& (
+            {active == 0 && (
               <div
-              className="bg-warning text-center text-light"
-              style={{ width: "100px", borderRadius: "5px" }}
-            >
-              Không hoạt động
-            </div>
+                className="bg-secondary text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              >
+                Không hoạt động
+              </div>
             )}
-            {active==2&& (
+            {active == 2 && (
               <div
-              className="bg-info text-center text-light"
-              style={{ width: "100px", borderRadius: "5px" }}
-            >
-              Nháp
-            </div>
+                className="bg-danger text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              >
+                Nháp
+              </div>
             )}
           </>
         );
@@ -197,38 +211,48 @@ const getRandomuserParams = (params) => ({
     {
       title: "Thao tác",
       dataIndex: "id",
-      width: "30%",
-      render: (id) => {
-        return (
-          <>
-             {/* <EyeOutlined
-              onClick={() => {
-                // onView(record);
-                console.log({id});
-              }}
-            /> */}
-            <Button
-              className="mt-2"
-              type="dashed"
-              onClick={() => activeItem(id)}
-              style={{ borderRadius: "10px" }}
-            >
-            <ReloadOutlined />
-            Active
-          </Button>
-            <EditOutlined
-              style={{ marginLeft: 12 }}
-              onClick={() => {
-                showModalEdit(id);
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => onDelete(id)}
-              style={{ color: "red", marginLeft: 12 }}
-            />
-            
-          </>
-        );
+      width: "15%",
+      render: (id, data) => {
+        if (data.active == 2) {
+          return (
+            <>
+              <UnlockOutlined
+                className="mt-2"
+                type="dashed"
+                onClick={() => activeItem(id)}
+                style={{ borderRadius: "10px" }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  showModalEdit(id);
+                }}
+              />
+              <DeleteOutlined
+                onClick={() => onDelete(id)}
+                style={{ color: "red", marginLeft: 12 }}
+              />
+
+            </>
+          );
+        } else if (data.active == 1 || data.active == 0) {
+          return (
+            <>
+              <UnlockOutlined
+                className="mt-2"
+                type="dashed"
+                onClick={() => activeItem(id)}
+                style={{ borderRadius: "10px" }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  showModalEdit(id);
+                }}
+              />
+            </>
+          )
+        }
       },
     },
   ];
@@ -236,11 +260,11 @@ const getRandomuserParams = (params) => ({
   //APILoadList
   const getData = () => {
     setLoading(true);
-    axios.get(url+`?${qs.stringify(
+    axios.get(url + `?${qs.stringify(
       getRandomuserParams(tableParams)
     )}`)
       // .then((res) => res.json())
-      .then((results ) => {
+      .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
         setLoading(false);
@@ -248,7 +272,7 @@ const getRandomuserParams = (params) => ({
           ...tableParams,
           pagination: {
             ...tableParams.pagination,
-            total: totalSet, 
+            total: totalSet,
           }
         });
       });
@@ -274,7 +298,7 @@ const getRandomuserParams = (params) => ({
   };
   //loadFormEdit
   const showModalEdit = (id) => {
-    axios.get(url+"/"+id)
+    axios.get(url + "/" + id)
       .then(res => {
         console.log(res.data.data);
         setValues(res.data.data);
@@ -290,8 +314,8 @@ const getRandomuserParams = (params) => ({
   // };
 
 
-  const draft=()=>{
-    axios.post(url+"/draft",form)
+  const draft = () => {
+    axios.post(url + "/draft", form)
       .then(res => {
         notifySuccess('Lưu bản nháp thành công!')
         setAdd(false);
@@ -311,23 +335,23 @@ const getRandomuserParams = (params) => ({
     }, 2000);
   };
   function submitAdd(e) {
-    if(form.ratio<0||form.ratio>100){
+    if (form.ratio < 0 || form.ratio > 100) {
       notifyError('Tỉ lệ phải từ 0-100!');
-    }else{
+    } else {
       e.preventDefault();
-      axios.post(url,form)
+      axios.post(url, form)
         .then(res => {
-            notifySuccess('Thêm bản ghi thành công')
-            setAdd(false);
-            getData();
-            setValues(formDefault);
-            console.log(res.data);
-        }).catch((error)=>{
+          notifySuccess('Thêm bản ghi thành công')
+          setAdd(false);
+          getData();
+          setValues(formDefault);
+          console.log(res.data);
+        }).catch((error) => {
           notifyError('Yêu cầu nhập đủ các trường!');
           return;
         })
     }
-    
+
   }
 
   //btn Edit
@@ -340,90 +364,94 @@ const getRandomuserParams = (params) => ({
     }, 2000);
   };
   function submitEdit(e) {
-    if(form.ratio<0||form.ratio>100){
+    if (form.ratio < 0 || form.ratio > 100) {
       notifyError('Tỉ lệ phải từ 0-100!');
-    }else{
+    } else {
       e.preventDefault();
-      axios.put(url+"/"+form.id, form)
-      .then(res => {
-        notifySuccess('Sửa bản ghi thành công')
-        getData();
-        setEditing(false);
-        setValues(formDefault);
-        console.log(res.data);
-      }).catch((error)=>{
-        notifyError('Yêu cầu nhập đủ các trường!');
-        return;
-      })
+      axios.put(url + "/" + form.id, form)
+        .then(res => {
+          notifySuccess('Sửa bản ghi thành công')
+          getData();
+          setEditing(false);
+          setValues(formDefault);
+          console.log(res.data);
+        }).catch((error) => {
+          notifyError('Yêu cầu nhập đủ các trường!');
+          return;
+        })
     }
-    
+
   }
 
   //Delete
-const onDelete = (id) => {
-  Modal.confirm({
-    title: "Xoá giảm giá",
-    content: "Bạn có muốn xoá bản ghi này không?",
-    onOk() {
-      axios.delete(url+"/"+id)
-      .then(res => {
-        notifySuccess('Xóa bản ghi thành công!')
-        getData();
-        console.log(res.data);
-      }).catch((errorMessage) => {
-        notifyError('Chỉ xóa bản nháp!');
-        return;
-      })
-    },
-    onCancel() {
-      console.log('Cancel');
-    },
-  });
-};
+  const onDelete = (id) => {
+    Modal.confirm({
+      title: "Xoá giảm giá",
+      content: "Bạn có muốn xoá bản ghi này không?",
+      onOk() {
+        axios.delete(url + "/" + id)
+          .then(res => {
+            notifySuccess('Xóa bản ghi thành công!')
+            getData();
+            console.log(res.data);
+          }).catch((errorMessage) => {
+            notifyError('Chỉ xóa bản nháp!');
+            return;
+          })
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  };
 
   //OnChange Form
-  const handle=(e) =>{
+  const handle = (e) => {
     setValues({
       ...form,
       [e.target.name]: e.target.value
     });
   }
   //onChange Active
-  const handleChange =(e) => {
-    setValues({...form,
-      active:e
+  const handleChange = (e) => {
+    setValues({
+      ...form,
+      active: e
     });
-    console.log("active",e);
+    console.log("active", e);
   };
 
-  const handleChangeDate =(val,dateStrings) => {
-    setValues({...form,
-      startDate:dateStrings[0],
-      endDate:dateStrings[1]
+  const handleChangeDate = (val, dateStrings) => {
+    setValues({
+      ...form,
+      startDate: dateStrings[0],
+      endDate: dateStrings[1]
     });
   };
-  const handleChangeDateSearch =(val,dateStrings)=> {
-    if(dateStrings[0]!=null)
-    setSearchStartDate(dateStrings[0]);
-    if(dateStrings[1]!=null)
-    setSearchEndDate(dateStrings[1]);
+  const handleChangeDateSearch = (val, dateStrings) => {
+    if (dateStrings[0] != null)
+      setSearchStartDate(dateStrings[0]);
+    if (dateStrings[1] != null)
+      setSearchEndDate(dateStrings[1]);
   };
-  const onchangeSearch= (val,dateStrings) => {
+  const onchangeSearch = (val, dateStrings) => {
     setSearchStartDate(dateStrings[0]);
     setSearchEndDate(dateStrings[1]);
   };
 
   //Calendar
-  const setDates = (val,dateStrings) => {
+  const setDates = (val, dateStrings) => {
     console.log(dateStrings);
-    if(dateStrings[0]!=null)
-    setValues({...form,
-      startDate:dateStrings[0]
-    });
-    if(dateStrings[1]!=null)
-    setValues({...form,
-      endDate:dateStrings[1]
-    });
+    if (dateStrings[0] != null)
+      setValues({
+        ...form,
+        startDate: dateStrings[0]
+      });
+    if (dateStrings[1] != null)
+      setValues({
+        ...form,
+        endDate: dateStrings[1]
+      });
   };
   // const setDatesSearch = (e) => {
   //   console.log(e);
@@ -432,8 +460,8 @@ const onDelete = (id) => {
   //   if(e[1]!="")
   //   setSearchEndDate(e[1]._d);
   // };
- 
-  
+
+
 
   const handleCancel = () => {
     console.log("Clicked cancel button");
@@ -449,7 +477,7 @@ const onDelete = (id) => {
     tableParams.pagination.current = 1;
     tableParams.pagination.pageSize = 10;
     setLoading(true);
-    axios.get(url+`?${qs.stringify(
+    axios.get(url + `?${qs.stringify(
       getRandomuserParams(tableParams)
     )}`)
       // .then((res) => res.json())
@@ -461,13 +489,13 @@ const onDelete = (id) => {
           ...tableParams,
           pagination: {
             ...tableParams.pagination,
-            total: totalSet, 
+            total: totalSet,
           }
         });
       });
   }
 
-  
+
 
   const clearSearchForm = () => {
     setSearchStartDate(getDateTime());
@@ -475,22 +503,22 @@ const onDelete = (id) => {
     setTableParams({
       ...tableParams,
       pagination: {
-        ...tableParams.pagination.current= 1,
-        ...tableParams.pagination.pageSize=10,
-        ...tableParams.pagination.searchStartDate="",
-        ...tableParams.pagination.searchEndDate=""
+        ...tableParams.pagination.current = 1,
+        ...tableParams.pagination.pageSize = 10,
+        ...tableParams.pagination.searchStartDate = "",
+        ...tableParams.pagination.searchEndDate = ""
       }
     });
     getData();
   }
   const activeItem = (id) => {
     let activeItem = window.confirm('Chuyển trạng thái thành hoạt động?')
-    if(activeItem){
+    if (activeItem) {
       handleConfirmActive(id)
     }
   }
-  const handleConfirmActive=(id) =>{
-    axios.put(url+"/active/"+id)
+  const handleConfirmActive = (id) => {
+    axios.put(url + "/active/" + id)
       .then(res => {
         notifySuccess('Chuyển trạng thái hoạt động thành công!')
         getData();
@@ -659,40 +687,46 @@ const onDelete = (id) => {
               background: "#fafafa",
             }}
           >
+
             <div className="col-4 mt-3">
-            <label>Từ khoá</label>
-            <Space direction="vertical" size={12} style={{width: "472px",borderRadius: "5px" }}>
+              <label>Từ khoá</label>
+              <Input type="text" name="searchName" value={data.name} placeholder="Nhập tên tài khoản người dùng" onChange={onchangeSearch} />
+            </div>
+
+            <div className="col-4 mt-3 ">
+              <label>Thời gian</label>
+              <Space direction="vertical" size={12} style={{ width: "472px", borderRadius: "5px" }}>
                 <RangePicker
-                showTime={{ format: 'HH:mm:ss' }}
-                format={"yyyy-MM-DD HH:mm:ss"}
-                onChange={onchangeSearch} 
-                onCalendarChange={handleChangeDateSearch}
-                value={[moment(searchStartDate, "yyyy-MM-DD HH:mm:ss"), moment(searchEndDate, "yyyy-MM-DD HH:mm:ss")]}
-                type="datetime"
+                  showTime={{ format: 'HH:mm:ss' }}
+                  format={"yyyy-MM-DD HH:mm:ss"}
+                  onChange={onchangeSearch}
+                  onCalendarChange={handleChangeDateSearch}
+                  value={[moment(searchStartDate, "yyyy-MM-DD HH:mm:ss"), moment(searchEndDate, "yyyy-MM-DD HH:mm:ss")]}
+                  type="datetime"
                 />
               </Space>
             </div>
-            
+
             <div className="col-12 text-center ">
-            <Button
-              className="mx-2  mt-2"
-              type="primary"
-              onClick={search}
-              style={{ borderRadius: "10px" }}
-            >
-              <SearchOutlined />
-              Tìm kiếm
-            </Button>
-            <Button
-              className="mt-2"
-              type="primary-uotline"
-              onClick={clearSearchForm}
-              style={{ borderRadius: "10px" }}
-            >
-              <ReloadOutlined />
-              Đặt lại
-            </Button>
-              
+              <Button
+                className="mx-2  mt-2"
+                type="primary"
+                onClick={search}
+                style={{ borderRadius: "10px" }}
+              >
+                <SearchOutlined />
+                Tìm kiếm
+              </Button>
+              <Button
+                className="mt-2"
+                type="primary-uotline"
+                onClick={clearSearchForm}
+                style={{ borderRadius: "10px" }}
+              >
+                <ReloadOutlined />
+                Đặt lại
+              </Button>
+
             </div>
           </div>
 
@@ -715,65 +749,73 @@ const onDelete = (id) => {
                 onOk={handleAdd}
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
+                footer={[
+                  <Button key="back" onClick={handleCancel}>
+                    Hủy
+                  </Button>,
+                  <Button type="danger" onClick={draft}>
+                    Nháp
+                  </Button>,
+                  <Button key="submit" type="primary" loading={loading} onClick={handleAdd}>
+                    Thêm mới
+                  </Button>,
+                ]}
               >
                 <div className="form group">
                   <div className="row">
-                <div className="col-12 mt-1">
-                  <label>Tiêu đề<span className="text-danger"> *</span></label>
-                  <Input placeholder="Nhập tiêu đề" 
-                  onChange={(e) => handle(e)} name="name" value={form.name} type="text"/>
-                </div>
-                <div className="col-12 mt-1">
-                  <label>Tỉ lệ (%)<span className="text-danger"> *</span></label>
-                  <Input placeholder="Nhập tỉ lệ" 
-                  onChange={(e) => handle(e)} name="ratio" value={form.ratio} type="number" min="0" max="100"/>
-                </div>
-                <div className="col-12 mt-1">
-                  <label>Thời gian giảm giá<span className="text-danger"> *</span></label>
-                  <Space direction="vertical" size={12} style={{width: "472px",borderRadius: "5px" }}>
-                    <RangePicker
-                    showTime={{ format: 'HH:mm:ss' }}
-                    format={"yyyy-MM-DD HH:mm:ss"}
-                    onChange={handleChangeDate} 
-                    onCalendarChange={setDates}
-                    value={[moment(form.startDate, "yyyy-MM-DD HH:mm:ss"), moment(form.endDate, "yyyy-MM-DD HH:mm:ss")]}
-                    type="datetime"
-                    />
-                  </Space>
-                </div>
-                <div className="col-12 mt-1">
-                  <label>Trạng thái<span className="text-danger"> *</span></label>
-                  <Select
-                    style={{width: "472px",borderRadius: "5px" }}
-                    showSearch
-                    placeholder="Chọn trạng thái"
-                    optionFilterProp="children"
-                    onChange={(e) => handleChange(e)} name="active" value={form.active}
-                    // onSearch={onSearch}
-                    filterOption={(input, option) =>
-                      option.children.toLowerCase().includes(input.toLowerCase())
-                    }
+                    <div className="col-12 mt-1">
+                      <label>Tiêu đề<span className="text-danger"> *</span></label>
+                      <Input placeholder="Nhập tiêu đề"
+                        onChange={(e) => handle(e)} name="name" value={form.name} type="text" />
+                    </div>
+                    <div className="col-12 mt-1">
+                      <label>Tỉ lệ (%)<span className="text-danger"> *</span></label>
+                      <Input placeholder="Nhập tỉ lệ"
+                        onChange={(e) => handle(e)} name="ratio" value={form.ratio} type="number" min="0" max="100" />
+                    </div>
+                    <div className="col-12 mt-1">
+                      <label>Thời gian giảm giá<span className="text-danger"> *</span></label>
+                      <Space direction="vertical" size={12} style={{ width: "472px", borderRadius: "5px" }}>
+                        <RangePicker
+                          showTime={{ format: 'HH:mm:ss' }}
+                          format={"yyyy-MM-DD HH:mm:ss"}
+                          onChange={handleChangeDate}
+                          onCalendarChange={setDates}
+                          value={[moment(form.startDate, "yyyy-MM-DD HH:mm:ss"), moment(form.endDate, "yyyy-MM-DD HH:mm:ss")]}
+                          type="datetime"
+                        />
+                      </Space>
+                    </div>
+                    {/* <div className="col-12 mt-1">
+                      <label>Trạng thái<span className="text-danger"> *</span></label>
+                      <Select
+                        style={{ width: "472px", borderRadius: "5px" }}
+                        showSearch
+                        placeholder="Chọn trạng thái"
+                        optionFilterProp="children"
+                        onChange={(e) => handleChange(e)} name="active" value={form.active}
+                        // onSearch={onSearch}
+                        filterOption={(input, option) =>
+                          option.children.toLowerCase().includes(input.toLowerCase())
+                        }
+                      >
+                        <Option value={1}>Hoạt động</Option>
+                        <Option value={0}>Không hoạt động</Option>
+                      </Select>
+                    </div> */}
+                  </div>
+                  {/* <Button
+                    className="mt-2"
+                    onClick={() => draft()}
+                    style={{ borderRadius: "10px" }}
                   >
-                    <Option value={1}>Hoạt động</Option>
-                    <Option value={0}>Không hoạt động</Option>
-                  </Select>
-                </div>
-              </div>
-              <Button
-                  className="mt-2"
-                  onClick={() => draft()}
-                  style={{ borderRadius: "10px" }}
-                >
-                <ReloadOutlined />
-                Nháp
-              </Button>
+                    <ReloadOutlined />
+                    Nháp
+                  </Button> */}
                 </div>
               </Modal>
             </div>
           </div>
-
-
-          
         </div>
       </div>
 
@@ -807,53 +849,53 @@ const onDelete = (id) => {
           >
             <div className="form group">
               <div className="row">
-            <div className="col-12 mt-1">
-              <label>Tiêu đề<span className="text-danger"> *</span></label>
-              <Input placeholder="Nhập tiêu đề" 
-              onChange={(e) => handle(e)} name="name" value={form.name} type="text"/>
-            </div>
-            <div className="col-12 mt-1">
-              <label>Tỉ lệ (%)<span className="text-danger"> *</span></label>
-              <Input placeholder="Nhập tỉ lệ" 
-              onChange={(e) => handle(e)} name="ratio" value={form.ratio} type="number" min="0" max="100"/>
-            </div>
-            <div className="col-12 mt-1">
-              <label>Thời gian giảm giá<span className="text-danger"> *</span></label>
-              <Space direction="vertical" size={12} style={{width: "472px",borderRadius: "5px" }}>
-                <RangePicker
-                showTime={{ format: 'HH:mm:ss' }}
-                format={"yyyy-MM-DD HH:mm:ss"}
-                onChange={handleChangeDate} 
-                onCalendarChange={setDates}
-                value={[moment(form.startDate, "yyyy-MM-DD HH:mm:ss"), moment(form.endDate, "yyyy-MM-DD HH:mm:ss")]}
-                type="datetime"
-                />
-              </Space>
-            </div>
-            <div className="col-12 mt-1">
-              <label>Trạng thái<span className="text-danger"> *</span></label>
-              <Select
-                style={{width: "472px",borderRadius: "5px" }}
-                showSearch
-                placeholder="Chọn trạng thái"
-                optionFilterProp="children"
-                onChange={(e) => handleChange(e)} name="active" value={form.active}
-                // onSearch={onSearch}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-              >
-                <Option value={1}>Hoạt động</Option>
-                <Option value={0}>Không hoạt động</Option>
-                <Option value={2}>Nháp</Option>
-              </Select>
-            </div>
-          </div>
-        
+                <div className="col-12 mt-1">
+                  <label>Tiêu đề<span className="text-danger"> *</span></label>
+                  <Input placeholder="Nhập tiêu đề"
+                    onChange={(e) => handle(e)} name="name" value={form.name} type="text" />
+                </div>
+                <div className="col-12 mt-1">
+                  <label>Tỉ lệ (%)<span className="text-danger"> *</span></label>
+                  <Input placeholder="Nhập tỉ lệ"
+                    onChange={(e) => handle(e)} name="ratio" value={form.ratio} type="number" min="0" max="100" />
+                </div>
+                <div className="col-12 mt-1">
+                  <label>Thời gian giảm giá<span className="text-danger"> *</span></label>
+                  <Space direction="vertical" size={12} style={{ width: "472px", borderRadius: "5px" }}>
+                    <RangePicker
+                      showTime={{ format: 'HH:mm:ss' }}
+                      format={"yyyy-MM-DD HH:mm:ss"}
+                      onChange={handleChangeDate}
+                      onCalendarChange={setDates}
+                      value={[moment(form.startDate, "yyyy-MM-DD HH:mm:ss"), moment(form.endDate, "yyyy-MM-DD HH:mm:ss")]}
+                      type="datetime"
+                    />
+                  </Space>
+                </div>
+                {/* <div className="col-12 mt-1">
+                  <label>Trạng thái<span className="text-danger"> *</span></label>
+                  <Select
+                    style={{ width: "472px", borderRadius: "5px" }}
+                    showSearch
+                    placeholder="Chọn trạng thái"
+                    optionFilterProp="children"
+                    onChange={(e) => handleChange(e)} name="active" value={form.active}
+                    // onSearch={onSearch}
+                    filterOption={(input, option) =>
+                      option.children.toLowerCase().includes(input.toLowerCase())
+                    }
+                  >
+                    <Option value={1}>Hoạt động</Option>
+                    <Option value={0}>Không hoạt động</Option>
+                    <Option value={2}>Nháp</Option>
+                  </Select>
+                </div> */}
+              </div>
+
             </div>
           </Modal>
 
-          
+
         </div>
       </div>
     </div>
