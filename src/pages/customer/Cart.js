@@ -47,7 +47,7 @@ function Cart() {
     const [tableParams, setTableParams] = useState({
         pagination: {
           current: 1,
-          pageSize: 5
+          pageSize: 100
         },
       });
     //APILoadList
@@ -77,7 +77,7 @@ function Cart() {
    setCart({...cart,
     quantity:cart.quantity-1
   })
-  axios.put(url,cart)
+  axios.put(url+"/"+cart.id,cart)
         .then(res => {
           console.log(res.data);
         })
@@ -87,10 +87,14 @@ function Cart() {
     setCart({...cart,
         quantity:cart.quantity+1
       })
-    axios.put(url,cart)
+    axios.put(url+"/"+cart.id,cart)
         .then(res => {
           console.log(res.data);
         })
+  };
+
+  const checkout = (carts) => {
+    localStorage.setItem("cart",JSON.stringify(carts))
   };
 
   const showCarts = (carts) => {
@@ -107,7 +111,7 @@ function Cart() {
                     </div>
                     <div className="col-7 mt-3 d-block ">
                         <div>
-                            <span className="text-name">{cart.productId?cart.productId.name:""}</span>
+                            <h5 className="text-name">{cart.productId?cart.productId.name:""}</h5>
                             <p className="d-flex">
                             <span className="center-on-small-only">
                               <span className="qty">{cart.quantity}</span>
@@ -126,7 +130,7 @@ function Cart() {
                                   </label>
                               </div>
                           </span>
-                            <span className="price me-3 text-danger">
+                            <span className="price me-3 text-danger"><a> </a>
                             {cart.productId?cart.productId.price:""}</span> <span className="price ms-3">17.000.000</span>
                                 <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm 30%</button>
                             </p>
@@ -157,7 +161,7 @@ function Cart() {
                     <span className="text-danger cart-footer-text">17.999.000 đ</span>
                 </div>
                 <div className="mt-2">
-                    <button className="btn btn-primary btn-cart">Tiến hành đặt hàng</button>
+                <a href="/user/checkout"><button className="btn btn-primary btn-cart" onClick={()=>checkout(carts) }>Tiến hành đặt hàng</button></a>
                 </div>
                 <div className="mt-2">
                     <button className="btn btn-outline-primary btn-cart">Chọn thêm sản phẩm</button>
