@@ -3,6 +3,34 @@ import './css/checkout.css'
 import product from '../../asset/images/products/product01.png';
 
 function Checkout() {
+    const carts=localStorage.getItem("cart");
+    let i=0;
+    const showCarts = (carts) => {
+        let result = null;
+        let cartList=JSON.parse(carts);
+        console.log(cartList[0].productId.name)
+        if (cartList.length > 0) {
+            // for(i=0;i<cartList.length;i++){
+                const listItems = cartList.map((cart) =>
+                
+                <div className="row d-flex">
+                <div className="col-3 img">
+                    <img alt="Ảnh sản phẩm" src={product} className="img-content"></img>
+                </div>
+                <div className="col-9 mt-3 d-block ">
+                    <div>
+                        <p className="text-name">x{cart.quantity} - {cart.productId.name}
+                        - ${cart.productId.price}
+                        </p>
+                    </div>
+                </div>
+            </div>
+                )
+                return listItems;
+            // };
+        }
+        
+    }
     return (
         <>
             <div className="checkout row pt-2 mt-5">
@@ -43,17 +71,8 @@ function Checkout() {
                                     <input type={'radio'} name="ip-rdo"></input> <label>Lấy tại nhà</label>
                                 </div>
                             </form>
-                            <div className="row d-flex">
-                                <div className="col-3 img">
-                                    <img alt="Ảnh sản phẩm" src={product} className="img-content"></img>
-                                </div>
-                                <div className="col-9 mt-3 d-block ">
-                                    <div>
-                                        <p className="text-name">alsdkbasljdbasjldbasljdbjsdasdasdasssssssssssssssssssssssssssssssssssssssdadsa
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+
+                            {showCarts(carts)}
                         </div>
                     </div>
                 </div>
