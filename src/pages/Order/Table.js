@@ -1,11 +1,13 @@
-import { Select, Input, Button, Checkbox } from "antd";
+import { Select, Input, Button, Checkbox, InputNumber, Space } from "antd";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import qs from "qs";
 import "../Order/table.css";
-import { AutoComplete } from "antd";
-
+import { Table, Modal } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 const { Option } = Select;
+const { TextArea } = Input;
+
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
@@ -14,22 +16,29 @@ const getRandomuserParams = (params) => ({
 });
 
 function Table1() {
+  const [quantity, setQuantity] = useState();
   const [array, setArray] = useState([{}]);
   const [district, setDistrict] = useState([{}]);
-  const [value, setValue] = useState("");
-  const [valueDistrict, setValueDistrict] = useState("");
-  const [valueWard, setValueWard] = useState("");
+  const [isDelete, setDelete] = useState(false);
+  const [id, setId] = useState();
   const [Ward, setWard] = useState([{}]);
-  const [districtId, setDistrictId] = useState(1542);
-  const [wardCode, setWardCode] = useState(20314);
+  const [districtId, setDistrictId] = useState(1);
+  const [wardCode, setWardCode] = useState(1);
   const [shipping, setShipping] = useState(0);
   const [serviceId, setServiceId] = useState();
   const [isDisabled, setIsDisabled] = useState(false);
-  const [ProvinceID, setProvinceID] = useState();
-  const [result, setResult] = useState([{}]);
+  const [ProvinceID, setProvinceID] = useState(1);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState();
+  const [dataCart, setDataCart] = useState();
+  const [dataClient, setDataClient] = useState();
   const [valueProduct, setValueProduct] = useState("");
+  const [valueClient, setValueClient] = useState("");
+  const [total, setTotal] = useState(0);
+  const [valueProvince, setValueProvince] = useState();
+  const [valueDistrict, setValueDistrict] = useState();
+  const [payment, setPayment] = useState();
+  const [valueWard, setValueWard] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -39,37 +48,206 @@ function Table1() {
     },
   });
 
-  const _handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      console.log("do validate" + e.target.value);
-      setValueDistrict(e.target.value);
-    }
+  const handleChangePayment = (value) => {
+    setPayment(value);
+    console.log("value payment:" + value);
   };
 
-  const onChangeProduct = (event) => {
-    setValueProduct(event.target.value);
-    console.log("value product: " + event.target.value);
+  const handleSubmitOrder = () => {
+    const order = {
+      payment: payment,
+      total: total,
+      userId: 1,
+      address:
+        valueProvince !== undefined
+          ? valueWard + ", " + valueDistrict + ", " + valueProvince
+          : "TẠI CỬA HÀNG",
+    };
+    fetch("http://localhost:8080/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        payment: order.payment,
+        userId: order.userId,
+        total: order.total,
+        address: order.address,
+      }),
+    }).then((res) => {
+      // res.json();
+      console.log("đặt hàng thành công !:");
+      console.log(res.data);
+    });
+    console.log(order);
   };
 
-  const onSearchProduct = (searchItem) => {
-    setValueProduct(searchItem);
-    console.log("product item: " + searchItem);
+  // event,item.productId,item.productId.price,item.id,item.useId
+  const onChangeInputNumber = (value, productId, price, id, useId) => {
+    const cart = {
+      total: value * price,
+      useId: useId,
+      quantity: value,
+      productId: productId,
+    };
+    fetch(`http://localhost:8080/api/carts/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: cart.productId,
+        userId: cart.useId,
+        quantity: cart.quantity,
+        total: cart.total,
+      }),
+    }).then((res) => {
+      // res.json();
+      console.log("load data cart:");
+      console.log(res.data);
+      loadDataCart();
+      let total = 0;
+      dataCart?.forEach((item) => (total += item.total));
+      console.log("tổng tiền sau khi tính: " + total);
+      setTotal(total);
+      // notify();
+    });
   };
 
-  ///onchang data product
-
-  const onChangeProvince = (event) => {
-    setValue(event.target.value);
+  const SubmitCartData = (value) => {
+    console.log(value);
+    fetch("http://localhost:8080/api/carts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: value,
+        userId: 1,
+        quantity: 0,
+        total: 0,
+      }),
+    }).then((res) => {
+      // res.json();
+      console.log("load data cart:");
+      console.log(res.data);
+      loadDataCart();
+    });
   };
 
-  const onSearchProvince = (searchTerm, value) => {
-    setValue(searchTerm);
-    // our api to fetch the search result
-    console.log("search ", searchTerm);
-    console.log("value province id:" + value);
+  const onDelete = (id) => {
+    setId(id);
+    setDelete(true);
+  };
+  const columns = [
+    {
+      title: "Tên sản phẩm",
+      dataIndex: dataCart?.map((item) => item.productId.name)[0],
+      width: "45%",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+      with: "25%",
+      render: (id, data) => {
+        return (
+          <>
+            <InputNumber
+              min={0}
+              max={100}
+              defaultValue={0}
+              value={quantity}
+              onChange={onChangeInputNumber}
+            />
+          </>
+        );
+      },
+    },
+    {
+      title: "Thành tiền",
+      dataIndex: "total",
+      width: "10%",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
+        return (
+          <>
+            <DeleteOutlined
+              onClick={() => onDelete(data.id)}
+              style={{ color: "red", marginLeft: 12 }}
+            />
+          </>
+        );
+      },
+    },
+  ];
+
+  const onChange = (value) => {
+    console.log("province value onChange: " + value);
     setProvinceID(value);
     loadDataDistrict(value);
   };
+  const onSearch = (value) => {
+    if (value.target.innerText !== "") {
+      setValueProvince(value.target.innerText);
+      loadDataDistrict();
+    }
+  };
+
+  const onChangeDistricts = (value) => {
+    if (value != null) {
+      setIsDisabled(false);
+    }
+    setDistrictId(value);
+    loadDataWard(value);
+  };
+
+  const onSearchDistricts = (value) => {
+    if (value.target.innerText !== "") {
+      setValueDistrict(value.target.innerText);
+      console.log("value district id:" + value.target.innerText);
+      loadDataWard();
+    }
+  };
+
+  const onChangeWards = (value) => {
+    if (value === "") {
+      setIsDisabled(true);
+    }
+    console.log("value ward code: ", value);
+    setWardCode(value);
+    SubmitShipping(value);
+  };
+
+  const onSearchWards = (value) => {
+    if (value.target.innerText !== "") {
+      setValueWard(value.target.innerText);
+      SubmitShipping();
+    }
+  };
+
+  const onChangeProduct = (value) => {
+    setValueProduct(value);
+    SubmitCartData(value);
+    let total = 0;
+    dataCart?.forEach((item) => (total += item.total));
+    console.log("tổng tiền sau khi tính: " + total);
+    setTotal(total);
+    console.log("value product: " + value);
+  };
+
+  const onSearchProduct = (searchItem) => {
+    console.log("value product click" + valueProduct);
+  };
+
+  const onChangeClient = (event) => {
+    setValueClient(event.target.value);
+    console.log("value client: " + event.target.value);
+  };
+
+  const onSearchClient = (searchItem) => {
+    setValueClient(searchItem);
+    console.log("value client: " + searchItem);
+  };
+
   const loadDataProvince = () => {
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/master-data/province",
@@ -97,27 +275,9 @@ function Table1() {
       });
   };
 
-  //call API tỉnh thành
-
-  const onChangeDistrict = (event) => {
-    setValueDistrict(event.target.value);
-    setIsDisabled(false);
-  };
-
-  const onSearchDistrict = (searchTerm, value) => {
-    setValueDistrict(searchTerm);
-    setDistrictId(value);
-    // setValueDistrict(value)
-    // our api to fetch the search result
-    console.log("search District", searchTerm);
-    console.log("value District", value);
-    if (value != null) {
-      loadDataWard(value);
-    }
-  };
-
   const loadDataDistrict = (value) => {
     console.log("load Province Id: " + value);
+    console.log("value load Provence Id: " + ProvinceID);
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
       {
@@ -128,7 +288,7 @@ function Table1() {
           token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
         },
         body: JSON.stringify({
-          province_id: value,
+          province_id: value ? value : ProvinceID != 1,
         }),
       }
     )
@@ -140,38 +300,14 @@ function Table1() {
       })
       .then((result) => {
         setDistrict(result.data);
-        console.log(result.data);
       })
       .catch((error) => {
         console.log("err", error);
       });
   };
 
-  //call API quận huyện
-
-  const onChangeWard = (event) => {
-    setValueWard(event.target.value);
-  };
-
-  const onSearchWard = (searchTerm, value) => {
-    if (searchTerm != null) {
-      setValueWard(searchTerm);
-      console.log("search ward", searchTerm + "" + value);
-    } else {
-      valueWard = isDisabled;
-    }
-
-    // our api to fetch the search result
-
-    if (value != null) {
-      setShipping(value);
-      SubmitShipping(value);
-    }
-  };
-
   const loadDataWard = (value) => {
-    console.log("districtId:" + value);
-
+    console.log("districtId khi service:" + value);
     if (value != null) {
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
@@ -185,7 +321,7 @@ function Table1() {
           body: JSON.stringify({
             shop_id: 3379752,
             from_district: 1542,
-            to_district: value,
+            to_district: value ? value : districtId != 1,
           }),
         }
       )
@@ -199,9 +335,6 @@ function Table1() {
             console.log("data service id: " + data.data[0].service_id);
             const checkValue = data.data[0].service_id;
             setServiceId(checkValue);
-            console.log("check Value: " + checkValue);
-            console.log("service id sau khi set: " + serviceId);
-            // if (serviceId != null) {
             fetch(
               "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward",
               {
@@ -212,7 +345,7 @@ function Table1() {
                   token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
                 },
                 body: JSON.stringify({
-                  district_id: value,
+                  district_id: value ? value : districtId != 1,
                 }),
               }
             )
@@ -221,16 +354,13 @@ function Table1() {
                 if (data.data === null) {
                   console.log("không có dữ liệu phù hợp");
                 } else {
-                  console.log("Success ward:", data.data);
                   setWard(data.data);
                 }
               })
               .catch((error) => {
                 console.error("Error:", error);
               });
-            // setWard(data.data);
           }
-          // }
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -238,12 +368,9 @@ function Table1() {
     }
   };
 
-  //call API Phường xã
-
   const url = "http://localhost:8080/api/orders";
 
   const SubmitShipping = (value) => {
-    console.log("service Id sau set: " + serviceId);
     if (value != null) {
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
@@ -261,7 +388,7 @@ function Table1() {
             coupon: null,
             from_district_id: 3440,
             to_district_id: districtId,
-            to_ward_code: value,
+            to_ward_code: value | (setWardCode != 1),
             height: 15,
             length: 15,
             weight: 1000,
@@ -271,10 +398,7 @@ function Table1() {
       )
         .then((response) => response.json())
         .then((data) => {
-          console.log("Success shipping:", data.data);
-          console.log(data.data.total);
           setShipping(data.data.total);
-          // setWard(data.data);
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -284,14 +408,82 @@ function Table1() {
 
   useEffect(() => {
     loadDataProvince();
-    load();
-    console.log("data product");
-    // console.log(data);
-    // console.log("array");
-    // console.log(array);
-  }, []);
+    loadDataProduct();
+    loadDataClient();
+    loadDataCart();
+  }, [total != undefined]);
 
-  const load = () => {
+  const loadDataClient = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/users?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataClient(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+  const loadDataCart = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/carts?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataCart(results.data.data);
+        console.log("-------------- data cart -------------");
+        console.log(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+        // let total = 0;
+        // dataCart?.forEach((item) => (total += item.total));
+        // console.log("tổng tiền sau khi tính: " + total);
+      });
+  };
+
+  const handleTableChange = (pagination) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchUsername;
+    tableParams.pagination.search2 = searchStatus;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/carts?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataCart(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataProduct = () => {
     setLoading(true);
     fetch(
       `http://localhost:8080/api/products?${qs.stringify(
@@ -312,36 +504,6 @@ function Table1() {
       });
   };
 
-  const submit_orderDetail = (e) => {
-    e.preventDefault();
-    axios
-      .post(url, {
-        orderId: data.orderId,
-        productId: data.productId,
-        quantity: data.quantity,
-        price: data.price,
-        status: data.status,
-      })
-      .then((res) => {
-        window.location.reload();
-        console.log(res.data);
-      });
-  };
-
-  const options = [
-    {
-      value: "a",
-      label1: "a",
-    },
-    {
-      value: "aaa",
-      label1: "aaa",
-    },
-    {
-      value: "b",
-      label1: "b",
-    },
-  ];
   return (
     <div>
       <div className="row">
@@ -349,43 +511,27 @@ function Table1() {
           <div className="timk col-4 ">
             <div className="search-container">
               <div className="search-inner mb-2">
-                <input
-                  type="text"
-                  //  style={border"1px solid #d9d9d9;"}
+                <Select
+                  showSearch
                   placeholder="Tên sản phẩm"
-                  value={valueProduct}
+                  optionFilterProp="children"
+                  style={{
+                    width: 400,
+                  }}
                   onChange={onChangeProduct}
-                  onClick={() => onSearchProduct(valueProduct)}
-                />
-                <div className="dropdown">
-                  {data != null
-                    ? data
-                        .filter((item) => {
-                          const searchTerm = valueProduct
-                            .toString()
-                            .toLowerCase();
-                          const fullName =
-                            item.name !== undefined
-                              ? item.name.toLowerCase()
-                              : "";
-                          return (
-                            searchTerm &&
-                            fullName.startsWith(searchTerm) &&
-                            fullName !== searchTerm
-                          );
-                        })
-                        .slice(0, 10)
-                        .map((item) => (
-                          <div
-                            onClick={() => onSearchProduct(item.name)}
-                            className="dropdown-row"
-                            key={item.id}
-                          >
-                            {item.name}
-                          </div>
-                        ))
+                  onClick={onSearchProduct}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {data != undefined
+                    ? data.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))
                     : ""}
-                </div>
+                </Select>
               </div>
             </div>
           </div>
@@ -395,234 +541,213 @@ function Table1() {
           <div className="title">
             <h3>Thông tin khách hàng</h3>
           </div>
-
           <div className="row mt-3">
             <div className="col-6">
-              <div className="form-group">
-                <label>Tìm kiếm thông tin</label>
-                <Input placeholder="Tìm kiếm theo số điện thoại hoặc email" />
+              <div className="search-container">
+                <div className="search-inner mb-2">
+                  <label>Tên khách hàng</label>
+                  <input
+                    type="text"
+                    placeholder="Tên khách hàng"
+                    value={valueClient}
+                    onChange={onChangeClient}
+                    onClick={() => onSearchClient(valueClient)}
+                  />
+                  <div className="dropdown">
+                    {dataClient != null
+                      ? dataClient
+                          .filter((item) => {
+                            const searchTerm = valueClient
+                              .toString()
+                              .toLowerCase();
+                            const fullName =
+                              item.username !== undefined
+                                ? item.username.toLowerCase()
+                                : "";
+                            return (
+                              searchTerm &&
+                              fullName.startsWith(searchTerm) &&
+                              fullName !== searchTerm
+                            );
+                          })
+                          .slice(0, 10)
+                          .map((item) => (
+                            <div
+                              onClick={() => onSearchClient(item.username)}
+                              className="dropdown-row"
+                              key={item.id}
+                            >
+                              {item.username}
+                            </div>
+                          ))
+                      : ""}
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="col-6">
-              <div className="form-group">
-                <label>Tên khách hàng</label>
-                <Input placeholder="Tên khách hàng" />
-              </div>
-            </div>
-          </div>
-
-          <div className="row mt-3">
-            <div className="form-group">
-              <label>Mã hóa đơn</label>
-              <Input placeholder="Tìm kiếm theo số điện thoại hoặc email" />
-            </div>
+            
           </div>
           <div className="row mt-3">
             <div className="col-6">
               <div className="form-group">
                 <label>Thông tin người bán</label>
-                <Input placeholder="Tên người bán" />
+                <Input placeholder="Hà Trung Kiên" />
               </div>
             </div>
-            <div className="col-6">
-              <div className="form-group">
-                <label>Số điện thoại khách hàng</label>
-                <Input placeholder="Tên khách hàng" />
-              </div>
-            </div>
+           
           </div>
-
           <div className="row mt-3">
             <div className="col-6">
               <label>Tỉnh/ Thành Phố</label>
-              <div className="search-container">
-                <div className="search-inner mb-2">
-                  <input
-                    type="text"
-                    //  style={border"1px solid #d9d9d9;"}
-                    placeholder="Tên tỉnh thành"
-                    value={value}
-                    onChange={onChangeProvince}
-                    onClick={() => onSearchProvince(value)}
-                  />
-                  <div className="dropdown">
-                    {array
-                      .filter((item) => {
-                        const searchTerm = value.toString().toLowerCase();
-                        const fullName =
-                          item.ProvinceName !== undefined
-                            ? item.ProvinceName.toLowerCase()
-                            : "";
-                        return (
-                          searchTerm &&
-                          fullName.startsWith(searchTerm) &&
-                          fullName !== searchTerm
-                        );
-                      })
-                      .slice(0, 10)
-                      .map((item) => (
-                        <div
-                          onClick={() =>
-                            onSearchProvince(item.ProvinceName, item.ProvinceID)
-                          }
-                          className="dropdown-row"
-                          key={item.ProvinceName}
-                        >
-                          {item.ProvinceName}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
+              <Select
+                showSearch
+                placeholder="Tỉnh/thành phố"
+                optionFilterProp="children"
+                style={{
+                  width: 240,
+                }}
+                onChange={onChange}
+                onClick={onSearch}
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                {array.map((item) => (
+                  <Option key={item.ProvinceID} value={item.ProvinceID}>
+                    {item.ProvinceName}
+                  </Option>
+                ))}
+              </Select>
               <div className="search-container mb-2">
                 <div className="search-inner">
                   <label>Tên quận huyện</label>
-                  <input
-                    type="text"
-                    placeholder="Tên quận huyện"
-                    value={valueDistrict}
-                    onChange={onChangeDistrict}
-                    onClick={() => onSearchDistrict(valueDistrict)}
-                    onKeyDown={_handleKeyDown}
-                  />
-                </div>
-                <div className="dropdown">
-                  {district
-                    .filter((item) => {
-                      const searchTerm = valueDistrict.toString().toLowerCase();
-                      const fullName =
-                        item.DistrictName !== undefined
-                          ? item.DistrictName.toLowerCase()
-                          : "";
-
-                      return (
-                        searchTerm &&
-                        fullName.startsWith(searchTerm) &&
-                        fullName !== searchTerm
-                      );
-                    })
-                    .slice(0, 5)
-                    .map((item) => (
-                      <div
-                        onClick={() =>
-                          onSearchDistrict(item.DistrictName, item.DistrictID)
-                        }
-                        className="dropdown-row"
-                        key={item.DistrictID}
-                      >
+                  <Select
+                    showSearch
+                    placeholder="Quận/huyện"
+                    optionFilterProp="children"
+                    style={{
+                      width: 240,
+                    }}
+                    onChange={onChangeDistricts}
+                    onClick={onSearchDistricts}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    {district.map((item) => (
+                      <Option key={item.DistrictID} value={item.DistrictID}>
                         {item.DistrictName}
-                      </div>
+                      </Option>
                     ))}
+                  </Select>
                 </div>
               </div>
               <div className="search-container">
                 <div className="search-inner">
                   <label>Tên phường xã</label>
-                  <input
-                    type="text"
-                    placeholder="Tên phường xã"
-                    value={valueWard}
+                  <Select
+                    showSearch
+                    placeholder="Phường/xã"
+                    optionFilterProp="children"
+                    style={{
+                      width: 240,
+                    }}
+                    onChange={onChangeWards}
+                    onClick={onSearchWards}
                     disabled={isDisabled}
-                    onChange={onChangeWard}
-                    onClick={() => onSearchWard(valueWard)}
-                  />
-                  <div className="dropdown">
-                    {Ward.filter((item) => {
-                      const searchTerm = valueWard.toString().toLowerCase();
-                      const fullName = item.WardName !== undefined 
-                      ? item.WardName.toLowerCase() : "";
-
-                      return (
-                        searchTerm &&
-                        fullName.startsWith(searchTerm) &&
-                        fullName !== searchTerm 
-                      );
-                    })
-                      .slice(0, 10)
-                      .map((item) => (
-                        <div
-                          onClick={() =>
-                            onSearchWard(item.WardName, item.WardCode)
-                          }
-                          className="dropdown-row"
-                          key={item.WardName}
-                        >
-                          {item.WardName}
-                        </div>
-                      ))}
-                  </div>
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    {Ward.map((item) => (
+                      <Option key={item.WardCode} value={item.WardCode}>
+                        {item.WardName}
+                      </Option>
+                    ))}
+                  </Select>
                 </div>
               </div>
             </div>
             <div className="col-6">
               <div className="form-group">
                 <br />
-                <textarea
-                  rows="7"
-                  cols="39"
-                  placeholder="Địa chỉ chi tiết ..."
+                <TextArea rows={4} placeholder={"Địa chỉ chi tiết"} />
+              </div>
+              <div className="form-group">
+                <label>Tổng tiền</label>
+                <br />
+                <Input
+                  disabled={true}
+                  value={total}
+                  onChange={(e) => setTotal(e.target.value)}
                 />
               </div>
             </div>
           </div>
-
           <div className="row mt-3">
             <div className="col-6">
               <div className="form-group">
                 <label>Khuyến mãi</label>
-                <div className="input-group">
-                  <input type="text" className="form-control" placeholder="0" />
-                  <span className="input-group-text">%</span>
-                </div>
+                <Space direction="vertical">
+                  <InputNumber addonAfter={"%"} defaultValue={0} />
+                </Space>
               </div>
             </div>
             <div className="col-6">
               <div className="form-group">
                 <label>Phí ship</label>
-                <div className="input-group">
-                  <input
-                    type="text"
+                <Space direction="vertical">
+                  <InputNumber
                     value={shipping}
-                    onChange={(e) => setShipping(e.target.value)}
-                    className="form-control"
-                    placeholder="0"
                     disabled
+                    addonAfter={"VND"}
+                    defaultValue={100}
                   />
-                  <span className="input-group-text">VNĐ</span>
-                </div>
+                </Space>
               </div>
             </div>
           </div>
-
           <div className="row mt-3">
             <div className="col-6">
               <div className="form-group">
                 <label>Phương thức mua hàng</label>
-                <select className="form-select">
-                  <option>Chọn hình thức mua hàng</option>
-                  <option value="1">One</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </select>
+                <br/>
+                <Select
+                placeholder="Hình thức mua hàng"
+                style={{
+                  width: 230,
+                }}
+                onChange={handleChangePayment}
+              >
+                <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
+                <Option value="TẠI CỬA HÀNG">Giao hàng tại nhà</Option>
+              </Select>
               </div>
             </div>
             <div className="col-6">
-              <div className="form-group">
-                <label>Phương thức thanh toán</label>
-                <select className="form-select">
-                  <option>Chọn hình thức thanh toán</option>
-                  <option value="1">One</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </select>
-              </div>
+            <label>Hình thức thanh toán</label>
+              <Select
+                placeholder="Hình thức thanh toán"
+                style={{
+                  width: 230,
+                }}
+                onChange={handleChangePayment}
+              >
+                <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
+                <Option value="TÀI KHOẢN ATM">Tài khoản ATM</Option>
+                <Option value="TÀI KHOẢN VN PAY">Tài khoản VN PAY</Option>
+              </Select>
             </div>
           </div>
 
           <div className="row mt-3">
             <div className="form-group">
               <br />
-              <textarea rows="7" cols="85" placeholder="Ghi chú ..." />
+              <TextArea rows={6} />
             </div>
           </div>
         </div>
@@ -633,28 +758,84 @@ function Table1() {
           </div>
           <div className="row">
             <div className="col-12 mt-3">
-              <table className="table table-striped">
+              <table className="table">
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <th>Sản phẩm</th>
-                    <th>Số lượng</th>
+                    <th>STT</th>
+                    <th>Tên sản phẩm</th>
                     <th>Đơn giá</th>
+                    <th>Số lượng</th>
                     <th>Thành tiền</th>
-                    <th>Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Laptop Gaming ...</td>
-                    <td></td>
-                    <td>300000000</td>
-                    <td>300000000</td>
-                    <td>1</td>
-                  </tr>
+                  {dataCart?.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{index}</td>
+                        <td>{item.productId.name}</td>
+                        <td>{item.productId.price}</td>
+                        <td key={item.productId.id}>
+                          <InputNumber
+                            onChange={(event) =>
+                              onChangeInputNumber(
+                                event,
+                                item.productId.id,
+                                item.productId.price,
+                                item.id,
+                                item.userId
+                              )
+                            }
+                            value={quantity}
+                            key={item.productId.id}
+                            defaultValue={0}
+                            min={1}
+                            max={10}
+                          />
+                          {/* <InputNumber
+                            min={1}
+                            max={10}
+                            defaultValue={1}
+                            value= {quantity}
+                            // onChange={onChangeInputNumber}
+                          /> */}
+                        </td>
+                        <td>{item.total}</td>
+                        <td>
+                          <DeleteOutlined
+                            onClick={() => onDelete(item.id)}
+                            style={{ color: "red", marginLeft: 12 }}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
+              {/* <Table
+                columns={columns}
+                rowKey={(record) => record++}
+                dataSource={dataCart}
+                pagination={tableParams.pagination}
+                loading={loading}
+                onChange={handleTableChange}
+              /> */}
+              <Modal
+                title="Xóa sản phẩm "
+                visible={isDelete}
+                onCancel={() => {
+                  setDelete(false);
+                }}
+                onOk={() => {
+                  fetch(`http://localhost:8080/api/carts/${id}`, {
+                    method: "DELETE",
+                  }).then(() => loadDataCart());
+                  setDelete(false);
+                  // toastSuccess("Xóa sản phẩm thành công!");
+                }}
+              >
+                Bạn muốn xoá sản phẩm khỏi giỏ hàng không ?
+              </Modal>
             </div>
           </div>
         </div>
@@ -662,7 +843,11 @@ function Table1() {
 
       <div className="row">
         <div className="btn-submit">
-          <Button className="text-center" type="button">
+          <Button
+            className="text-center"
+            type="button"
+            onClick={handleSubmitOrder}
+          >
             Hoàn tất đặt hàng
           </Button>
         </div>
