@@ -80,3 +80,24 @@ input.ip-rdo {
     height: 35px;
     font-size: 14px !important;
 }
+
+.btn-danger {
+    background-color: rgb(255, 70, 50) !important;
+    transition: ease 0.5s all;
+}
+
+.btn-danger:hover {
+    background-color: rgb(198, 21, 1) !important;
+    transition: ease 0.5s all;
+}
+
+
+.btn-primary {
+    background-color: rgb(33, 146, 251) !important;
+    transition: ease 0.5s all;
+}
+
+.btn-primary:hover {
+    background-color: rgb(0, 106, 205) !important;
+    transition: ease 0.5s all;
+}

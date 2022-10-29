@@ -3,6 +3,9 @@ import './css/checkout.css'
 import product from '../../asset/images/products/product01.png';
 
 function Checkout() {
+    const products = localStorage.getItem('products');
+    console.log('products', products)
+
     return (
         <>
             <div className="checkout row pt-2 mt-5">

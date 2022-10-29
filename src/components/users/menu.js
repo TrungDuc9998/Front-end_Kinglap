@@ -6,6 +6,7 @@ import logo from '../../asset/images/LOGO LAPTOP.png'
 
 
 function Menu() {
+
     return (
         <>
             <header>
@@ -83,10 +84,10 @@ function Menu() {
                                     </div>
 
                                     <div className="dropdown">
-                                        <a className="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                        <Link to={"/user/cart"} className="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                                             <ShoppingCart></ShoppingCart>
                                             <span>Your Cart</span>
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
