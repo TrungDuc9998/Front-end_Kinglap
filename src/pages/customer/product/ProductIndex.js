@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from 'react-redux';
-import * as Actions from ".././controller/ActionTypes";
+// import * as Actions from ".././controller/ActionTypes";
 import { Heart, Repeat, Eye, ShoppingCart } from 'react-feather';
 import 'toastr/build/toastr.min.css';
 import toastrs from "toastr";

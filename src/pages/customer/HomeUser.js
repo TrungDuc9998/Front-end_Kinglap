@@ -18,7 +18,6 @@ import qs from "qs";
 
 import axios from "axios";
 
-
 function HomeUser() {
     const url = 'http://localhost:8080/api/products';
     const [totalSet, setTotal] = useState(10);
