@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import './css/checkout.css'
 import product from '../../asset/images/products/product01.png';
+import StoreContext from '../../store/Context';
 
 function Checkout() {
-    const products = localStorage.getItem('products');
-    console.log('products', products)
-
+    const [state, dispath] = useContext(StoreContext);
+    const products = state.cartCheckout;
+    console.log('list products', products)
     return (
         <>
             <div className="checkout row pt-2 mt-5">
@@ -46,17 +47,19 @@ function Checkout() {
                                     <input type={'radio'} name="ip-rdo"></input> <label>Lấy tại nhà</label>
                                 </div>
                             </form>
-                            <div className="row d-flex">
-                                <div className="col-3 img">
-                                    <img alt="Ảnh sản phẩm" src={product} className="img-content"></img>
-                                </div>
-                                <div className="col-9 mt-3 d-block ">
-                                    <div>
-                                        <p className="text-name">alsdkbasljdbasjldbasljdbjsdasdasdasssssssssssssssssssssssssssssssssssssssdadsa
-                                        </p>
+                            {products.map(pro => (
+                                <div className="row d-flex" key={pro.id}>
+                                    <div className="col-3 img">
+                                        <img alt="Ảnh sản phẩm" src={product} className="img-content"></img>
+                                    </div>
+                                    <div className="col-9 mt-3 d-block ">
+                                        <div>
+                                            <p className="text-name">{pro.name}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </div>

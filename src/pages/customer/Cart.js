@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useR } from "react";
+import React, { useContext, useState } from "react";
 import './css/cart.css';
 import imProduct from '../../asset/images/products/product01.png';
-import { Select } from "antd";
 import { Link } from "react-router-dom";
+import StoreContext from '../../store/Context';
+import { actions } from "../../store";
 
 const products = [
     {
@@ -17,28 +18,28 @@ const products = [
     },
     {
         id: 3,
-        name: 'Sản phẩm 2',
+        name: 'Sản phẩm 3',
         price: '17.000.000'
     }
 ]
 
 function Cart() {
+    const [state, dispath] = useContext(StoreContext);
+    const handleCheckout = () => {
+        dispath(actions.setCheckoutCart(checked))
+    }
+
     const [checked, setChecked] = useState([]);
-    const handleCheck = (id) => {
+    const handleCheck = (product) => {
         setChecked(prev => {
-            const isChecked = checked.includes(id);
+            const isChecked = checked.includes(product);
             if (isChecked) {
-                return checked.filter(item => item !== id)
+                return checked.filter(item => item !== product)
             } else {
-                return [...prev, id]
+                return [...prev, product]
             }
         });
 
-    }
-
-    const handleSubmit = () => {
-        localStorage.setItem("products", checked);
-        console.log({ ids: checked })
     }
 
     return (<>
@@ -57,8 +58,8 @@ function Cart() {
                         <div className="col-2 ip mt-4">
                             <input type={"checkbox"}
                                 name="ck"
-                                checked={checked.includes(product.id)}
-                                onChange={() => handleCheck(product.id)}
+                                checked={checked.includes(product)}
+                                onChange={() => handleCheck(product)}
                             />
                         </div>
                         <div className="col-3 img">
@@ -83,7 +84,7 @@ function Cart() {
                     <span className="text-danger cart-footer-text">17.999.000 đ</span>
                 </div>
                 <div className="mt-2">
-                    <Link className="btn btn-primary btn-cart" onClick={() => handleSubmit()} to={"/user/checkout"}>Tiến hành đặt hàng</Link>
+                    <Link className="btn btn-primary btn-cart" onClick={handleCheckout} to={"/user/checkout"}>Tiến hành đặt hàng</Link>
                 </div>
                 <div className="mt-2">
                     <button className="btn btn-outline-primary btn-cart">Chọn thêm sản phẩm</button>

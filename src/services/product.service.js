@@ -4,4 +4,4 @@ const getAll = () => {
 }
 
 
-export default {getAll}
+export default { getAll }
