@@ -38,8 +38,8 @@ const { RangePicker } = DatePicker;
 
 const onDelete = (record) => {
   Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
+    title: "Xoá hoá đơn",
+    content: "Bạn có muốn xoá hoá đơn này không ?",
   });
 };
 
@@ -128,27 +128,27 @@ const Order = () => {
       dataIndex: "payment",
       sorter: true,
       width: "20%",
-      render: (status) => {
-        if (status == 1) {
+      render: (payment) => {
+        if (payment === 'TẠI CỬA HÀNG') {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "80%", borderRadius: "5px" }}
+                style={{ width: "80%", borderRadius: "5px",padding: "4px" }}
               >
-                Tài khoản ATM
+                Tại cửa hàng
               </div>
             </>
           );
         }
-        if (status != 1) {
+        if (payment === 'TÀI KHOẢN ATM') {
           return (
             <>
               <div
                 className="bg-danger text-center text-light"
-                style={{ borderRadius: "5px" }}
+                style={{ borderRadius: "5px",padding:"4px",width: "80%" }}
               >
-                Thanh toán khi nhận hàng
+                Tài khoản ATM
               </div>
             </>
           );
@@ -166,26 +166,26 @@ const Order = () => {
       dataIndex: "status",
       with: "30%",
       render: (status) => {
-        if (status === 'ACTIVE') {
+        if (status === 'DA_DAT') {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "100px", borderRadius: "5px",padding:"4px" }}
               >
-                active
+                Đã đặt hàng
               </div>
             </>
           );
         };
-        if (status === 'DRAFT') {
+        if (status === 'DA_HUY') {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "100px", borderRadius: "5px",padding:"4px" }}
               >
-                draft
+                Đã huỷ hàng
               </div>
             </>
           );
