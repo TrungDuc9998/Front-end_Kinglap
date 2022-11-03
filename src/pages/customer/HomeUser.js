@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import Context from '../../store/Context';
+import { addToCart, setCheckoutCart } from "../../store/Actions";
 import './css/home.css';
 import anh1 from '../../asset/images/products/shop01.png'
 import anh3 from '../../asset/images/products/shop02.png'
@@ -12,13 +14,51 @@ import product6 from '../../asset/images/products/product06.png'
 import product8 from '../../asset/images/products/product08.png'
 
 import { Heart, Repeat, Eye, ShoppingCart } from 'react-feather';
+
 import ProductIndex from '../customer/product/ProductIndex'
 import { useSelector } from "react-redux";
 import qs from "qs";
 
 import axios from "axios";
 
+// const products = [
+//     {
+//         id: 1,
+//         name: 'Sản phẩm 1',
+//         price: '15.000.000'
+//     },
+//     {
+//         id: 2,
+//         name: 'Sản phẩm 2',
+//         price: '12.000.000'
+//     },
+//     {
+//         id: 3,
+//         name: 'Sản phẩm 3',
+//         price: '17.000.000'
+//     },
+//     {
+//         id: 4,
+//         name: 'Sản phẩm 4',
+//         price: '17.000.000'
+//     },
+//     {
+//         id: 5,
+//         name: 'Sản phẩm 5',
+//         price: '17.000.000'
+//     }
+// ]
+
+
 function HomeUser() {
+    const [state, dispath] = useContext(Context);
+    const handleAddToCart = (product) => {
+        dispath(addToCart(product))
+    }
+    const handleClickAddToCart = (product) => {
+        handleAddToCart(product)
+    }
+
     const url = 'http://localhost:8080/api/products';
     const [totalSet, setTotal] = useState(10);
     const [products, setData] = useState([{
@@ -46,54 +86,43 @@ function HomeUser() {
         },
       });
     //APILoadList
-  const getData = () => {
-    axios.get(url+`?${qs.stringify(
-      getRandomuserParams(tableParams)
-    )}`)
-      // .then((res) => res.json())
-      .then((results ) => {
-        setData(results.data.data.data);
-        //console.log(products[0].images[0].name)
-        setTotal(results.data.data.total);
-        localStorage.setItem("products",JSON.stringify(products))
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: totalSet, 
-          }
-        });
-      });
-  };
-
-  //LoadList
-  useEffect(() => {
-    getData();
-  }, [JSON.stringify(tableParams)]);
-
-
-
-    // const products = useSelector(state => state.productReducer);
-    const showProducts = (products) => {
-        let result = null;
-        if (products.length > 0) {
-            result = products.map((product, index) => {
-                return <ProductIndex key={product.id} product={product}/>
+    const getData = () => {
+        axios.get(url+`?${qs.stringify(
+        getRandomuserParams(tableParams)
+        )}`)
+        // .then((res) => res.json())
+        .then((results ) => {
+            setData(results.data.data.data);
+            //console.log(products[0].images[0].name)
+            setTotal(results.data.data.total);
+            localStorage.setItem("products",JSON.stringify(products))
+            setTableParams({
+            ...tableParams,
+            pagination: {
+                ...tableParams.pagination,
+                total: totalSet, 
+            }
             });
-        }
-        return result;
-    }
+        });
+    };
+
+    //LoadList
+    useEffect(() => {
+        getData();
+    }, [JSON.stringify(tableParams)]);
+
+
+
     // const products = useSelector(state => state.productReducer);
-    //     const showProducts = (products) => {
-    //         let result = null;
-    //         if (products.length > 0) {
-    //             result = products.map((product, index) => {
-    //                 console.log(product)
-    //                 return <ProductIndex key={product.id} product={product} />
-    //             });
-    //         }
-    //         return result;
+    // const showProducts = (products) => {
+    //     let result = null;
+    //     if (products.length > 0) {
+    //         result = products.map((product, index) => {
+    //             return <ProductIndex key={product.id} product={product}/>
+    //         });
     //     }
+    //     return result;
+    // }
     return (
         <div>
             <div className="section">
@@ -153,13 +182,147 @@ function HomeUser() {
                             </div>
                         </div>
 
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="products-tabs">
-                                    <div id="tab1" class="tab-pane active">
-                                        <div class="products-slick" data-nav="#slick-nav-1">
-                                        { showProducts(products) }
+                        <div className="col-md-12">
+                            <div className="row">
+                                <div className="products-tabs">
+                                    <div id="tab1" className="tab-pane active">
+                                        <div className="products-slick" data-nav="#slick-nav-1">
+
+                                            {products.map(pro => (
+                                                <div className="product" key={pro.id}>
+                                                    <div className="product-img">
+                                                        <img src={product1} alt="" />
+                                                        <div className="product-label">
+                                                            <span className="sale">-30%</span>
+                                                            <span className="new">NEW</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="product-body">
+                                                        <p className="product-category">Category</p>
+                                                        <h3 className="product-name"><a href="#">{pro.name}</a></h3>
+                                                        <h4 className="product-price">VNĐ {pro.price} <del className="product-old-price">$990.00</del></h4>
+                                                        <div className="product-rating">
+                                                            <i className="fa fa-star"></i>
+                                                            <i className="fa fa-star"></i>
+                                                            <i className="fa fa-star"></i>
+                                                            <i className="fa fa-star"></i>
+                                                            <i className="fa fa-star"></i>
+                                                        </div>
+                                                        <div className="product-btns">
+                                                            <button className="add-to-wishlist"><Heart size={14}></Heart><span className="tooltipp">add to wishlist</span></button>
+                                                            <button className="add-to-compare"><Repeat size={14}></Repeat><span className="tooltipp">add to compare</span></button>
+                                                            <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="add-to-cart">
+                                                        <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                    </div>
+                                                </div>
+                                            ))}
+
+                                            {/* <div className="product">
+                                                <div className="product-img">
+                                                    <img src={product2} alt="" />
+                                                    <div className="product-label">
+                                                        <span className="new">NEW</span>
+                                                    </div>
+                                                </div>
+                                                <div className="product-body">
+                                                    <p className="product-category">Category</p>
+                                                    <h3 className="product-name"><a href="#">product name goes here</a></h3>
+                                                    <h4 className="product-price">$980.00 <del className="product-old-price">$990.00</del></h4>
+                                                    <div className="product-rating">
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star-o"></i>
+                                                    </div>
+                                                    <div className="product-btns">
+                                                        <button className="add-to-wishlist"><Heart size={14}></Heart><span className="tooltipp">add to wishlist</span></button>
+                                                        <button className="add-to-compare"><Repeat size={14}></Repeat><span className="tooltipp">add to compare</span></button>
+                                                        <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
+                                                    </div>
+                                                </div>
+                                                <div className="add-to-cart">
+                                                    <button className="add-to-cart-btn"><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                </div>
+                                            </div>
+                                            <div className="product">
+                                                <div className="product-img">
+                                                    <img src={product3} alt="" />
+                                                    <div className="product-label">
+                                                        <span className="sale">-30%</span>
+                                                    </div>
+                                                </div>
+                                                <div className="product-body">
+                                                    <p className="product-category">Category</p>
+                                                    <h3 className="product-name"><a href="#">product name goes here</a></h3>
+                                                    <h4 className="product-price">$980.00 <del className="product-old-price">$990.00</del></h4>
+                                                    <div className="product-rating">
+                                                    </div>
+                                                    <div className="product-btns">
+                                                        <button className="add-to-wishlist"><Heart size={14}></Heart><span className="tooltipp">add to wishlist</span></button>
+                                                        <button className="add-to-compare"><Repeat size={14}></Repeat><span className="tooltipp">add to compare</span></button>
+                                                        <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
+                                                    </div>
+                                                </div>
+                                                <div className="add-to-cart">
+                                                    <button className="add-to-cart-btn"><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                </div>
+                                            </div>
+                                            <div className="product">
+                                                <div className="product-img">
+                                                    <img src={product4} alt="" />
+                                                </div>
+                                                <div className="product-body">
+                                                    <p className="product-category">Category</p>
+                                                    <h3 className="product-name"><a href="#">product name goes here</a></h3>
+                                                    <h4 className="product-price">$980.00 <del className="product-old-price">$990.00</del></h4>
+                                                    <div className="product-rating">
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                    </div>
+                                                    <div className="product-btns">
+                                                        <button className="add-to-wishlist"><Heart size={14}></Heart><span className="tooltipp">add to wishlist</span></button>
+                                                        <button className="add-to-compare"><Repeat size={14}></Repeat><span className="tooltipp">add to compare</span></button>
+                                                        <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
+                                                    </div>
+                                                </div>
+                                                <div className="add-to-cart">
+                                                    <button className="add-to-cart-btn"><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                </div>
+                                            </div>
+                                            <div className="product">
+                                                <div className="product-img">
+                                                    <img src={product5} alt="" />
+                                                </div>
+                                                <div className="product-body">
+                                                    <p className="product-category">Category</p>
+                                                    <h3 className="product-name"><a href="#">product name goes here</a></h3>
+                                                    <h4 className="product-price">$980.00 <del className="product-old-price">$990.00</del></h4>
+                                                    <div className="product-rating">
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                        <i className="fa fa-star"></i>
+                                                    </div>
+                                                    <div className="product-btns">
+                                                        <button className="add-to-wishlist"><Heart size={14}></Heart><span className="tooltipp">add to wishlist</span></button>
+                                                        <button className="add-to-compare"><Repeat size={14}></Repeat><span className="tooltipp">add to compare</span></button>
+                                                        <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
+                                                    </div>
+                                                </div>
+                                                <div className="add-to-cart">
+                                                    <button className="add-to-cart-btn"><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                </div>
+                                            </div> */}
                                         </div>
+                                        <div id="slick-nav-1" className="products-slick-nav"></div>
                                     </div>
                                 </div>
                             </div>

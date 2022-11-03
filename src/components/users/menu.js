@@ -82,11 +82,11 @@ function Menu() {
                                         </a>
                                     </div>
 
-                                    <div className="dropdown">
-                                        <a className="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                    <div className="">
+                                        <Link to={"/user/cart"} aria-expanded="true">
                                             <ShoppingCart></ShoppingCart>
                                             <span>Your Cart</span>
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
