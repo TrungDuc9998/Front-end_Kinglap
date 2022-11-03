@@ -1,36 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import './css/checkout.css'
 import product from '../../asset/images/products/product01.png';
+import StoreContext from '../../store/Context';
 
 function Checkout() {
-    const carts=localStorage.getItem("cart");
-    let i=0;
-    const showCarts = (carts) => {
-        let result = null;
-        let cartList=JSON.parse(carts);
-        console.log(cartList[0].productId.name)
-        if (cartList.length > 0) {
-            // for(i=0;i<cartList.length;i++){
-                const listItems = cartList.map((cart) =>
-                
-                <div className="row d-flex">
-                <div className="col-3 img">
-                    <img alt="Ảnh sản phẩm" src={product} className="img-content"></img>
-                </div>
-                <div className="col-9 mt-3 d-block ">
-                    <div>
-                        <p className="text-name">x{cart.quantity} - {cart.productId.name}
-                        - ${cart.productId.price}
-                        </p>
-                    </div>
-                </div>
-            </div>
-                )
-                return listItems;
-            // };
-        }
-        
-    }
+    const [state, dispath] = useContext(StoreContext);
+    const products = state.cartCheckout;
+    console.log('list products', products)
     return (
         <>
             <div className="checkout row pt-2 mt-5">
@@ -71,8 +47,19 @@ function Checkout() {
                                     <input type={'radio'} name="ip-rdo"></input> <label>Lấy tại nhà</label>
                                 </div>
                             </form>
-
-                            {showCarts(carts)}
+                            {products.map(pro => (
+                                <div className="row d-flex" key={pro.id}>
+                                    <div className="col-3 img">
+                                        <img alt="Ảnh sản phẩm" src={product} className="img-content"></img>
+                                    </div>
+                                    <div className="col-9 mt-3 d-block ">
+                                        <div>
+                                            <p className="text-name">{pro.name}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -82,7 +69,7 @@ function Checkout() {
                         <div className="row d-flex">
                             <div className="col-8">
                                 <input type={'text'} className="form-control ip-sale mb-3 radio-ip" placeholder="Nhập mã giảm giá"></input>
-                                <p>số lượng sản phẩm</p>
+                                <p>Số lượng sản phẩm: {products.length}</p>
                                 <p>tên sản phẩm</p>
                             </div>
                             <div className="col-4"><button className="btn btn-primary btn-sale">Sửa</button>
