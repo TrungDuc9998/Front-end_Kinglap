@@ -1,13 +1,13 @@
-import { Select, Input, Button, Checkbox, Modal } from "antd";
+import { Select, Input, Button, Checkbox, InputNumber, Space } from "antd";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import qs from "qs";
 import "../Order/table.css";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { AutoComplete } from "antd";
-
+import { Table, Modal } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 const { Option } = Select;
+const { TextArea } = Input;
+
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
@@ -15,50 +15,15 @@ const getRandomuserParams = (params) => ({
   searchStatus: params.pagination?.search2,
 });
 
-const toastSuccess = (message) => {
-  toast.success(message, {
-    position: "top-right",
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "light",
-  })
-};
-
-const toastError = (message) => {
-  toast.error(message, {
-    position: "top-right",
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "light",
-  });
-}
-
 function Table1() {
-  const [array, setArray] = useState([{}]);
-  const [district, setDistrict] = useState([{}]);
   const [value, setValue] = useState("");
-  const [valueDistrict, setValueDistrict] = useState("");
-  const [valueWard, setValueWard] = useState("");
-  const [Ward, setWard] = useState([{}]);
-  const [districtId, setDistrictId] = useState(1542);
-  const [wardCode, setWardCode] = useState(20314);
-  const [shipping, setShipping] = useState(0);
-  const [serviceId, setServiceId] = useState();
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [ProvinceID, setProvinceID] = useState();
-  const [result, setResult] = useState([{}]);
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState();
   const [users, setUsers] = useState();
-  const [open, setOpen] = useState(false);
+  const [valuePhone, setValuePhone] = useState();
+  const [getFullName, setFullNameClient] = useState();
+  const [valueUser, setValueUser] = useState("");
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [password1, setPassword1] = useState();
+  const [password2, setPassword2] = useState();
   const [fullName, setFullName] = useState();
   const [email, setEmail] = useState();
   const [phoneNumber, setPhoneNumber] = useState();
@@ -67,12 +32,39 @@ function Table1() {
   const [phoneNumberForm, setPhoneNumberForm] = useState();
   const [addressForm, setAddRessForm] = useState();
   const [username, setUsername] = useState();
-  const [status, setStatus] = useState();
-  const [password1, setPassword1] = useState();
-  const [password2, setPassword2] = useState();
+  const [open, setOpen] = useState(false);
+  const [addressDetail, setAddressDetail] = useState();
+  const [quantity, setQuantity] = useState();
+  const [array, setArray] = useState([{}]);
+  const [district, setDistrict] = useState([{}]);
+  const [isDelete, setDelete] = useState(false);
+  const [id, setId] = useState();
+  const [Ward, setWard] = useState([{}]);
+  const [disableCountry, setDisableCountry] = useState(false);
+  const [districtId, setDistrictId] = useState(1);
+  const [wardCode, setWardCode] = useState(1);
+  const [shipping, setShipping] = useState(0);
+  const [serviceId, setServiceId] = useState();
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [ProvinceID, setProvinceID] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState();
+  const [dataCart, setDataCart] = useState();
+  const [dataClient, setDataClient] = useState();
   const [valueProduct, setValueProduct] = useState("");
-  const [valueUser, setValueUser] = useState("");
-  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [valueClient, setValueClient] = useState("");
+  const [total, setTotal] = useState(0);
+  const [valueProvince, setValueProvince] = useState();
+  const [valueDistrict, setValueDistrict] = useState();
+  const [payment, setPayment] = useState();
+  const [valueWard, setValueWard] = useState();
+  const [valueQuantity, setValueQuantity] = useState();
+  const [totalWith, setTotalWidth] = useState();
+  const [totalHeight, setTotalHeight] = useState();
+  const [totalLength, setTotalLength] = useState();
+  const [totalQuantity, setTotalQuantity] = useState();
+  const [totalWeight, setTotalWeight] = useState();
+const [note, setNote] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -82,38 +74,46 @@ function Table1() {
     },
   });
 
-  const showModal = () => {
-    setOpen(true);
-  };
-
-  const handleCancel = () => {
-    setOpen(false);
+  const loadInfo = () => {
+    fetch(
+      `http://localhost:8080/api/information?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setUsers(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
   };
 
   const handleOk = () => {
     if (password2 === password1) {
-      fetch(
-        `http://localhost:8080/api/orders/createUser`,
-        {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: username,
-            newPassword: password1,
-            fullName: fullName,
-            email: email,
-            phoneNumber: phoneNumber,
-            address: address
-          })
-        }
-      )
+      fetch(`http://localhost:8080/api/orders/createUser`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: username,
+          newPassword: password1,
+          fullName: fullName,
+          email: email,
+          phoneNumber: phoneNumber,
+          address: address,
+        }),
+      })
         .then((res) => res.json())
         .then((results) => {
           if (results.data == null) {
-            toastError(results.message);
+            // toastError(results.message);
           } else {
-            toastSuccess("Thêm mới thành công!");
-            load();
+            // toastSuccess("Thêm mới thành công!");
             setUsername("");
             setPassword1("");
             setPassword2("");
@@ -125,45 +125,334 @@ function Table1() {
           }
         });
     } else {
-      toastError("Xác nhận tài khoản không chính xác!");
+      // toastError("Xác nhận tài khoản không chính xác!");
     }
   };
 
-  const _handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      console.log("do validate" + e.target.value);
-      setValueDistrict(e.target.value);
+  const showModal = () => {
+    setOpen(true);
+  };
+
+  const handleChangePayment = (value) => {
+    if (value === "TẠI CỬA HÀNG") {
+      setDisableCountry(true);
+    } else {
+      setDisableCountry(false);
+    }
+    setPayment(value);
+    console.log("value payment:" + value);
+  };
+
+  const handleSubmitOrder = () => {
+    const order = {
+      payment: payment,
+      total: total,
+      userId: 1,
+      address:
+        valueProvince !== undefined
+          ? (addressDetail === undefined ? "" : addressDetail + ",") +
+            valueWard +
+            ", " +
+            valueDistrict +
+            ", " +
+            valueProvince
+          : "TẠI CỬA HÀNG",
+      note: note,
+    };
+    const orderDetails = [];
+    dataCart?.forEach((item, index) => {
+      orderDetails.push({
+        productId: item.productId.id,
+        quantity: item.quantity,
+        status: "CHO_XAC_NHAN",
+        total: item.total,
+      });
+    });
+
+    fetch("http://localhost:8080/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        payment: order.payment,
+        userId: order.userId,
+        total: order.total,
+        address: order.address,
+        note: order.note,
+        status: "DA_DAT",
+orderDetails: orderDetails,
+      }),
+    }).then((res) => {
+      // res.json();
+      console.log("đặt hàng thành công !");
+      console.log(orderDetails);
+      console.log(res.data);
+    });
+    console.log(order);
+  };
+
+  const updateCart = (cart, id, quantity) => {
+    console.log("id cart update " + id);
+    console.log("quantity: " + quantity);
+    console.log(cart);
+    fetch(`http://localhost:8080/api/carts/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: cart.productId.id,
+        userId: cart.useId | 1,
+        quantity: quantity !== undefined ? quantity + 1 : cart.quantity,
+        // total: cart.total | (cart.productId.price * quantity),
+        total:
+          cart.total === cart.productId.price * quantity
+            ? cart.total
+            : cart.productId.price * quantity,
+      }),
+    }).then((res) => {
+      // res.json();
+      console.log("load data cart:");
+      console.log(res.data);
+      loadDataCart();
+      // notify();
+    });
+  };
+
+  const onChangeInputNumber = (value, productId, price, id, useId) => {
+    console.log("value quantity:" + value);
+    setValueQuantity(value);
+    const cart = {
+      total: value * price,
+      useId: useId,
+      quantity: value,
+      productId: productId,
+    };
+    updateCart(cart, id);
+  };
+
+  const SubmitCartData = (value, price, quantity) => {
+    fetch("http://localhost:8080/api/carts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: value,
+        userId: 1,
+        quantity: quantity === 1 ? 1 : quantity + 1,
+        total: price,
+      }),
+    }).then((res) => {
+      // res.json();
+      loadDataCart();
+    });
+  };
+
+  const onDelete = (id) => {
+    setId(id);
+    setDelete(true);
+  };
+
+  const onChange = (value) => {
+    console.log("DATA PROVINCE: " + value);
+    setProvinceID(value);
+    loadDataDistrict(value);
+  };
+  const onSearch = (value) => {
+    console.log("province Id khi onClick: " + ProvinceID);
+    if (value.target.innerText !== "") {
+      setValueProvince(value.target.innerText);
+      loadDataDistrict();
     }
   };
 
-  const onChangeProduct = (event) => {
-    setValueProduct(event.target.value);
-    console.log("value product: " + event.target.value);
+  const onChangeDistricts = (value) => {
+    if (value != null) {
+      setIsDisabled(false);
+    }
+    setDistrictId(value);
+    loadDataWard(value);
+  };
+
+  const onSearchDistricts = (value) => {
+    if (value.target.innerText !== "") {
+      setValueDistrict(value.target.innerText);
+      loadDataWard();
+    }
+  };
+
+  const onChangeWards = (value) => {
+    if (value === "") {
+      setIsDisabled(true);
+    }
+    setWardCode(value);
+    SubmitShipping(value);
+  };
+
+  const onSearchWards = (value) => {
+    console.log("shipping" + shipping);
+    if (value.target.innerText !== "") {
+      setValueWard(value.target.innerText);
+      SubmitShipping();
+    }
+  };
+
+  const onChangeProduct = (value) => {
+    setValueProduct(value);
+if (value !== undefined) {
+      let quantity = 0;
+      dataCart
+        ?.filter((item) => item.productId.id === value)
+        .map((cart) => {
+          quantity += cart.quantity;
+          updateCart(cart, cart.id, quantity);
+          console.log(quantity);
+        });
+
+      console.log("quantity  filter: " + quantity);
+
+      let priceProduct;
+      data
+        ?.filter((item) => item.id === value)
+        .map((product) => (priceProduct = product.price));
+      // SubmitCartData(value, priceProduct, quantity);
+      let total = 0;
+      dataCart?.forEach((item) => (total += item.total));
+      setTotal(total);
+    }
   };
 
   const onSearchProduct = (searchItem) => {
-    setValueProduct(searchItem);
-    console.log("product item: " + searchItem);
+    console.log("value product click" + valueProduct);
   };
 
-  const onChangeUser = (event) => {
-    setValueUser(event.target.value);
-    console.log("value user: " + event.target.value);
+  const onChangeClient = (event) => {
+    setValueClient(event.target.value);
+    console.log("value client: " + event.target.value);
   };
 
-  const onSearchUser = (searchItem) => {
-    setValueUser(searchItem);
-    console.log("user item: " + searchItem);
+  const onSearchClient = (searchItem) => {
+    setValueClient(searchItem);
+    console.log("value client: " + searchItem);
   };
 
-  const onSearchAndFillUser = (item) => {
-    onSearchUser("");
-    setFullNameForm(item.fullName);
-    setPhoneNumberForm(item.phoneNumber);
-    setAddRessForm(item.address);
+  const loadDataProvince = () => {
+    fetch(
+      "https://online-gateway.ghn.vn/shiip/public-api/master-data/province",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+        },
+      }
+    )
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw Error(response.status);
+      })
+      .then((result) => {
+        console.log(result.data);
+        setArray(result.data);
+      })
+      .catch((error) => {
+        console.log("err", error);
+      });
   };
 
-  ///onchang data product
+  const loadDataDistrict = (value) => {
+    fetch(
+      "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+        },
+        body: JSON.stringify({
+          province_id: value ? value : ProvinceID != 1,
+        }),
+      }
+    )
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw Error(response.status);
+      })
+      .then((result) => {
+        setDistrict(result.data);
+      })
+      .catch((error) => {
+        console.log("err", error);
+      });
+  };
+
+  const loadDataWard = (value) => {
+    console.log("districtId khi service:" + value);
+    if (value != null) {
+      fetch(
+        "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+          },
+          body: JSON.stringify({
+            shop_id: 3379752,
+            from_district: 1542,
+to_district: value ? value : districtId != 1,
+          }),
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.data === null) {
+            console.log("không có dữ liệu giao hàng phù hợp");
+            setIsDisabled(true);
+          } else {
+            console.log("Success service:", data.data);
+            console.log("data service id: " + data.data[0].service_id);
+            const checkValue = data.data[0].service_id;
+            setServiceId(checkValue);
+            fetch(
+              "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                  token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+                },
+                body: JSON.stringify({
+                  district_id: value ? value : districtId != 1,
+                }),
+              }
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.data === null) {
+                  console.log("không có dữ liệu phù hợp");
+                } else {
+                  setWard(data.data);
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+  };
 
   const changeUsername = (event) => {
     setUsername(event.target.value);
@@ -197,236 +486,143 @@ function Table1() {
     setValue(event.target.value);
   };
 
-  const onSearchProvince = (searchTerm, value) => {
-    setValue(searchTerm);
-    // our api to fetch the search result
-    console.log("search ", searchTerm);
-    console.log("value province id:" + value);
-    setProvinceID(value);
-    loadDataDistrict(value);
-  };
-  const loadDataProvince = () => {
+  const url = "http://localhost:8080/api/orders";
+
+  const SubmitShipping = (value) => {
+    console.log("service id submit shipping: " + serviceId);
+    console.log("ward code submit shipping: " + value);
+    console.log("ward code value: " + wardCode);
+    console.log("total length: " + Math.round(totalLength * 0.1));
+    console.log("total weight: " + totalWeight * 1000);
+    console.log("total width: " + Math.round(totalLength * 0.1));
     fetch(
-      "https://online-gateway.ghn.vn/shiip/public-api/master-data/province",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
-        },
-      }
-    )
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw Error(response.status);
-      })
-      .then((result) => {
-        console.log(result.data);
-        setArray(result.data);
-      })
-      .catch((error) => {
-        console.log("err", error);
-      });
-  };
-
-  //call API tỉnh thành
-
-  const onChangeDistrict = (event) => {
-    setValueDistrict(event.target.value);
-    setIsDisabled(false);
-  };
-
-  const onSearchDistrict = (searchTerm, value) => {
-    setValueDistrict(searchTerm);
-    setDistrictId(value);
-    // setValueDistrict(value)
-    // our api to fetch the search result
-    console.log("search District", searchTerm);
-    console.log("value District", value);
-    if (value != null) {
-      loadDataWard(value);
-    }
-  };
-
-  const loadDataDistrict = (value) => {
-    console.log("load Province Id: " + value);
-    fetch(
-      "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
+      "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+          service_id: serviceId,
+token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
         },
         body: JSON.stringify({
-          province_id: value,
+          service_id: serviceId,
+          insurance_value: 500000,
+          coupon: null,
+          from_district_id: 3440,
+          to_district_id: 1875,
+          height: Math.round(totalHeight * 0.1),
+          length: Math.round(totalLength * 0.1),
+          weight: Math.round(totalWeight * 1000),
+          width: Math.round(totalLength * 0.1),
+          to_ward_code: value,
         }),
       }
     )
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw Error(response.status);
-      })
-      .then((result) => {
-        setDistrict(result.data);
-        console.log(result.data);
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("GIÁ SHIP SAU KHI TÍNH: " + data.data.total);
+        setShipping(data.data.total);
+        setIsDisabled(true);
       })
       .catch((error) => {
-        console.log("err", error);
+        console.error("Error:", error);
       });
-  };
-
-  //call API quận huyện
-
-  const onChangeWard = (event) => {
-    setValueWard(event.target.value);
-  };
-
-  const onSearchWard = (searchTerm, value) => {
-    if (searchTerm != null) {
-      setValueWard(searchTerm);
-      console.log("search ward", searchTerm + "" + value);
-    } else {
-      valueWard = isDisabled;
-    }
-
-    // our api to fetch the search result
-
-    if (value != null) {
-      setShipping(value);
-      SubmitShipping(value);
-    }
-  };
-
-  const loadDataWard = (value) => {
-    console.log("districtId:" + value);
-
-    if (value != null) {
-      fetch(
-        "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
-          },
-          body: JSON.stringify({
-            shop_id: 3379752,
-            from_district: 1542,
-            to_district: value,
-          }),
-        }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.data === null) {
-            console.log("không có dữ liệu giao hàng phù hợp");
-            setIsDisabled(true);
-          } else {
-            console.log("Success service:", data.data);
-            console.log("data service id: " + data.data[0].service_id);
-            const checkValue = data.data[0].service_id;
-            setServiceId(checkValue);
-            console.log("check Value: " + checkValue);
-            console.log("service id sau khi set: " + serviceId);
-            // if (serviceId != null) {
-            fetch(
-              "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Accept: "application/json",
-                  token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
-                },
-                body: JSON.stringify({
-                  district_id: value,
-                }),
-              }
-            )
-              .then((response) => response.json())
-              .then((data) => {
-                if (data.data === null) {
-                  console.log("không có dữ liệu phù hợp");
-                } else {
-                  console.log("Success ward:", data.data);
-                  setWard(data.data);
-                }
-              })
-              .catch((error) => {
-                console.error("Error:", error);
-              });
-            // setWard(data.data);
-          }
-          // }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
-  };
-
-  //call API Phường xã
-
-  const url = "http://localhost:8080/api/orders";
-
-  const SubmitShipping = (value) => {
-    console.log("service Id sau set: " + serviceId);
-    if (value != null) {
-      fetch(
-        "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            service_id: serviceId,
-            token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
-          },
-          body: JSON.stringify({
-            service_id: serviceId,
-            insurance_value: 500000,
-            coupon: null,
-            from_district_id: 3440,
-            to_district_id: districtId,
-            to_ward_code: value,
-            height: 15,
-            length: 15,
-            weight: 1000,
-            width: 15,
-          }),
-        }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Success shipping:", data.data);
-          console.log(data.data.total);
-          setShipping(data.data.total);
-          // setWard(data.data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
+    // }
   };
 
   useEffect(() => {
     loadDataProvince();
-    load();
-    console.log("data product");
-    // console.log(data);
-    // console.log("array");
-    // console.log(array);
-  }, []);
+    loadDataProduct();
+    loadDataClient();
+    loadDataCart();
+    loadInfo();
+    setDisableCountry(true);
+  }, [(total != undefined) | (ProvinceID != 1)]);
 
-  const load = () => {
+  const loadDataClient = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/users?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataClient(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+  const loadDataCart = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/carts?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataCart(results.data.data);
+        let total = 0;
+        let weight = 0;
+        let width = 0;
+        let height = 0;
+        let length = 0;
+        results.data.data?.forEach((item) => {
+          total += item.total;
+          weight += item.productId.weight * item.quantity;
+          width += item.productId.width * item.quantity;
+          height += item.productId.height * item.quantity;
+          length += item.productId.length * item.quantity;
+        });
+        setTotalWeight(weight);
+        setTotal(total);
+        setTotalLength(length);
+        setTotalHeight(height);
+        setTotalWidth(width);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const handleTableChange = (pagination) => {
+    tableParams.pagination = pagination;
+    // tableParams.pagination.search1 = searchUsername;
+    // tableParams.pagination.search2 = searchStatus;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/carts?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+.then((res) => res.json())
+      .then((results) => {
+        setDataCart(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataProduct = () => {
     setLoading(true);
     fetch(
       `http://localhost:8080/api/products?${qs.stringify(
@@ -445,475 +641,490 @@ function Table1() {
           },
         });
       });
-    fetch(
-      `http://localhost:8080/api/information?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setUsers(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
   };
 
-  const submit_orderDetail = (e) => {
-    e.preventDefault();
-    axios
-      .post(url, {
-        orderId: data.orderId,
-        productId: data.productId,
-        quantity: data.quantity,
-        price: data.price,
-        status: data.status,
-      })
-      .then((res) => {
-        window.location.reload();
-        console.log(res.data);
-      });
+  const onSearchUser = (searchItem) => {
+    setValueUser(searchItem);
+    console.log("user item: " + searchItem);
+  };
+  const onChangeUser = (event) => {
+    setValueUser(event.target.value);
+    console.log("value user: " + event.target.value);
+  };
+  const onSearchAndFillUser = (item) => {
+    if (item != null) {
+      setFullNameClient(item.fullName);
+    }
+    onSearchUser("");
+    setFullNameForm(item.fullName);
+    setPhoneNumberForm(item.phoneNumber);
+    setAddRessForm(item.address);
   };
 
-  const options = [
-    {
-      value: "a",
-      label1: "a",
-    },
-    {
-      value: "aaa",
-      label1: "aaa",
-    },
-    {
-      value: "b",
-      label1: "b",
-    },
-  ];
   return (
-    <>
-      <ToastContainer></ToastContainer>
-      <div>
-        <div className="row">
-          <div className="btn-search col-12 mt-3 mb-4 d-flex float-end">
-            <div className="timk col-4 ">
+    <div>
+      <div className="row">
+        <div className="btn-search col-12 mt-3 mb-4 d-flex float-end">
+          <div className="timk col-4 ">
+            <div className="search-container">
+              <div className="search-inner mb-2">
+                <Select
+                  showSearch
+                  placeholder="Tên sản phẩm"
+                  optionFilterProp="children"
+                  style={{
+                    width: 400,
+                  }}
+                  onChange={onChangeProduct}
+                  onClick={onSearchProduct}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {data != undefined
+                    ? data.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))
+                    : ""}
+                </Select>
+              </div>
+            </div>
+          </div>
+          {/* <button type="submit">Thêm sản phẩm</button> */}
+        </div>
+        <div className="col-5">
+          <div className="title">
+            <h3>Thông tin khách hàng</h3>
+          </div>
+          <div className="row mt-3">
+            <div className="col-6">
               <div className="search-container">
-                <div className="search-inner mb-2">
+                <div className="search-inner">
                   <input
                     type="text"
-                    placeholder="Tên sản phẩm"
-                    value={valueProduct}
-                    onChange={onChangeProduct}
-                    onClick={() => onSearchProduct(valueProduct)}
+                    placeholder="Số điện thoại khách hàng"
+                    defaultValue={""}
+value={fullNameForm}
+                    onChange={onChangeUser}
+                    onClick={() => onSearchUser(valueUser)}
                   />
                   <div className="dropdown">
-                    {data != null
-                      ? data
-                        .filter((item) => {
-                          const searchTerm = valueProduct
-                            .toString()
-                            .toLowerCase();
-                          const fullName =
-                            item.name !== undefined
-                              ? item.name.toLowerCase()
-                              : "";
-                          return (
-                            searchTerm &&
-                            fullName.startsWith(searchTerm) &&
-                            fullName !== searchTerm
-                          );
-                        })
-                        .slice(0, 10)
-                        .map((item) => (
-                          <div
-                            onClick={() => onSearchProduct(item.name)}
-                            className="dropdown-row"
-                            key={item.id}
-                          >
-                            {item.name}
-                          </div>
-                        ))
+                    {users != null
+                      ? users
+                          .filter((item) => {
+                            const searchTerm = valueUser
+                              .toString()
+                              .toLowerCase();
+                            const fullName =
+                              item.phoneNumber !== undefined
+                                ? item.phoneNumber.toLowerCase()
+                                : "";
+                            return (
+                              searchTerm &&
+                              fullName.startsWith(searchTerm) &&
+                              fullName !== searchTerm
+                            );
+                          })
+                          .slice(0, 10)
+                          .map((item) => (
+                            <div
+                              onClick={() => onSearchAndFillUser(item)}
+                              className="dropdown-row"
+                              key={item.id}
+                            >
+                              {item.phoneNumber}
+                            </div>
+                          ))
                       : ""}
                   </div>
                 </div>
               </div>
             </div>
-            {/* <button type="submit">Thêm sản phẩm</button> */}
+            <div className="col-6 ">
+              <Button onClick={showModal} style={{ borderRadius: "10px" }}>
+                Tạo khách hàng
+              </Button>
+              <Modal
+                title="Tạo mới"
+                open={open}
+                onOk={handleOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancel}
+              >
+                <label>
+                  Tài khoản
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="text"
+                  name="username"
+                  value={username}
+                  placeholder="Nhập tài khoản"
+                  onChange={changeUsername}
+                />
+                <label>
+                  Mật khẩu
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="password"
+                  name="password1"
+                  value={password1}
+                  placeholder="Nhập mật khẩu"
+                  onChange={changePassword1}
+                />
+                <label>
+                  Xác nhận mật khẩu
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="password"
+                  name="password2"
+                  value={password2}
+                  placeholder="Nhập lại mật khẩu"
+onChange={changePassword2}
+                />
+                <label>
+                  Họ và tên
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="text"
+                  name="fullName"
+                  value={fullName}
+                  placeholder="Nhập họ và tên"
+                  onChange={changeFullname}
+                />
+                <label>
+                  Email
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="email"
+                  name="email"
+                  value={email}
+                  placeholder="Nhập địa chỉ email"
+                  onChange={changeEmail}
+                />
+                <label>
+                  Số điện thoại
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="number"
+                  name="phoneNumber"
+                  value={phoneNumber}
+                  placeholder="Nhập số điện thoại"
+                  onChange={changePhoneNumber}
+                />
+                <label>
+                  Địa chỉ
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="text"
+                  name="address"
+                  value={address}
+                  placeholder="Nhập địa chỉ"
+                  onChange={changeAddRess}
+                />
+              </Modal>
+            </div>
           </div>
-          <div className="col-5">
-            <div className="title">
-              <h3>Thông tin khách hàng</h3>
-            </div>
-
-            <div className="row mt-3">
-              <div className="col-6">
-                <label>Chọn khách hàng</label>
-                <div className="btn-search">
-                  <div className="timk">
-                    <div className="search-container">
-                      <div className="search-inner">
-                        <input
-                          type="text"
-                          placeholder="Tên khách hàng"
-                          defaultValue={""}
-                          value={fullNameForm}
-                          onChange={onChangeUser}
-                          onClick={() => onSearchUser(valueUser)}
-                        />
-                        <div className="dropdown">
-                          {users != null
-                            ? users
-                              .filter((item) => {
-                                const searchTerm = valueUser
-                                  .toString()
-                                  .toLowerCase();
-                                const fullName =
-                                  item.fullName !== undefined
-                                    ? item.fullName.toLowerCase()
-                                    : "";
-                                return (
-                                  searchTerm &&
-                                  fullName.startsWith(searchTerm) &&
-                                  fullName !== searchTerm
-                                );
-                              })
-                              .slice(0, 10)
-                              .map((item) => (
-                                <div
-                                  onClick={() => onSearchAndFillUser(item)}
-                                  className="dropdown-row"
-                                  key={item.id}
-                                >
-                                  {item.fullName}
-                                </div>
-                              ))
-                            : ""}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <div className="row mt-3">
+            <div className="col-6">
+              <div className="form-group">
+                <label>Thông tin người bán</label>
+                <Input placeholder="Hà Trung Kiên" />
               </div>
-              <div className="col-6">
-                <label>Thêm mới khách hàng</label>
-                <Button
-                  onClick={showModal}
-                  style={{ borderRadius: "10px" }}
+            </div>
+            <div className="col-6">
+              <div className="form-group">
+                <label>Tên khách hàng</label>
+                <Input placeholder="Hà Trung Kiên" />
+              </div>
+            </div>
+          </div>
+          <div className="row mt-3">
+            <div className="col-6">
+              <div className="form-group">
+                <label>Phương thức mua hàng</label>
+                <br />
+                <Select
+                  placeholder="Hình thức mua hàng"
+                  style={{
+                    width: 240,
+                  }}
+                  onChange={handleChangePayment}
                 >
-                  Thêm mới
-                </Button>
-                <Modal
-                  title="Tạo mới"
-                  open={open}
-                  onOk={handleOk}
-                  confirmLoading={confirmLoading}
-                  onCancel={handleCancel}
-                >
-                  <label>
-                    Tài khoản
-                    <span className="text-danger"> *</span>
-                  </label>
-                  <Input type="text" name="username" value={username} placeholder="Nhập tài khoản" onChange={changeUsername} />
-                  <label>
-                    Mật khẩu
-                    <span className="text-danger"> *</span>
-                  </label>
-                  <Input type="password" name="password1" value={password1} placeholder="Nhập mật khẩu" onChange={changePassword1} />
-                  <label>
-                    Xác nhận mật khẩu
-                    <span className="text-danger"> *</span>
-                  </label>
-                  <Input type="password" name="password2" value={password2} placeholder="Nhập lại mật khẩu" onChange={changePassword2} />
-                  <label>
-                    Họ và tên
-                    <span className="text-danger"> *</span>
-                  </label>
-                  <Input type="text" name="fullName" value={fullName} placeholder="Nhập họ và tên" onChange={changeFullname} />
-                  <label>
-                    Email
-                    <span className="text-danger"> *</span>
-                  </label>
-                  <Input type="email" name="email" value={email} placeholder="Nhập địa chỉ email" onChange={changeEmail} />
-                  <label>
-                    Số điện thoại
-                    <span className="text-danger"> *</span>
-                  </label>
-                  <Input type="number" name="phoneNumber" value={phoneNumber} placeholder="Nhập số điện thoại" onChange={changePhoneNumber} />
-                  <label>
-                    Địa chỉ
-                    <span className="text-danger"> *</span>
-                  </label>
-                  <Input type="text" name="address" value={address} placeholder="Nhập địa chỉ" onChange={changeAddRess} />
-                </Modal>
+                  <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
+                  <Option value="GIAO HÀNG TẠI NHÀ">Giao hàng tại nhà</Option>
+                </Select>
               </div>
             </div>
-
-            <div className="row mt-3">
-              <div className="col-12">
-                <div className="form-group">
-                  <label>Mã hóa đơn</label>
-                  <Input placeholder="Tìm kiếm theo số điện thoại hoặc email" />
-                </div>
-              </div>
-            </div>
-            <div className="row mt-3">
-              <div className="col-6">
-                <div className="form-group">
-                  <label>Thông tin người bán</label>
-                  <Input placeholder="Tên người bán" />
-                </div>
-              </div>
-              <div className="col-6">
-                <div className="form-group">
-                  <label>Số điện thoại khách hàng</label>
-                  <Input placeholder="Số điện thoại khách hàng" defaultValue={""} value={phoneNumberForm} />
-                </div>
-              </div>
-            </div>
-
-            <div className="row mt-3">
-              <div className="col-6">
-                <label>Tỉnh/ Thành Phố</label>
-                <div className="search-container">
-                  <div className="search-inner mb-2">
-                    <input
-                      type="text"
-                      //  style={border"1px solid #d9d9d9;"}
-                      placeholder="Tên tỉnh thành"
-                      value={value}
-                      onChange={onChangeProvince}
-                      onClick={() => onSearchProvince(value)}
-                    />
-                    <div className="dropdown">
-                      {array
-                        .filter((item) => {
-                          const searchTerm = value.toString().toLowerCase();
-                          const fullName =
-                            item.ProvinceName !== undefined
-                              ? item.ProvinceName.toLowerCase()
-                              : "";
-                          return (
-                            searchTerm &&
-                            fullName.startsWith(searchTerm) &&
-                            fullName !== searchTerm
-                          );
-                        })
-                        .slice(0, 10)
-                        .map((item) => (
-                          <div
-                            onClick={() =>
-                              onSearchProvince(item.ProvinceName, item.ProvinceID)
-                            }
-                            className="dropdown-row"
-                            key={item.ProvinceName}
-                          >
-                            {item.ProvinceName}
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="search-container mb-2">
-                  <div className="search-inner">
-                    <label>Tên quận huyện</label>
-                    <input
-                      type="text"
-                      placeholder="Tên quận huyện"
-                      value={valueDistrict}
-                      onChange={onChangeDistrict}
-                      onClick={() => onSearchDistrict(valueDistrict)}
-                      onKeyDown={_handleKeyDown}
-                    />
-                  </div>
-                  <div className="dropdown">
-                    {district
-                      .filter((item) => {
-                        const searchTerm = valueDistrict.toString().toLowerCase();
-                        const fullName =
-                          item.DistrictName !== undefined
-                            ? item.DistrictName.toLowerCase()
-                            : "";
-
-                        return (
-                          searchTerm &&
-                          fullName.startsWith(searchTerm) &&
-                          fullName !== searchTerm
-                        );
-                      })
-                      .slice(0, 5)
-                      .map((item) => (
-                        <div
-                          onClick={() =>
-                            onSearchDistrict(item.DistrictName, item.DistrictID)
-                          }
-                          className="dropdown-row"
-                          key={item.DistrictID}
-                        >
-                          {item.DistrictName}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-                <div className="search-container">
-                  <div className="search-inner">
-                    <label>Tên phường xã</label>
-                    <input
-                      type="text"
-                      placeholder="Tên phường xã"
-                      value={valueWard}
-                      disabled={isDisabled}
-                      onChange={onChangeWard}
-                      onClick={() => onSearchWard(valueWard)}
-                    />
-                    <div className="dropdown">
-                      {Ward.filter((item) => {
-                        const searchTerm = valueWard.toString().toLowerCase();
-                        const fullName = item.WardName !== undefined
-                          ? item.WardName.toLowerCase() : "";
-
-                        return (
-                          searchTerm &&
-                          fullName.startsWith(searchTerm) &&
-                          fullName !== searchTerm
-                        );
-                      })
-                        .slice(0, 10)
-                        .map((item) => (
-                          <div
-                            onClick={() =>
-                              onSearchWard(item.WardName, item.WardCode)
-                            }
-                            className="dropdown-row"
-                            key={item.WardName}
-                          >
-                            {item.WardName}
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-6">
-                <div className="form-group">
-                  <br />
-                  <textarea
-                    rows="7"
-                    cols="39"
-                    placeholder="Địa chỉ chi tiết ..."
-                    defaultValue={""}
-                    value={addressForm}
+            <div className="col-6">
+              <div className="form-group">
+                <label>Khuyến mãi</label>
+                <Space direction="vertical">
+                  <InputNumber
+                    style={{ width: 240 }}
+addonAfter={"%"}
+                    defaultValue={0}
                   />
+                </Space>
+              </div>
+            </div>
+          </div>
+          <div className="row mt-3">
+            <div className="col-6">
+              <label>Tỉnh/ Thành Phố</label>
+              <Select
+                disabled={disableCountry}
+                showSearch
+                placeholder="Tỉnh/thành phố"
+                optionFilterProp="children"
+                style={{
+                  width: 240,
+                }}
+                onChange={onChange}
+                onClick={onSearch}
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                {array.map((item) => (
+                  <Option key={item.ProvinceID} value={item.ProvinceID}>
+                    {item.ProvinceName}
+                  </Option>
+                ))}
+              </Select>
+              <div className="search-container mb-2">
+                <div className="search-inner">
+                  <label>Tên quận huyện</label>
+                  <Select
+                    showSearch
+                    disabled={disableCountry}
+                    placeholder="Quận/huyện"
+                    optionFilterProp="children"
+                    style={{
+                      width: 240,
+                    }}
+                    onChange={onChangeDistricts}
+                    onClick={onSearchDistricts}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    {district.map((item) => (
+                      <Option key={item.DistrictID} value={item.DistrictID}>
+                        {item.DistrictName}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
+              </div>
+              <div className="search-container">
+                <div className="search-inner">
+                  <label>Tên phường xã</label>
+                  <Select
+                    showSearch
+                    placeholder="Phường/xã"
+                    optionFilterProp="children"
+                    style={{
+                      width: 240,
+                    }}
+                    onChange={onChangeWards}
+                    onClick={onSearchWards}
+                    disabled={disableCountry}
+                    filterOption={(input, option) =>
+                      option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  >
+                    {Ward.map((item) => (
+                      <Option key={item.WardCode} value={item.WardCode}>
+                        {item.WardName}
+</Option>
+                    ))}
+                  </Select>
                 </div>
               </div>
             </div>
-
-            <div className="row mt-3">
-              <div className="col-6">
-                <div className="form-group">
-                  <label>Khuyến mãi</label>
-                  <div className="input-group">
-                    <input type="text" className="form-control" placeholder="0" />
-                    <span className="input-group-text">%</span>
-                  </div>
-                </div>
-              </div>
-              <div className="col-6">
-                <div className="form-group">
-                  <label>Phí ship</label>
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      value={shipping}
-                      onChange={(e) => setShipping(e.target.value)}
-                      className="form-control"
-                      placeholder="0"
-                      disabled
-                    />
-                    <span className="input-group-text">VNĐ</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="row mt-3">
-              <div className="col-6">
-                <div className="form-group">
-                  <label>Phương thức mua hàng</label>
-                  <select className="form-select">
-                    <option>Chọn hình thức mua hàng</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                  </select>
-                </div>
-              </div>
-              <div className="col-6">
-                <div className="form-group">
-                  <label>Phương thức thanh toán</label>
-                  <select className="form-select">
-                    <option>Chọn hình thức thanh toán</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="row mt-3">
+            <div className="col-6">
               <div className="form-group">
                 <br />
-                <textarea rows="7" cols="85" placeholder="Ghi chú ..." />
+                <TextArea
+                  value={addressDetail}
+                  onChange={(e) => setAddressDetail(e.target.value)}
+                  rows={4}
+                  placeholder={"Địa chỉ chi tiết"}
+                />
+              </div>
+              <div className="form-group">
+                <label>Tổng tiền</label>
+                <br />
+                <Space direction="vertical">
+                  <InputNumber
+                    className="text-danger fw-bold"
+                    style={{
+                      width: 240,
+                    }}
+                    disabled={true}
+                    value={total}
+                    onChange={(e) => setTotal(e.target.value)}
+                    addonAfter={"VNĐ"}
+                    defaultValue={0}
+                  />
+                </Space>
               </div>
             </div>
           </div>
-
-          <div className="col-7">
-            <div className="title">
-              <h3>Giỏ hàng</h3>
+          <div className="row mt-3">
+            <div className="col-6">
+              <label>Hình thức thanh toán</label>
+              <Select
+                placeholder="Hình thức thanh toán"
+                style={{
+                  width: 240,
+                }}
+                onChange={handleChangePayment}
+              >
+                <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
+                <Option value="TÀI KHOẢN ATM">Tài khoản ATM</Option>
+                <Option value="TÀI KHOẢN VN PAY">Tài khoản VN PAY</Option>
+              </Select>
             </div>
-            <div className="row">
-              <div className="col-12 mt-3">
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Sản phẩm</th>
-                      <th>Số lượng</th>
-                      <th>Đơn giá</th>
-                      <th>Thành tiền</th>
-                      <th>Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>Laptop Gaming ...</td>
-                      <td></td>
-                      <td>300000000</td>
-                      <td>300000000</td>
-                      <td>1</td>
-                    </tr>
-                  </tbody>
-                </table>
+            <div className="col-6">
+              <div className="form-group">
+                <label>Phí ship</label>
+                <Space direction="vertical">
+                  <InputNumber
+                    style={{
+                      width: 240,
+                    }}
+                    className="text-danger"
+                    disabled
+                    value={shipping}
+                    defaultValue={0}
+                    addonAfter={"VNĐ"}
+                  />
+                </Space>
               </div>
+            </div>
+          </div>
+          <div className="row mt-3">
+            <div className="form-group">
+              <br />
+              <TextArea
+                rows={6}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={"Ghi chú"}
+              />
             </div>
           </div>
         </div>
 
-        <div className="row">
-          <div className="btn-submit">
-            <Button className="text-center" type="button">
-              Hoàn tất đặt hàng
-            </Button>
+        <div className="col-7">
+          <div className="title">
+            <h3>Giỏ hàng</h3>
+          </div>
+          <div className="row">
+            <div className="col-12 mt-3">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>STT</th>
+<th>Tên sản phẩm</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataCart?.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{index}</td>
+                        <td>{item.productId.name}</td>
+                        <td>{item.productId.price}</td>
+                        <td key={item.productId.id}>
+                          <InputNumber
+                            // disabled={isDisabled}
+                            onChange={(event) =>
+                              onChangeInputNumber(
+                                event,
+                                item.productId.id,
+                                item.productId.price,
+                                item.id,
+                                item.userId
+                              )
+                            }
+                            value={quantity | item.quantity}
+                            key={item.productId.id}
+                            defaultValue={1}
+                            min={1}
+                            max={item.productId.quantity}
+                          />
+                        </td>
+                        <td>{item.total}</td>
+                        <td>
+                          <DeleteOutlined
+                            onClick={() => onDelete(item.id)}
+                            style={{ color: "red", marginLeft: 12 }}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {/* <Table
+                columns={columns}
+                rowKey={(record) => record++}
+                dataSource={dataCart}
+                pagination={tableParams.pagination}
+                loading={loading}
+                onChange={handleTableChange}
+              /> */}
+              <Modal
+                title="Xóa sản phẩm "
+                visible={isDelete}
+                onCancel={() => {
+                  setDelete(false);
+                }}
+                onOk={() => {
+                  fetch(`http://localhost:8080/api/carts/${id}`, {
+                    method: "DELETE",
+                  }).then(() => loadDataCart());
+                  setDelete(false);
+                  // toastSuccess("Xóa sản phẩm thành công!");
+                }}
+              >
+                Bạn muốn xoá sản phẩm khỏi giỏ hàng không ?
+              </Modal>
+            </div>
           </div>
         </div>
       </div>
-    </>
+
+      <div className="row">
+        <div className="btn-submit">
+          <Button
+            className="text-center"
+            type="button"
+            onClick={handleSubmitOrder}
+          >
+            Hoàn tất đặt hàng
+          </Button>
+</div>
+      </div>
+    </div>
   );
 }
 
