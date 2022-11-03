@@ -69,7 +69,7 @@ function Checkout() {
                         <div className="row d-flex">
                             <div className="col-8">
                                 <input type={'text'} className="form-control ip-sale mb-3 radio-ip" placeholder="Nhập mã giảm giá"></input>
-                                <p>số lượng sản phẩm</p>
+                                <p>Số lượng sản phẩm: {products.length}</p>
                                 <p>tên sản phẩm</p>
                             </div>
                             <div className="col-4"><button className="btn btn-primary btn-sale">Sửa</button>

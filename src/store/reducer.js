@@ -2,6 +2,7 @@ import { ADD_TO_CART, CHECK_OUT_CART } from './constants'
 const initState = {
     cartCheckout: [],
     cart: {
+        product: {},
         products: []
     }
 }
@@ -14,7 +15,12 @@ function reducer(state, action) {
             }
         }
         case ADD_TO_CART: {
-            // chức năng
+            return {
+                ...state.cartCheckout,
+                cart: {
+                    products: [...state.cart.products, action.payload]
+                }
+            }
         }
         default:
             throw new Error('Invalid action!')

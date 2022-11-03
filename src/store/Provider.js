@@ -4,7 +4,7 @@ import reducer, { initState } from "./reducer";
 import logger from "./logger";
 
 function Provider({ children }) {
-    const [state, dispath] = useReducer(reducer, initState);
+    const [state, dispath] = useReducer(logger(reducer), initState);
     return (
         <Context.Provider value={[state, dispath]}>
             {children}

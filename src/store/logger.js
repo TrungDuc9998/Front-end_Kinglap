@@ -7,6 +7,7 @@ function logger(reducer) {
 
         const nextState = reducer(prevState, action);
         console.log('Next State', nextState);
+        console.groupEnd();
         return nextState;
     }
 }

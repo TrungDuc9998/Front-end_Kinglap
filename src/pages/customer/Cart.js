@@ -5,26 +5,10 @@ import { Link } from "react-router-dom";
 import StoreContext from '../../store/Context';
 import { actions } from "../../store";
 
-const products = [
-    {
-        id: 1,
-        name: 'Sản phẩm 1',
-        price: '15.000.000'
-    },
-    {
-        id: 2,
-        name: 'Sản phẩm 2',
-        price: '12.000.000'
-    },
-    {
-        id: 3,
-        name: 'Sản phẩm 3',
-        price: '17.000.000'
-    }
-]
-
 function Cart() {
     const [state, dispath] = useContext(StoreContext);
+    console.log("list cart", state.cart.products)
+    const products = state.cart.products
     const handleCheckout = () => {
         dispath(actions.setCheckoutCart(checked))
     }
@@ -43,7 +27,7 @@ function Cart() {
     }
 
     return (<>
-        <div className="cart">
+        <div c lassName="cart">
             <div className="card-header mb-2">
                 <span>Giỏ hàng</span>
             </div>
