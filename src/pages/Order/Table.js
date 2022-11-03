@@ -16,12 +16,31 @@ const getRandomuserParams = (params) => ({
 });
 
 function Table1() {
+  const [value, setValue] = useState("");
+  const [users, setUsers] = useState();
+  const [valuePhone, setValuePhone] = useState();
+  const [getFullName, setFullNameClient] = useState();
+  const [valueUser, setValueUser] = useState("");
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [password1, setPassword1] = useState();
+  const [password2, setPassword2] = useState();
+  const [fullName, setFullName] = useState();
+  const [email, setEmail] = useState();
+  const [phoneNumber, setPhoneNumber] = useState();
+  const [address, setAddRess] = useState();
+  const [fullNameForm, setFullNameForm] = useState();
+  const [phoneNumberForm, setPhoneNumberForm] = useState();
+  const [addressForm, setAddRessForm] = useState();
+  const [username, setUsername] = useState();
+  const [open, setOpen] = useState(false);
+  const [addressDetail, setAddressDetail] = useState();
   const [quantity, setQuantity] = useState();
   const [array, setArray] = useState([{}]);
   const [district, setDistrict] = useState([{}]);
   const [isDelete, setDelete] = useState(false);
   const [id, setId] = useState();
   const [Ward, setWard] = useState([{}]);
+  const [disableCountry, setDisableCountry] = useState(false);
   const [districtId, setDistrictId] = useState(1);
   const [wardCode, setWardCode] = useState(1);
   const [shipping, setShipping] = useState(0);
@@ -39,6 +58,13 @@ function Table1() {
   const [valueDistrict, setValueDistrict] = useState();
   const [payment, setPayment] = useState();
   const [valueWard, setValueWard] = useState();
+  const [valueQuantity, setValueQuantity] = useState();
+  const [totalWith, setTotalWidth] = useState();
+  const [totalHeight, setTotalHeight] = useState();
+  const [totalLength, setTotalLength] = useState();
+  const [totalQuantity, setTotalQuantity] = useState();
+  const [totalWeight, setTotalWeight] = useState();
+  const [note, setNote] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -48,7 +74,71 @@ function Table1() {
     },
   });
 
+  const loadInfo = () => {
+    fetch(
+      `http://localhost:8080/api/information?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setUsers(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const handleOk = () => {
+    if (password2 === password1) {
+      fetch(`http://localhost:8080/api/orders/createUser`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: username,
+          newPassword: password1,
+          fullName: fullName,
+          email: email,
+          phoneNumber: phoneNumber,
+          address: address,
+        }),
+      })
+        .then((res) => res.json())
+        .then((results) => {
+          if (results.data == null) {
+            // toastError(results.message);
+          } else {
+            // toastSuccess("Thêm mới thành công!");
+            setUsername("");
+            setPassword1("");
+            setPassword2("");
+            setFullName("");
+            setEmail("");
+            setPhoneNumber("");
+            setAddRess("");
+            setOpen(false);
+          }
+        });
+    } else {
+      // toastError("Xác nhận tài khoản không chính xác!");
+    }
+  };
+
+  const showModal = () => {
+    setOpen(true);
+  };
+
   const handleChangePayment = (value) => {
+    if (value === "TẠI CỬA HÀNG") {
+      setDisableCountry(true);
+    } else {
+      setDisableCountry(false);
+    }
     setPayment(value);
     console.log("value payment:" + value);
   };
@@ -60,9 +150,25 @@ function Table1() {
       userId: 1,
       address:
         valueProvince !== undefined
-          ? valueWard + ", " + valueDistrict + ", " + valueProvince
+          ? (addressDetail === undefined ? "" : addressDetail + ",") +
+            valueWard +
+            ", " +
+            valueDistrict +
+            ", " +
+            valueProvince
           : "TẠI CỬA HÀNG",
+      note: note,
     };
+    const orderDetails = [];
+    dataCart?.forEach((item, index) => {
+      orderDetails.push({
+        productId: item.productId.id,
+        quantity: item.quantity,
+        status: "CHO_XAC_NHAN",
+        total: item.total,
+      });
+    });
+
     fetch("http://localhost:8080/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,60 +177,69 @@ function Table1() {
         userId: order.userId,
         total: order.total,
         address: order.address,
+        note: order.note,
+        status: "DA_DAT",
+        orderDetails: orderDetails,
       }),
     }).then((res) => {
       // res.json();
-      console.log("đặt hàng thành công !:");
+      console.log("đặt hàng thành công !");
+      console.log(orderDetails);
       console.log(res.data);
     });
     console.log(order);
   };
 
-  // event,item.productId,item.productId.price,item.id,item.useId
-  const onChangeInputNumber = (value, productId, price, id, useId) => {
-    const cart = {
-      total: value * price,
-      useId: useId,
-      quantity: value,
-      productId: productId,
-    };
+  const updateCart = (cart, id, quantity) => {
+    console.log("id cart update " + id);
+    console.log("quantity: " + quantity);
+    console.log(cart);
     fetch(`http://localhost:8080/api/carts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        productId: cart.productId,
-        userId: cart.useId,
-        quantity: cart.quantity,
-        total: cart.total,
+        productId: cart.productId.id,
+        userId: cart.useId | 1,
+        quantity: quantity !== undefined ? quantity + 1 : cart.quantity,
+        // total: cart.total | (cart.productId.price * quantity),
+        total:
+          cart.total === cart.productId.price * quantity
+            ? cart.total
+            : cart.productId.price * quantity,
       }),
     }).then((res) => {
       // res.json();
       console.log("load data cart:");
       console.log(res.data);
       loadDataCart();
-      let total = 0;
-      dataCart?.forEach((item) => (total += item.total));
-      console.log("tổng tiền sau khi tính: " + total);
-      setTotal(total);
       // notify();
     });
   };
 
-  const SubmitCartData = (value) => {
-    console.log(value);
+  const onChangeInputNumber = (value, productId, price, id, useId) => {
+    console.log("value quantity:" + value);
+    setValueQuantity(value);
+    const cart = {
+      total: value * price,
+      useId: useId,
+      quantity: value,
+      productId: productId,
+    };
+    updateCart(cart, id);
+  };
+
+  const SubmitCartData = (value, price, quantity) => {
     fetch("http://localhost:8080/api/carts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         productId: value,
         userId: 1,
-        quantity: 0,
-        total: 0,
+        quantity: quantity === 1 ? 1 : quantity + 1,
+        total: price,
       }),
     }).then((res) => {
       // res.json();
-      console.log("load data cart:");
-      console.log(res.data);
       loadDataCart();
     });
   };
@@ -133,59 +248,14 @@ function Table1() {
     setId(id);
     setDelete(true);
   };
-  const columns = [
-    {
-      title: "Tên sản phẩm",
-      dataIndex: dataCart?.map((item) => item.productId.name)[0],
-      width: "45%",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "quantity",
-      with: "25%",
-      render: (id, data) => {
-        return (
-          <>
-            <InputNumber
-              min={0}
-              max={100}
-              defaultValue={0}
-              value={quantity}
-              onChange={onChangeInputNumber}
-            />
-          </>
-        );
-      },
-    },
-    {
-      title: "Thành tiền",
-      dataIndex: "total",
-      width: "10%",
-    },
-    {
-      title: "Thao tác",
-      dataIndex: "id",
-      dataIndex: "data",
-      width: "20%",
-      render: (id, data) => {
-        return (
-          <>
-            <DeleteOutlined
-              onClick={() => onDelete(data.id)}
-              style={{ color: "red", marginLeft: 12 }}
-            />
-          </>
-        );
-      },
-    },
-  ];
 
   const onChange = (value) => {
-    console.log("province value onChange: " + value);
+    console.log("DATA PROVINCE: " + value);
     setProvinceID(value);
     loadDataDistrict(value);
   };
   const onSearch = (value) => {
+    console.log("province Id khi onClick: " + ProvinceID);
     if (value.target.innerText !== "") {
       setValueProvince(value.target.innerText);
       loadDataDistrict();
@@ -203,7 +273,6 @@ function Table1() {
   const onSearchDistricts = (value) => {
     if (value.target.innerText !== "") {
       setValueDistrict(value.target.innerText);
-      console.log("value district id:" + value.target.innerText);
       loadDataWard();
     }
   };
@@ -212,12 +281,12 @@ function Table1() {
     if (value === "") {
       setIsDisabled(true);
     }
-    console.log("value ward code: ", value);
     setWardCode(value);
     SubmitShipping(value);
   };
 
   const onSearchWards = (value) => {
+    console.log("shipping" + shipping);
     if (value.target.innerText !== "") {
       setValueWard(value.target.innerText);
       SubmitShipping();
@@ -226,12 +295,27 @@ function Table1() {
 
   const onChangeProduct = (value) => {
     setValueProduct(value);
-    SubmitCartData(value);
-    let total = 0;
-    dataCart?.forEach((item) => (total += item.total));
-    console.log("tổng tiền sau khi tính: " + total);
-    setTotal(total);
-    console.log("value product: " + value);
+    if (value !== undefined) {
+      let quantity = 0;
+      dataCart
+        ?.filter((item) => item.productId.id === value)
+        .map((cart) => {
+          quantity += cart.quantity;
+          updateCart(cart, cart.id, quantity);
+          console.log(quantity);
+        });
+
+      console.log("quantity  filter: " + quantity);
+
+      let priceProduct;
+      data
+        ?.filter((item) => item.id === value)
+        .map((product) => (priceProduct = product.price));
+      // SubmitCartData(value, priceProduct, quantity);
+      let total = 0;
+      dataCart?.forEach((item) => (total += item.total));
+      setTotal(total);
+    }
   };
 
   const onSearchProduct = (searchItem) => {
@@ -276,8 +360,6 @@ function Table1() {
   };
 
   const loadDataDistrict = (value) => {
-    console.log("load Province Id: " + value);
-    console.log("value load Provence Id: " + ProvinceID);
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
       {
@@ -368,42 +450,85 @@ function Table1() {
     }
   };
 
+  const handleCancel = () => {
+    setOpen(false);
+  };
+
+  const changeUsername = (event) => {
+    setUsername(event.target.value);
+  };
+
+  const changePassword1 = (event) => {
+    setPassword1(event.target.value);
+  };
+
+  const changePassword2 = (event) => {
+    setPassword2(event.target.value);
+  };
+
+  const changeFullname = (event) => {
+    setFullName(event.target.value);
+  };
+
+  const changeEmail = (event) => {
+    setEmail(event.target.value);
+  };
+
+  const changePhoneNumber = (event) => {
+    setPhoneNumber(event.target.value);
+  };
+
+  const changeAddRess = (event) => {
+    setAddRess(event.target.value);
+  };
+
+  const onChangeProvince = (event) => {
+    setValue(event.target.value);
+  };
+
   const url = "http://localhost:8080/api/orders";
 
   const SubmitShipping = (value) => {
-    if (value != null) {
-      fetch(
-        "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            service_id: serviceId,
-            token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
-          },
-          body: JSON.stringify({
-            service_id: serviceId,
-            insurance_value: 500000,
-            coupon: null,
-            from_district_id: 3440,
-            to_district_id: districtId,
-            to_ward_code: value | (setWardCode != 1),
-            height: 15,
-            length: 15,
-            weight: 1000,
-            width: 15,
-          }),
-        }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          setShipping(data.data.total);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
+    console.log("service id submit shipping: " + serviceId);
+    console.log("ward code submit shipping: " + value);
+    console.log("ward code value: " + wardCode);
+    console.log("total length: " + Math.round(totalLength * 0.1));
+    console.log("total weight: " + totalWeight * 1000);
+    console.log("total width: " + Math.round(totalLength * 0.1));
+    fetch(
+      "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          service_id: serviceId,
+          token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+        },
+        body: JSON.stringify({
+          service_id: serviceId,
+          insurance_value: 500000,
+          coupon: null,
+          from_district_id: 3440,
+          to_district_id: 1875,
+          height: Math.round(totalHeight * 0.1),
+          length: Math.round(totalLength * 0.1),
+          weight: Math.round(totalWeight * 1000),
+          width: Math.round(totalLength * 0.1),
+          to_ward_code: value,
+        }),
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("GIÁ SHIP SAU KHI TÍNH: " + data.data.total);
+        setShipping(data.data.total);
+        setIsDisabled(true);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    // }
   };
 
   useEffect(() => {
@@ -411,7 +536,9 @@ function Table1() {
     loadDataProduct();
     loadDataClient();
     loadDataCart();
-  }, [total != undefined]);
+    loadInfo();
+    setDisableCountry(true);
+  }, [(total != undefined) | (ProvinceID != 1)]);
 
   const loadDataClient = () => {
     setLoading(true);
@@ -443,8 +570,23 @@ function Table1() {
       .then((res) => res.json())
       .then((results) => {
         setDataCart(results.data.data);
-        console.log("-------------- data cart -------------");
-        console.log(results.data.data);
+        let total = 0;
+        let weight = 0;
+        let width = 0;
+        let height = 0;
+        let length = 0;
+        results.data.data?.forEach((item) => {
+          total += item.total;
+          weight += item.productId.weight * item.quantity;
+          width += item.productId.width * item.quantity;
+          height += item.productId.height * item.quantity;
+          length += item.productId.length * item.quantity;
+        });
+        setTotalWeight(weight);
+        setTotal(total);
+        setTotalLength(length);
+        setTotalHeight(height);
+        setTotalWidth(width);
         setLoading(false);
         setTableParams({
           pagination: {
@@ -453,16 +595,13 @@ function Table1() {
             total: results.data.total,
           },
         });
-        // let total = 0;
-        // dataCart?.forEach((item) => (total += item.total));
-        // console.log("tổng tiền sau khi tính: " + total);
       });
   };
 
   const handleTableChange = (pagination) => {
     tableParams.pagination = pagination;
-    tableParams.pagination.search1 = searchUsername;
-    tableParams.pagination.search2 = searchStatus;
+    // tableParams.pagination.search1 = searchUsername;
+    // tableParams.pagination.search2 = searchStatus;
     setLoading(true);
     fetch(
       `http://localhost:8080/api/carts?${qs.stringify(
@@ -502,6 +641,24 @@ function Table1() {
           },
         });
       });
+  };
+
+  const onSearchUser = (searchItem) => {
+    setValueUser(searchItem);
+    console.log("user item: " + searchItem);
+  };
+  const onChangeUser = (event) => {
+    setValueUser(event.target.value);
+    console.log("value user: " + event.target.value);
+  };
+  const onSearchAndFillUser = (item) => {
+    if (item != null) {
+      setFullNameClient(item.fullName);
+    }
+    onSearchUser("");
+    setFullNameForm(item.fullName);
+    setPhoneNumberForm(item.phoneNumber);
+    setAddRessForm(item.address);
   };
 
   return (
@@ -544,25 +701,25 @@ function Table1() {
           <div className="row mt-3">
             <div className="col-6">
               <div className="search-container">
-                <div className="search-inner mb-2">
-                  <label>Tên khách hàng</label>
+                <div className="search-inner">
                   <input
                     type="text"
-                    placeholder="Tên khách hàng"
-                    value={valueClient}
-                    onChange={onChangeClient}
-                    onClick={() => onSearchClient(valueClient)}
+                    placeholder="Số điện thoại khách hàng"
+                    defaultValue={""}
+                    value={fullNameForm}
+                    onChange={onChangeUser}
+                    onClick={() => onSearchUser(valueUser)}
                   />
                   <div className="dropdown">
-                    {dataClient != null
-                      ? dataClient
+                    {users != null
+                      ? users
                           .filter((item) => {
-                            const searchTerm = valueClient
+                            const searchTerm = valueUser
                               .toString()
                               .toLowerCase();
                             const fullName =
-                              item.username !== undefined
-                                ? item.username.toLowerCase()
+                              item.phoneNumber !== undefined
+                                ? item.phoneNumber.toLowerCase()
                                 : "";
                             return (
                               searchTerm &&
@@ -573,11 +730,11 @@ function Table1() {
                           .slice(0, 10)
                           .map((item) => (
                             <div
-                              onClick={() => onSearchClient(item.username)}
+                              onClick={() => onSearchAndFillUser(item)}
                               className="dropdown-row"
                               key={item.id}
                             >
-                              {item.username}
+                              {item.phoneNumber}
                             </div>
                           ))
                       : ""}
@@ -585,7 +742,96 @@ function Table1() {
                 </div>
               </div>
             </div>
-            
+            <div className="col-6 ">
+              <Button onClick={showModal} style={{ borderRadius: "10px" }}>
+                Tạo khách hàng
+              </Button>
+              <Modal
+                title="Tạo mới"
+                open={open}
+                onOk={handleOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancel}
+              >
+                <label>
+                  Tài khoản
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="text"
+                  name="username"
+                  value={username}
+                  placeholder="Nhập tài khoản"
+                  onChange={changeUsername}
+                />
+                <label>
+                  Mật khẩu
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="password"
+                  name="password1"
+                  value={password1}
+                  placeholder="Nhập mật khẩu"
+                  onChange={changePassword1}
+                />
+                <label>
+                  Xác nhận mật khẩu
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="password"
+                  name="password2"
+                  value={password2}
+                  placeholder="Nhập lại mật khẩu"
+                  onChange={changePassword2}
+                />
+                <label>
+                  Họ và tên
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="text"
+                  name="fullName"
+                  value={fullName}
+                  placeholder="Nhập họ và tên"
+                  onChange={changeFullname}
+                />
+                <label>
+                  Email
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="email"
+                  name="email"
+                  value={email}
+                  placeholder="Nhập địa chỉ email"
+                  onChange={changeEmail}
+                />
+                <label>
+                  Số điện thoại
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="number"
+                  name="phoneNumber"
+                  value={phoneNumber}
+                  placeholder="Nhập số điện thoại"
+                  onChange={changePhoneNumber}
+                />
+                <label>
+                  Địa chỉ
+                  <span className="text-danger"> *</span>
+                </label>
+                <Input
+                  type="text"
+                  name="address"
+                  value={address}
+                  placeholder="Nhập địa chỉ"
+                  onChange={changeAddRess}
+                />
+              </Modal>
+            </div>
           </div>
           <div className="row mt-3">
             <div className="col-6">
@@ -594,12 +840,48 @@ function Table1() {
                 <Input placeholder="Hà Trung Kiên" />
               </div>
             </div>
-           
+            <div className="col-6">
+              <div className="form-group">
+                <label>Tên khách hàng</label>
+                <Input placeholder="Hà Trung Kiên" />
+              </div>
+            </div>
+          </div>
+          <div className="row mt-3">
+            <div className="col-6">
+              <div className="form-group">
+                <label>Phương thức mua hàng</label>
+                <br />
+                <Select
+                  placeholder="Hình thức mua hàng"
+                  style={{
+                    width: 240,
+                  }}
+                  onChange={handleChangePayment}
+                >
+                  <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
+                  <Option value="GIAO HÀNG TẠI NHÀ">Giao hàng tại nhà</Option>
+                </Select>
+              </div>
+            </div>
+            <div className="col-6">
+              <div className="form-group">
+                <label>Khuyến mãi</label>
+                <Space direction="vertical">
+                  <InputNumber
+                    style={{ width: 240 }}
+                    addonAfter={"%"}
+                    defaultValue={0}
+                  />
+                </Space>
+              </div>
+            </div>
           </div>
           <div className="row mt-3">
             <div className="col-6">
               <label>Tỉnh/ Thành Phố</label>
               <Select
+                disabled={disableCountry}
                 showSearch
                 placeholder="Tỉnh/thành phố"
                 optionFilterProp="children"
@@ -623,6 +905,7 @@ function Table1() {
                   <label>Tên quận huyện</label>
                   <Select
                     showSearch
+                    disabled={disableCountry}
                     placeholder="Quận/huyện"
                     optionFilterProp="children"
                     style={{
@@ -656,7 +939,7 @@ function Table1() {
                     }}
                     onChange={onChangeWards}
                     onClick={onSearchWards}
-                    disabled={isDisabled}
+                    disabled={disableCountry}
                     filterOption={(input, option) =>
                       option.children
                         .toLowerCase()
@@ -675,37 +958,27 @@ function Table1() {
             <div className="col-6">
               <div className="form-group">
                 <br />
-                <TextArea rows={4} placeholder={"Địa chỉ chi tiết"} />
+                <TextArea
+                  value={addressDetail}
+                  onChange={(e) => setAddressDetail(e.target.value)}
+                  rows={4}
+                  placeholder={"Địa chỉ chi tiết"}
+                />
               </div>
               <div className="form-group">
                 <label>Tổng tiền</label>
                 <br />
-                <Input
-                  disabled={true}
-                  value={total}
-                  onChange={(e) => setTotal(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="row mt-3">
-            <div className="col-6">
-              <div className="form-group">
-                <label>Khuyến mãi</label>
-                <Space direction="vertical">
-                  <InputNumber addonAfter={"%"} defaultValue={0} />
-                </Space>
-              </div>
-            </div>
-            <div className="col-6">
-              <div className="form-group">
-                <label>Phí ship</label>
                 <Space direction="vertical">
                   <InputNumber
-                    value={shipping}
-                    disabled
-                    addonAfter={"VND"}
-                    defaultValue={100}
+                    className="text-danger fw-bold"
+                    style={{
+                      width: 240,
+                    }}
+                    disabled={true}
+                    value={total}
+                    onChange={(e) => setTotal(e.target.value)}
+                    addonAfter={"VNĐ"}
+                    defaultValue={0}
                   />
                 </Space>
               </div>
@@ -713,27 +986,11 @@ function Table1() {
           </div>
           <div className="row mt-3">
             <div className="col-6">
-              <div className="form-group">
-                <label>Phương thức mua hàng</label>
-                <br/>
-                <Select
-                placeholder="Hình thức mua hàng"
-                style={{
-                  width: 230,
-                }}
-                onChange={handleChangePayment}
-              >
-                <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
-                <Option value="TẠI CỬA HÀNG">Giao hàng tại nhà</Option>
-              </Select>
-              </div>
-            </div>
-            <div className="col-6">
-            <label>Hình thức thanh toán</label>
+              <label>Hình thức thanh toán</label>
               <Select
                 placeholder="Hình thức thanh toán"
                 style={{
-                  width: 230,
+                  width: 240,
                 }}
                 onChange={handleChangePayment}
               >
@@ -742,12 +999,33 @@ function Table1() {
                 <Option value="TÀI KHOẢN VN PAY">Tài khoản VN PAY</Option>
               </Select>
             </div>
+            <div className="col-6">
+              <div className="form-group">
+                <label>Phí ship</label>
+                <Space direction="vertical">
+                  <InputNumber
+                    style={{
+                      width: 240,
+                    }}
+                    className="text-danger"
+                    disabled
+                    value={shipping}
+                    defaultValue={0}
+                    addonAfter={"VNĐ"}
+                  />
+                </Space>
+              </div>
+            </div>
           </div>
-
           <div className="row mt-3">
             <div className="form-group">
               <br />
-              <TextArea rows={6} />
+              <TextArea
+                rows={6}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={"Ghi chú"}
+              />
             </div>
           </div>
         </div>
@@ -777,6 +1055,7 @@ function Table1() {
                         <td>{item.productId.price}</td>
                         <td key={item.productId.id}>
                           <InputNumber
+                            // disabled={isDisabled}
                             onChange={(event) =>
                               onChangeInputNumber(
                                 event,
@@ -786,19 +1065,12 @@ function Table1() {
                                 item.userId
                               )
                             }
-                            value={quantity}
+                            value={quantity | item.quantity}
                             key={item.productId.id}
-                            defaultValue={0}
-                            min={1}
-                            max={10}
-                          />
-                          {/* <InputNumber
-                            min={1}
-                            max={10}
                             defaultValue={1}
-                            value= {quantity}
-                            // onChange={onChangeInputNumber}
-                          /> */}
+                            min={1}
+                            max={item.productId.quantity}
+                          />
                         </td>
                         <td>{item.total}</td>
                         <td>
