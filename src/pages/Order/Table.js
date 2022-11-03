@@ -5,6 +5,7 @@ import qs from "qs";
 import "../Order/table.css";
 import { Table, Modal } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
+import { ToastContainer, toast } from "react-toastify";
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -15,10 +16,35 @@ const getRandomuserParams = (params) => ({
   searchStatus: params.pagination?.search2,
 });
 
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
+
+const toastError = (message) => {
+  toast.error(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
+
 function Table1() {
   const [value, setValue] = useState("");
   const [users, setUsers] = useState();
-  const [valuePhone, setValuePhone] = useState();
   const [getFullName, setFullNameClient] = useState();
   const [valueUser, setValueUser] = useState("");
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -26,6 +52,7 @@ function Table1() {
   const [password2, setPassword2] = useState();
   const [fullName, setFullName] = useState();
   const [email, setEmail] = useState();
+  const [phoneClient, setPhoneClient] = useState();
   const [phoneNumber, setPhoneNumber] = useState();
   const [address, setAddRess] = useState();
   const [fullNameForm, setFullNameForm] = useState();
@@ -62,9 +89,9 @@ function Table1() {
   const [totalWith, setTotalWidth] = useState();
   const [totalHeight, setTotalHeight] = useState();
   const [totalLength, setTotalLength] = useState();
-  const [totalQuantity, setTotalQuantity] = useState();
   const [totalWeight, setTotalWeight] = useState();
-const [note, setNote] = useState();
+  const [note, setNote] = useState();
+  const [userId, setUserId] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -73,6 +100,7 @@ const [note, setNote] = useState();
       search2: "",
     },
   });
+
 
   const loadInfo = () => {
     fetch(
@@ -111,9 +139,9 @@ const [note, setNote] = useState();
         .then((res) => res.json())
         .then((results) => {
           if (results.data == null) {
-            // toastError(results.message);
+            toastError(results.message);
           } else {
-            // toastSuccess("Thêm mới thành công!");
+            toastSuccess("Thêm mới thành công!");
             setUsername("");
             setPassword1("");
             setPassword2("");
@@ -125,7 +153,7 @@ const [note, setNote] = useState();
           }
         });
     } else {
-      // toastError("Xác nhận tài khoản không chính xác!");
+      toastError("Xác nhận tài khoản không chính xác!");
     }
   };
 
@@ -140,54 +168,69 @@ const [note, setNote] = useState();
       setDisableCountry(false);
     }
     setPayment(value);
-    console.log("value payment:" + value);
   };
 
   const handleSubmitOrder = () => {
-    const order = {
-      payment: payment,
-      total: total,
-      userId: 1,
-      address:
-        valueProvince !== undefined
-          ? (addressDetail === undefined ? "" : addressDetail + ",") +
-            valueWard +
-            ", " +
-            valueDistrict +
-            ", " +
-            valueProvince
-          : "TẠI CỬA HÀNG",
-      note: note,
-    };
-    const orderDetails = [];
-    dataCart?.forEach((item, index) => {
-      orderDetails.push({
-        productId: item.productId.id,
-        quantity: item.quantity,
-        status: "CHO_XAC_NHAN",
-        total: item.total,
+    console.log('clientName' + valueUser );
+    console.log('phoneNumberForm' + phoneClient );
+    if (payment === undefined) {
+      toastError("Vui lòng chọn hình thức thanh toán !");
+    }else if(valueUser === undefined | phoneClient === undefined){
+      toastError('Vui lòng nhập đầy đủ thông tin khách hàng !')
+    }else {
+      const order = {
+        payment: payment,
+        total: total,
+        userId: userId,
+        address:
+          valueProvince !== undefined
+            ? (addressDetail === undefined ? "" : addressDetail + ",") +
+              valueWard +
+              ", " +
+              valueDistrict +
+              ", " +
+              valueProvince
+            : "TẠI CỬA HÀNG",
+        note: note,
+        customerName : valueUser,
+        phone : phoneClient
+      };
+      const orderDetails = [];
+      dataCart?.forEach((item, index) => {
+        orderDetails.push({
+          productId: item.productId.id,
+          quantity: item.quantity,
+          status: "CHO_XAC_NHAN",
+          total: item.total,
+        });
       });
-    });
-
-    fetch("http://localhost:8080/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        payment: order.payment,
-        userId: order.userId,
-        total: order.total,
-        address: order.address,
-        note: order.note,
-        status: "DA_DAT",
-orderDetails: orderDetails,
-      }),
-    }).then((res) => {
-      // res.json();
-      console.log("đặt hàng thành công !");
-      console.log(orderDetails);
-      console.log(res.data);
-    });
-    console.log(order);
+      try {
+        fetch("http://localhost:8080/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            payment: order.payment,
+            userId: order.userId | null,
+            total: order.total,
+            address: order.address,
+            note: order.note,
+            customerName: order.customerName,
+            phone : order.phone,
+            status: "CHO_XAC_NHAN",   
+            orderDetails: orderDetails,
+          }),
+        }).then((res) => {
+          // res.json();
+          console.log("đặt hàng thành công !");
+          console.log(orderDetails);
+          console.log(res.data);
+        });
+        console.log(order);
+        toastSuccess("Thêm hoá đơn thành công");
+      } catch (err) {
+        toastError("Thêm hoá đơn thất bại");
+      }
+    }
   };
 
   const updateCart = (cart, id, quantity) => {
@@ -295,7 +338,8 @@ orderDetails: orderDetails,
 
   const onChangeProduct = (value) => {
     setValueProduct(value);
-if (value !== undefined) {
+    let isUpdate = false;
+    if (value !== undefined) {
       let quantity = 0;
       dataCart
         ?.filter((item) => item.productId.id === value)
@@ -303,15 +347,15 @@ if (value !== undefined) {
           quantity += cart.quantity;
           updateCart(cart, cart.id, quantity);
           console.log(quantity);
+          isUpdate = true;
         });
-
-      console.log("quantity  filter: " + quantity);
-
       let priceProduct;
       data
         ?.filter((item) => item.id === value)
         .map((product) => (priceProduct = product.price));
-      // SubmitCartData(value, priceProduct, quantity);
+      if (isUpdate === false) {
+        SubmitCartData(value, priceProduct, quantity);
+      }
       let total = 0;
       dataCart?.forEach((item) => (total += item.total));
       setTotal(total);
@@ -403,7 +447,7 @@ if (value !== undefined) {
           body: JSON.stringify({
             shop_id: 3379752,
             from_district: 1542,
-to_district: value ? value : districtId != 1,
+            to_district: value ? value : districtId != 1,
           }),
         }
       )
@@ -503,7 +547,7 @@ to_district: value ? value : districtId != 1,
           "Content-Type": "application/json",
           Accept: "application/json",
           service_id: serviceId,
-token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+          token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
         },
         body: JSON.stringify({
           service_id: serviceId,
@@ -608,7 +652,7 @@ token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
         getRandomuserParams(tableParams)
       )}`
     )
-.then((res) => res.json())
+      .then((res) => res.json())
       .then((results) => {
         setDataCart(results.data.data);
         setLoading(false);
@@ -659,10 +703,12 @@ token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
     setFullNameForm(item.fullName);
     setPhoneNumberForm(item.phoneNumber);
     setAddRessForm(item.address);
+    setUserId(item.id) 
   };
 
   return (
     <div>
+      <ToastContainer></ToastContainer>
       <div className="row">
         <div className="btn-search col-12 mt-3 mb-4 d-flex float-end">
           <div className="timk col-4 ">
@@ -704,9 +750,10 @@ token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
                 <div className="search-inner">
                   <input
                     type="text"
-                    placeholder="Số điện thoại khách hàng"
+                    placeholder="Tên khách hàng"
                     defaultValue={""}
-value={fullNameForm}
+                    value={fullNameForm}
+                    style={{ width: "240px" }}
                     onChange={onChangeUser}
                     onClick={() => onSearchUser(valueUser)}
                   />
@@ -718,8 +765,8 @@ value={fullNameForm}
                               .toString()
                               .toLowerCase();
                             const fullName =
-                              item.phoneNumber !== undefined
-                                ? item.phoneNumber.toLowerCase()
+                              item.fullName !== undefined
+                                ? item.fullName.toLowerCase()
                                 : "";
                             return (
                               searchTerm &&
@@ -734,7 +781,7 @@ value={fullNameForm}
                               className="dropdown-row"
                               key={item.id}
                             >
-                              {item.phoneNumber}
+                              {item.fullName}
                             </div>
                           ))
                       : ""}
@@ -784,7 +831,7 @@ value={fullNameForm}
                   name="password2"
                   value={password2}
                   placeholder="Nhập lại mật khẩu"
-onChange={changePassword2}
+                  onChange={changePassword2}
                 />
                 <label>
                   Họ và tên
@@ -842,8 +889,8 @@ onChange={changePassword2}
             </div>
             <div className="col-6">
               <div className="form-group">
-                <label>Tên khách hàng</label>
-                <Input placeholder="Hà Trung Kiên" />
+                <label>Số điện thoại khách hàng</label>
+                <Input onChange={(e)=> setPhoneClient(e.target.value)} value={phoneNumberForm} />
               </div>
             </div>
           </div>
@@ -870,7 +917,7 @@ onChange={changePassword2}
                 <Space direction="vertical">
                   <InputNumber
                     style={{ width: 240 }}
-addonAfter={"%"}
+                    addonAfter={"%"}
                     defaultValue={0}
                   />
                 </Space>
@@ -949,7 +996,7 @@ addonAfter={"%"}
                     {Ward.map((item) => (
                       <Option key={item.WardCode} value={item.WardCode}>
                         {item.WardName}
-</Option>
+                      </Option>
                     ))}
                   </Select>
                 </div>
@@ -1040,7 +1087,7 @@ addonAfter={"%"}
                 <thead>
                   <tr>
                     <th>STT</th>
-<th>Tên sản phẩm</th>
+                    <th>Tên sản phẩm</th>
                     <th>Đơn giá</th>
                     <th>Số lượng</th>
                     <th>Thành tiền</th>
@@ -1122,7 +1169,7 @@ addonAfter={"%"}
           >
             Hoàn tất đặt hàng
           </Button>
-</div>
+        </div>
       </div>
     </div>
   );
