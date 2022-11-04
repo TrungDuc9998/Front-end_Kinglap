@@ -5,17 +5,18 @@ import { Link } from "react-router-dom";
 import StoreContext from '../../store/Context';
 import { setCheckoutCart } from "../../store/Actions";
 import { Select, Input, Button, Checkbox, InputNumber, Space, Modal } from "antd";
-
+import {
+    DeleteOutlined
+  } from "@ant-design/icons";
 function Cart() {
     const [total, setTotal] = useState(0);
-    const [state, dispath] = useContext(StoreContext);
-    console.log("list cart", state.cart.products)
-    const products = state.cart.products
+    const [state, dispatch] = useContext(StoreContext);
+    console.log("list cart", state.cart)
+    //const products = state.cart.products
     const carts = state.cart
-    const [quantity, setQuantity] = useState(1);
     const getTotal=()=>{
         let totalSum = 0;
-        products?.forEach((item) => (totalSum += item.price*quantity));
+        carts?.forEach((item) => (totalSum += item.price*item.quantity));
         console.log("tổng tiền sau khi tính: " + totalSum);
         setTotal(totalSum);
     }
@@ -23,9 +24,9 @@ function Cart() {
     //LoadList
     useEffect(() => {
         getTotal();
-    }, [products]);
+    }, [carts]);
     const handleCheckout = () => {
-        dispath(setCheckoutCart(checked))
+        dispatch(setCheckoutCart(checked))
     }
 
     const [checked, setChecked] = useState([]);
@@ -52,7 +53,7 @@ function Cart() {
                         <input type={"checkbox"} />
                     </div>
                 </div>
-                {carts.products?carts.products.map(product => (
+                {carts?carts.map(product => (
                     <div className="row d-flex" key={product.id}>
                         <div className="col-2 ip mt-4">
                             <input type={"checkbox"}
@@ -68,11 +69,36 @@ function Cart() {
                             <div>
                                 <h4 className="text-name"> {product.name}
                                 </h4>
-                                
+                                <span className="center-on-small-only">
+                                    <InputNumber className="qty"  onChange={(e) =>
+                                    dispatch({
+                                        type:"CHANGE_CART_QTY",
+                                        payload:{
+                                            id:product.id,
+                                            quantity:e,
+                                        }
+                                    })
+                                    }
+                                    value={product.quantity}
+                                    key={product?product.id:""}
+                                    defaultValue={0}
+                                    min={1}
+                                    max={10}
+                                    ></InputNumber>
+                                </span>
                                 <p className="d-flex"><span className="price me-3 text-danger">
-                                    {product.price}</span> <span className="price ms-3">17.000.000</span>
+                                    {product.price*product.quantity}</span> <span className="price ms-3">17.000.000</span>
                                     <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm 30%</button>
                                 </p>
+                                <DeleteOutlined
+                                    onClick={() => 
+                                        dispatch({
+                                            type:"REMOVE_CART",
+                                            payload:product
+                                        })
+                                    }
+                                    style={{ color: "red", marginLeft: 12 }}
+                                />
                             </div>
                         </div>
                     </div>
