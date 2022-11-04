@@ -95,7 +95,7 @@ function HomeUser() {
             setData(results.data.data.data);
             //console.log(products[0].images[0].name)
             setTotal(results.data.data.total);
-            localStorage.setItem("products",JSON.stringify(products))
+            //localStorage.setItem("products",JSON.stringify(products))
             setTableParams({
             ...tableParams,
             pagination: {
