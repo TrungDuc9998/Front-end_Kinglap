@@ -12,8 +12,8 @@ function Cart() {
     const [total, setTotal] = useState(0);
     const [state, dispatch] = useContext(StoreContext);
     console.log("list cart", state.cart)
-    //const products = state.cart.products
-    const carts = state.cart
+    const carts2 = state.cart
+    const carts=JSON.parse(localStorage.getItem('carts'));
     const getTotal=()=>{
         let totalSum = 0;
         carts?.forEach((item) => (totalSum += item.price*item.quantity));
@@ -30,9 +30,13 @@ function Cart() {
     }
 
     const [checked, setChecked] = useState([]);
+    const [isChecked, setIsChecked]=useState(false);
     const handleCheck = (product) => {
+        console.log("product", product);
+        console.log("check", checked);
         setChecked(prev => {
             const isChecked = checked.includes(product);
+            setIsChecked(!isChecked[product]);
             if (isChecked) {
                 return checked.filter(item => item !== product)
             } else {
@@ -43,7 +47,7 @@ function Cart() {
     }
 
     return (<>
-        <div c lassName="cart">
+        <div className="cart">
             <div className="card-header mb-2">
                 <span>Giỏ hàng</span>
             </div>
@@ -58,7 +62,7 @@ function Cart() {
                         <div className="col-2 ip mt-4">
                             <input type={"checkbox"}
                                 name="ck"
-                                checked={checked.includes(product)}
+                                checked={isChecked[product]}
                                 onChange={() => handleCheck(product)}
                             />
                         </div>

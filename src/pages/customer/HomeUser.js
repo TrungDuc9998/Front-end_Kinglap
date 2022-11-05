@@ -14,12 +14,19 @@ import product6 from '../../asset/images/products/product06.png'
 import product8 from '../../asset/images/products/product08.png'
 
 import { Heart, Repeat, Eye, ShoppingCart } from 'react-feather';
+import {
+    DeleteOutlined
+  } from "@ant-design/icons";
 
 import ProductIndex from '../customer/product/ProductIndex'
 import { useSelector } from "react-redux";
 import qs from "qs";
 
 import axios from "axios";
+import 'toastr/build/toastr.min.css';
+import toastrs from "toastr";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // const products = [
 //     {
@@ -51,12 +58,43 @@ import axios from "axios";
 
 
 function HomeUser() {
-    const [state, dispath] = useContext(Context);
+    const notifySuccess = (message) => {
+        toast.success(message, {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+      const notifyError = (message) => {
+        toast.error(message, {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+    const [state, dispatch] = useContext(Context);
     const handleAddToCart = (product) => {
-        dispath(addToCart(product))
+        dispatch(addToCart(product))
+        notifySuccess('Thêm vào giỏ hàng thành công!')
     }
     const handleClickAddToCart = (product) => {
         handleAddToCart(product)
+    }
+    const handleClickRemoveFromCart = (product) => {
+        dispatch({
+            type:"REMOVE_CART",
+            payload:product
+        })
     }
 
     const url = 'http://localhost:8080/api/products';
@@ -110,7 +148,8 @@ function HomeUser() {
     useEffect(() => {
         getData();
     }, [JSON.stringify(tableParams)]);
-
+    const carts = JSON.parse(localStorage.getItem('carts'));
+    console.log("c:",carts);
 
 
     // const products = useSelector(state => state.productReducer);
@@ -125,6 +164,7 @@ function HomeUser() {
     // }
     return (
         <div>
+            <ToastContainer />
             <div className="section">
                 <div className="container">
                     <div className="row">
@@ -214,9 +254,15 @@ function HomeUser() {
                                                             <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
                                                         </div>
                                                     </div>
-                                                    <div className="add-to-cart">
-                                                        <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                                    </div>
+                                                    {carts.some(p=>p.id===pro.id)?
+                                                    (<div className="add-to-cart">
+                                                    <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
+                                                     </div>):
+                                                    (<div className="add-to-cart">
+                                                    <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                     </div>)
+                                                    }
+                                                    
                                                 </div>
                                             ))}
 
