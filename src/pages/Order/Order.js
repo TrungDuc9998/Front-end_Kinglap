@@ -21,6 +21,8 @@ import {
 import '../Order/order.css';
 import qs from "qs";
 import axios from "axios";
+import toastrs from "toastr";
+import { ToastContainer, toast } from 'react-toastify';
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 const { Option } = Select;
@@ -38,14 +40,15 @@ const { RangePicker } = DatePicker;
 
 const onDelete = (record) => {
   Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
+    title: "Xoá hoá đơn",
+    content: "Bạn có muốn xoá hoá đơn này không ?",
   });
 };
 
 const Order = () => {
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   const [dataOD, setDataOD] = useState();
+  const [dataUser, setDataUser] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
@@ -55,16 +58,22 @@ const Order = () => {
       pageSize: 10,
     },
   });
+  const [idCancel, setIDCancel] = useState();
+
 
   const load = () => {
     setLoading(true);
-    axios.get(url + `?${qs.stringify(
-      getRandomuserParams(tableParams)
-    )}`)
-      // .then((res) => res.json())
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      // axios.get(url + `?${qs.stringify(
+      //   getRandomuserParams(tableParams)
+      // )}`)
+      .then((res) => res.json())
       .then((results) => {
-        setData(results.data.data.data);
-        // setTotal(results.data.data.total);
+        setData(results.data.data);
         setLoading(false);
         setTableParams({
           pagination: {
@@ -85,14 +94,19 @@ const Order = () => {
     setView(true);
   };
 
-  const dataPro = (id) => {
-    axios.get(url_pro + "/" + id)
-      .then((res) => {
-        console.log(res.data);
-        setDataOD(res.data);
-      })
-    setView(true);
-  };
+  const showModalCancel = () => {
+    setEditing(true);
+  }
+
+  const user = (userId) => {
+    fetch(
+      `http://localhost:8080/api/category?` + userId
+    ).then((res) => res.json())
+      .then((results) => {
+        setDataUser(results.data.data);
+      }
+      )
+  }
 
   useEffect(() => {
     load();
@@ -100,55 +114,68 @@ const Order = () => {
 
   const columns = [
     {
-      title: "Mã đơn đặt",
+      title: "Mã HD",
       dataIndex: "id",
       sorter: true,
-      width: "10%",
+      width: "7%",
     },
     {
       title: "Người đặt",
-      dataIndex: "userId",
+      dataIndex: "user",
       sorter: true,
+      render: (user) => `${user.username}`,
       width: "15%",
     },
     {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       sorter: true,
-      width: "15%",
+      width: "14%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
       sorter: true,
-      width: "10%",
+      width: "9%",
     },
     {
       title: "Hình thức thanh toán",
       dataIndex: "payment",
       sorter: true,
-      width: "20%",
-      render: (status) => {
-        if (status == 1) {
+      width: "13%",
+      render: (payment) => {
+        if (payment === 'TAI CUA HANG') {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "80%", borderRadius: "5px" }}
+                style={{ width: "80%", borderRadius: "5px", padding: "4px" }}
+              >
+                Tại cửa hàng
+              </div>
+            </>
+          );
+        }
+        if (payment === 'TAI KHOAN ATM') {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ borderRadius: "5px", padding: "4px", width: "80%" }}
               >
                 Tài khoản ATM
               </div>
             </>
           );
         }
-        if (status != 1) {
+        if (payment === 'THANH TOAN VNPAY') {
           return (
             <>
               <div
-                className="bg-danger text-center text-light"
-                style={{ borderRadius: "5px" }}
+                className="bg-primary text-center text-light"
+                style={{ borderRadius: "5px", padding: "4px", width: "80%" }}
               >
-                Thanh toán khi nhận hàng
+                Ví VNPAY
               </div>
             </>
           );
@@ -162,30 +189,66 @@ const Order = () => {
       width: "20%",
     },
     {
-      title: "Trạng thái",
+      title: "Trạng thái đơn hàng",
       dataIndex: "status",
-      with: "30%",
+      width: "15%",
       render: (status) => {
-        if (status === 'ACTIVE') {
+        if (status === 'CHO_XAC_NHAN') {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
-                active
+                Chờ xác nhận
               </div>
             </>
           );
         };
-        if (status === 'DRAFT') {
+        if (status === 'CHO_LAY_HANG') {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
-                draft
+                Chờ lấy hàng
+              </div>
+            </>
+          );
+        };
+        if (status === 'DANG_GIAO') {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đang giao hàng
+              </div>
+            </>
+          );
+        };
+        if (status === 'DA_NHAN') {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã nhận hàng
+              </div>
+            </>
+          );
+        };
+        if (status === 'DA_HUY') {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã huỷ hàng
               </div>
             </>
           );
@@ -195,94 +258,48 @@ const Order = () => {
     {
       title: "Thao tác",
       dataIndex: "id",
-      width: "30%",
-      render: (id) => {
-        return (
-          <>
-            <EyeOutlined
-              onClick={() => {
-                console.log(id);
-                showModalData(id);
-              }}
-            />
-            <EditOutlined
-              style={{ marginLeft: 12 }}
-              onClick={() => {
-                console.log('id update: '+id)
-                navigate(`/admin/order/${id}`);
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => onDelete(id)}
-              style={{ color: "red", marginLeft: 12 }}
-            />
-          </>
-        );
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
+        if (data.status === "CHO_XAC_NHAN") {
+          return (
+            <>
+              <EyeOutlined
+                onClick={() => {
+                  showModalData(data.id);
+                }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  console.log('key key')
+                  navigate('update');
+                }}
+              />
+              <DeleteOutlined
+                onClick={() => {
+                  showModalCancel(data.id);
+                  console.log(data.id)
+                  setIDCancel(data.id)
+                }}
+              />
+            </>
+          );
+        }
+        else {
+          return (
+            <>
+              <EyeOutlined
+                onClick={() => {
+                  showModalData(data.id);
+                }}
+              />
+            </>
+          );
+        };
       },
     },
   ];
-
-  // const columns2 = [
-  //   {
-  //     title: "Mã HDCT",
-  //     dataIndex: "id",
-  //     sorter: true,
-  //     width: "10%",
-  //   },
-  //   {
-  //     title: "Sản phẩm",
-  //     dataIndex: "productId",
-  //     sorter: true,
-  //     render: (productId) => {
-  //       console.log("id:" + productId);
-  //     },
-  //     width: "10%",
-  //   },
-  //   {
-  //     title: "Số lượng",
-  //     dataIndex: "id",
-  //     sorter: true,
-  //     width: "10%",
-  //   },
-  //   {
-  //     title: "Tổng tiền",
-  //     dataIndex: "money",
-  //     sorter: true,
-  //     width: "10%",
-  //   },
-  //   {
-  //     title: "Trạng thái",
-  //     dataIndex: "status",
-  //     sorter: true,
-  //     width: "10%",
-  //   }
-  // ];
-
-  // const fetchData = () => {
-  //   setLoading(true);
-  //   fetch(
-  //     `https://randomuser.me/api?${qs.stringify(
-  //       getRandomuserParams(tableParams)
-  //     )}`
-  //   )
-  //     .then((res) => res.json())
-  //     .then(({ results }) => {
-  //       setData(results);
-  //       setLoading(false);
-  //       setTableParams({
-  //         ...tableParams,
-  //         pagination: {
-  //           ...tableParams.pagination,
-  //           total: 200, // 200 is mock data, you should read it from server
-  //           // total: data.totalCount,
-  //         },
-  //       });
-  //     });
-  // };
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [JSON.stringify(tableParams)]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -435,6 +452,7 @@ const Order = () => {
             }}
           >
             <PlusOutlined /> Thêm mới
+            <ToastContainer />
           </Button>
         </div>
       </div>
@@ -458,24 +476,38 @@ const Order = () => {
             onChange={handleTableChange}
           />
           <Modal
-            title="Cập nhật"
+            title="Xác nhận"
             visible={isEditing}
             onCancel={() => {
               setEditing(false);
             }}
             onOk={() => {
+              fetch(
+                `http://localhost:8080/api/orders/cancelled/${idCancel}`, { method: "PUT" }).then(() => load());
+              toastrs.options = {
+                timeOut: 6000,
+              }
+              toast.success('Hủy thành công!', {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
               setEditing(false);
+              setLoading(true);
             }}
           >
             <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
+              Bạn thực sự muốn hủy đơn hàng này
+              <span className="text-danger"> !!!!!</span>
             </label>
-            <Input placeholder="Tên thể loại" />
           </Modal>
 
           <Modal
-            // style={{width: "500px"}}
             title="Hiển thị"
             visible={isView}
             onCancel={() => {
@@ -485,13 +517,6 @@ const Order = () => {
               setView(false);
             }}
           >
-            {/* <Table
-              columns={columns2}
-              rowKey={(record) => record++}
-              dataSource={dataOD}
-              loading={loading}
-              onChange={handleTableChange}
-            /> */}
             <table class="table">
               <thead>
                 <tr>
@@ -503,7 +528,7 @@ const Order = () => {
                   <th scope="col">Trạng thái</th>
                 </tr>
               </thead>
-              <tbody> 
+              <tbody>
                 {dataOD?.map((item, index) => {
                   return (
                     <tr key={index}>
@@ -511,7 +536,7 @@ const Order = () => {
                       <td>{item.product.name}</td>
                       <td>{item.product.price}</td>
                       <td>{item.quantity}</td>
-                      <td>{item.quantity*item.product.price}</td>
+                      <td>{item.quantity * item.product.price}</td>
                       <td>{item.status}</td>
                     </tr>
                   );
