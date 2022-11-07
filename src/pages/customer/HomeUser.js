@@ -16,7 +16,7 @@ import product8 from '../../asset/images/products/product08.png'
 import { Heart, Repeat, Eye, ShoppingCart } from 'react-feather';
 import {
     DeleteOutlined
-  } from "@ant-design/icons";
+} from "@ant-design/icons";
 
 import ProductIndex from '../customer/product/ProductIndex'
 import { useSelector } from "react-redux";
@@ -60,28 +60,28 @@ import 'react-toastify/dist/ReactToastify.css';
 function HomeUser() {
     const notifySuccess = (message) => {
         toast.success(message, {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
+            position: "top-right",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
         });
-      }
-      const notifyError = (message) => {
+    }
+    const notifyError = (message) => {
         toast.error(message, {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
+            position: "top-right",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
         });
-      }
+    }
     const [state, dispatch] = useContext(Context);
     const handleAddToCart = (product) => {
         dispatch(addToCart(product))
@@ -92,56 +92,56 @@ function HomeUser() {
     }
     const handleClickRemoveFromCart = (product) => {
         dispatch({
-            type:"REMOVE_CART",
-            payload:product
+            type: "REMOVE_CART",
+            payload: product
         })
     }
 
     const url = 'http://localhost:8080/api/products';
     const [totalSet, setTotal] = useState(10);
     const [products, setData] = useState([{
-        id:"",
-        name:"",
-        price:null,
-        quantity:null,
-        active:1,
+        id: "",
+        name: "",
+        price: null,
+        quantity: null,
+        active: 1,
         imei: null,
         weight: null,
         size: null,
         debut: null,
         categoryId: null,
-        images:null
-        }]
-      );
+        images: null
+    }]
+    );
     const getRandomuserParams = (params) => ({
         limit: params.pagination?.pageSize,
         page: params.pagination?.current,
-      });
+    });
     const [tableParams, setTableParams] = useState({
         pagination: {
-          current: 1,
-          pageSize: 5
+            current: 1,
+            pageSize: 5
         },
-      });
+    });
     //APILoadList
     const getData = () => {
-        axios.get(url+`?${qs.stringify(
-        getRandomuserParams(tableParams)
+        axios.get(url + `?${qs.stringify(
+            getRandomuserParams(tableParams)
         )}`)
-        // .then((res) => res.json())
-        .then((results ) => {
-            setData(results.data.data.data);
-            //console.log(products[0].images[0].name)
-            setTotal(results.data.data.total);
-            //localStorage.setItem("products",JSON.stringify(products))
-            setTableParams({
-            ...tableParams,
-            pagination: {
-                ...tableParams.pagination,
-                total: totalSet, 
-            }
+            // .then((res) => res.json())
+            .then((results) => {
+                setData(results.data.data.data);
+                //console.log(products[0].images[0].name)
+                setTotal(results.data.data.total);
+                //localStorage.setItem("products",JSON.stringify(products))
+                setTableParams({
+                    ...tableParams,
+                    pagination: {
+                        ...tableParams.pagination,
+                        total: totalSet,
+                    }
+                });
             });
-        });
     };
 
     //LoadList
@@ -149,7 +149,7 @@ function HomeUser() {
         getData();
     }, [JSON.stringify(tableParams)]);
     const carts = JSON.parse(localStorage.getItem('carts'));
-    console.log("c:",carts);
+    console.log("c:", carts);
 
 
     // const products = useSelector(state => state.productReducer);
@@ -254,15 +254,15 @@ function HomeUser() {
                                                             <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
                                                         </div>
                                                     </div>
-                                                    {carts.some(p=>p.id===pro.id)?
-                                                    (<div className="add-to-cart">
-                                                    <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
-                                                     </div>):
-                                                    (<div className="add-to-cart">
-                                                    <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                                     </div>)
+                                                    {carts.some(p => p.id === pro.id) ?
+                                                        (<div className="add-to-cart">
+                                                            <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
+                                                        </div>) :
+                                                        (<div className="add-to-cart">
+                                                            <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                        </div>)
                                                     }
-                                                    
+
                                                 </div>
                                             ))}
 

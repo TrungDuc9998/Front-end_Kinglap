@@ -15,6 +15,7 @@ import Discount from "../pages/Discount";
 import HomeUser from "../pages/customer/HomeUser";
 import Cart from "../pages/customer/Cart";
 import Checkout from "../pages/customer/checkout";
+import ViewProduct from "../pages/customer/view_product";
 const publicRoutes = [
   {
     path: "/",
@@ -80,6 +81,10 @@ const publicRoutes = [
   {
     path: "/user/checkout",
     component: Checkout,
+  },
+  {
+    path: "/user/product",
+    component: ViewProduct,
   }
 
 ];
