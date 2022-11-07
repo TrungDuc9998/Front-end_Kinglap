@@ -175,13 +175,11 @@ function Table1() {
     console.log('phoneNumberForm' + phoneClient );
     if (payment === undefined) {
       toastError("Vui lòng chọn hình thức thanh toán !");
-    }else if(valueUser === undefined | phoneClient === undefined){
-      toastError('Vui lòng nhập đầy đủ thông tin khách hàng !')
     }else {
       const order = {
         payment: payment,
-        total: total,
-        userId: userId,
+        total: total + shipping,
+        userId: userId === undefined ? null : userId,
         address:
           valueProvince !== undefined
             ? (addressDetail === undefined ? "" : addressDetail + ",") +
@@ -192,8 +190,8 @@ function Table1() {
               valueProvince
             : "TẠI CỬA HÀNG",
         note: note,
-        customerName : valueUser,
-        phone : phoneClient
+        customerName : valueUser === undefined ? fullNameForm : valueUser,
+        phone : phoneClient === undefined ? phoneNumberForm : phoneClient,
       };
       const orderDetails = [];
       dataCart?.forEach((item, index) => {
@@ -220,7 +218,6 @@ function Table1() {
             orderDetails: orderDetails,
           }),
         }).then((res) => {
-          // res.json();
           console.log("đặt hàng thành công !");
           console.log(orderDetails);
           console.log(res.data);
@@ -433,7 +430,6 @@ function Table1() {
   };
 
   const loadDataWard = (value) => {
-    console.log("districtId khi service:" + value);
     if (value != null) {
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
@@ -644,8 +640,6 @@ function Table1() {
 
   const handleTableChange = (pagination) => {
     tableParams.pagination = pagination;
-    // tableParams.pagination.search1 = searchUsername;
-    // tableParams.pagination.search2 = searchStatus;
     setLoading(true);
     fetch(
       `http://localhost:8080/api/carts?${qs.stringify(

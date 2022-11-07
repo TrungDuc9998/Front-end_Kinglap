@@ -15,6 +15,7 @@ import Discount from "../pages/Discount";
 import HomeUser from "../pages/customer/HomeUser";
 import Cart from "../pages/customer/Cart";
 import Checkout from "../pages/customer/checkout";
+import UpdateOrder from "../pages/Order/UpdateOrder";
 const publicRoutes = [
   {
     path: "/",
@@ -80,6 +81,10 @@ const publicRoutes = [
   {
     path: "/user/checkout",
     component: Checkout,
+  },
+  {
+    path: "/admin/order/:id",
+    component: UpdateOrder,
   }
 
 ];

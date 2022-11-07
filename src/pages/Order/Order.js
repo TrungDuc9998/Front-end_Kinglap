@@ -38,8 +38,8 @@ const { RangePicker } = DatePicker;
 
 const onDelete = (record) => {
   Modal.confirm({
-    title: "Xoá hoá đơn",
-    content: "Bạn có muốn xoá hoá đơn này không ?",
+    title: "Xoá thể loại",
+    content: "Bạn có muón xoá bản ghi này không?",
   });
 };
 
@@ -128,27 +128,27 @@ const Order = () => {
       dataIndex: "payment",
       sorter: true,
       width: "20%",
-      render: (payment) => {
-        if (payment === 'TẠI CỬA HÀNG') {
+      render: (status) => {
+        if (status == 1) {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "80%", borderRadius: "5px",padding: "4px" }}
+                style={{ width: "80%", borderRadius: "5px" }}
               >
-                Tại cửa hàng
+                Tài khoản ATM
               </div>
             </>
           );
         }
-        if (payment === 'TÀI KHOẢN ATM') {
+        if (status != 1) {
           return (
             <>
               <div
                 className="bg-danger text-center text-light"
-                style={{ borderRadius: "5px",padding:"4px",width: "80%" }}
+                style={{ borderRadius: "5px" }}
               >
-                Tài khoản ATM
+                Thanh toán khi nhận hàng
               </div>
             </>
           );
@@ -166,26 +166,26 @@ const Order = () => {
       dataIndex: "status",
       with: "30%",
       render: (status) => {
-        if (status === 'DA_DAT') {
+        if (status === 'ACTIVE') {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px",padding:"4px" }}
+                style={{ width: "100px", borderRadius: "5px" }}
               >
-                Đã đặt hàng
+                active
               </div>
             </>
           );
         };
-        if (status === 'DA_HUY') {
+        if (status === 'DRAFT') {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px",padding:"4px" }}
+                style={{ width: "100px", borderRadius: "5px" }}
               >
-                Đã huỷ hàng
+                draft
               </div>
             </>
           );
@@ -208,8 +208,8 @@ const Order = () => {
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
-                console.log('key key')
-                navigate('update');
+                console.log('id update: '+id)
+                navigate(`/admin/order/${id}`);
               }}
             />
             <DeleteOutlined
