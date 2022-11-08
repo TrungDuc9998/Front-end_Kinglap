@@ -34,6 +34,8 @@ const items = [
   getItem("Quản đơn hàng", "sub2", <UserOutlined />, [
     getItem("Quản lý đơn đặt hàng", "/admin/order"),
     getItem("Xác nhận đơn hàng", "/admin/order/confirm"),
+    getItem("Đơn hàng chờ lấy hàng", "/admin/order/wait"),
+    getItem("Đơn hàng đang giao", "/admin/order/delivering"),
     getItem("Đơn hàng đã đặt", "/admin/order/success"),
     getItem("Đơn hàng đã huỷ", "/admin/order/cancel"),
   ]),
