@@ -248,11 +248,9 @@ function Table1() {
             : cart.productId.price * quantity,
       }),
     }).then((res) => {
-      // res.json();
       console.log("load data cart:");
       console.log(res.data);
       loadDataCart();
-      // notify();
     });
   };
 

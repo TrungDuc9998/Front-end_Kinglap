@@ -16,6 +16,8 @@ import HomeUser from "../pages/customer/HomeUser";
 import Cart from "../pages/customer/Cart";
 import Checkout from "../pages/customer/checkout";
 import UpdateOrder from "../pages/Order/UpdateOrder";
+import OrderDelivering from "../pages/Order/OrderDelivering";
+import OrderWait from "../pages/Order/OrderWait";
 const publicRoutes = [
   {
     path: "/",
@@ -85,7 +87,16 @@ const publicRoutes = [
   {
     path: "/admin/order/:id",
     component: UpdateOrder,
+  },
+  {
+    path: "/admin/order/delivering",
+    component: OrderDelivering,
+  },
+  {
+    path: "/admin/order/wait",
+    component: OrderWait,
   }
+
 
 ];
 
