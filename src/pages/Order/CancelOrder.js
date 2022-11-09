@@ -81,7 +81,7 @@ const CancelOrder = () => {
     });
   };
 
- const deleteOrder = (record) => {
+  const deleteOrder = (record) => {
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },

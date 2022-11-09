@@ -18,6 +18,7 @@ import Checkout from "../pages/customer/checkout";
 import UpdateOrder from "../pages/Order/UpdateOrder";
 import OrderDelivering from "../pages/Order/OrderDelivering";
 import OrderWait from "../pages/Order/OrderWait";
+import ViewOrder from "../pages/customer/ViewOrder";
 const publicRoutes = [
   {
     path: "/",
@@ -95,8 +96,11 @@ const publicRoutes = [
   {
     path: "/admin/order/wait",
     component: OrderWait,
+  },
+  {
+    path: "/user/order",
+    component: ViewOrder,
   }
-
 
 ];
 
