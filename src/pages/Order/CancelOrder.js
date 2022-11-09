@@ -19,8 +19,10 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+const url = 'http://localhost:8080/api/orders';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -39,6 +41,8 @@ const getRandomOrderParams = (params) => ({
 });
 
 const CancelOrder = () => {
+  const [data, setData] = useState([]);
+  const [dataOD, setDataOD] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
@@ -64,7 +68,7 @@ const CancelOrder = () => {
       okText: "Yes",
       okType: "primary",
       onOk: () => {
-        confirmOrder(record, isPut);
+        // confirmOrder(record, isPut);
       },
     });
   };
@@ -81,7 +85,17 @@ const CancelOrder = () => {
     });
   };
 
- const deleteOrder = (record) => {
+  const showModalData = (id) => {
+    console.log(">>>>>>>>" + id);
+    axios.get(url + "/" + id)
+      .then((res) => {
+        console.log(res.data);
+        setDataOD(res.data);
+      })
+    setView(true);
+  };
+
+  const deleteOrder = (record) => {
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -114,9 +128,10 @@ const CancelOrder = () => {
     },
     {
       title: "Người đặt",
-      dataIndex: "userId",
+      dataIndex: "user",
       sorter: true,
-      width: "20%",
+      render: (user) => `${user.username}`,
+      width: "15%",
     },
     {
       title: "Tổng tiền",
@@ -150,9 +165,15 @@ const CancelOrder = () => {
     {
       title: "Thao tác",
       width: "30%",
-      render: (record) => {
+      dataIndex: "id",
+      render: (id, record) => {
         return (
           <>
+            <EyeOutlined
+              onClick={() => {
+                showModalData(id);
+              }}
+            />
             <DeleteOutlined
               onClick={() => onCancel(record)}
               style={{ color: "red", marginLeft: 12 }}
@@ -322,6 +343,44 @@ const CancelOrder = () => {
           </Modal>
 
           <Modal
+            title="Hiển thị 1"
+            visible={isView}
+            onCancel={() => {
+              setView(false);
+            }}
+            onOk={() => {
+              setView(false);
+            }}
+          >
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Mã HDCT</th>
+                  <th scope="col">Tên sản phẩm</th>
+                  <th scope="col">Giá</th>
+                  <th scope="col">Số lượng</th>
+                  <th scope="col">Tổng tiền</th>
+                  <th scope="col">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dataOD?.map((item, index) => {
+                  return (
+                    <tr key={index}>
+                      <td>{item.id}</td>
+                      <td>{item.product.name}</td>
+                      <td>{item.product.price}</td>
+                      <td>{item.quantity}</td>
+                      <td>{item.quantity * item.product.price}</td>
+                      <td>{item.status}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </Modal>
+
+          {/* <Modal
             style={{ borderRadius: "30px" }}
             title="Hiển thị"
             visible={isView}
@@ -339,7 +398,7 @@ const CancelOrder = () => {
             Laptop G3 15 3500 : 1
             <br />
             Laptop G3 15 3500 : 0
-          </Modal>
+          </Modal> */}
         </div>
       </div>
     </div>
