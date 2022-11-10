@@ -101,7 +101,6 @@ function Table1() {
     },
   });
 
-
   const loadInfo = () => {
     fetch(
       `http://localhost:8080/api/information?${qs.stringify(
@@ -171,11 +170,11 @@ function Table1() {
   };
 
   const handleSubmitOrder = () => {
-    console.log('clientName' + valueUser );
-    console.log('phoneNumberForm' + phoneClient );
+    console.log("clientName" + valueUser);
+    console.log("phoneNumberForm" + phoneClient);
     if (payment === undefined) {
       toastError("Vui lòng chọn hình thức thanh toán !");
-    }else {
+    } else {
       const order = {
         payment: payment,
         total: total + shipping,
@@ -190,8 +189,8 @@ function Table1() {
               valueProvince
             : "TẠI CỬA HÀNG",
         note: note,
-        customerName : valueUser === undefined ? fullNameForm : valueUser,
-        phone : phoneClient === undefined ? phoneNumberForm : phoneClient,
+        customerName: valueUser === undefined ? fullNameForm : valueUser,
+        phone: phoneClient === undefined ? phoneNumberForm : phoneClient,
       };
       const orderDetails = [];
       dataCart?.forEach((item, index) => {
@@ -202,6 +201,8 @@ function Table1() {
           total: item.total,
         });
       });
+      console.log('------------------- value order detail -----------------')
+      console.log(orderDetails)
       try {
         fetch("http://localhost:8080/api/orders", {
           method: "POST",
@@ -213,8 +214,8 @@ function Table1() {
             address: order.address,
             note: order.note,
             customerName: order.customerName,
-            phone : order.phone,
-            status: "CHO_XAC_NHAN",   
+            phone: order.phone,
+            status: "CHO_XAC_NHAN",
             orderDetails: orderDetails,
           }),
         }).then((res) => {
@@ -234,6 +235,11 @@ function Table1() {
     console.log("id cart update " + id);
     console.log("quantity: " + quantity);
     console.log(cart);
+    let tong =
+      cart.total === cart.productId.price * quantity
+        ? cart.total
+        : cart.productId.price * quantity;
+    console.log("tong tiền: " ,tong);
     fetch(`http://localhost:8080/api/carts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -241,11 +247,11 @@ function Table1() {
         productId: cart.productId.id,
         userId: cart.useId | 1,
         quantity: quantity !== undefined ? quantity + 1 : cart.quantity,
-        // total: cart.total | (cart.productId.price * quantity),
-        total:
-          cart.total === cart.productId.price * quantity
-            ? cart.total
-            : cart.productId.price * quantity,
+        total: cart.total,
+        // total:
+        //   cart.total === cart.productId.price * quantity
+        //     ? cart.total
+        //     : cart.productId.price * quantity,
       }),
     }).then((res) => {
       console.log("load data cart:");
@@ -695,7 +701,7 @@ function Table1() {
     setFullNameForm(item.fullName);
     setPhoneNumberForm(item.phoneNumber);
     setAddRessForm(item.address);
-    setUserId(item.id) 
+    setUserId(item.id);
   };
 
   return (
@@ -882,7 +888,10 @@ function Table1() {
             <div className="col-6">
               <div className="form-group">
                 <label>Số điện thoại khách hàng</label>
-                <Input onChange={(e)=> setPhoneClient(e.target.value)} value={phoneNumberForm} />
+                <Input
+                  onChange={(e) => setPhoneClient(e.target.value)}
+                  value={phoneNumberForm}
+                />
               </div>
             </div>
           </div>

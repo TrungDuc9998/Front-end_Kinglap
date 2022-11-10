@@ -18,6 +18,7 @@ import Checkout from "../pages/customer/checkout";
 import UpdateOrder from "../pages/Order/UpdateOrder";
 import OrderDelivering from "../pages/Order/OrderDelivering";
 import OrderWait from "../pages/Order/OrderWait";
+import Exchange from "../pages/Order/exchange";
 const publicRoutes = [
   {
     path: "/",
@@ -95,6 +96,11 @@ const publicRoutes = [
   {
     path: "/admin/order/wait",
     component: OrderWait,
+  },
+  ,
+  {
+    path: "/admin/order/exchange",
+    component: Exchange,
   }
 
 
