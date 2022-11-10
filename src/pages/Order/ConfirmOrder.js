@@ -6,7 +6,6 @@ import {
   Button,
   Modal,
   DatePicker,
-  Radio,
   Space,
 } from "antd";
 import {
@@ -118,9 +117,9 @@ const OrderConfirm = () => {
     },
     {
       title: "Người đặt",
-      dataIndex: "user",
+      dataIndex: "customerName",
       sorter: true,
-      render: (user) => `${user.username}`,
+      // render: (user) => `${user.username}`,
       width: "15%",
     },
     {
@@ -130,7 +129,7 @@ const OrderConfirm = () => {
       width: "15%",
     },
     {
-      title: "Hình thức đặt",
+      title: "Hình thức thanh toán",
       dataIndex: "payment",
       sorter: true,
       width: "20%",

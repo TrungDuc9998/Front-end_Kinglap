@@ -44,8 +44,8 @@ const items = [
     getItem("Quản lý nhân viên", "/admin/staff"),
     getItem("Quản lý vai trò", "/admin/setting/role"),
   ]),
-  getItem("Yêu cầu hỗ tợ", "sub4", <UserOutlined />, [
-    getItem("Yêu cầu trả hàng", "/admin/order"),
+  getItem("Yêu cầu hỗ trợ", "sub4", <UserOutlined />, [
+    getItem("Yêu cầu trả hàng", "/admin/order/exchange"),
     getItem("Yêu cầu đổi hàng", "/admin/order/checked"),
   ]),
   getItem("Thống kê", "/statistical", <FileOutlined />),

@@ -147,9 +147,8 @@ const OrderWait = () => {
     },
     {
       title: "Người đặt",
-      dataIndex: "user",
+      dataIndex: "customerName",
       sorter: true,
-      render: (user) => `${user.username}`,
       width: "15%",
     },
     {

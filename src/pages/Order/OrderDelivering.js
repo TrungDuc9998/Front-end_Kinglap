@@ -144,7 +144,7 @@ const OrderDelivering = () => {
       title: "Người đặt",
       dataIndex: "user",
       sorter: true,
-      render: (user) => `${user.username}`,
+      // render: (user) => `${user.username}`,
       width: "15%",
     },
     {
