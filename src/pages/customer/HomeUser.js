@@ -28,35 +28,6 @@ import toastrs from "toastr";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// const products = [
-//     {
-//         id: 1,
-//         name: 'Sản phẩm 1',
-//         price: '15.000.000'
-//     },
-//     {
-//         id: 2,
-//         name: 'Sản phẩm 2',
-//         price: '12.000.000'
-//     },
-//     {
-//         id: 3,
-//         name: 'Sản phẩm 3',
-//         price: '17.000.000'
-//     },
-//     {
-//         id: 4,
-//         name: 'Sản phẩm 4',
-//         price: '17.000.000'
-//     },
-//     {
-//         id: 5,
-//         name: 'Sản phẩm 5',
-//         price: '17.000.000'
-//     }
-// ]
-
-
 function HomeUser() {
     const notifySuccess = (message) => {
         toast.success(message, {
@@ -84,8 +55,22 @@ function HomeUser() {
       }
     const [state, dispatch] = useContext(Context);
     const handleAddToCart = (product) => {
-        dispatch(addToCart(product))
-        notifySuccess('Thêm vào giỏ hàng thành công!')
+        const findCart = (JSON.parse(localStorage.getItem('carts'))?JSON.parse(localStorage.getItem('carts')):state.cart).find(value => {
+            return value.id === product.id
+        })
+        if(findCart!=null){
+            if(findCart.quantity<5){
+                dispatch(addToCart(product))
+                notifySuccess('Thêm vào giỏ hàng thành công!')
+            }else{
+                notifyError('Đã tồn tại 5 sản phẩm trong giỏ hàng! Liên hệ cửa hàng để đặt mua số lượng lớn')
+            }
+        }else{
+            dispatch(addToCart(product))
+            notifySuccess('Thêm vào giỏ hàng thành công!')
+        }
+        
+        
     }
     const handleClickAddToCart = (product) => {
         handleAddToCart(product)
@@ -95,6 +80,15 @@ function HomeUser() {
             type:"REMOVE_CART",
             payload:product
         })
+    }
+    function formatCash(str) {
+        if(str.length>1){
+          return str.split('').reverse().reduce((prev, next, index) => {
+            return ((index % 3) ? next : (next + ',')) + prev
+          })
+        }else{
+          return ""
+        }
     }
 
     const url = 'http://localhost:8080/api/products';
@@ -240,7 +234,7 @@ function HomeUser() {
                                                     <div className="product-body">
                                                         <p className="product-category">Category</p>
                                                         <h3 className="product-name"><a href="#">{pro.name}</a></h3>
-                                                        <h4 className="product-price">VNĐ {pro.price} <del className="product-old-price">$990.00</del></h4>
+                                                        <h4 className="product-price">{formatCash(pro.price+"")} VNĐ <del className="product-old-price">$990.00</del></h4>
                                                         <div className="product-rating">
                                                             <i className="fa fa-star"></i>
                                                             <i className="fa fa-star"></i>
