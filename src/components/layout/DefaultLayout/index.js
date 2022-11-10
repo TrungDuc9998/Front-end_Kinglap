@@ -38,6 +38,7 @@ const items = [
     getItem("Đơn hàng đang giao", "/admin/order/delivering"),
     getItem("Đơn hàng đã đặt", "/admin/order/success"),
     getItem("Đơn hàng đã huỷ", "/admin/order/cancel"),
+    getItem("Yêu cầu trả hàng", "/admin/order/exchange"),
   ]),
   getItem("Quản lý hệ thống", "sub3", <TeamOutlined />, [
     getItem("Quản lý người dùng", "/admin/user"),
