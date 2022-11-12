@@ -45,6 +45,15 @@ function Cart() {
         });
 
     }
+    function formatCash(str) {
+        if(str.length>1){
+          return str.split('').reverse().reduce((prev, next, index) => {
+            return ((index % 3) ? next : (next + ',')) + prev
+          })
+        }else{
+          return ""
+        }
+    }
 
     return (<>
         <div className="cart">
@@ -91,7 +100,7 @@ function Cart() {
                                     ></InputNumber>
                                 </span>
                                 <p className="d-flex"><span className="price me-3 text-danger">
-                                    {product.price*product.quantity}</span> <span className="price ms-3">17.000.000</span>
+                                    {formatCash(product.price*product.quantity+"")}</span> <span className="price ms-3">17.000.000</span>
                                     <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm 30%</button>
                                 </p>
                                 <DeleteOutlined
@@ -111,7 +120,7 @@ function Cart() {
             <div className="cart-footer border-div container-fluid pb-3 mt-2">
                 <div className="d-flex m-3 ">
                     <span className="flex-grow-1 cart-footer-text">Tổng tiền tạm tính</span>
-                    <span className="text-danger cart-footer-text">{total} VNĐ</span>
+                    <span className="text-danger cart-footer-text">{formatCash(total+"")} VNĐ</span>
                 </div>
                 <div className="mt-2">
                     <Link className="btn btn-primary btn-cart" onClick={handleCheckout} to={"/user/checkout"}>Tiến hành đặt hàng</Link>

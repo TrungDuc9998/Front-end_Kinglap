@@ -14,20 +14,24 @@ function reducer(state, action) {
         }
         case ADD_TO_CART: {
             let data_add_cart = action.payload
-            const add_cart = state.cart
+            let add_cart = JSON.parse(localStorage.getItem('carts'))
             let indexCart = -1;
             indexCart =(JSON.parse(localStorage.getItem('carts'))?JSON.parse(localStorage.getItem('carts')):add_cart).findIndex(value => {
                 return value.id === data_add_cart.id
             })
             data_add_cart.quantity=1
-            if (indexCart==-1){
+            if (indexCart===-1){
                 add_cart.push(data_add_cart)
                 state = {
                     ...state.cartCheckout,
                     cart:add_cart
                 }
             }else{
-                add_cart[indexCart].quantity = parseInt(add_cart[indexCart].quantity) + 1
+                add_cart[indexCart].quantity += 1
+                state = {
+                    ...state.cartCheckout,
+                    cart:add_cart
+                }
                 console.log("Update")
             }
             localStorage.setItem('carts',JSON.stringify(state.cart));
