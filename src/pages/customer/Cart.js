@@ -8,11 +8,11 @@ import { Select, Input, Button, Checkbox, InputNumber, Space, Modal } from "antd
 import {
     DeleteOutlined
   } from "@ant-design/icons";
+
 function Cart() {
     const [total, setTotal] = useState(0);
     const [state, dispatch] = useContext(StoreContext);
     console.log("list cart", state.cart)
-    const carts2 = state.cart
     const carts=JSON.parse(localStorage.getItem('carts'));
     const getTotal=()=>{
         let totalSum = 0;
@@ -26,24 +26,36 @@ function Cart() {
         getTotal();
     }, [carts]);
     const handleCheckout = () => {
-        dispatch(setCheckoutCart(checked))
+        const checkboxes = document.querySelectorAll('input[name="ck"]');
+            checkboxes.forEach((checkbox) => {
+                if(checkbox.checked == true){
+                    carts.forEach((item) => (item.id==checkbox.value)?checked.push(item):"")
+                }
+                setChecked(checked)
+            });
+            dispatch(setCheckoutCart(checked))
     }
 
     const [checked, setChecked] = useState([]);
-    const [isChecked, setIsChecked]=useState(false);
-    const handleCheck = (product) => {
-        console.log("product", product);
-        console.log("check", checked);
-        setChecked(prev => {
-            const isChecked = checked.includes(product);
-            setIsChecked(!isChecked[product]);
-            if (isChecked) {
-                return checked.filter(item => item !== product)
-            } else {
-                return [...prev, product]
-            }
-        });
 
+    //check all
+    const [isCheckedAll, setIsCheckedAll]=useState(true);
+    function handleCheckAll(check) {
+        if(isCheckedAll){
+            console.log("checkedAll")
+            const checkboxes = document.querySelectorAll('input[name="ck"]');
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = true;
+            });
+            setIsCheckedAll(false);
+        }else{
+            console.log("not checkedAll")
+            const checkboxes = document.querySelectorAll('input[name="ck"]');
+            checkboxes.forEach((checkbox) => {
+            checkbox.checked = false;
+            })
+            setIsCheckedAll(true);
+        }
     }
     function formatCash(str) {
         if(str.length>1){
@@ -55,24 +67,41 @@ function Cart() {
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    function formatCash(str) {
+        if(str.length>1){
+          return str.split('').reverse().reduce((prev, next, index) => {
+            return ((index % 3) ? next : (next + ',')) + prev
+          })
+        }else{
+          return ""
+        }
+    }
+>>>>>>> Stashed changes
     return (<>
         <div className="cart">
             <div className="card-header mb-2">
                 <span>Giỏ hàng</span>
             </div>
-            <div className="cart-content mt-2 pt-3 border-div container">
+            <div className="cart-content mt-2 pt-3 border-div container-fluid">
                 <div className="row">
                     <div className="col-2 ip">
-                        <input type={"checkbox"} />
+                        <input type={"checkbox"} 
+                        id="checkall"
+                        // checked={isCheckedAll[product]}
+                        onChange={() => handleCheckAll(checked)}/>
                     </div>
+                    Chọn tất cả
                 </div>
                 {carts?carts.map(product => (
                     <div className="row d-flex" key={product.id}>
                         <div className="col-2 ip mt-4">
                             <input type={"checkbox"}
                                 name="ck"
-                                checked={isChecked[product]}
-                                onChange={() => handleCheck(product)}
+                                value={product.id}
+                                // checked={isChecked[product]}
+                                //onChange={() => handleCheck(product)}
                             />
                         </div>
                         <div className="col-3 img">
@@ -110,7 +139,7 @@ function Cart() {
                                             payload:product
                                         })
                                     }
-                                    style={{ color: "red", marginLeft: 12 }}
+                                    style={{ color: "red", marginLeft: 1, marginBottom:5 }}
                                 />
                             </div>
                         </div>
