@@ -30,7 +30,7 @@ const { TextArea } = Input;
 import { useParams } from "react-router-dom";
 const { Option } = Select;
 
-const Exchange = () => {
+const Return = () => {
   let { id } = useParams();
   const [order, setOrder] = useState();
   const [reason, setReason] = useState();
@@ -120,8 +120,7 @@ const Exchange = () => {
             orderId: order.id,
             reason: reason,
             description: note,
-            isCheck: "1",
-            status: "YEU_CAU",
+            status: "YEU_CAU_TRA_HANG",
             returnDetailEntities: [
               {
                 productId: item.product.id,
@@ -139,7 +138,7 @@ const Exchange = () => {
             total: item.total,
             quantity: item.quantity,
             status: item.status,
-            isCheck: 1,
+            isCheck: 2,
           }),
         }).then((res) => {});
         toastSuccess("Gửi yêu cầu thành công!");
@@ -192,7 +191,7 @@ const Exchange = () => {
                   onChange={(e) => setReason(e.target.value)}
                   className="ms-2 ms-5"
                   style={{ width: "80%" }}
-                  placeholder="Lý do đổi hàng"
+                  placeholder="Lý do trả hàng"
                   rows={3}
                   cols={2}
                 />
@@ -264,13 +263,11 @@ const Exchange = () => {
                     <td>{item.quantity * item.product.price}</td>
                     <td>
                       {item.isCheck === null ? (
-                        <DoubleRightOutlined
+                        <Button type="danger"
                           onClick={() =>
                             handleSubmitReturn(item, valueInputNumber)
                           }
-                          className="text-success"
-                          style={{ fontSize: "20px" }}
-                        />
+                        > Trả hàng</Button>
                       ) : (
                         ""
                       )}
@@ -282,18 +279,18 @@ const Exchange = () => {
           </table>
         </div>
         {/* <div className="col-12 text-center mb-3 mt-2">
-          <Button
-            onClick={handleSubmitReturn}
-            type="primary"
-            shape="round"
-            icon={<CheckCircleOutlined />}
-          >
-            Đổi tất cả
-          </Button>
-        </div> */}
+            <Button
+              onClick={handleSubmitReturn}
+              type="primary"
+              shape="round"
+              icon={<CheckCircleOutlined />}
+            >
+              Đổi tất cả
+            </Button>
+          </div> */}
       </div>
     </div>
   );
 };
 
-export default Exchange;
+export default Return;

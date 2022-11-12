@@ -26,13 +26,6 @@ const url = 'http://localhost:8080/api/orders';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
-  });
-};
-
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
@@ -63,9 +56,11 @@ const OrderWait = () => {
 
   const onConfirm = (record) => {
     const isPut = true;
-    Modal.success({
+    Modal.confirm({
+      icon: <CheckCircleOutlined />,
       title: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
-      okText: "Yes",
+      okText: "Có",
+      cancelText: "Không",
       okType: "primary",
       onOk: () => {
         confirmOrder(record, isPut);
@@ -85,7 +80,7 @@ const OrderWait = () => {
         address: record.address,
         status: 'DANG_GIAO',
         note: record.note | undefined,
-        customerName: record.customerName | undefined,
+        customerName: record.customerName,
         phone: record.phone | undefined,
         orderDetails: [
           {
@@ -102,20 +97,7 @@ const OrderWait = () => {
     });
   };
 
-  const onCancel = (record) => {
-    const isPut = false;
-    Modal.error({
-      title: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
-      okText: "Yes",
-      okType: "primary",
-      onOk: () => {
-        confirmOrder(record, isPut);
-      },
-    });
-  };
-
   const showModalData = (id) => {
-    console.log(">>>>>>>>" + id);
     axios.get(url + "/" + id)
       .then((res) => {
         console.log(res.data);
@@ -198,10 +180,6 @@ const OrderWait = () => {
                 onConfirm(record);
               }}
             />
-            {/* <DeleteOutlined
-                onClick={() => onCancel(record)}
-                style={{ color: "red", marginLeft: 12 }}
-              /> */}
           </>
         );
       },
@@ -209,7 +187,6 @@ const OrderWait = () => {
   ];
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
   };
 
   const onSearch = (value) => {
@@ -264,27 +241,8 @@ const OrderWait = () => {
         }}
       >
         <div className="col-4 mt-4">
-          <label>Tên sản phẩm</label>
+          <label>Tên khách hàng</label>
           <Input placeholder="Nhập tên sản phẩm" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn thể loại"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
-          </Select>
         </div>
         <div className="col-4 mt-4">
           <label>Trạng thái</label>
@@ -303,10 +261,6 @@ const OrderWait = () => {
             <Option value="jack">Hoạt động</Option>
             <Option value="lucy">Không hoạt động</Option>
           </Select>
-        </div>
-        <div className="col-6">
-          <label>Người đặt</label>
-          <Input placeholder="Tên người đặt" />
         </div>
         <div className="col-6 mt-4">
           <label>Thời gian đặt: </label>

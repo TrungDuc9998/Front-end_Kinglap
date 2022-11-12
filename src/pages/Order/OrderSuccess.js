@@ -13,16 +13,19 @@ import {
   CheckCircleOutlined,
   DeleteOutlined,
   EditOutlined,
+  RightCircleOutlined,
   EyeOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  RetweetOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import qs from "qs";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-const url = 'http://localhost:8080/api/orders';
-// import { useNavigate } from "react-router-dom";
+import { Link, Route, Router } from "react-router-dom";
+const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -41,6 +44,7 @@ const getRandomOrderParams = (params) => ({
 });
 
 const OrderSuccess = () => {
+  let navigate = useNavigate();
   const [data, setData] = useState([]);
   const [dataOD, setDataOD] = useState();
   const [loading, setLoading] = useState(false);
@@ -86,12 +90,10 @@ const OrderSuccess = () => {
   };
 
   const showModalData = (id) => {
-    console.log(">>>>>>>>" + id);
-    axios.get(url + "/" + id)
-      .then((res) => {
-        console.log(res.data);
-        setDataOD(res.data);
-      })
+    axios.get(url + "/" + id).then((res) => {
+      console.log(res.data);
+      setDataOD(res.data);
+    });
     setView(true);
   };
 
@@ -105,7 +107,7 @@ const OrderSuccess = () => {
         total: record.total,
         payment: record.payment,
         address: record.address,
-        status: 'DA_NHAN',
+        status: "DA_NHAN",
         note: record.note | undefined,
         customerName: record.customerName | undefined,
         phone: record.phone | undefined,
@@ -115,7 +117,7 @@ const OrderSuccess = () => {
             productId: record.orderDetails.productId,
             total: record.orderDetails.total,
             quantity: record.orderDetails.quantity,
-            status: 'DA_NHAN',
+            status: "DA_NHAN",
           },
         ],
       }),
@@ -147,9 +149,8 @@ const OrderSuccess = () => {
     },
     {
       title: "Người đặt",
-      dataIndex: "user",
+      dataIndex: "customerName",
       sorter: true,
-      // render: (user) => `${user.username}`,
       width: "15%",
     },
     {
@@ -189,11 +190,17 @@ const OrderSuccess = () => {
         return (
           <>
             <EyeOutlined
+              style={{ fontSize: "20px" }}
               onClick={() => {
                 showModalData(id);
               }}
             />
-            <CheckCircleOutlined
+            <RetweetOutlined
+              className="ms-3"
+              style={{ fontSize: "20px", color: "red" }}
+              onClick={() => navigate(`/admin/order/exchange/${id}`)}
+            />
+            {/* <CheckCircleOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
                 onConfirm(record);
@@ -202,7 +209,7 @@ const OrderSuccess = () => {
             <DeleteOutlined
               onClick={() => onCancel(record)}
               style={{ color: "red", marginLeft: 12 }}
-            />
+            /> */}
           </>
         );
       },
@@ -265,27 +272,8 @@ const OrderSuccess = () => {
         }}
       >
         <div className="col-4 mt-4">
-          <label>Tên sản phẩm</label>
-          <Input placeholder="Nhập tên sản phẩm" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn thể loại"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
-          </Select>
+          <label>Tên khách hàng</label>
+          <Input placeholder="Nhập tên khách hàng" />
         </div>
         <div className="col-4 mt-4">
           <label>Trạng thái</label>
@@ -304,10 +292,6 @@ const OrderSuccess = () => {
             <Option value="jack">Hoạt động</Option>
             <Option value="lucy">Không hoạt động</Option>
           </Select>
-        </div>
-        <div className="col-6">
-          <label>Người đặt</label>
-          <Input placeholder="Tên người đặt" />
         </div>
         <div className="col-6 mt-4">
           <label>Thời gian đặt: </label>
@@ -366,9 +350,8 @@ const OrderSuccess = () => {
           >
             Bạn có muốn xác nhận đơn hàng không ?
           </Modal>
-
           <Modal
-            title="Hiển thị 1"
+            title="Chi tiết đơn hàng"
             visible={isView}
             onCancel={() => {
               setView(false);
@@ -377,53 +360,48 @@ const OrderSuccess = () => {
               setView(false);
             }}
           >
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Mã HDCT</th>
-                  <th scope="col">Tên sản phẩm</th>
-                  <th scope="col">Giá</th>
-                  <th scope="col">Số lượng</th>
-                  <th scope="col">Tổng tiền</th>
-                  <th scope="col">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dataOD?.map((item, index) => {
-                  return (
-                    <tr key={index}>
-                      <td>{item.id}</td>
-                      <td>{item.product.name}</td>
-                      <td>{item.product.price}</td>
-                      <td>{item.quantity}</td>
-                      <td>{item.quantity * item.product.price}</td>
-                      <td>{item.status}</td>
+            <div className="row">
+              <div className="col-12">
+                <div className="row">
+                  <div className="col-6">
+                    <p>Khách hàng: </p>
+                    <p>Số điện thoại: </p>
+                  </div>
+                  <div className="col-6">
+                    <p>Ngày nhận: </p>
+                    <p>Tổng tiền: </p>
+                    <p>Trạng thái: </p>
+                  </div>
+                </div>
+              </div>
+              <div className="col-12">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Mã HDCT</th>
+                      <th scope="col">Tên sản phẩm</th>
+                      <th scope="col">Giá</th>
+                      <th scope="col">Số lượng</th>
+                      <th scope="col">Tổng tiền</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody>
+                    {dataOD?.map((item, index) => {
+                      return (
+                        <tr key={index}>
+                          <td>{item.id}</td>
+                          <td>{item.product.name}</td>
+                          <td>{item.product.price}</td>
+                          <td>{item.quantity}</td>
+                          <td>{item.quantity * item.product.price}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </Modal>
-
-          {/* <Modal
-            style={{ borderRadius: "30px" }}
-            title="Hiển thị"
-            visible={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
-            }}
-          >
-            Laptop G3 15 3500 : 3
-            <br />
-            Laptop G3 15 3500 : 2
-            <br />
-            Laptop G3 15 3500 : 1
-            <br />
-            Laptop G3 15 3500 : 0
-          </Modal> */}
         </div>
       </div>
     </div>

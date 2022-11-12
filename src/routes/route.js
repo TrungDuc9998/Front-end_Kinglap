@@ -19,6 +19,10 @@ import UpdateOrder from "../pages/Order/UpdateOrder";
 import OrderDelivering from "../pages/Order/OrderDelivering";
 import OrderWait from "../pages/Order/OrderWait";
 import Exchange from "../pages/Order/exchange";
+import ViewOrder from "../pages/customer/ViewOrder";
+import ExchangeSuccess from "../pages/Order/ExchangeSuccess";
+import Return from "../pages/Order/Return"
+import ReturnConfirm from "../pages/Order/ReturnConfirm"
 const publicRoutes = [
   {
     path: "/",
@@ -99,10 +103,25 @@ const publicRoutes = [
   },
   ,
   {
-    path: "/admin/order/exchange",
+    path: "/admin/order/exchange/:id",
     component: Exchange,
+  },
+  {
+    path: "/user/order",
+    component: ViewOrder,
+  },
+  {
+    path: "/admin/order/exchange",
+    component: ExchangeSuccess,
+  },
+  {
+    path: "/admin/return/:id",
+    component: Return
+  },
+  {
+    path: "/admin/return/confirm",
+    component: ReturnConfirm
   }
-
 
 ];
 
