@@ -67,18 +67,6 @@ function Cart() {
         }
     }
 
-<<<<<<< Updated upstream
-=======
-    function formatCash(str) {
-        if(str.length>1){
-          return str.split('').reverse().reduce((prev, next, index) => {
-            return ((index % 3) ? next : (next + ',')) + prev
-          })
-        }else{
-          return ""
-        }
-    }
->>>>>>> Stashed changes
     return (<>
         <div className="cart">
             <div className="card-header mb-2">
