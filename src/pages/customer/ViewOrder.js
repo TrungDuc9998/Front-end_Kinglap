@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import product8 from '../../asset/images/products/product08.png'
 import qs from "qs";
-import { Modal, Table } from "antd";
+import { Modal, Table, Tabs } from "antd";
 import toastrs from "toastr";
 import { ToastContainer, toast } from 'react-toastify';
 import {
@@ -11,6 +11,10 @@ import {
     CheckCircleOutlined
 }
     from "@ant-design/icons";
+
+const onChange = (key) => {
+    console.log(key);
+};
 function ViewOrder() {
 
     const [orders, setOrders] = useState([])
@@ -143,7 +147,7 @@ function ViewOrder() {
                     return (
                         <>
                             <div
-                                className="bg-success text-center text-light"
+                                className="bg-warning text-center text-light"
                                 style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
                             >
                                 Chờ lấy hàng
@@ -212,7 +216,7 @@ function ViewOrder() {
                             />
                         </>
                     );
-                } else if (data.status === "DANG_GIAO") {
+                } else if (data.status === "DANG_GIAO" || data.status === 'CHO_LAY_HANG') {
                     return (
                         <>
                             <EyeOutlined style={{ fontSize: '20px', marginLeft: '25%' }}
@@ -298,18 +302,86 @@ function ViewOrder() {
         });
     };
 
+
     return (<>
         <div className="container mt-3">
             <div className="row">
                 <div className="col-12">
-                    <Table
-                        columns={columns}
-                        rowKey={(record) => record++}
-                        dataSource={orders}
-                        pagination={tableParams.pagination}
-                        loading={loading}
-                        onChange={handleTableChange}
-                    />
+                    <Tabs
+                        defaultActiveKey="1"
+                        onChange={onChange}
+                        items={[
+                            {
+                                label: `Chờ xác nhận`,
+                                key: 'CHO_XAC_NHAN',
+                                children: <Table
+                                    columns={columns}
+                                    rowKey={(record) => record++}
+                                    dataSource={orders.filter(order => order.status === 'CHO_XAC_NHAN'
+                                    )}
+                                    pagination={tableParams.pagination}
+                                    loading={loading}
+                                    onChange={handleTableChange}
+                                />,
+                            },
+                            {
+                                label: `Đang giao hàng`,
+                                key: 'DANG_GIAO',
+                                children: <Table
+                                    columns={columns}
+                                    rowKey={(record) => record++}
+                                    dataSource={orders.filter(function (order) {
+                                        return order.status === 'DANG_GIAO'
+                                    })}
+                                    pagination={tableParams.pagination}
+                                    loading={loading}
+                                    onChange={handleTableChange}
+                                />,
+                            },
+                            {
+                                label: `Chờ lấy hàng`,
+                                key: 'CHO_LAY_HANG',
+                                children: <Table
+                                    columns={columns}
+                                    rowKey={(record) => record++}
+                                    dataSource={orders.filter(function (order) {
+                                        return order.status === 'CHO_LAY_HANG'
+                                    })}
+                                    pagination={tableParams.pagination}
+                                    loading={loading}
+                                    onChange={handleTableChange}
+                                />,
+                            },
+                            {
+                                label: `Đã Nhận`,
+                                key: 'DA_NHAN',
+                                children: <Table
+                                    columns={columns}
+                                    rowKey={(record) => record++}
+                                    dataSource={orders.filter(function (order) {
+                                        return order.status === 'DA_NHAN'
+                                    })}
+                                    pagination={tableParams.pagination}
+                                    loading={loading}
+                                    onChange={handleTableChange}
+                                />,
+                            },
+                            {
+                                label: `Đơn đã hủy`,
+                                key: 'DA_HUY',
+                                children: <Table
+                                    columns={columns}
+                                    rowKey={(record) => record++}
+                                    dataSource={orders.filter(function (order) {
+                                        return order.status === 'DA_HUY'
+                                    })}
+                                    pagination={tableParams.pagination}
+                                    loading={loading}
+                                    onChange={handleTableChange}
+                                />,
+                            },
+                        ]} />
+
 
                     {/* Modal */}
 
