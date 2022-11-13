@@ -27,6 +27,7 @@ import OrderDelivering from "./OrderDelivering";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 const { TextArea } = Input;
+import moment from "moment";
 import { useParams } from "react-router-dom";
 const { Option } = Select;
 
@@ -42,6 +43,7 @@ const Exchange = () => {
   const [dataOrder, setDataOrder] = useState();
   const [put, setPut] = useState();
   const [dataOD, setDataOD] = useState();
+  const [currentDate, setCurrentDate] = useState();
 
   const toastSuccess = (message) => {
     toast.success(message, {
@@ -108,50 +110,72 @@ const Exchange = () => {
   };
 
   const handleSubmitReturn = (item) => {
+    var date = new Date().getDate();
+    var month = new Date().getMonth() + 1;
+    var year = new Date().getFullYear();
+    var hours = new Date().getHours();
+    var min = new Date().getMinutes();
+    var sec = new Date().getSeconds();
+    setCurrentDate(
+      date + "-" + month + "-" + year + " " + hours + ":" + min + ":" + sec
+    );
     console.log(item);
 
-    if (reason != undefined) {
-      try {
-        console.log("vào fetch");
-        fetch("http://localhost:8080/api/returns", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId: order.id,
-            reason: reason,
-            description: note,
-            isCheck: "1",
-            status: "YEU_CAU",
-            returnDetailEntities: [
-              {
-                productId: item.product.id,
-                quantity: valueInputNumber != undefined ? valueInputNumber : 1,
-              },
-            ],
-          }),
-        }).then((res) => {});
-
-        fetch(`http://localhost:8080/api/orders/${item.id}/orderDetails`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: item.product.id,
-            total: item.total,
-            quantity: item.quantity,
-            status: item.status,
-            isCheck: 1,
-          }),
-        }).then((res) => {});
-        toastSuccess("Gửi yêu cầu thành công!");
-        loadDataOrder(id);
-        // location.reload();
-      } catch (err) {
-        console.log(err);
-        toastError("Gửi yêu cầu thất bại!");
-      }
+    const event = new Date(order?.updatedAt);
+    // console.log(event.toISOString());
+    console.log(moment(event).format("DD-MM-YYYY HH:mm:ss"));
+    const event1 = new Date("2022-11-11 18:56:26");
+    console.log(moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY HH:mm:ss"));
+    if (
+      moment(event.setDate(event.getDate() + 2)).format(
+        "DD-MM-YYYY HH:mm:ss"
+      ) === currentDate
+    ) {
+      alert("het thoi gian");
     } else {
-      toastError("Bạn chưa nhập lý do");
+      // if (reason != undefined) {
+      //   try {
+      //     console.log("vào fetch");
+      //     fetch("http://localhost:8080/api/returns", {
+      //       method: "POST",
+      //       headers: { "Content-Type": "application/json" },
+      //       body: JSON.stringify({
+      //         orderId: order.id,
+      //         reason: reason,
+      //         description: note,
+      //         isCheck: "1",
+      //         status: "YEU_CAU",
+      //         returnDetailEntities: [
+      //           {
+      //             productId: item.product.id,
+      //             quantity: valueInputNumber != undefined ? valueInputNumber : 1,
+      //           },
+      //         ],
+      //       }),
+      //     }).then((res) => {});
+      //     fetch(`http://localhost:8080/api/orders/${item.id}/orderDetails`, {
+      //       method: "PUT",
+      //       headers: { "Content-Type": "application/json" },
+      //       body: JSON.stringify({
+      //         productId: item.product.id,
+      //         total: item.total,
+      //         quantity: item.quantity,
+      //         status: item.status,
+      //         isCheck: 1,
+      //       }),
+      //     }).then((res) => {});
+      //     toastSuccess("Gửi yêu cầu thành công!");
+      //     loadDataOrder(id);
+      //     // location.reload();
+      //   } catch (err) {
+      //     console.log(err);
+      //     toastError("Gửi yêu cầu thất bại!");
+      //   }
+      // } else {
+      //   toastError("Bạn chưa nhập lý do");
+      // }
     }
+    // console.log(moment(event1.setDate(event1.getDate()+2)).format('MMMM DoYYYY, h:mm:ss a'))
   };
 
   const onChange = (value) => {
@@ -159,9 +183,6 @@ const Exchange = () => {
     setValueInputNumber(value);
   };
 
-  const resetEditing = () => {
-    setEditing(false);
-  };
   return (
     <div>
       <ToastContainer></ToastContainer>
@@ -253,7 +274,6 @@ const Exchange = () => {
                     <td>{item.product.price}</td>
                     <td>
                       <InputNumber
-                        // style={{width: "20%"}}
                         min={1}
                         max={item.quantity}
                         defaultValue={1}
