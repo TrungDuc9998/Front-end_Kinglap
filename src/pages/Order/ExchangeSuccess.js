@@ -22,10 +22,10 @@ import qs from "qs";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-const url = 'http://localhost:8080/api/orders';
+import Item from "antd/lib/list/Item";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-
+const url = "http://localhost:8080/api/returns";
 const onDelete = (record) => {
   Modal.confirm({
     title: "Xoá thể loại",
@@ -36,130 +36,171 @@ const onDelete = (record) => {
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchUsername: params.pagination?.search1,
+  check: params.pagination?.check,
   searchStatus: params.pagination?.searchStatus,
 });
 
-const CancelOrder = () => {
+const ExchangeSuccess = () => {
   const [data, setData] = useState([]);
   const [dataOD, setDataOD] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
-  const [dataOrder, setDataOrder] = useState();
+  const [dataExchange, setDataExchange] = useState();
   const [put, setPut] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
-      searchStatus: "DA_HUY",
+      check: 1
+      // searchStatus: "YEU_CAU",
     },
   });
 
   useEffect(() => {
-    loadDataOrder();
-    console.log(dataOrder);
-  }, [dataOrder != undefined]);
+    loadDataExchange();
+    console.log(dataExchange);
+  }, [dataExchange != undefined]);
 
   const onConfirm = (record) => {
     const isPut = true;
-    Modal.success({
-      title: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
-      okText: "Yes",
+    Modal.confirm({
+      icon: <CheckCircleOutlined />,
+      title: `Bạn có muốn xác nhận đổi hàng ${record.id}  không?`,
+      okText: "Có",
+      cancelText: "Không",
       okType: "primary",
       onOk: () => {
-        // confirmOrder(record, isPut);
+        confirmUpdateStatus(record);
       },
+    });
+  };
+
+  const confirmUpdateStatus = (record) => {
+    console.log(record);
+    const returnDetail=[];
+    record.returnDetailEntities.forEach(item => {
+        returnDetail.push({
+            id: item.id,
+            productId: item.productId,
+            quantity: item.quantity
+        })
+    })
+    console.log(returnDetail);
+    fetch(`http://localhost:8080/api/returns/${record.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        orderId: record.orderId,
+        reason: record.reason,
+        description: record.description,
+        status: "XAC_NHAN",
+        returnDetailEntities: returnDetail
+      }),
+    }).then((res) => {
+    //   loadDataOrder();
     });
   };
 
   const onCancel = (record) => {
     const isPut = false;
     Modal.error({
-      title: `Bạn có muốn xoá đơn hàng ${record.id}  không?`,
+      title: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
       okText: "Yes",
       okType: "primary",
       onOk: () => {
-        deleteOrder(record);
+        confirmUpdateStatus(record, isPut);
       },
     });
   };
 
   const showModalData = (id) => {
     console.log(">>>>>>>>" + id);
-    axios.get(url + "/" + id)
-      .then((res) => {
-        console.log(res.data);
-        setDataOD(res.data);
-      })
+    axios.get(url + "/" + id).then((res) => {
+      console.log(res.data);
+      setDataOD(res.data);
+    });
     setView(true);
   };
 
-  const deleteOrder = (record) => {
-    fetch(`http://localhost:8080/api/orders/${record.id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
-    }).then((res) => {
-      loadDataOrder();
-    });
-  };
-
-  const loadDataOrder = () => {
+  const loadDataExchange = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/returns?${qs.stringify(
         getRandomOrderParams(tableParams)
       )}`
     )
       .then((res) => res.json())
       .then((results) => {
-        setDataOrder(results.data.data);
+        setDataExchange(results.data.data);
         setLoading(false);
       });
   };
 
   const columns = [
     {
-      title: "Mã đơn đặt",
+      title: "Mã đơn đổi",
       dataIndex: "id",
       sorter: true,
       width: "20%",
     },
     {
-      title: "Người đặt",
-      dataIndex: "user",
-      sorter: true,
-      // render: (user) => `${user.username}`,
-      width: "15%",
-    },
-    {
-      title: "Tổng tiền",
-      dataIndex: "total",
-      sorter: true,
-      width: "15%",
-    },
-    {
-      title: "Hình thức đặt",
-      dataIndex: "payment",
+      title: "Mã đơn đổi",
+      dataIndex: "isCheck",
       sorter: true,
       width: "20%",
+    },
+    {
+      title: "Mã hoá đơn",
+      dataIndex: "orderId",
+      sorter: true,
+      width: "20%",
+    },
+    {
+      title: "Lý do",
+      dataIndex: "reason",
+      sorter: true,
+      width: "30%",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       with: "45%",
       render: (status) => {
-        return (
-          <>
-            <div
-              className="bg-danger text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-              Đã huỷ hàng
-            </div>
-          </>
-        );
+        if (status === "YEU_CAU" ) {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                Yêu cầu đổi hàng
+              </div>
+            </>
+          );
+        } else if (status === "XAC_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã xác nhận
+              </div>
+            </>
+          );
+        } else {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã huỷ
+              </div>
+            </>
+          );
+        }
       },
     },
     {
@@ -170,14 +211,22 @@ const CancelOrder = () => {
         return (
           <>
             <EyeOutlined
+              style={{ fontSize: "20px" }}
               onClick={() => {
                 showModalData(id);
               }}
             />
-            <DeleteOutlined
-              onClick={() => onCancel(record)}
-              style={{ color: "red", marginLeft: 12 }}
+            <CheckCircleOutlined
+              className="ms-5"
+              style={{ fontSize: "20px" }}
+              onClick={() => {
+                onConfirm(record);
+              }}
             />
+            {/* <DeleteOutlined
+                  onClick={() => onCancel(record)}
+                  style={{ color: "red", marginLeft: 12 }}
+                /> */}
           </>
         );
       },
@@ -195,34 +244,34 @@ const CancelOrder = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
 
-  // const confirmOrder = (record, IsPut) => {
-  //   fetch(`http://localhost:8080/api/orders/${record.id}`, {
-  //     method: "PUT",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       id: record.id,
-  //       userId: record.userId | undefined,
-  //       total: record.total,
-  //       payment: record.payment,
-  //       address: record.address,
-  //       status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
-  //       note: record.note | undefined,
-  //       customerName: record.customerName | undefined,
-  //       phone: record.phone | undefined,
-  //       orderDetails: [
-  //         {
-  //           id: record.orderDetails.id,
-  //           productId: record.orderDetails.productId,
-  //           total: record.orderDetails.total,
-  //           quantity: record.orderDetails.quantity,
-  //           status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
-  //         },
-  //       ],
-  //     }),
-  //   }).then((res) => {
-  //     loadDataOrder();
-  //   });
-  // };
+  const OrderDelivering = (record, IsPut) => {
+    fetch(`http://localhost:8080/api/orders/${record.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: record.id,
+        userId: record.userId | undefined,
+        total: record.total,
+        payment: record.payment,
+        address: record.address,
+        status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
+        note: record.note | undefined,
+        customerName: record.customerName | undefined,
+        phone: record.phone | undefined,
+        orderDetails: [
+          {
+            id: record.orderDetails.id,
+            productId: record.orderDetails.productId,
+            total: record.orderDetails.total,
+            quantity: record.orderDetails.quantity,
+            status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
+          },
+        ],
+      }),
+    }).then((res) => {
+      loadDataOrder();
+    });
+  };
 
   const resetEditing = () => {
     setEditing(false);
@@ -240,29 +289,6 @@ const CancelOrder = () => {
         }}
       >
         <div className="col-4 mt-4">
-          <label>Tên sản phẩm</label>
-          <Input placeholder="Nhập tên sản phẩm" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn thể loại"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
-          </Select>
-        </div>
-        <div className="col-4 mt-4">
           <label>Trạng thái</label>
           <br />
           <Select
@@ -276,19 +302,10 @@ const CancelOrder = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
+            <Option value="jack">Yêu cầu</Option>
+            <Option value="lucy">Xác nhận</Option>
+            <Option value="lucy">Không xác nhận</Option>
           </Select>
-        </div>
-        <div className="col-6">
-          <label>Người đặt</label>
-          <Input placeholder="Tên người đặt" />
-        </div>
-        <div className="col-6 mt-4">
-          <label>Thời gian đặt: </label>
-          <Space className="mx-2" direction="vertical" size={12}>
-            <RangePicker size={"middle"} />
-          </Space>
         </div>
         <div className="col-12 text-center ">
           <Button
@@ -325,7 +342,7 @@ const CancelOrder = () => {
           <Table
             columns={columns}
             // rowKey={(record) => record++}
-            dataSource={dataOrder}
+            dataSource={dataExchange}
             pagination={tableParams.pagination}
             loading={loading}
           />
@@ -343,7 +360,7 @@ const CancelOrder = () => {
           </Modal>
 
           <Modal
-            title="Hiển thị 1"
+            title="Chi tiết đơn đổi"
             visible={isView}
             onCancel={() => {
               setView(false);
@@ -355,12 +372,9 @@ const CancelOrder = () => {
             <table class="table">
               <thead>
                 <tr>
-                  <th scope="col">Mã HDCT</th>
+                  <th>STT</th>
                   <th scope="col">Tên sản phẩm</th>
-                  <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
-                  <th scope="col">Tổng tiền</th>
-                  {/* <th scope="col">Trạng thái</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -368,11 +382,8 @@ const CancelOrder = () => {
                   return (
                     <tr key={index}>
                       <td>{item.id}</td>
-                      <td>{item.product.name}</td>
-                      <td>{item.product.price}</td>
+                      <td>{item.productId}</td>
                       <td>{item.quantity}</td>
-                      <td>{item.quantity * item.product.price}</td>
-                      {/* <td>{item.status}</td> */}
                     </tr>
                   );
                 })}
@@ -381,28 +392,28 @@ const CancelOrder = () => {
           </Modal>
 
           {/* <Modal
-            style={{ borderRadius: "30px" }}
-            title="Hiển thị"
-            visible={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
-            }}
-          >
-            Laptop G3 15 3500 : 3
-            <br />
-            Laptop G3 15 3500 : 2
-            <br />
-            Laptop G3 15 3500 : 1
-            <br />
-            Laptop G3 15 3500 : 0
-          </Modal> */}
+              style={{ borderRadius: "30px" }}
+              title="Hiển thị"
+              visible={isView}
+              onCancel={() => {
+                setView(false);
+              }}
+              onOk={() => {
+                setView(false);
+              }}
+            >
+              Laptop G3 15 3500 : 3
+              <br />
+              Laptop G3 15 3500 : 2
+              <br />
+              Laptop G3 15 3500 : 1
+              <br />
+              Laptop G3 15 3500 : 0
+            </Modal> */}
         </div>
       </div>
     </div>
   );
 };
 
-export default CancelOrder;
+export default ExchangeSuccess;

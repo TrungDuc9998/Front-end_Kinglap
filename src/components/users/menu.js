@@ -33,9 +33,9 @@ function Menu() {
                         </ul>
                         <ul className="nav justify-content-end">
                             <li className="nav-item">
-                                <Link to={'/'}>
+                                <Link to={'/admin/order/create'}>
                                     <DollarSign size={12} color="red"></DollarSign>
-                                    USD
+                                    Admin
                                 </Link>
                             </li>
                             <li className="nav-item">
@@ -76,7 +76,7 @@ function Menu() {
                             <div className="col-md-3 clearfix">
                                 <div className="header-ctn">
                                     <div>
-                                        <a href="#">
+                                        <a href="/user/order">
                                             <Heart></Heart>
                                             <span>Your Wishlist</span>
                                         </a>

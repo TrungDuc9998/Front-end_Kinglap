@@ -21,7 +21,7 @@ import qs from "qs";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-const url = 'http://localhost:8080/api/orders';
+const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -62,9 +62,12 @@ const OrderConfirm = () => {
 
   const onConfirm = (record) => {
     const isPut = true;
-    Modal.success({
-      title: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
-      okText: "Yes",
+    Modal.confirm({
+      icon: <CheckCircleOutlined />,
+      title: "Xác nhận đơn hàng ",
+      content: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
+      okText: "Có",
+      cancelText: "Không",
       okType: "primary",
       onOk: () => {
         confirmOrder(record, isPut);
@@ -74,23 +77,34 @@ const OrderConfirm = () => {
 
   const onCancel = (record) => {
     const isPut = false;
-    Modal.error({
-      title: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
-      okText: "Yes",
-      okType: "primary",
+
+    Modal.confirm({
+      title: "Huỷ đơn hàng",
+      content: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
+      okText: "Có",
+      cancelText: "Không",
       onOk: () => {
         confirmOrder(record, isPut);
       },
     });
+
+    // Modal.error({
+    //   title: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
+    //   okText: "Có",
+    //   cancelText: "Không",
+    //   okType: "primary",
+    //   onOk: () => {
+    //     confirmOrder(record, isPut);
+    //   },
+    // });
   };
 
   const showModalData = (id) => {
     console.log(">>>>>>>>" + id);
-    axios.get(url + "/" + id)
-      .then((res) => {
-        console.log(res.data);
-        setDataOD(res.data);
-      })
+    axios.get(url + "/" + id).then((res) => {
+      console.log(res.data);
+      setDataOD(res.data);
+    });
     setView(true);
   };
 
@@ -191,6 +205,8 @@ const OrderConfirm = () => {
   const [modalText, setModalText] = useState("Content of the modal");
 
   const confirmOrder = (record, IsPut) => {
+    console.log(record);
+
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -202,7 +218,7 @@ const OrderConfirm = () => {
         address: record.address,
         status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
         note: record.note | undefined,
-        customerName: record.customerName | undefined,
+        customerName: record.customerName,
         phone: record.phone | undefined,
         orderDetails: [
           {
