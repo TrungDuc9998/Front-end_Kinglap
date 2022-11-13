@@ -7,9 +7,11 @@ import {
   Modal,
   DatePicker,
   Space,
+  InputNumber,
 } from "antd";
 import {
   CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
@@ -40,6 +42,7 @@ const getRandomOrderParams = (params) => ({
 });
 
 const OrderConfirm = () => {
+  let navigate = useNavigate();
   const [data, setData] = useState([]);
   const [dataOD, setDataOD] = useState();
   const [loading, setLoading] = useState(false);
@@ -47,6 +50,9 @@ const OrderConfirm = () => {
   const [isView, setView] = useState(false);
   const [dataOrder, setDataOrder] = useState();
   const [put, setPut] = useState();
+  const [quantity, setQuantity] = useState();
+  const [orderDetails, setOrderDetails] = useState([]);
+  const [todos, setTodos] = useState([]);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -57,7 +63,6 @@ const OrderConfirm = () => {
 
   useEffect(() => {
     loadDataOrder();
-    console.log(dataOrder);
   }, [dataOrder != undefined]);
 
   const onConfirm = (record) => {
@@ -172,20 +177,24 @@ const OrderConfirm = () => {
       render: (id, record) => {
         return (
           <>
-            <EyeOutlined
-              onClick={() => {
-                showModalData(id);
-              }}
+            <EditOutlined
+              onClick={() => navigate(`/admin/order/${id}/confirm`)}
+              style={{ fontSize: "20px" }}
             />
             <CheckCircleOutlined
-              style={{ marginLeft: 12 }}
+              style={{ marginLeft: 15, fontSize: "20px", color: "blue" }}
               onClick={() => {
                 onConfirm(record);
               }}
             />
-            <DeleteOutlined
+            <CloseCircleOutlined
               onClick={() => onCancel(record)}
-              style={{ color: "red", marginLeft: 12 }}
+              style={{
+                color: "red",
+                marginLeft: 15,
+                fontSize: "20px",
+                color: "red",
+              }}
             />
           </>
         );
@@ -235,6 +244,44 @@ const OrderConfirm = () => {
     });
   };
 
+  const onChangeInputNumber = (value, id) => {
+    console.log("changed", value, id);
+    const set = new Set();
+    const orderDetail = {
+      id: id,
+      quantity: value,
+    };
+    if (todos.length === 0) {
+      todos.push(orderDetail);
+    } else {
+      todos.forEach((item) => {
+        set.add(item.id);
+      });
+      console.log(set);
+      if (set.has(id)) {
+        let abc = -1;
+        todos?.forEach((item, index) => {
+          if (item.id === id) {
+            abc = index;
+            console.log(abc);
+          }
+        });
+        todos[abc].quantity = value;
+      } else {
+        todos.push({
+          id: id,
+          quantity: value,
+        });
+      }
+    }
+    console.log(todos);
+  };
+
+
+  const handleUpdateOrderDetail = (item) => {
+    console.log(item);
+  }
+
   const resetEditing = () => {
     setEditing(false);
   };
@@ -251,27 +298,8 @@ const OrderConfirm = () => {
         }}
       >
         <div className="col-4 mt-4">
-          <label>Tên sản phẩm</label>
+          <label>Tên khách hàng</label>
           <Input placeholder="Nhập tên sản phẩm" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn thể loại"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
-          </Select>
         </div>
         <div className="col-4 mt-4">
           <label>Trạng thái</label>
@@ -290,10 +318,6 @@ const OrderConfirm = () => {
             <Option value="jack">Hoạt động</Option>
             <Option value="lucy">Không hoạt động</Option>
           </Select>
-        </div>
-        <div className="col-6">
-          <label>Người đặt</label>
-          <Input placeholder="Tên người đặt" />
         </div>
         <div className="col-6 mt-4">
           <label>Thời gian đặt: </label>
@@ -354,14 +378,12 @@ const OrderConfirm = () => {
           </Modal>
 
           <Modal
-            title="Hiển thị 1"
+            title="Chi tiết đơn hàng"
             visible={isView}
             onCancel={() => {
               setView(false);
             }}
-            onOk={() => {
-              setView(false);
-            }}
+            onOk={()=>handleUpdateOrderDetail()}
           >
             <table class="table">
               <thead>
@@ -371,7 +393,7 @@ const OrderConfirm = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
-                  <th scope="col">Trạng thái</th>
+                  {/* <th scope="col">Trạng thái</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -381,9 +403,19 @@ const OrderConfirm = () => {
                       <td>{item.id}</td>
                       <td>{item.product.name}</td>
                       <td>{item.product.price}</td>
-                      <td>{item.quantity}</td>
-                      <td>{item.quantity * item.product.price}</td>
-                      <td>{item.status}</td>
+                      <td>
+                        <InputNumber
+                          min={1}
+                          max={10}
+                          value={quantity}
+                          defaultValue={item.quantity}
+                          onChange={(event) =>
+                            onChangeInputNumber(event, item.id, quantity)
+                          }
+                        />
+                      </td>
+                      <td>{item.total}</td>
+                      {/* <td>{item.status}</td> */}
                     </tr>
                   );
                 })}

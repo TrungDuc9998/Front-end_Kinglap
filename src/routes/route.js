@@ -23,6 +23,7 @@ import ViewOrder from "../pages/customer/ViewOrder";
 import ExchangeSuccess from "../pages/Order/ExchangeSuccess";
 import Return from "../pages/Order/Return"
 import ReturnConfirm from "../pages/Order/ReturnConfirm"
+import ConfirmOrderDetail from "../pages/Order/ConfirmOrderDetail";
 const publicRoutes = [
   {
     path: "/",
@@ -121,7 +122,11 @@ const publicRoutes = [
   {
     path: "/admin/return/confirm",
     component: ReturnConfirm
-  }
+  },
+  {
+    path: "/admin/order/:id/confirm/",
+    component: ConfirmOrderDetail,
+  },
 
 ];
 

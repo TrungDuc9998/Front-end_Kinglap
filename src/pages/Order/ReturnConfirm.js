@@ -111,9 +111,11 @@ const ReturnConfirm = () => {
 
   const onCancel = (record) => {
     const isPut = false;
-    Modal.error({
-      title: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
-      okText: "Yes",
+    Modal.confirm({
+      title: 'Huỷ xác nhận',
+      content: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
+      okText: "Có",
+      cancelText: "Không",
       okType: "primary",
       onOk: () => {
         confirmUpdateStatus(record, isPut);
@@ -361,7 +363,7 @@ const ReturnConfirm = () => {
           </Modal>
 
           <Modal
-            title="Chi tiết đơn đổi"
+            title="Chi tiết đơn trả"
             visible={isView}
             onCancel={() => {
               setView(false);
