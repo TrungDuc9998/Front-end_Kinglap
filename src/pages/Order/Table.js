@@ -13,7 +13,7 @@ const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
   searchUsername: params.pagination?.search1,
-  searchStatus: params.pagination?.search2,
+  searchStatus: params.pagination?.searchStatus,
 });
 
 const toastSuccess = (message) => {
@@ -92,6 +92,7 @@ function Table1() {
   const [totalWeight, setTotalWeight] = useState();
   const [note, setNote] = useState();
   const [userId, setUserId] = useState();
+  const [discounts, setDiscounts] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -100,6 +101,36 @@ function Table1() {
       search2: "",
     },
   });
+  const [tableParamDiscount, setTableParamDiscount] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      searchStatus: 1,
+    },
+  });
+
+  const loadDataDisCount = () => {
+    fetch(
+      `http://localhost:8080/api/discount?${qs.stringify(
+        getRandomuserParams(tableParamDiscount)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDiscounts(results.data.data);
+        console.log("----- discount ------");
+        console.log(results.data.data);
+        setLoading(false);
+        setTableParamDiscount({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
 
   const loadInfo = () => {
     fetch(
@@ -201,8 +232,8 @@ function Table1() {
           total: item.total,
         });
       });
-      console.log('------------------- value order detail -----------------')
-      console.log(orderDetails)
+      console.log("------------------- value order detail -----------------");
+      console.log(orderDetails);
       try {
         fetch("http://localhost:8080/api/orders", {
           method: "POST",
@@ -239,7 +270,7 @@ function Table1() {
       cart.total === cart.productId.price * quantity
         ? cart.total
         : cart.productId.price * quantity;
-    console.log("tong tiền: " ,tong);
+    console.log("tong tiền: ", tong);
     fetch(`http://localhost:8080/api/carts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -294,16 +325,28 @@ function Table1() {
   };
 
   const onChange = (value) => {
-    console.log("DATA PROVINCE: " + value);
     setProvinceID(value);
     loadDataDistrict(value);
   };
   const onSearch = (value) => {
-    console.log("province Id khi onClick: " + ProvinceID);
     if (value.target.innerText !== "") {
       setValueProvince(value.target.innerText);
       loadDataDistrict();
     }
+  };
+
+
+  const onChangeDiscount = (value) => {
+    console.log("DATA Discount: " + value);
+    // setProvinceID(value);
+    // loadDataDistrict(value);
+  };
+  const onSearchDisCount = (value) => {
+    console.log("discount Id khi onClick: " + value);
+    // if (value.target.innerText !== "") {
+    //   setValueProvince(value.target.innerText);
+    //   loadDataDistrict();
+    // }
   };
 
   const onChangeDistricts = (value) => {
@@ -580,6 +623,7 @@ function Table1() {
     loadDataProduct();
     loadDataClient();
     loadDataCart();
+    loadDataDisCount();
     loadInfo();
     setDisableCountry(true);
   }, [(total != undefined) | (ProvinceID != 1)]);
@@ -915,13 +959,26 @@ function Table1() {
             <div className="col-6">
               <div className="form-group">
                 <label>Khuyến mãi</label>
-                <Space direction="vertical">
-                  <InputNumber
-                    style={{ width: 240 }}
-                    addonAfter={"%"}
-                    defaultValue={0}
-                  />
-                </Space>
+                <Select
+                  // disabled={disableCountry}
+                  showSearch
+                  placeholder="Chọn dịch vụ"
+                  optionFilterProp="children"
+                  style={{
+                    width: 240,
+                  }}
+                  onChange={onChangeDiscount}
+                  onClick={onSearchDisCount}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {discounts?.map((item) => (
+                    <Option key={item.id} value={item.name}>
+                      {item.name} - {item.ratio}%
+                    </Option>
+                  ))}
+                </Select>
               </div>
             </div>
           </div>
