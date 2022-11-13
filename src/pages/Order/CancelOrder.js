@@ -130,7 +130,7 @@ const CancelOrder = () => {
       title: "Người đặt",
       dataIndex: "user",
       sorter: true,
-      render: (user) => `${user.username}`,
+      // render: (user) => `${user.username}`,
       width: "15%",
     },
     {
@@ -360,7 +360,7 @@ const CancelOrder = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
-                  <th scope="col">Trạng thái</th>
+                  {/* <th scope="col">Trạng thái</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -372,7 +372,7 @@ const CancelOrder = () => {
                       <td>{item.product.price}</td>
                       <td>{item.quantity}</td>
                       <td>{item.quantity * item.product.price}</td>
-                      <td>{item.status}</td>
+                      {/* <td>{item.status}</td> */}
                     </tr>
                   );
                 })}
