@@ -34,36 +34,53 @@ function Checkout() {
     const [totalWith, setTotalWidth] = useState();
 
     const createOrder = () => {
-        console.log(parseInt(getTotal(carts)) + parseInt(shipping) + "" + ' ', payment , ' ', type , ' ', address , ' ', phone , ' ' , name);
-        console.log(getListSetListOrderDetails(carts));
-        console.log(value + ' '+ valueDistrict + ' ' + valueWard)
-        fetch(
-            `http://localhost:8080/api/orders`,
-            {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: 147,
-                    total: parseInt(getTotal(carts)) + parseInt(shipping)  ,
-                    payment: payment,
-                    // type: type,
-                    address: type === 1 ? 'TẠI CỬA HÀNG' : (address+', '+ valueWard+ ', '+ valueDistrict + ', '+ value) ,
-                    phone: phone,
-                    customerName: name,
-                    // email: email,
-                    status: status,
-                    orderDetails: getListSetListOrderDetails(carts)
-                })
-            }
-        )
-            .then((results) => {
-                console.log(results.status)
-                if (results.status == 200) {
-                    toastSuccess("Thêm mới thành công!");
-                } else {
-                    toastError(results.message);
+        if (status == 0) {
+            fetch(
+                `http://localhost:8080/api/orders`,
+                {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: 147,
+                        total: parseInt(getTotal(carts)) + parseInt(shipping),
+                        payment: payment,
+                        // type: type,
+                        address: type === 1 ? 'TẠI CỬA HÀNG' : (address + ', ' + valueWard + ', ' + valueDistrict + ', ' + value),
+                        phone: phone,
+                        customerName: name,
+                        // email: email,
+                        status: status,
+                        orderDetails: getListSetListOrderDetails(carts)
+                    })
                 }
-            });
+            )
+                .then((results) => {
+                    if (results.status == 200) {
+                        toastSuccess("Đặt hàng thành công!");
+                    } else {
+                        toastError(results.message);
+                    }
+                });
+        } else {
+            fetch(
+                `http://localhost:8080/api/vnpay`,
+                {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        vnp_OrderInfo: "Thanh toán VnPay cho khách hàng " + name,
+                        orderType: "other",
+                        amount: parseInt(getTotal(carts)) + parseInt(shipping),
+                        bankCode: "NCB",
+                        language: "vn"
+                    })
+                }
+            )
+                .then((response) => response.json())
+                .then((data) => {
+                    window.location.href = data.paymentUrl;
+                })
+        }
     }
 
     const formatCash = (str) => {
@@ -108,10 +125,8 @@ function Checkout() {
         setPayment(event.target.value)
         console.log(event.target.value)
         if (event.target.value === "0") {
-            console.log('111111')
             setStatus('CHO_XAC_NHAN');
         } else {
-            console.log('222222')
             setStatus('CHO_LAY_HANG');
         }
     }
@@ -586,8 +601,8 @@ function Checkout() {
                     <div className="content-right ">
                         <div >
                             <form className="form-htgh ms-5">
-                                <div><input type={'radio'} name="ip-ht" value={'TẠI CỬA HÀNG'} onChange={changePayment}></input> <label>Thanh toán tiền mặt khi nhận hàng</label></div>
-                                <div><input type={'radio'} name="ip-ht" value={'TÀI KHOẢN VN PAY'} onChange={changePayment}></input> <label>Thanh toán qua VN PAY</label></div>
+                                <div><input type={'radio'} name="ip-ht" value={'0'} onChange={changePayment}></input> <label>Thanh toán tiền mặt khi nhận hàng</label></div>
+                                <div><input type={'radio'} name="ip-ht" value={'1'} onChange={changePayment}></input> <label>Thanh toán qua VN PAY</label></div>
                             </form>
                         </div>
                     </div>
