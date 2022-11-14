@@ -8,3 +8,11 @@
 .ant-modal-wrap .ant-modal {
     width: 60% !important;
 }
+
+.ant-picker {
+    width: 100%;
+}
+
+.ant-select.ant-select-single.ant-select-allow-clear.ant-select-show-arrow.ant-select-show-search {
+    width: 100% !important;
+}
