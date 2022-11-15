@@ -6,25 +6,13 @@ import {
   Button,
   InputNumber,
   Modal,
-  DatePicker,
-  Radio,
-  Space,
 } from "antd";
 import {
   CheckCircleOutlined,
-  DoubleRightOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-  SearchOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import OrderDelivering from "./OrderDelivering";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 const { TextArea } = Input;
@@ -73,10 +61,6 @@ const ConfirmOrderDetail = () => {
   };
 
   useEffect(() => {
-    const event = new Date("2022-11-11 18:56:26");
-    const event1 = new Date("2022-11-11 18:56:26");
-    console.log(moment(event).format('MMMM Do YYYY, h:mm:ss a'));
-    console.log(moment(event.setDate(event.getDate()+2)).format('MMMM Do YYYY, h:mm:ss a'))
     loadDataOrder(id);
   }, [order != undefined]);
 
