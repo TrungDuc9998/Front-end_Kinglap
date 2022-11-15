@@ -19,6 +19,8 @@ import {
 }
   from "@ant-design/icons";
 import '../Order/order.css';
+import Moment from 'react-moment';
+import moment from "moment";
 import qs from "qs";
 import axios from "axios";
 import toastrs from "toastr";
@@ -32,22 +34,18 @@ const url_pro = 'http://localhost:8080/api/products';
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchUsername: params.pagination?.search1,
+  searchName: params.pagination?.search1,
   searchStatus: params.pagination?.search2,
 });
 //date
 const { RangePicker } = DatePicker;
 
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá hoá đơn",
-    content: "Bạn có muốn xoá hoá đơn này không ?",
-  });
-};
-
 const Order = () => {
   const [data, setData] = useState([]);
   const [dataOD, setDataOD] = useState();
+  const [dateOrder, setDateOrder] = useState(getDateTime);
+  const [searchStatus, setSearchStatus] = useState();
+  const [searchName, setSearchName] = useState();
   const [dataUser, setDataUser] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -56,6 +54,8 @@ const Order = () => {
     pagination: {
       current: 1,
       pageSize: 10,
+      search1: '',
+      search2: '',
     },
   });
   const [idCancel, setIDCancel] = useState();
@@ -68,9 +68,6 @@ const Order = () => {
         getRandomuserParams(tableParams)
       )}`
     )
-      // axios.get(url + `?${qs.stringify(
-      //   getRandomuserParams(tableParams)
-      // )}`)
       .then((res) => res.json())
       .then((results) => {
         setData(results.data.data);
@@ -85,6 +82,98 @@ const Order = () => {
       });
   };
 
+  useEffect(() => {
+    load();
+  }, []);
+
+  const search = () => {
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.search2 = searchStatus;
+    tableParams.pagination.current = 1;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          }
+        })
+      });
+  }
+
+
+  const searchDate = () => {
+    setLoading(true);
+    console.log(dateOrder)
+    fetch(
+      `http://localhost:8080/api/orders/list/date/` + dateOrder
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results);
+        setLoading(false);
+        setTableParams({
+        })
+      });
+
+  }
+
+  const changeSearchName = (event) => {
+    setSearchName(event.target.value);
+  };
+
+  const changeSearchStatus = (value) => {
+    setSearchStatus(value);
+  };
+
+  //date
+  function getDateTime() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var second = now.getSeconds();
+    if (month.toString().length == 1) {
+      month = '0' + month;
+    }
+    if (day.toString().length == 1) {
+      day = '0' + day;
+    }
+    if (hour.toString().length == 1) {
+      hour = '0' + hour;
+    }
+    if (minute.toString().length == 1) {
+      minute = '0' + minute;
+    }
+    if (second.toString().length == 1) {
+      second = '0' + second;
+    }
+    var dateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+    return dateTime;
+  }
+
+
+  const handleChangeDateSearch = (val, dateStrings) => {
+    if (dateStrings != null)
+      setDateOrder(dateStrings);
+  };
+
+  const changeSearchDate = (val, dateStrings) => {
+    setDateOrder(dateStrings);
+  };
+
+
   const showModalData = (id) => {
     axios.get(url + "/" + id)
       .then((res) => {
@@ -98,20 +187,6 @@ const Order = () => {
     setEditing(true);
   }
 
-  const user = (userId) => {
-    fetch(
-      `http://localhost:8080/api/category?` + userId
-    ).then((res) => res.json())
-      .then((results) => {
-        setDataUser(results.data.data);
-      }
-      )
-  }
-
-  useEffect(() => {
-    load();
-  }, []);
-
   const columns = [
     {
       title: "Mã HD",
@@ -121,15 +196,21 @@ const Order = () => {
     },
     {
       title: "Người đặt",
-      dataIndex: "user",
+      dataIndex: "customerName",
       sorter: true,
-      // render: (user) => `${user.username}`,
       width: "15%",
     },
     {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       sorter: true,
+      render(createdAt) {
+        return (
+          <Moment format="DD-MM-YYYY">
+            {createdAt}
+          </Moment>
+        );
+      },
       width: "14%",
     },
     {
@@ -302,16 +383,38 @@ const Order = () => {
   ];
 
   const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.search2 = searchStatus;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
   };
 
   const onChange = (value) => {
     console.log(`selected ${value}`);
   };
+
+  const clearSearchForm = () => {
+    load();
+    setSearchName("");
+    setSearchStatus();
+  }
 
   const onSearch = (value) => {
     console.log("search:", value);
@@ -367,62 +470,47 @@ const Order = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Tên sản phẩm</label>
-          <Input placeholder="Nhập tên sản phẩm" />
+        <div className="col-4 mt-3">
+          <label>Từ khoá</label>
+          <Input type="text" name="searchName" value={searchName} placeholder="Nhập tên khách hàng" onChange={changeSearchName} />
         </div>
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn thể loại"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
-          </Select>
-        </div>
-        <div className="col-4 mt-4">
+        <div className="col-4 mt-3">
           <label>Trạng thái</label>
           <br />
-          <Select
+          <Select allowClear={true}
             style={{ width: "300px", borderRadius: "5px" }}
             showSearch
             placeholder="Chọn trạng thái"
             optionFilterProp="children"
-            onChange={onChange}
+            onChange={changeSearchStatus}
             onSearch={onSearch}
             filterOption={(input, option) =>
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
+             <Option value="CHO_XAC_NHAN" selected>Chờ xác nhận</Option>
+            <Option value="CHO_LAY_HANG">Chờ lấy hàng</Option>
+            <Option value="DANG_GIAO">Đang giao</Option>
+            <Option value="DA_NHAN">Đã nhận</Option>
+            <Option value="DA_HUY">Đã hủy</Option>
           </Select>
         </div>
-        <div className="col-6">
-          <label>Người đặt</label>
-          <Input placeholder="Tên người đặt" />
+        <div className="col-4 mt-3">
+          <label>Thời gian đặt: </label><br/>
+          <DatePicker  
+            onChange={changeSearchDate}
+            onCalendarChange={handleChangeDateSearch}
+            value={moment(dateOrder, "yyyy-MM-DD HH:mm:ss")}
+            showTime={{ format: 'HH:mm:ss' }}
+            format={"yyyy-MM-DD HH:mm:ss"}
+            type="datetime"
+          />
         </div>
-        <div className="col-6 mt-4">
-          <label>Thời gian đặt: </label>
-          <Space className="mx-2" direction="vertical" size={12}>
-            <RangePicker size={"middle"} />
-          </Space>
-        </div>
-        <div className="col-12 text-center ">
+        <div className="col-12 text-center mt-4">
           <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={showModal}
+            onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -431,11 +519,20 @@ const Order = () => {
           <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={showModal}
+            onClick={search}
             style={{ borderRadius: "10px" }}
           >
             <SearchOutlined />
             Tìm kiếm
+          </Button>
+          <Button
+            className="mx-2  mt-2"
+            type="primary"
+            onClick={searchDate}
+            style={{ borderRadius: "10px" }}
+          >
+            <SearchOutlined />
+            Tìm kiếm Date
           </Button>
         </div>
       </div>
@@ -444,7 +541,6 @@ const Order = () => {
           <Button
             className="offset-11 "
             type="primary"
-            // onClick={showModal}
             style={{ borderRadius: "10px" }}
             onClick={() => {
               console.log('key key')
@@ -502,7 +598,7 @@ const Order = () => {
             }}
           >
             <label>
-              Bạn thực sự muốn hủy đơn hàng này
+            <h3>Bạn thực sự muốn hủy đơn hàng này</h3>
               <span className="text-danger"> !!!!!</span>
             </label>
           </Modal>
