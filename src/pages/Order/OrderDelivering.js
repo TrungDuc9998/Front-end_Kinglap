@@ -189,7 +189,6 @@ const OrderDelivering = () => {
                 onConfirm(record);
               }}
             />
-
             <RollbackOutlined
               style={{ marginLeft: 14, fontSize: "20px" }}
               onClick={() => navigate(`/admin/return/${id}`)}
