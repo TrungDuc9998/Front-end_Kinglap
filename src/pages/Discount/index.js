@@ -25,6 +25,13 @@ const { RangePicker } = DatePicker;
 const url = 'http://localhost:8080/api/discount';
 
 
+export function compareTime(endDate) {
+  const now = new Date();
+  if (new Date(endDate) > now) {
+    return 1
+  }
+  return 0
+}
 const Discount = () => {
   const [data, setData] = useState([{
     id: "",
@@ -61,7 +68,10 @@ const Discount = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [searchStartDate, setSearchStartDate] = useState(getDateTime());
   const [searchEndDate, setSearchEndDate] = useState(getDateTime());
+  const [searchName, setSearchName] = useState();
   const [modalText, setModalText] = useState("Content of the modal");
+  let today = new Date();
+  // console.log(today);
 
   const notifySuccess = (message) => {
     toast.success(message, {
@@ -118,6 +128,7 @@ const Discount = () => {
   const getRandomuserParams = (params) => ({
     limit: params.pagination?.pageSize,
     page: params.pagination?.current,
+    searchName: params.pagination?.searchName,
     searchStartDate: params.pagination?.searchStartDate,
     searchEndDate: params.pagination?.searchEndDate,
   });
@@ -126,11 +137,11 @@ const Discount = () => {
     pagination: {
       current: 1,
       pageSize: 10,
+      searchName: "",
       searchStartDate: "",
-      searchEndDate: ""
+      searchEndDate: "",
     },
   });
-
 
   const columns = [
     {
@@ -159,6 +170,7 @@ const Discount = () => {
       sorter: true,
       render(endDate) {
         return (
+          console.log(endDate),
           <Moment format="DD-MM-YYYY HH:mm:ss">
             {endDate}
           </Moment>
@@ -219,7 +231,7 @@ const Discount = () => {
               <UnlockOutlined
                 className="mt-2"
                 type="dashed"
-                onClick={() => activeItem(id)}
+                onClick={() => activeItem(id, data)}
                 style={{ borderRadius: "10px" }}
               />
               <EditOutlined
@@ -241,7 +253,7 @@ const Discount = () => {
               <UnlockOutlined
                 className="mt-2"
                 type="dashed"
-                onClick={() => activeItem(id)}
+                onClick={() => activeItem(id, data)}
                 style={{ borderRadius: "10px" }}
               />
               <EditOutlined
@@ -265,7 +277,11 @@ const Discount = () => {
     )}`)
       // .then((res) => res.json())
       .then((results) => {
+        results.data.data.data.forEach((x) => {
+          x.active = x.active === 2 ? x.active : compareTime(x.endDate)
+        })
         setData(results.data.data.data);
+        console.log(results.data.data.data);
         setTotal(results.data.data.total);
         setLoading(false);
         setTableParams({
@@ -285,6 +301,8 @@ const Discount = () => {
 
 
   const handleTableChange = (pagination, filters, sorter) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.searchName = searchName;
     setTableParams({
       pagination,
       filters,
@@ -314,15 +332,27 @@ const Discount = () => {
   // };
 
 
-  const draft = () => {
-    axios.post(url + "/draft", form)
-      .then(res => {
-        notifySuccess('Lưu bản nháp thành công!')
-        setAdd(false);
-        getData();
-        setValues(formDefault);
-        console.log(res.data);
-      })
+  const draft = (e) => {
+
+    if (form.ratio == null || form.ratio < 0 || form.ratio > 100) {
+      notifyError('Tỉ lệ phải từ 0-100!');
+    } else if (form.endDate < form.startDate || form.endDate == form.startDate) {
+      notifyError('ngày bắt đầu và ngày kết thúc không thể trùng nhau');
+    }
+    else {
+      e.preventDefault();
+      axios.post(url + "/draft", form)
+        .then(res => {
+          notifySuccess('Lưu bản nháp thành công!')
+          setAdd(false);
+          getData();
+          setValues(formDefault);
+          console.log(res.data);
+        }).catch((error) => {
+          notifyError('Yêu cầu nhập đủ các trường!');
+          return;
+        })
+    }
   }
 
   //btn Add
@@ -337,7 +367,10 @@ const Discount = () => {
   function submitAdd(e) {
     if (form.ratio < 0 || form.ratio > 100) {
       notifyError('Tỉ lệ phải từ 0-100!');
-    } else {
+    } if (form.endDate < form.startDate || form.endDate == form.startDate) {
+      notifyError('ngày bắt đầu và ngày kết thúc không thể trùng nhau');
+    }
+    else {
       e.preventDefault();
       axios.post(url, form)
         .then(res => {
@@ -439,6 +472,10 @@ const Discount = () => {
     setSearchEndDate(dateStrings[1]);
   };
 
+  const changeSearchName = (event) => {
+    setSearchName(event.target.value);
+  };
+
   //Calendar
   const setDates = (val, dateStrings) => {
     console.log(dateStrings);
@@ -472,6 +509,8 @@ const Discount = () => {
 
   //search
   const search = () => {
+    console.log(searchName);
+    tableParams.pagination.searchName = searchName;
     tableParams.pagination.searchStartDate = searchStartDate;
     tableParams.pagination.searchEndDate = searchEndDate;
     tableParams.pagination.current = 1;
@@ -495,36 +534,46 @@ const Discount = () => {
       });
   }
 
-
-
   const clearSearchForm = () => {
     setSearchStartDate(getDateTime());
     setSearchEndDate(getDateTime());
+    setSearchName("");
     setTableParams({
       ...tableParams,
       pagination: {
         ...tableParams.pagination.current = 1,
         ...tableParams.pagination.pageSize = 10,
         ...tableParams.pagination.searchStartDate = "",
-        ...tableParams.pagination.searchEndDate = ""
+        ...tableParams.pagination.searchEndDate = "",
+        ...tableParams.pagination.searchName = ""
       }
     });
     getData();
   }
-  const activeItem = (id) => {
-    let activeItem = window.confirm('Chuyển trạng thái thành hoạt động?')
-    if (activeItem) {
-      handleConfirmActive(id)
-    }
+  const activeItem = (id, data) => {
+    // let activeItem = window.confirm('Bạn có muốn chuyển trạng thái?')
+    // if (activeItem) {
+    handleConfirmActive(id, data)
+    // }
   }
-  const handleConfirmActive = (id) => {
-    axios.put(url + "/active/" + id)
-      .then(res => {
-        notifySuccess('Chuyển trạng thái hoạt động thành công!')
-        getData();
-        console.log(res.data);
-      }
-      )
+  const handleConfirmActive = (id, data) => {
+    if (data.active == 0 || data.active == 2) {
+      axios.put(url + "/active/" + id)
+        .then(res => {
+          notifySuccess('Chuyển trạng thái hoạt động thành công!')
+          getData();
+          console.log(res.data);
+        }
+        )
+    } else if (data.active == 1) {
+      axios.put(url + "/inactive/" + id)
+        .then(res => {
+          notifySuccess('Chuyển trạng thái không hoạt động thành công!')
+          getData();
+          console.log(res.data);
+        }
+        )
+    }
   }
 
   // const validationSchema=Yup.object({
@@ -690,7 +739,7 @@ const Discount = () => {
 
             <div className="col-4 mt-3">
               <label>Từ khoá</label>
-              <Input type="text" name="searchName" value={data.name} placeholder="Nhập tên tài khoản người dùng" onChange={onchangeSearch} />
+              <Input type="text" name="searchName" value={searchName} placeholder="Nhập tên dịch vụ" onChange={changeSearchName} />
             </div>
 
             <div className="col-4 mt-3 ">
