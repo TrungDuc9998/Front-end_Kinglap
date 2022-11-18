@@ -16,20 +16,20 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-}
-  from "@ant-design/icons";
-import '../Order/order.css';
-import Moment from 'react-moment';
+} from "@ant-design/icons";
+import "../Order/order.css";
+import Moment from "react-moment";
 import moment from "moment";
 import qs from "qs";
 import axios from "axios";
 import toastrs from "toastr";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import CurrencyFormat from "react-currency-format";
 const { Option } = Select;
-const url = 'http://localhost:8080/api/orders';
-const url_pro = 'http://localhost:8080/api/products';
+const url = "http://localhost:8080/api/orders";
+const url_pro = "http://localhost:8080/api/products";
 
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -42,6 +42,8 @@ const { RangePicker } = DatePicker;
 
 const Order = () => {
   const [data, setData] = useState([]);
+  const [dataSuccess, setDataSuccess] = useState([]);
+  const [dataDelivering, setDataDelivering] = useState([]);
   const [dataOD, setDataOD] = useState();
   const [dateOrder, setDateOrder] = useState(getDateTime);
   const [searchStatus, setSearchStatus] = useState();
@@ -50,16 +52,166 @@ const Order = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
+  const [dataCancel, setDataCancel] = useState([]);
+  const [dataWait, setDataWait] = useState([]);
+  const [dataPending, setDataPedning] = useState([]);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
-      search1: '',
-      search2: '',
+      search1: "",
+      search2: "",
+    },
+  });
+  const [tableParamsPending, setTableParamsPending] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "CHO_XAC_NHAN",
+    },
+  });
+
+  const [tableParamsWait, setTableParamsWait] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "CHO_LAY_HANG",
+    },
+  });
+
+  const [tableParamsCancel, setTableParamsCancel] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "DA_HUY",
+    },
+  });
+
+  const [tableParamsDelivering, setTableParamsDelivering] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "DANG_GIAO",
+    },
+  });
+  const [tableParamsSuccess, setTableParamsSuccess] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "DA_NHAN",
     },
   });
   const [idCancel, setIDCancel] = useState();
 
+  const loadDataOrderWait = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsWait)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataWait(results.data.data);
+        setLoading(false);
+        setTableParamsWait({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataOrderCancel = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsCancel)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataCancel(results.data.data);
+        setLoading(false);
+        setTableParamsCancel({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataOrderDelivering = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsDelivering)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataDelivering(results.data.data);
+        setLoading(false);
+        setTableParamsDelivering({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataOrderStatusPending = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsPending)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataPedning(results.data.data);
+        setLoading(false);
+        setTableParamsPending({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataOrderStatusSuccess = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsSuccess)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataSuccess(results.data.data);
+        setLoading(false);
+        setTableParamsSuccess({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
 
   const load = () => {
     setLoading(true);
@@ -84,6 +236,11 @@ const Order = () => {
 
   useEffect(() => {
     load();
+    loadDataOrderStatusPending();
+    loadDataOrderStatusSuccess();
+    loadDataOrderDelivering();
+    loadDataOrderCancel();
+    loadDataOrderWait();
   }, []);
 
   const search = () => {
@@ -105,27 +262,22 @@ const Order = () => {
             current: results.data.current_page,
             pageSize: 10,
             total: results.data.total,
-          }
-        })
+          },
+        });
       });
-  }
-
+  };
 
   const searchDate = () => {
     setLoading(true);
-    console.log(dateOrder)
-    fetch(
-      `http://localhost:8080/api/orders/list/date/` + dateOrder
-    )
+    console.log(dateOrder);
+    fetch(`http://localhost:8080/api/orders/list/date/` + dateOrder)
       .then((res) => res.json())
       .then((results) => {
         setData(results);
         setLoading(false);
-        setTableParams({
-        })
+        setTableParams({});
       });
-
-  }
+  };
 
   const changeSearchName = (event) => {
     setSearchName(event.target.value);
@@ -145,47 +297,44 @@ const Order = () => {
     var minute = now.getMinutes();
     var second = now.getSeconds();
     if (month.toString().length == 1) {
-      month = '0' + month;
+      month = "0" + month;
     }
     if (day.toString().length == 1) {
-      day = '0' + day;
+      day = "0" + day;
     }
     if (hour.toString().length == 1) {
-      hour = '0' + hour;
+      hour = "0" + hour;
     }
     if (minute.toString().length == 1) {
-      minute = '0' + minute;
+      minute = "0" + minute;
     }
     if (second.toString().length == 1) {
-      second = '0' + second;
+      second = "0" + second;
     }
-    var dateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+    var dateTime =
+      year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
     return dateTime;
   }
 
-
   const handleChangeDateSearch = (val, dateStrings) => {
-    if (dateStrings != null)
-      setDateOrder(dateStrings);
+    if (dateStrings != null) setDateOrder(dateStrings);
   };
 
   const changeSearchDate = (val, dateStrings) => {
     setDateOrder(dateStrings);
   };
 
-
   const showModalData = (id) => {
-    axios.get(url + "/" + id)
-      .then((res) => {
-        console.log(res.data);
-        setDataOD(res.data);
-      })
+    axios.get(url + "/" + id).then((res) => {
+      console.log(res.data);
+      setDataOD(res.data);
+    });
     setView(true);
   };
 
   const showModalCancel = () => {
     setEditing(true);
-  }
+  };
 
   const columns = [
     {
@@ -205,11 +354,7 @@ const Order = () => {
       dataIndex: "createdAt",
       sorter: true,
       render(createdAt) {
-        return (
-          <Moment format="DD-MM-YYYY">
-            {createdAt}
-          </Moment>
-        );
+        return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
       },
       width: "14%",
     },
@@ -218,6 +363,19 @@ const Order = () => {
       dataIndex: "total",
       sorter: true,
       width: "9%",
+      render(total) {
+        return (
+          <>
+            <CurrencyFormat
+              style={{fontSize:"14px"}}
+              value={total}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+             vnđ
+          </>
+        );
+      },
     },
     {
       title: "Hình thức thanh toán",
@@ -225,7 +383,7 @@ const Order = () => {
       sorter: true,
       width: "13%",
       render: (payment) => {
-        if (payment === 'TAI CUA HANG') {
+        if (payment === "TẠI CỬA HÀNG") {
           return (
             <>
               <div
@@ -237,7 +395,7 @@ const Order = () => {
             </>
           );
         }
-        if (payment === 'TAI KHOAN ATM') {
+        if (payment === "TÀI KHOẢN ATM") {
           return (
             <>
               <div
@@ -249,7 +407,7 @@ const Order = () => {
             </>
           );
         }
-        if (payment === 'THANH TOAN VNPAY') {
+        if (payment === "THANH TOAN VNPAY") {
           return (
             <>
               <div
@@ -274,7 +432,7 @@ const Order = () => {
       dataIndex: "status",
       width: "15%",
       render: (status) => {
-        if (status === 'CHO_XAC_NHAN') {
+        if (status === "CHO_XAC_NHAN") {
           return (
             <>
               <div
@@ -285,32 +443,32 @@ const Order = () => {
               </div>
             </>
           );
-        };
-        if (status === 'CHO_LAY_HANG') {
+        }
+        if (status === "CHO_LAY_HANG") {
           return (
             <>
               <div
-                className="bg-success text-center text-light"
+                className="bg-warning text-center text-light"
                 style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
                 Chờ lấy hàng
               </div>
             </>
           );
-        };
-        if (status === 'DANG_GIAO') {
+        }
+        if (status === "DANG_GIAO") {
           return (
             <>
               <div
-                className="bg-success text-center text-light"
+                className="bg-primary text-center text-light"
                 style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
                 Đang giao hàng
               </div>
             </>
           );
-        };
-        if (status === 'DA_NHAN') {
+        }
+        if (status === "DA_NHAN") {
           return (
             <>
               <div
@@ -321,19 +479,19 @@ const Order = () => {
               </div>
             </>
           );
-        };
-        if (status === 'DA_HUY') {
+        }
+        if (status === "DA_HUY") {
           return (
             <>
               <div
-                className="bg-success text-center text-light"
+                className="bg-danger text-center text-light"
                 style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
                 Đã huỷ hàng
               </div>
             </>
           );
-        };
+        }
       },
     },
     {
@@ -353,21 +511,20 @@ const Order = () => {
               <EditOutlined
                 style={{ marginLeft: 12 }}
                 onClick={() => {
-                  console.log('key key')
-                  navigate('update');
+                  console.log("key key");
+                  navigate("update");
                 }}
               />
               <DeleteOutlined
                 onClick={() => {
                   showModalCancel(data.id);
-                  console.log(data.id)
-                  setIDCancel(data.id)
+                  console.log(data.id);
+                  setIDCancel(data.id);
                 }}
               />
             </>
           );
-        }
-        else {
+        } else {
           return (
             <>
               <EyeOutlined
@@ -377,7 +534,7 @@ const Order = () => {
               />
             </>
           );
-        };
+        }
       },
     },
   ];
@@ -414,7 +571,7 @@ const Order = () => {
     load();
     setSearchName("");
     setSearchStatus();
-  }
+  };
 
   const onSearch = (value) => {
     console.log("search:", value);
@@ -456,10 +613,89 @@ const Order = () => {
     setSize(e.target.value);
   };
   const navigate = useNavigate();
-  const [keyOrder, setKey] = useState("/order/create")
+  const [keyOrder, setKey] = useState("/order/create");
   return (
-
     <div>
+      <div className="row">
+        <div className="col-12">
+          <div className="row mb-3">
+            <div className="col-2 ">
+              <div className="card ">
+                <div className="card-body ">
+                  <h3 className="text-center text-warning">
+                    {tableParamsPending.pagination.total > 0
+                      ? tableParamsPending.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-success text-center text-warning">
+                    Chờ xác nhận
+                  </h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body ">
+                  <h3 className="text-center text-success">
+                    {tableParamsSuccess.pagination.total > 0
+                      ? tableParamsSuccess.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-success text-center">Đã nhận</h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="text-center text-primary">
+                    {tableParamsDelivering.pagination.total > 0
+                      ? tableParamsDelivering.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-primary text-center">Đang giao</h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="text-center text-danger">
+                    {tableParamsCancel.pagination.total > 0
+                      ? tableParamsCancel.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-center text-danger">Đã huỷ</h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body text-secondary">
+                  <h3 className="text-center text-secondary">
+                    {tableParamsWait.pagination.total > 0
+                      ? tableParamsWait.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-center text-secondary">Đang giao</h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="text-center text-info">
+                    {tableParams.pagination.total > 0
+                      ? tableParams.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-center text-info">Tổng đơn hàng</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div
         className="row"
         style={{
@@ -472,12 +708,19 @@ const Order = () => {
       >
         <div className="col-4 mt-3">
           <label>Từ khoá</label>
-          <Input type="text" name="searchName" value={searchName} placeholder="Nhập tên khách hàng" onChange={changeSearchName} />
+          <Input
+            type="text"
+            name="searchName"
+            value={searchName}
+            placeholder="Nhập tên khách hàng"
+            onChange={changeSearchName}
+          />
         </div>
         <div className="col-4 mt-3">
           <label>Trạng thái</label>
           <br />
-          <Select allowClear={true}
+          <Select
+            allowClear={true}
             style={{ width: "300px", borderRadius: "5px" }}
             showSearch
             placeholder="Chọn trạng thái"
@@ -488,7 +731,9 @@ const Order = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-             <Option value="CHO_XAC_NHAN" selected>Chờ xác nhận</Option>
+            <Option value="CHO_XAC_NHAN" selected>
+              Chờ xác nhận
+            </Option>
             <Option value="CHO_LAY_HANG">Chờ lấy hàng</Option>
             <Option value="DANG_GIAO">Đang giao</Option>
             <Option value="DA_NHAN">Đã nhận</Option>
@@ -496,12 +741,13 @@ const Order = () => {
           </Select>
         </div>
         <div className="col-4 mt-3">
-          <label>Thời gian đặt: </label><br/>
-          <DatePicker  
+          <label>Thời gian đặt: </label>
+          <br />
+          <DatePicker
             onChange={changeSearchDate}
             onCalendarChange={handleChangeDateSearch}
             value={moment(dateOrder, "yyyy-MM-DD HH:mm:ss")}
-            showTime={{ format: 'HH:mm:ss' }}
+            showTime={{ format: "HH:mm:ss" }}
             format={"yyyy-MM-DD HH:mm:ss"}
             type="datetime"
           />
@@ -543,8 +789,8 @@ const Order = () => {
             type="primary"
             style={{ borderRadius: "10px" }}
             onClick={() => {
-              console.log('key key')
-              navigate('create');
+              console.log("key key");
+              navigate("create");
             }}
           >
             <PlusOutlined /> Thêm mới
@@ -572,18 +818,19 @@ const Order = () => {
             onChange={handleTableChange}
           />
           <Modal
-            title="Xác nhận"
+            title="Huỷ đơn hàng"
             visible={isEditing}
             onCancel={() => {
               setEditing(false);
             }}
             onOk={() => {
-              fetch(
-                `http://localhost:8080/api/orders/cancelled/${idCancel}`, { method: "PUT" }).then(() => load());
+              fetch(`http://localhost:8080/api/orders/cancelled/${idCancel}`, {
+                method: "PUT",
+              }).then(() => load());
               toastrs.options = {
                 timeOut: 6000,
-              }
-              toast.success('Hủy thành công!', {
+              };
+              toast.success("Hủy thành công!", {
                 position: "top-right",
                 autoClose: 1000,
                 hideProgressBar: false,
@@ -597,14 +844,11 @@ const Order = () => {
               setLoading(true);
             }}
           >
-            <label>
-            <h3>Bạn thực sự muốn hủy đơn hàng này</h3>
-              <span className="text-danger"> !!!!!</span>
-            </label>
+            <label>Bạn có muốn huỷ đơn hàng này không ?</label>
           </Modal>
 
           <Modal
-            title="Hiển thị"
+            title="Chi tiết đơn hàng"
             visible={isView}
             onCancel={() => {
               setView(false);
@@ -621,7 +865,6 @@ const Order = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
-                  <th scope="col">Trạng thái</th>
                 </tr>
               </thead>
               <tbody>
@@ -630,10 +873,23 @@ const Order = () => {
                     <tr key={index}>
                       <td>{item.id}</td>
                       <td>{item.product.name}</td>
-                      <td>{item.product.price}</td>
+                      <td>
+                        <CurrencyFormat
+                          value={item.product.price}
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                        vnđ
+                      </td>
                       <td>{item.quantity}</td>
-                      <td>{item.quantity * item.product.price}</td>
-                      <td>{item.status}</td>
+                      <td>
+                        <CurrencyFormat
+                          value={item.total}
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                        vnđ
+                      </td>
                     </tr>
                   );
                 })}

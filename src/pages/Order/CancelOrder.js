@@ -10,28 +10,21 @@ import {
   Space,
 } from "antd";
 import {
-  CheckCircleOutlined,
   DeleteOutlined,
   EditOutlined,
-  EyeOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
+import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-const url = 'http://localhost:8080/api/orders';
+const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
-  });
-};
 
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -47,7 +40,6 @@ const CancelOrder = () => {
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
   const [dataOrder, setDataOrder] = useState();
-  const [put, setPut] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -61,23 +53,11 @@ const CancelOrder = () => {
     console.log(dataOrder);
   }, [dataOrder != undefined]);
 
-  const onConfirm = (record) => {
-    const isPut = true;
-    Modal.success({
-      title: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
-      okText: "Yes",
-      okType: "primary",
-      onOk: () => {
-        // confirmOrder(record, isPut);
-      },
-    });
-  };
-
   const onCancel = (record) => {
-    const isPut = false;
-    Modal.error({
+    Modal.confirm({
       title: `Bạn có muốn xoá đơn hàng ${record.id}  không?`,
-      okText: "Yes",
+      okText: "Có",
+      cancelText: "Không",
       okType: "primary",
       onOk: () => {
         deleteOrder(record);
@@ -86,12 +66,10 @@ const CancelOrder = () => {
   };
 
   const showModalData = (id) => {
-    console.log(">>>>>>>>" + id);
-    axios.get(url + "/" + id)
-      .then((res) => {
-        console.log(res.data);
-        setDataOD(res.data);
-      })
+    axios.get(url + "/" + id).then((res) => {
+      console.log(res.data);
+      setDataOD(res.data);
+    });
     setView(true);
   };
 
@@ -124,20 +102,31 @@ const CancelOrder = () => {
       title: "Mã đơn đặt",
       dataIndex: "id",
       sorter: true,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Người đặt",
-      dataIndex: "user",
+      dataIndex: "customerName",
       sorter: true,
-      // render: (user) => `${user.username}`,
-      width: "15%",
+      width: "20%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
       sorter: true,
       width: "15%",
+      render(total) {
+        return (
+          <>
+            <CurrencyFormat
+              style={{ fontSize: "14px" }}
+              value={total}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </>
+        );
+      },
     },
     {
       title: "Hình thức đặt",
@@ -173,10 +162,11 @@ const CancelOrder = () => {
               onClick={() => {
                 showModalData(id);
               }}
+              style={{ fontSize: "20px" }}
             />
             <DeleteOutlined
               onClick={() => onCancel(record)}
-              style={{ color: "red", marginLeft: 12 }}
+              style={{ color: "red", marginLeft: 12, fontSize: "20px" }}
             />
           </>
         );
@@ -191,38 +181,6 @@ const CancelOrder = () => {
   const onSearch = (value) => {
     console.log("search:", value);
   };
-  const [open, setOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
-
-  // const confirmOrder = (record, IsPut) => {
-  //   fetch(`http://localhost:8080/api/orders/${record.id}`, {
-  //     method: "PUT",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       id: record.id,
-  //       userId: record.userId | undefined,
-  //       total: record.total,
-  //       payment: record.payment,
-  //       address: record.address,
-  //       status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
-  //       note: record.note | undefined,
-  //       customerName: record.customerName | undefined,
-  //       phone: record.phone | undefined,
-  //       orderDetails: [
-  //         {
-  //           id: record.orderDetails.id,
-  //           productId: record.orderDetails.productId,
-  //           total: record.orderDetails.total,
-  //           quantity: record.orderDetails.quantity,
-  //           status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
-  //         },
-  //       ],
-  //     }),
-  //   }).then((res) => {
-  //     loadDataOrder();
-  //   });
-  // };
 
   const resetEditing = () => {
     setEditing(false);
@@ -239,58 +197,23 @@ const CancelOrder = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Tên sản phẩm</label>
-          <Input placeholder="Nhập tên sản phẩm" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn thể loại"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
-          </Select>
-        </div>
-        <div className="col-4 mt-4">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
-          </Select>
-        </div>
-        <div className="col-6">
+        <div className="col-6 mt-4">
           <label>Người đặt</label>
           <Input placeholder="Tên người đặt" />
         </div>
         <div className="col-6 mt-4">
           <label>Thời gian đặt: </label>
-          <Space className="mx-2" direction="vertical" size={12}>
+          <br />
+          <Space
+            className="mx-2"
+            style={{ minWidth: "90%" }}
+            direction="vertical"
+            size={12}
+          >
             <RangePicker size={"middle"} />
           </Space>
         </div>
-        <div className="col-12 text-center ">
+        <div className="col-12 text-center mt-3 ">
           <Button
             className="mt-2"
             type="primary-uotline"
@@ -343,7 +266,7 @@ const CancelOrder = () => {
           </Modal>
 
           <Modal
-            title="Hiển thị 1"
+            title="Chi tiết đơn hàng"
             visible={isView}
             onCancel={() => {
               setView(false);
@@ -360,7 +283,6 @@ const CancelOrder = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
-                  {/* <th scope="col">Trạng thái</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -369,36 +291,29 @@ const CancelOrder = () => {
                     <tr key={index}>
                       <td>{item.id}</td>
                       <td>{item.product.name}</td>
-                      <td>{item.product.price}</td>
+                      <td>
+                        <CurrencyFormat
+                          style={{ fontSize: "14px" }}
+                          value={item.product.price}
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                      </td>
                       <td>{item.quantity}</td>
-                      <td>{item.quantity * item.product.price}</td>
-                      {/* <td>{item.status}</td> */}
+                      <td>
+                        <CurrencyFormat
+                          style={{ fontSize: "14px" }}
+                          value={item.total}
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                      </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </Modal>
-
-          {/* <Modal
-            style={{ borderRadius: "30px" }}
-            title="Hiển thị"
-            visible={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
-            }}
-          >
-            Laptop G3 15 3500 : 3
-            <br />
-            Laptop G3 15 3500 : 2
-            <br />
-            Laptop G3 15 3500 : 1
-            <br />
-            Laptop G3 15 3500 : 0
-          </Modal> */}
         </div>
       </div>
     </div>

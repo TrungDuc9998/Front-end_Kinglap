@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
+import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 const url = "http://localhost:8080/api/orders";
@@ -86,16 +87,6 @@ const OrderConfirm = () => {
         confirmOrder(record, isPut);
       },
     });
-
-    // Modal.error({
-    //   title: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
-    //   okText: "Có",
-    //   cancelText: "Không",
-    //   okType: "primary",
-    //   onOk: () => {
-    //     confirmOrder(record, isPut);
-    //   },
-    // });
   };
 
   const showModalData = (id) => {
@@ -132,7 +123,6 @@ const OrderConfirm = () => {
       title: "Người đặt",
       dataIndex: "customerName",
       sorter: true,
-      // render: (user) => `${user.username}`,
       width: "15%",
     },
     {
@@ -140,6 +130,18 @@ const OrderConfirm = () => {
       dataIndex: "total",
       sorter: true,
       width: "15%",
+      render(total) {
+        return (
+          <>
+            <CurrencyFormat
+              style={{fontSize:"14px"}}
+              value={total}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </>
+        );
+      },
     },
     {
       title: "Hình thức thanh toán",
@@ -291,38 +293,21 @@ const OrderConfirm = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
+        <div className="col-5 mt-4">
           <label>Tên khách hàng</label>
           <Input placeholder="Nhập tên sản phẩm" />
         </div>
-        <div className="col-4 mt-4">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
-          </Select>
-        </div>
-        <div className="col-6 mt-4">
+        <div className="col-7 mt-4">
           <label>Thời gian đặt: </label>
-          <Space className="mx-2" direction="vertical" size={12}>
+          <br/>
+          <Space className="mx-2" direction="vertical" style={{minWidth: "80%"}} size={12}>
             <RangePicker size={"middle"} />
           </Space>
         </div>
-        <div className="col-12 text-center ">
+        <div className="col-12 text-center mt-4 ">
           <Button
             className="mt-2"
-            type="primary-uotline"
+            type="primary-outline"
             // onClick={showModal}
             style={{ borderRadius: "10px" }}
           >
@@ -340,6 +325,7 @@ const OrderConfirm = () => {
           </Button>
         </div>
       </div>
+      
 
       <div
         className="mt-4 row"
@@ -353,12 +339,11 @@ const OrderConfirm = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            // rowKey={(record) => record++}
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
           />
-          <Modal
+          {/* <Modal
             title="Xác nhận đơn hàng"
             visible={isEditing}
             onCancel={() => {
@@ -369,7 +354,7 @@ const OrderConfirm = () => {
             }}
           >
             Bạn có muốn xác nhận đơn hàng không ?
-          </Modal>
+          </Modal> */}
 
           <Modal
             title="Chi tiết đơn hàng"
@@ -409,33 +394,12 @@ const OrderConfirm = () => {
                         />
                       </td>
                       <td>{item.total}</td>
-                      {/* <td>{item.status}</td> */}
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </Modal>
-
-          {/* <Modal
-            style={{ borderRadius: "30px" }}
-            title="Hiển thị"
-            visible={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
-            }}
-          >
-            Laptop G3 15 3500 : 3
-            <br />
-            Laptop G3 15 3500 : 2
-            <br />
-            Laptop G3 15 3500 : 1
-            <br />
-            Laptop G3 15 3500 : 0
-          </Modal> */}
         </div>
       </div>
     </div>

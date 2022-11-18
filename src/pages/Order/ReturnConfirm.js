@@ -60,7 +60,7 @@ const ReturnConfirm = () => {
 
   useEffect(() => {
     loadDataExchange();
-    console.log(dataExchange);
+    // console.log(dataExchange);
   }, [dataExchange != undefined]);
 
   const onConfirm = (record) => {
@@ -72,12 +72,12 @@ const ReturnConfirm = () => {
       cancelText: "Không",
       okType: "primary",
       onOk: () => {
-        confirmUpdateStatus(record);
+        confirmUpdateStatus(record, isPut);
       },
     });
   };
 
-  const confirmUpdateStatus = (record) => {
+  const confirmUpdateStatus = (record, isPut) => {
     console.log(record);
     const returnDetail = [];
     record.returnDetailEntities.forEach((item) => {
@@ -94,7 +94,8 @@ const ReturnConfirm = () => {
         orderId: record.orderId,
         reason: record.reason,
         description: record.description,
-        status: "XAC_NHAN",
+        status: isPut === true ? "XAC_NHAN" : "KHONG_XAC_NHAN",
+        isCheck: "2",
         returnDetailEntities: returnDetail,
       }),
     }).then((res) => {});
@@ -112,8 +113,8 @@ const ReturnConfirm = () => {
   const onCancel = (record) => {
     const isPut = false;
     Modal.confirm({
-      title: 'Huỷ xác nhận',
-      content: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
+      title: "Huỷ xác nhận",
+      content: `Bạn có muốn huỷ yêu cầu xác nhận trả hàng đơn hàng ${record.id}  không?`,
       okText: "Có",
       cancelText: "Không",
       okType: "primary",
@@ -167,7 +168,7 @@ const ReturnConfirm = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
-      with: "45%",
+      with: "40%",
       render: (status) => {
         if (status === "YEU_CAU") {
           return (
@@ -210,28 +211,39 @@ const ReturnConfirm = () => {
       width: "30%",
       dataIndex: "id",
       render: (id, record) => {
-        return (
-          <>
+        if (record.status === "YEU_CAU") {
+          return (
+            <>
+              <EyeOutlined
+                style={{ fontSize: "20px" }}
+                onClick={() => {
+                  showModalData(id);
+                }}
+              />
+              <CheckCircleOutlined
+                className="ms-5"
+                style={{ fontSize: "20px", color: "green" }}
+                onClick={() => {
+                  onConfirm(record);
+                }}
+              />
+              <CloseCircleOutlined
+                onClick={() => onCancel(record)}
+                className="ms-5"
+                style={{ fontSize: "20px", color: "red" }}
+              />
+            </>
+          );
+        } else {
+          return (
             <EyeOutlined
-              style={{ fontSize: "20px" }}
-              onClick={() => {
-                showModalData(id);
-              }}
-            />
-            <CheckCircleOutlined
-              className="ms-5"
-              style={{ fontSize: "20px", color: "green" }}
-              onClick={() => {
-                onConfirm(record);
-              }}
-            />
-            <CloseCircleOutlined
-              onClick={() => onCancel(record)}
-              className="ms-5"
-              style={{ fontSize: "20px", color: "red" }}
-            />
-          </>
-        );
+                style={{ fontSize: "20px" }}
+                onClick={() => {
+                  showModalData(id);
+                }}
+              />
+          );
+        }
       },
     },
   ];

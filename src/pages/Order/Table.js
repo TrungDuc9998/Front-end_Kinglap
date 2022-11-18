@@ -119,7 +119,6 @@ function Table1() {
       .then((res) => res.json())
       .then((results) => {
         setDiscounts(results.data.data);
-        console.log("----- discount ------");
         console.log(results.data.data);
         setLoading(false);
         setTableParamDiscount({
@@ -232,7 +231,6 @@ function Table1() {
           total: item.total,
         });
       });
-      console.log("------------------- value order detail -----------------");
       console.log(orderDetails);
       try {
         fetch("http://localhost:8080/api/orders", {
@@ -244,7 +242,7 @@ function Table1() {
             total: order.total,
             address: order.address,
             note: order.note,
-            customerName: order.customerName,
+            customerName: order.customerName == "" ? "Nguyễn Thị Huệ" : order.customerName ,
             phone: order.phone,
             status: "CHO_XAC_NHAN",
             orderDetails: orderDetails,
@@ -918,6 +916,7 @@ function Table1() {
                   value={address}
                   placeholder="Nhập địa chỉ"
                   onChange={changeAddRess}
+                  onClick = {changeAddRess}
                 />
               </Modal>
             </div>
@@ -951,8 +950,8 @@ function Table1() {
                   }}
                   onChange={handleChangePayment}
                 >
-                  <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
-                  <Option value="GIAO HÀNG TẠI NHÀ">Giao hàng tại nhà</Option>
+                  <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
+                  <Option key={"GIAO HÀNG TẠI NHÀ"} value="GIAO HÀNG TẠI NHÀ">Giao hàng tại nhà</Option>
                 </Select>
               </div>
             </div>
@@ -1099,9 +1098,8 @@ function Table1() {
                 }}
                 onChange={handleChangePayment}
               >
-                <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
-                <Option value="TÀI KHOẢN ATM">Tài khoản ATM</Option>
-                <Option value="TÀI KHOẢN VN PAY">Tài khoản VN PAY</Option>
+                <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
+                <Option key={"TÀI KHOẢN VN PAY"} value="TÀI KHOẢN VN PAY">Tài khoản VN PAY</Option>
               </Select>
             </div>
             <div className="col-6">
