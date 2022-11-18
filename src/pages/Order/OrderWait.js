@@ -20,6 +20,7 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
+import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 const url = 'http://localhost:8080/api/orders';
@@ -338,7 +339,7 @@ const OrderWait = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
-                  <th scope="col">Trạng thái</th>
+                  {/* <th scope="col">Trạng thái</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -350,33 +351,13 @@ const OrderWait = () => {
                       <td>{item.product.price}</td>
                       <td>{item.quantity}</td>
                       <td>{item.quantity * item.product.price}</td>
-                      <td>{item.status}</td>
+                      {/* <td>{item.status}</td> */}
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </Modal>
-
-          {/* <Modal
-            style={{ borderRadius: "30px" }}
-            title="Hiển thị"
-            visible={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
-            }}
-          >
-            Laptop G3 15 3500 : 3
-            <br />
-            Laptop G3 15 3500 : 2
-            <br />
-            Laptop G3 15 3500 : 1
-            <br />
-            Laptop G3 15 3500 : 0
-          </Modal> */}
         </div>
       </div>
     </div>

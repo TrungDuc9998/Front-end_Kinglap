@@ -10,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
+import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 const url = "http://localhost:8080/api/orders";
@@ -133,19 +134,31 @@ const OrderDelivering = () => {
       title: "Mã đơn đặt",
       dataIndex: "id",
       sorter: true,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Người đặt",
       dataIndex: "customerName",
       sorter: true,
-      width: "15%",
+      width: "20%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
       sorter: true,
       width: "15%",
+      render(total) {
+        return (
+          <>
+            <CurrencyFormat
+              style={{ fontSize: "14px" }}
+              value={total}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </>
+        );
+      },
     },
     {
       title: "Hình thức đặt",
@@ -273,8 +286,8 @@ const OrderDelivering = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
+            <Option key={1} value="jack">Hoạt động</Option>
+            <Option key={2} value="lucy">Không hoạt động</Option>
           </Select>
         </div>
         <div className="col-6 mt-4">
@@ -322,7 +335,7 @@ const OrderDelivering = () => {
             pagination={tableParams.pagination}
             loading={loading}
           />
-          <Modal
+          {/* <Modal
             title="Xác nhận đơn hàng"
             visible={isEditing}
             onCancel={() => {
@@ -333,10 +346,10 @@ const OrderDelivering = () => {
             }}
           >
             Bạn có muốn xác nhận đơn hàng không ?
-          </Modal>
+          </Modal> */}
 
           <Modal
-            title="Hiển thị 1"
+            title="Chi tiết đơn hàng"
             visible={isView}
             onCancel={() => {
               setView(false);
@@ -345,7 +358,7 @@ const OrderDelivering = () => {
               setView(false);
             }}
           >
-            <table class="table">
+            <table className="table">
               <thead>
                 <tr>
                   <th scope="col">Mã HDCT</th>
@@ -353,7 +366,6 @@ const OrderDelivering = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
-                  <th scope="col">Trạng thái</th>
                 </tr>
               </thead>
               <tbody>
@@ -365,7 +377,6 @@ const OrderDelivering = () => {
                       <td>{item.product.price}</td>
                       <td>{item.quantity}</td>
                       <td>{item.quantity * item.product.price}</td>
-                      <td>{item.status}</td>
                     </tr>
                   );
                 })}

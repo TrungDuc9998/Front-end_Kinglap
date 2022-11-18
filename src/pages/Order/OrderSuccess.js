@@ -23,6 +23,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import qs from "qs";
 import axios from "axios";
+import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { Link, Route, Router } from "react-router-dom";
 const url = "http://localhost:8080/api/orders";
@@ -158,6 +159,18 @@ const OrderSuccess = () => {
       dataIndex: "total",
       sorter: true,
       width: "15%",
+      render(total) {
+        return (
+          <>
+            <CurrencyFormat
+              style={{ fontSize: "14px" }}
+              value={total}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </>
+        );
+      },
     },
     {
       title: "Hình thức đặt",
@@ -189,17 +202,21 @@ const OrderSuccess = () => {
       render: (id, record) => {
         return (
           <>
-            <EyeOutlined
-              style={{ fontSize: "20px" }}
+            <Button
               onClick={() => {
                 showModalData(id);
               }}
-            />
-            <RetweetOutlined
-              className="ms-3"
-              style={{ fontSize: "20px", color: "red" }}
+              waring
+            >
+              Hiển thị
+            </Button>
+            <Button
+              className="ms-2"
+              danger
               onClick={() => navigate(`/admin/order/exchange/${id}`)}
-            />
+            >
+              Đổi hàng
+            </Button>
             {/* <CheckCircleOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
@@ -275,31 +292,14 @@ const OrderSuccess = () => {
           <label>Tên khách hàng</label>
           <Input placeholder="Nhập tên khách hàng" />
         </div>
-        <div className="col-4 mt-4">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
-          </Select>
-        </div>
         <div className="col-6 mt-4">
           <label>Thời gian đặt: </label>
-          <Space className="mx-2" direction="vertical" size={12}>
+          <br/>
+          <Space className="mx-2" direction="vertical" style={{minWidth: "90%"}} size={12}>
             <RangePicker size={"middle"} />
           </Space>
         </div>
-        <div className="col-12 text-center ">
+        <div className="col-12 text-center mt-4 ">
           <Button
             className="mt-2"
             type="primary-uotline"
