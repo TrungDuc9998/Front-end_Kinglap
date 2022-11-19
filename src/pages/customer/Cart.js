@@ -8,6 +8,7 @@ import { Select, Input, Button, Checkbox, InputNumber, Space, Modal } from "antd
 import {
     DeleteOutlined
 } from "@ant-design/icons";
+import CurrencyFormat from "react-currency-format";
 
 function Cart() {
     const [total, setTotal] = useState(0);
@@ -120,7 +121,14 @@ function Cart() {
                                     ></InputNumber>
                                 </span>
                                 <p className="d-flex"><span className="price me-3 text-danger">
-                                    {formatCash(product.price * product.quantity + "")}</span> <span className="price ms-3">17.000.000</span>
+                                <CurrencyFormat
+                                    style={{fontSize:"14px"}}
+                                    value={product.price*product.quantity}
+                                    displayType={"text"}
+                                    thousandSeparator={true}
+                                />
+                                    {/* {formatCash(product.price*product.quantity+"")} */}
+                                    </span> <span className="price ms-3">17.000.000</span>
                                     <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm 30%</button>
                                 </p>
                                 <DeleteOutlined
