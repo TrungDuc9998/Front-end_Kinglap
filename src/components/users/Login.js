@@ -16,6 +16,9 @@ function Login() {
         'username': username,
         'password': password
     }
+
+    const roles = [];
+
     let handelSubmit = () => {
         fetch('http://localhost:8080/auth/login', {
             method: 'POST',
@@ -32,11 +35,20 @@ function Login() {
 
             throw Error(response.status);
         }).then(result => {
-            console.log("result", result);
-            localStorage.setItem("accessToken", result.data.token);
+            localStorage.setItem("id", result.data.id);
+            localStorage.setItem("token", result.data.token);
+            for (var i = 0; i < result.data.roles.length; i++) {
+                roles.push(result.data.roles[i].role);
+            }
+            localStorage.setItem("roles", roles);
+            localStorage.setItem("username", result.data.username);
             setUsername('');
             setPassword('');
-            window.location.href = '/';
+            if (localStorage.getItem("roles").includes("ADMIN") || localStorage.getItem("roles").includes("STAFF")) {
+                window.location.href = '/admin/order';
+            } else {
+                window.location.href = '/user';
+            }
         }).catch(error => {
             console.log("err", error);
         })
