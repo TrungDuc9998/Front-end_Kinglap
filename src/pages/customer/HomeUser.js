@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import Context from '../../store/Context';
-import { addToCart, setCheckoutCart } from "../../store/Actions";
+import { addToCart, setCheckoutCart, viewProduct } from "../../store/Actions";
 import './css/home.css';
 import anh1 from '../../asset/images/products/shop01.png'
 import anh3 from '../../asset/images/products/shop02.png'
@@ -13,7 +13,7 @@ import product5 from '../../asset/images/products/product05.png'
 import product6 from '../../asset/images/products/product06.png'
 import product8 from '../../asset/images/products/product08.png'
 
-import { Heart, Repeat, Eye, ShoppingCart } from 'react-feather';
+import { Heart, Repeat, Eye, ShoppingCart, Link } from 'react-feather';
 import {
     DeleteOutlined
 } from "@ant-design/icons";
@@ -27,35 +27,6 @@ import 'toastr/build/toastr.min.css';
 import toastrs from "toastr";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-// const products = [
-//     {
-//         id: 1,
-//         name: 'Sản phẩm 1',
-//         price: '15.000.000'
-//     },
-//     {
-//         id: 2,
-//         name: 'Sản phẩm 2',
-//         price: '12.000.000'
-//     },
-//     {
-//         id: 3,
-//         name: 'Sản phẩm 3',
-//         price: '17.000.000'
-//     },
-//     {
-//         id: 4,
-//         name: 'Sản phẩm 4',
-//         price: '17.000.000'
-//     },
-//     {
-//         id: 5,
-//         name: 'Sản phẩm 5',
-//         price: '17.000.000'
-//     }
-// ]
-
 
 function HomeUser() {
     const notifySuccess = (message) => {
@@ -82,11 +53,17 @@ function HomeUser() {
             theme: "light",
         });
     }
+
     const [state, dispatch] = useContext(Context);
     const handleAddToCart = (product) => {
         dispatch(addToCart(product))
         notifySuccess('Thêm vào giỏ hàng thành công!')
     }
+    const handelCLickProduct = (product) => {
+        dispatch(viewProduct(product))
+        console.log('state', state)
+    }
+
     const handleClickAddToCart = (product) => {
         handleAddToCart(product)
     }
@@ -239,7 +216,7 @@ function HomeUser() {
                                                     </div>
                                                     <div className="product-body">
                                                         <p className="product-category">Category</p>
-                                                        <h3 className="product-name"><a href="#">{pro.name}</a></h3>
+                                                        <h3 className="product-name" onClick={() => handelCLickProduct(pro)}><a href="/user/product">{pro.name}</a></h3>
                                                         <h4 className="product-price">VNĐ {pro.price} <del className="product-old-price">$990.00</del></h4>
                                                         <div className="product-rating">
                                                             <i className="fa fa-star"></i>
@@ -726,7 +703,7 @@ function HomeUser() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 
