@@ -16,55 +16,213 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-}
-  from "@ant-design/icons";
-import '../Order/order.css';
+} from "@ant-design/icons";
+import "../Order/order.css";
+import Moment from "react-moment";
+import moment from "moment";
 import qs from "qs";
 import axios from "axios";
+import toastrs from "toastr";
+import { ToastContainer, toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import CurrencyFormat from "react-currency-format";
 const { Option } = Select;
-const url = 'http://localhost:8080/api/orders';
-const url_pro = 'http://localhost:8080/api/products';
+const url = "http://localhost:8080/api/orders";
+const url_pro = "http://localhost:8080/api/products";
 
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchUsername: params.pagination?.search1,
+  searchName: params.pagination?.search1,
   searchStatus: params.pagination?.search2,
 });
 //date
 const { RangePicker } = DatePicker;
 
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá hoá đơn",
-    content: "Bạn có muốn xoá hoá đơn này không ?",
-  });
-};
-
 const Order = () => {
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
+  const [dataSuccess, setDataSuccess] = useState([]);
+  const [dataDelivering, setDataDelivering] = useState([]);
   const [dataOD, setDataOD] = useState();
+  const [dateOrder, setDateOrder] = useState(getDateTime);
+  const [searchStatus, setSearchStatus] = useState();
+  const [searchName, setSearchName] = useState();
+  const [dataUser, setDataUser] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
+  const [dataCancel, setDataCancel] = useState([]);
+  const [dataWait, setDataWait] = useState([]);
+  const [dataPending, setDataPedning] = useState([]);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
+      search1: "",
+      search2: "",
+    },
+  });
+  const [tableParamsPending, setTableParamsPending] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "CHO_XAC_NHAN",
     },
   });
 
+  const [tableParamsWait, setTableParamsWait] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "CHO_LAY_HANG",
+    },
+  });
+
+  const [tableParamsCancel, setTableParamsCancel] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "DA_HUY",
+    },
+  });
+
+  const [tableParamsDelivering, setTableParamsDelivering] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "DANG_GIAO",
+    },
+  });
+  const [tableParamsSuccess, setTableParamsSuccess] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "DA_NHAN",
+    },
+  });
+  const [idCancel, setIDCancel] = useState();
+
+  const loadDataOrderWait = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsWait)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataWait(results.data.data);
+        setLoading(false);
+        setTableParamsWait({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataOrderCancel = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsCancel)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataCancel(results.data.data);
+        setLoading(false);
+        setTableParamsCancel({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataOrderDelivering = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsDelivering)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataDelivering(results.data.data);
+        setLoading(false);
+        setTableParamsDelivering({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataOrderStatusPending = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsPending)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataPedning(results.data.data);
+        setLoading(false);
+        setTableParamsPending({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataOrderStatusSuccess = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParamsSuccess)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataSuccess(results.data.data);
+        setLoading(false);
+        setTableParamsSuccess({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
   const load = () => {
     setLoading(true);
-    axios.get(url + `?${qs.stringify(
-      getRandomuserParams(tableParams)
-    )}`)
-      // .then((res) => res.json())
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
       .then((results) => {
-        setData(results.data.data.data);
-        // setTotal(results.data.data.total);
+        setData(results.data.data);
         setLoading(false);
         setTableParams({
           pagination: {
@@ -76,38 +234,118 @@ const Order = () => {
       });
   };
 
-  const showModalData = (id) => {
-    axios.get(url + "/" + id)
-      .then((res) => {
-        console.log(res.data);
-        setDataOD(res.data);
-      })
-    setView(true);
-  };
-
-  const dataPro = (id) => {
-    axios.get(url_pro + "/" + id)
-      .then((res) => {
-        console.log(res.data);
-        setDataOD(res.data);
-      })
-    setView(true);
-  };
-
   useEffect(() => {
     load();
+    loadDataOrderStatusPending();
+    loadDataOrderStatusSuccess();
+    loadDataOrderDelivering();
+    loadDataOrderCancel();
+    loadDataOrderWait();
   }, []);
+
+  const search = () => {
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.search2 = searchStatus;
+    tableParams.pagination.current = 1;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const searchDate = () => {
+    setLoading(true);
+    console.log(dateOrder);
+    fetch(`http://localhost:8080/api/orders/list/date/` + dateOrder)
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results);
+        setLoading(false);
+        setTableParams({});
+      });
+  };
+
+  const changeSearchName = (event) => {
+    setSearchName(event.target.value);
+  };
+
+  const changeSearchStatus = (value) => {
+    setSearchStatus(value);
+  };
+
+  //date
+  function getDateTime() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var second = now.getSeconds();
+    if (month.toString().length == 1) {
+      month = "0" + month;
+    }
+    if (day.toString().length == 1) {
+      day = "0" + day;
+    }
+    if (hour.toString().length == 1) {
+      hour = "0" + hour;
+    }
+    if (minute.toString().length == 1) {
+      minute = "0" + minute;
+    }
+    if (second.toString().length == 1) {
+      second = "0" + second;
+    }
+    var dateTime =
+      year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+    return dateTime;
+  }
+
+  const handleChangeDateSearch = (val, dateStrings) => {
+    if (dateStrings != null) setDateOrder(dateStrings);
+  };
+
+  const changeSearchDate = (val, dateStrings) => {
+    setDateOrder(dateStrings);
+  };
+
+  const showModalData = (id) => {
+    axios.get(url + "/" + id).then((res) => {
+      console.log(res.data);
+      setDataOD(res.data);
+    });
+    setView(true);
+  };
+
+  const showModalCancel = () => {
+    setEditing(true);
+  };
 
   const columns = [
     {
-      title: "Mã đơn đặt",
+      title: "Mã HD",
       dataIndex: "id",
       sorter: true,
-      width: "10%",
+      width: "7%",
     },
     {
       title: "Người đặt",
-      dataIndex: "userId",
+      dataIndex: "customerName",
       sorter: true,
       width: "15%",
     },
@@ -115,40 +353,68 @@ const Order = () => {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       sorter: true,
-      width: "15%",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
+      },
+      width: "14%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
       sorter: true,
-      width: "10%",
+      width: "9%",
+      render(total) {
+        return (
+          <>
+            <CurrencyFormat
+              style={{fontSize:"14px"}}
+              value={total}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+             vnđ
+          </>
+        );
+      },
     },
     {
       title: "Hình thức thanh toán",
       dataIndex: "payment",
       sorter: true,
-      width: "20%",
+      width: "13%",
       render: (payment) => {
-        if (payment === 'TẠI CỬA HÀNG') {
+        if (payment === "TẠI CỬA HÀNG") {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "80%", borderRadius: "5px",padding: "4px" }}
+                style={{ width: "80%", borderRadius: "5px", padding: "4px" }}
               >
                 Tại cửa hàng
               </div>
             </>
           );
         }
-        if (payment === 'TÀI KHOẢN ATM') {
+        if (payment === "TÀI KHOẢN ATM") {
           return (
             <>
               <div
                 className="bg-danger text-center text-light"
-                style={{ borderRadius: "5px",padding:"4px",width: "80%" }}
+                style={{ borderRadius: "5px", padding: "4px", width: "80%" }}
               >
                 Tài khoản ATM
+              </div>
+            </>
+          );
+        }
+        if (payment === "THANH TOAN VNPAY") {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ borderRadius: "5px", padding: "4px", width: "80%" }}
+              >
+                Ví VNPAY
               </div>
             </>
           );
@@ -162,138 +428,149 @@ const Order = () => {
       width: "20%",
     },
     {
-      title: "Trạng thái",
+      title: "Trạng thái đơn hàng",
       dataIndex: "status",
-      with: "30%",
+      width: "15%",
       render: (status) => {
-        if (status === 'DA_DAT') {
+        if (status === "CHO_XAC_NHAN") {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px",padding:"4px" }}
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
-                Đã đặt hàng
+                Chờ xác nhận
               </div>
             </>
           );
-        };
-        if (status === 'DA_HUY') {
+        }
+        if (status === "CHO_LAY_HANG") {
+          return (
+            <>
+              <div
+                className="bg-warning text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ lấy hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DANG_GIAO") {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đang giao hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_NHAN") {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px",padding:"4px" }}
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã nhận hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_HUY") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
                 Đã huỷ hàng
               </div>
             </>
           );
-        };
+        }
       },
     },
     {
       title: "Thao tác",
       dataIndex: "id",
-      width: "30%",
-      render: (id) => {
-        return (
-          <>
-            <EyeOutlined
-              onClick={() => {
-                console.log(id);
-                showModalData(id);
-              }}
-            />
-            <EditOutlined
-              style={{ marginLeft: 12 }}
-              onClick={() => {
-                console.log('key key')
-                navigate('update');
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => onDelete(id)}
-              style={{ color: "red", marginLeft: 12 }}
-            />
-          </>
-        );
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
+        if (data.status === "CHO_XAC_NHAN") {
+          return (
+            <>
+              <EyeOutlined
+                onClick={() => {
+                  showModalData(data.id);
+                }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  console.log("key key");
+                  navigate("update");
+                }}
+              />
+              <DeleteOutlined
+                onClick={() => {
+                  showModalCancel(data.id);
+                  console.log(data.id);
+                  setIDCancel(data.id);
+                }}
+              />
+            </>
+          );
+        } else {
+          return (
+            <>
+              <EyeOutlined
+                onClick={() => {
+                  showModalData(data.id);
+                }}
+              />
+            </>
+          );
+        }
       },
     },
   ];
 
-  // const columns2 = [
-  //   {
-  //     title: "Mã HDCT",
-  //     dataIndex: "id",
-  //     sorter: true,
-  //     width: "10%",
-  //   },
-  //   {
-  //     title: "Sản phẩm",
-  //     dataIndex: "productId",
-  //     sorter: true,
-  //     render: (productId) => {
-  //       console.log("id:" + productId);
-  //     },
-  //     width: "10%",
-  //   },
-  //   {
-  //     title: "Số lượng",
-  //     dataIndex: "id",
-  //     sorter: true,
-  //     width: "10%",
-  //   },
-  //   {
-  //     title: "Tổng tiền",
-  //     dataIndex: "money",
-  //     sorter: true,
-  //     width: "10%",
-  //   },
-  //   {
-  //     title: "Trạng thái",
-  //     dataIndex: "status",
-  //     sorter: true,
-  //     width: "10%",
-  //   }
-  // ];
-
-  // const fetchData = () => {
-  //   setLoading(true);
-  //   fetch(
-  //     `https://randomuser.me/api?${qs.stringify(
-  //       getRandomuserParams(tableParams)
-  //     )}`
-  //   )
-  //     .then((res) => res.json())
-  //     .then(({ results }) => {
-  //       setData(results);
-  //       setLoading(false);
-  //       setTableParams({
-  //         ...tableParams,
-  //         pagination: {
-  //           ...tableParams.pagination,
-  //           total: 200, // 200 is mock data, you should read it from server
-  //           // total: data.totalCount,
-  //         },
-  //       });
-  //     });
-  // };
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [JSON.stringify(tableParams)]);
-
   const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.search2 = searchStatus;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
   };
 
   const onChange = (value) => {
     console.log(`selected ${value}`);
+  };
+
+  const clearSearchForm = () => {
+    load();
+    setSearchName("");
+    setSearchStatus();
   };
 
   const onSearch = (value) => {
@@ -336,10 +613,89 @@ const Order = () => {
     setSize(e.target.value);
   };
   const navigate = useNavigate();
-  const [keyOrder, setKey] = useState("/order/create")
+  const [keyOrder, setKey] = useState("/order/create");
   return (
-
     <div>
+      <div className="row">
+        <div className="col-12">
+          <div className="row mb-3">
+            <div className="col-2 ">
+              <div className="card ">
+                <div className="card-body ">
+                  <h3 className="text-center text-warning">
+                    {tableParamsPending.pagination.total > 0
+                      ? tableParamsPending.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-success text-center text-warning">
+                    Chờ xác nhận
+                  </h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body ">
+                  <h3 className="text-center text-success">
+                    {tableParamsSuccess.pagination.total > 0
+                      ? tableParamsSuccess.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-success text-center">Đã nhận</h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="text-center text-primary">
+                    {tableParamsDelivering.pagination.total > 0
+                      ? tableParamsDelivering.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-primary text-center">Đang giao</h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="text-center text-danger">
+                    {tableParamsCancel.pagination.total > 0
+                      ? tableParamsCancel.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-center text-danger">Đã huỷ</h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body text-secondary">
+                  <h3 className="text-center text-secondary">
+                    {tableParamsWait.pagination.total > 0
+                      ? tableParamsWait.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-center text-secondary">Đang giao</h6>
+                </div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="text-center text-info">
+                    {tableParams.pagination.total > 0
+                      ? tableParams.pagination.total
+                      : 0}
+                  </h3>
+                  <h6 className="text-center text-info">Tổng đơn hàng</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div
         className="row"
         style={{
@@ -350,62 +706,57 @@ const Order = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Tên sản phẩm</label>
-          <Input placeholder="Nhập tên sản phẩm" />
+        <div className="col-4 mt-3">
+          <label>Từ khoá</label>
+          <Input
+            type="text"
+            name="searchName"
+            value={searchName}
+            placeholder="Nhập tên khách hàng"
+            onChange={changeSearchName}
+          />
         </div>
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn thể loại"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Laptop</Option>
-            <Option value="lucy">Linh kiện</Option>
-            <Option value="lucy">Phụ kiện</Option>
-          </Select>
-        </div>
-        <div className="col-4 mt-4">
+        <div className="col-4 mt-3">
           <label>Trạng thái</label>
           <br />
           <Select
+            allowClear={true}
             style={{ width: "300px", borderRadius: "5px" }}
             showSearch
             placeholder="Chọn trạng thái"
             optionFilterProp="children"
-            onChange={onChange}
+            onChange={changeSearchStatus}
             onSearch={onSearch}
             filterOption={(input, option) =>
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
+            <Option value="CHO_XAC_NHAN" selected>
+              Chờ xác nhận
+            </Option>
+            <Option value="CHO_LAY_HANG">Chờ lấy hàng</Option>
+            <Option value="DANG_GIAO">Đang giao</Option>
+            <Option value="DA_NHAN">Đã nhận</Option>
+            <Option value="DA_HUY">Đã hủy</Option>
           </Select>
         </div>
-        <div className="col-6">
-          <label>Người đặt</label>
-          <Input placeholder="Tên người đặt" />
-        </div>
-        <div className="col-6 mt-4">
+        <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
-          <Space className="mx-2" direction="vertical" size={12}>
-            <RangePicker size={"middle"} />
-          </Space>
+          <br />
+          <DatePicker
+            onChange={changeSearchDate}
+            onCalendarChange={handleChangeDateSearch}
+            value={moment(dateOrder, "yyyy-MM-DD HH:mm:ss")}
+            showTime={{ format: "HH:mm:ss" }}
+            format={"yyyy-MM-DD HH:mm:ss"}
+            type="datetime"
+          />
         </div>
-        <div className="col-12 text-center ">
+        <div className="col-12 text-center mt-4">
           <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={showModal}
+            onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -414,11 +765,20 @@ const Order = () => {
           <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={showModal}
+            onClick={search}
             style={{ borderRadius: "10px" }}
           >
             <SearchOutlined />
             Tìm kiếm
+          </Button>
+          <Button
+            className="mx-2  mt-2"
+            type="primary"
+            onClick={searchDate}
+            style={{ borderRadius: "10px" }}
+          >
+            <SearchOutlined />
+            Tìm kiếm Date
           </Button>
         </div>
       </div>
@@ -427,14 +787,14 @@ const Order = () => {
           <Button
             className="offset-11 "
             type="primary"
-            // onClick={showModal}
             style={{ borderRadius: "10px" }}
             onClick={() => {
-              console.log('key key')
-              navigate('create');
+              console.log("key key");
+              navigate("create");
             }}
           >
             <PlusOutlined /> Thêm mới
+            <ToastContainer />
           </Button>
         </div>
       </div>
@@ -458,25 +818,37 @@ const Order = () => {
             onChange={handleTableChange}
           />
           <Modal
-            title="Cập nhật"
+            title="Huỷ đơn hàng"
             visible={isEditing}
             onCancel={() => {
               setEditing(false);
             }}
             onOk={() => {
+              fetch(`http://localhost:8080/api/orders/cancelled/${idCancel}`, {
+                method: "PUT",
+              }).then(() => load());
+              toastrs.options = {
+                timeOut: 6000,
+              };
+              toast.success("Hủy thành công!", {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
               setEditing(false);
+              setLoading(true);
             }}
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+            <label>Bạn có muốn huỷ đơn hàng này không ?</label>
           </Modal>
 
           <Modal
-            // style={{width: "500px"}}
-            title="Hiển thị"
+            title="Chi tiết đơn hàng"
             visible={isView}
             onCancel={() => {
               setView(false);
@@ -485,13 +857,6 @@ const Order = () => {
               setView(false);
             }}
           >
-            {/* <Table
-              columns={columns2}
-              rowKey={(record) => record++}
-              dataSource={dataOD}
-              loading={loading}
-              onChange={handleTableChange}
-            /> */}
             <table class="table">
               <thead>
                 <tr>
@@ -500,19 +865,31 @@ const Order = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
-                  <th scope="col">Trạng thái</th>
                 </tr>
               </thead>
-              <tbody> 
+              <tbody>
                 {dataOD?.map((item, index) => {
                   return (
                     <tr key={index}>
                       <td>{item.id}</td>
                       <td>{item.product.name}</td>
-                      <td>{item.product.price}</td>
+                      <td>
+                        <CurrencyFormat
+                          value={item.product.price}
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                        vnđ
+                      </td>
                       <td>{item.quantity}</td>
-                      <td>{item.quantity*item.product.price}</td>
-                      <td>{item.status}</td>
+                      <td>
+                        <CurrencyFormat
+                          value={item.total}
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                        vnđ
+                      </td>
                     </tr>
                   );
                 })}

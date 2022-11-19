@@ -1,113 +1,3 @@
-// import React, { useContext } from "react";
-// import './css/checkout.css'
-// import product from '../../asset/images/products/product01.png';
-// import StoreContext from '../../store/Context';
-
-// function Checkout() {
-//     const [state, dispath] = useContext(StoreContext);
-//     const products = state.cartCheckout;
-//     console.log('list products', products)
-//     return (
-//         <>
-//             <div className="checkout row pt-2 mt-5">
-//                 <div className="col-12 col-md-7">
-//                     <p style={{ fontWeight: '600' }}>1. Địa chỉ giao hàng</p>
-//                     <div className="ck-content">
-
-//                         <form className="form-info p-0 ">
-//                             <div><label>Họ tên</label>
-//                                 <input type={'text'} className="form-control radio-ip" placeholder="Họ tên"></input>
-//                             </div>
-//                             <div><label>Số điện thoại</label>
-//                                 <input type={'text'} className="form-control radio-ip" placeholder="Số điện thoại"></input>
-//                             </div>
-//                             <div><label>Email</label>
-//                                 <input type={'text'} className="form-control radio-ip" placeholder="Email"></input>
-//                             </div>
-//                             <div><label>Tỉnh/Thành phố</label>
-//                                 <input type={'text'} className="form-control radio-ip" placeholder="Tỉnh/Thành phố"></input>
-//                             </div>
-//                             <div><label>Quận huyện</label>
-//                                 <input type={'text'} className="form-control radio-ip" placeholder="Quận huyện"></input>
-//                             </div>
-//                             <div><label>Phường xã</label>
-//                                 <input type={'text'} className="form-control radio-ip" placeholder="Phường xã"></input>
-//                             </div>
-//                             <div><label>Địa chỉ</label>
-//                                 <input type={'text'} className="form-control radio-ip" placeholder="Nhập số nhà/Tên đường"></input>
-//                             </div>
-//                         </form>
-//                     </div>
-//                     <div className="checkout2">
-//                         <p style={{ fontWeight: '600' }}>2. Hình thức lấy hàng</p>
-//                         <div className="ck-content">
-//                             <form className="form-htgh ms-5">
-//                                 <div className=" d-flex">
-//                                     <input type={'radio'} name="ip-rdo"></input> <label>Lấy tại cửa hàng</label>
-//                                     <input type={'radio'} name="ip-rdo"></input> <label>Lấy tại nhà</label>
-//                                 </div>
-//                             </form>
-//                             {products.map(pro => (
-//                                 <div className="row d-flex" key={pro.id}>
-//                                     <div className="col-3 img">
-//                                         <img alt="Ảnh sản phẩm" src={product} className="img-content"></img>
-//                                     </div>
-//                                     <div className="col-9 mt-3 d-block ">
-//                                         <div>
-//                                             <p className="text-name">{pro.name}
-//                                             </p>
-//                                         </div>
-//                                     </div>
-//                                 </div>
-//                             ))}
-//                         </div>
-//                     </div>
-//                 </div>
-//                 <div className="col-12 col-md-5">
-//                     <p style={{ fontWeight: '600' }}>3. Đơn hàng</p>
-//                     <div className="content-right ">
-//                         <div className="row d-flex">
-//                             <div className="col-8">
-//                                 <input type={'text'} className="form-control ip-sale mb-3 radio-ip" placeholder="Nhập mã giảm giá"></input>
-//                                 <p>Số lượng sản phẩm: {products.length}</p>
-//                                 <p>tên sản phẩm</p>
-//                             </div>
-//                             <div className="col-4"><button className="btn btn-primary btn-sale">Sửa</button>
-//                                 <button className="btn btn-danger mt-2 btn-sale">Áp dụng</button>
-//                             </div>
-//                         </div>
-//                         <hr></hr>
-//                         <span style={{ color: 'red', fontSize: '20px', fontWeight: '700' }}>Thành Tiền : 300000000đ</span>
-//                     </div>
-//                     <p style={{ fontWeight: '600' }}>4. Hình thức thanh toán</p>
-//                     <div className="content-right ">
-//                         <div >
-//                             <form className="form-htgh ms-5">
-//                                 <div><input type={'radio'} name="ip-ht"></input> <label>Thanh toán tiền mặt khi nhận hàng</label></div>
-//                                 <div><input type={'radio'} name="ip-ht"></input> <label>Thanh toán chuyển khoản qua ngân hàng</label></div>
-//                                 <div><input type={'radio'} name="ip-ht"></input> <label>Thanh toán qua VN PAY</label></div>
-//                             </form>
-//                         </div>
-//                     </div>
-//                     <div className="row">
-//                         <div className="col-12">
-//                             <button className="btn btn-danger form-control btn-ck">Đặt hàng</button>
-//                         </div>
-//                         <div className="col-6 mt-2">
-//                             <button className="btn btn-primary form-control btn-ck ">Chọn sản phẩm</button>
-//                         </div>
-//                         <div className="col-6 mt-2">
-//                             <button className="btn btn-success form-control btn-ck">Tải file excel</button>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-//         </>
-//     )
-// }
-
-// export default Checkout;
-
 import React, { useEffect, useState, useContext } from "react";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -117,8 +7,6 @@ import StoreContext from '../../store/Context';
 
 function Checkout() {
     const [state, dispath] = useContext(StoreContext);
-    const products = state.cartCheckout;
-    console.log('list products', products)
     const carts = state.cartCheckout;
     const [valueDistrict, setValueDistrict] = useState("");
     const [array, setArray] = useState([{}]);
@@ -132,48 +20,89 @@ function Checkout() {
     const [valueWard, setValueWard] = useState("");
     const [shipping, setShipping] = useState(0);
     const [address, setAddRess] = useState();
+    const [name, setName] = useState();
+    const [phone, setPhone] = useState();
+    const [email, setEmail] = useState();
     const [type, setType] = useState();
     const [payment, setPayment] = useState();
     const [total, setTotal] = useState();
     const [status, setStatus] = useState();
+    const [user, setUser] = useState();
+    const [totalHeight, setTotalHeight] = useState();
+    const [totalLength, setTotalLength] = useState();
+    const [totalWeight, setTotalWeight] = useState();
+    const [totalWith, setTotalWidth] = useState();
 
     const createOrder = () => {
-        fetch(
-            `http://localhost:8080/api/orders`,
-            {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: 1,
-                    total: total,
-                    payment: payment,
-                    type: type,
-                    address: address,
-                    status: status,
-                    orderDetails: getListsetListOrderDetails(carts)
-                })
-            }
-        )
-            .then((res) => res.json())
-            .then((results) => {
-                if (results.data === null) {
-                    toastError(results.message);
-                } else {
-                    toastSuccess("Thêm mới thành công!");
+        if (status == 0) {
+            fetch(
+                `http://localhost:8080/api/orders`,
+                {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: 147,
+                        total: parseInt(getTotal(carts)) + parseInt(shipping),
+                        payment: payment,
+                        // type: type,
+                        address: type === 1 ? 'TẠI CỬA HÀNG' : (address + ', ' + valueWard + ', ' + valueDistrict + ', ' + value),
+                        phone: phone,
+                        customerName: name,
+                        // email: email,
+                        status: status,
+                        orderDetails: getListSetListOrderDetails(carts)
+                    })
                 }
-            });
+            )
+                .then((results) => {
+                    if (results.status == 200) {
+                        toastSuccess("Đặt hàng thành công!");
+                    } else {
+                        toastError(results.message);
+                    }
+                });
+        } else {
+            fetch(
+                `http://localhost:8080/api/vnpay`,
+                {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        vnp_OrderInfo: "Thanh toán VnPay cho khách hàng " + name,
+                        orderType: "other",
+                        amount: parseInt(getTotal(carts)) + parseInt(shipping),
+                        bankCode: "NCB",
+                        language: "vn"
+                    })
+                }
+            )
+                .then((response) => response.json())
+                .then((data) => {
+                    window.location.href = data.paymentUrl;
+                })
+        }
     }
 
-    const getListsetListOrderDetails = (carts) => {
+    const formatCash = (str) => {
+        if (str.length > 1) {
+            return str.split('').reverse().reduce((prev, next, index) => {
+                return ((index % 3) ? next : (next + ',')) + prev
+            })
+        } else {
+            return ""
+        }
+    }
+
+    const getListSetListOrderDetails = (carts) => {
         let cartList = carts;
         let listItem = [];
         let item;
         for (var i = 0; i < cartList.length; i++) {
             item = {
                 productId: cartList[i].id,
-                money: cartList[i].price,
+                total: cartList[i].price * cartList[i].quantity,
                 quantity: cartList[i].quantity,
-                status: 1,
+                status: status === 'CHO_XAC_NHAN' ? 'CHO_XAC_NHAN' : 'CHO_LAY_HANG',
             }
             listItem.push(item)
         }
@@ -183,6 +112,7 @@ function Checkout() {
     useEffect(() => {
         loadDataProvince();
         setTotal(getTotal(carts));
+        loadInfo(carts);
     }, []);
 
     const _handleKeyDown = (e) => {
@@ -193,19 +123,32 @@ function Checkout() {
 
     const changePayment = (event) => {
         setPayment(event.target.value)
+        console.log(event.target.value)
+        if (event.target.value === "0") {
+            setStatus('CHO_XAC_NHAN');
+        } else {
+            setStatus('CHO_LAY_HANG');
+        }
     }
 
     const changeType = (event) => {
         setType(event.target.value)
-        if (event.target.value === 0) {
-            setStatus('0');
-        } else {
-            setStatus('1');
-        }
     }
 
     const changeAddress = (event) => {
         setAddRess(event.target.value)
+    }
+
+    const changeName = (event) => {
+        setName(event.target.value)
+    }
+
+    const changePhone = (event) => {
+        setPhone(event.target.value)
+    }
+
+    const changeEmail = (event) => {
+        setEmail(event.target.value)
     }
 
     const onSearchWard = (searchTerm, value) => {
@@ -265,12 +208,12 @@ function Checkout() {
                         insurance_value: 500000,
                         coupon: null,
                         from_district_id: 3440,
-                        to_district_id: districtId,
+                        to_district_id: 1875,
+                        height: Math.round(totalHeight * 0.1),
+                        length: Math.round(totalLength * 0.1),
+                        weight: Math.round(totalWeight * 1000),
+                        width: Math.round(totalLength * 0.1),
                         to_ward_code: value,
-                        height: 15,
-                        length: 15,
-                        weight: 1000,
-                        width: 15,
                     }),
                 }
             )
@@ -419,13 +362,32 @@ function Checkout() {
         });
     }
 
-    
+    const loadInfo = (carts) => {
+        let cartList = carts;
+        let weight = 0;
+        let width = 0;
+        let height = 0;
+        let length = 0;
+        for (let i = 0; i < cartList.length; i++) {
+            weight += cartList[i].weight * cartList[i].quantity;
+            width += cartList[i].width * cartList[i].quantity;
+            height += cartList[i].height * cartList[i].quantity;
+            length += cartList[i].length * cartList[i].quantity;
+        }
+        setTotalWeight(weight);
+        setTotal(total);
+        setTotalLength(length);
+        setTotalHeight(height);
+        setTotalWidth(width);
+    }
 
     const getTotal = (carts) => {
         let cartList = carts;
         let price = 0;
+        let total = 0;
         for (let i = 0; i < cartList.length; i++) {
             price += cartList[i].price;
+            total += cartList[i].total;
         }
         return price;
     }
@@ -445,7 +407,7 @@ function Checkout() {
                         </div>
                     </div>
                     <div className="col-4 mt-5">
-                        <p className="text-name">{cart.price} VNĐ</p>
+                        <p className="text-name">{formatCash(cart.price + "")} VNĐ</p>
                     </div>
                 </div>
             )
@@ -456,19 +418,20 @@ function Checkout() {
     }
     return (
         <>
-            <div className="checkout row pt-2 mt-5">
+            <ToastContainer></ToastContainer>
+            <div className="checkout row pt-2 mt-5 pb-4">
                 <div className="col-12 col-md-7">
                     <p style={{ fontWeight: '600' }}>1. Địa chỉ giao hàng</p>
                     <div className="ck-content">
                         <form className="form-info p-0 ">
                             <div><label>Họ tên</label>
-                                <input type={'text'} className="form-control radio-ip" placeholder="Họ tên" disabled={'true'}></input>
+                                <input type={'text'} className="form-control radio-ip" placeholder="Họ tên" onChange={changeName}></input>
                             </div>
                             <div><label>Số điện thoại</label>
-                                <input type={'text'} className="form-control radio-ip" placeholder="Số điện thoại" disabled={'true'}></input>
+                                <input type={'text'} className="form-control radio-ip" placeholder="Số điện thoại" onChange={changePhone}></input>
                             </div>
                             <div><label>Email</label>
-                                <input type={'text'} className="form-control radio-ip" placeholder="Email" disabled={'true'}></input>
+                                <input type={'text'} className="form-control radio-ip" placeholder="Email" onChange={changeEmail}></input>
                             </div>
                             <div className="search-inner">
                                 <label>Tỉnh/Thành phố</label>
@@ -622,7 +585,7 @@ function Checkout() {
                             <div className="input-group">
                                 <input
                                     type="text"
-                                    value={shipping}
+                                    value={formatCash(shipping + "")}
                                     onChange={(e) => setShipping(e.target.value)}
                                     className="form-control"
                                     placeholder="0"
@@ -632,7 +595,7 @@ function Checkout() {
                             </div>
                         </div>
                         <hr></hr>
-                        <span style={{ color: 'red', fontSize: '20px', fontWeight: '700' }}>Thành tiền: {getTotal(carts) + shipping} VNĐ</span>
+                        <span style={{ color: 'red', fontSize: '20px', fontWeight: '700' }}>Thành tiền: {formatCash(parseInt(getTotal(carts)) + parseInt(shipping) + "")} VNĐ</span>
                     </div>
                     <p style={{ fontWeight: '600' }}>4. Hình thức thanh toán</p>
                     <div className="content-right ">

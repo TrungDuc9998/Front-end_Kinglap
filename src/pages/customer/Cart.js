@@ -8,11 +8,12 @@ import { Select, Input, Button, Checkbox, InputNumber, Space, Modal } from "antd
 import {
     DeleteOutlined
   } from "@ant-design/icons";
+  import CurrencyFormat from "react-currency-format";
+
 function Cart() {
     const [total, setTotal] = useState(0);
     const [state, dispatch] = useContext(StoreContext);
     console.log("list cart", state.cart)
-    const carts2 = state.cart
     const carts=JSON.parse(localStorage.getItem('carts'));
     const getTotal=()=>{
         let totalSum = 0;
@@ -26,24 +27,45 @@ function Cart() {
         getTotal();
     }, [carts]);
     const handleCheckout = () => {
-        dispatch(setCheckoutCart(checked))
+        const checkboxes = document.querySelectorAll('input[name="ck"]');
+            checkboxes.forEach((checkbox) => {
+                if(checkbox.checked == true){
+                    carts.forEach((item) => (item.id==checkbox.value)?checked.push(item):"")
+                }
+                setChecked(checked)
+            });
+            dispatch(setCheckoutCart(checked))
     }
 
     const [checked, setChecked] = useState([]);
-    const [isChecked, setIsChecked]=useState(false);
-    const handleCheck = (product) => {
-        console.log("product", product);
-        console.log("check", checked);
-        setChecked(prev => {
-            const isChecked = checked.includes(product);
-            setIsChecked(!isChecked[product]);
-            if (isChecked) {
-                return checked.filter(item => item !== product)
-            } else {
-                return [...prev, product]
-            }
-        });
 
+    //check all
+    const [isCheckedAll, setIsCheckedAll]=useState(true);
+    function handleCheckAll(check) {
+        if(isCheckedAll){
+            console.log("checkedAll")
+            const checkboxes = document.querySelectorAll('input[name="ck"]');
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = true;
+            });
+            setIsCheckedAll(false);
+        }else{
+            console.log("not checkedAll")
+            const checkboxes = document.querySelectorAll('input[name="ck"]');
+            checkboxes.forEach((checkbox) => {
+            checkbox.checked = false;
+            })
+            setIsCheckedAll(true);
+        }
+    }
+    function formatCash(str) {
+        if(str.length>1){
+          return str.split('').reverse().reduce((prev, next, index) => {
+            return ((index % 3) ? next : (next + ',')) + prev
+          })
+        }else{
+          return ""
+        }
     }
 
     return (<>
@@ -51,23 +73,28 @@ function Cart() {
             <div className="card-header mb-2">
                 <span>Giỏ hàng</span>
             </div>
-            <div className="cart-content mt-2 pt-3 border-div container">
+            <div className="cart-content mt-2 pt-3 border-div container-fluid">
                 <div className="row">
                     <div className="col-2 ip">
-                        <input type={"checkbox"} />
+                        <input type={"checkbox"} 
+                        id="checkall"
+                        // checked={isCheckedAll[product]}
+                        onChange={() => handleCheckAll(checked)}/>
                     </div>
+                    Chọn tất cả
                 </div>
                 {carts?carts.map(product => (
                     <div className="row d-flex" key={product.id}>
                         <div className="col-2 ip mt-4">
                             <input type={"checkbox"}
                                 name="ck"
-                                checked={isChecked[product]}
-                                onChange={() => handleCheck(product)}
+                                value={product.id}
+                                // checked={isChecked[product]}
+                                //onChange={() => handleCheck(product)}
                             />
                         </div>
                         <div className="col-3 img">
-                            <img alt="Ảnh sản phẩm" src={imProduct} className="img-content"></img>
+                            <img alt="Ảnh sản phẩm" src={product.images?product.images[0].name:imProduct} className="img-content"></img>
                         </div>
                         <div className="col-7 mt-3 d-block ">
                             <div>
@@ -91,7 +118,14 @@ function Cart() {
                                     ></InputNumber>
                                 </span>
                                 <p className="d-flex"><span className="price me-3 text-danger">
-                                    {product.price*product.quantity}</span> <span className="price ms-3">17.000.000</span>
+                                <CurrencyFormat
+                                    style={{fontSize:"14px"}}
+                                    value={product.price*product.quantity}
+                                    displayType={"text"}
+                                    thousandSeparator={true}
+                                />
+                                    {/* {formatCash(product.price*product.quantity+"")} */}
+                                    </span> <span className="price ms-3">17.000.000</span>
                                     <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm 30%</button>
                                 </p>
                                 <DeleteOutlined
@@ -101,7 +135,7 @@ function Cart() {
                                             payload:product
                                         })
                                     }
-                                    style={{ color: "red", marginLeft: 12 }}
+                                    style={{ color: "red", marginLeft: 1, marginBottom:5 }}
                                 />
                             </div>
                         </div>
@@ -111,7 +145,7 @@ function Cart() {
             <div className="cart-footer border-div container-fluid pb-3 mt-2">
                 <div className="d-flex m-3 ">
                     <span className="flex-grow-1 cart-footer-text">Tổng tiền tạm tính</span>
-                    <span className="text-danger cart-footer-text">{total} VNĐ</span>
+                    <span className="text-danger cart-footer-text">{formatCash(total+"")} VNĐ</span>
                 </div>
                 <div className="mt-2">
                     <Link className="btn btn-primary btn-cart" onClick={handleCheckout} to={"/user/checkout"}>Tiến hành đặt hàng</Link>

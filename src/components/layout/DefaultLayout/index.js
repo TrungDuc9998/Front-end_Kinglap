@@ -34,7 +34,9 @@ const items = [
   getItem("Quản đơn hàng", "sub2", <UserOutlined />, [
     getItem("Quản lý đơn đặt hàng", "/admin/order"),
     getItem("Xác nhận đơn hàng", "/admin/order/confirm"),
-    getItem("Đơn hàng đã đặt", "/admin/order/success"),
+    getItem("Đơn hàng chờ lấy hàng", "/admin/order/wait"),
+    getItem("Đơn hàng đang giao", "/admin/order/delivering"),
+    getItem("Đơn hàng đã nhận", "/admin/order/success"),
     getItem("Đơn hàng đã huỷ", "/admin/order/cancel"),
   ]),
   getItem("Quản lý hệ thống", "sub3", <TeamOutlined />, [
@@ -42,9 +44,9 @@ const items = [
     getItem("Quản lý nhân viên", "/admin/staff"),
     getItem("Quản lý vai trò", "/admin/setting/role"),
   ]),
-  getItem("Yêu cầu hỗ tợ", "sub4", <UserOutlined />, [
-    getItem("Yêu cầu trả hàng", "/admin/order"),
-    getItem("Yêu cầu đổi hàng", "/admin/order/checked"),
+  getItem("Yêu cầu hỗ trợ", "sub4", <UserOutlined />, [
+    getItem("Yêu cầu đổi hàng", "/admin/order/exchange"),
+    getItem("Yêu cầu trả hàng", "/admin/return/confirm"),
   ]),
   getItem("Thống kê", "/statistical", <FileOutlined />),
 ];

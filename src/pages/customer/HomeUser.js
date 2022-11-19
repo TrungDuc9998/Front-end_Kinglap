@@ -56,8 +56,23 @@ function HomeUser() {
 
     const [state, dispatch] = useContext(Context);
     const handleAddToCart = (product) => {
-        dispatch(addToCart(product))
-        notifySuccess('Thêm vào giỏ hàng thành công!')
+        const findCart = (JSON.parse(localStorage.getItem('carts'))?JSON.parse(localStorage.getItem('carts')):[]).find(value => {
+            return value.id === product.id
+        })
+        console.log("findCart",findCart)
+        if(findCart!=null){
+            if(findCart.quantity<5){
+                dispatch(addToCart(product))
+                notifySuccess('Thêm vào giỏ hàng thành công!')
+            }else{
+                notifyError('Đã tồn tại 5 sản phẩm trong giỏ hàng! Liên hệ cửa hàng để đặt mua số lượng lớn')
+            }
+        }else{
+            dispatch(addToCart(product))
+            notifySuccess('Thêm vào giỏ hàng thành công!')
+        }
+        
+        
     }
     const handelCLickProduct = (product) => {
         dispatch(viewProduct(product))
@@ -72,6 +87,15 @@ function HomeUser() {
             type: "REMOVE_CART",
             payload: product
         })
+    }
+    function formatCash(str) {
+        if(str.length>1){
+          return str.split('').reverse().reduce((prev, next, index) => {
+            return ((index % 3) ? next : (next + ',')) + prev
+          })
+        }else{
+          return ""
+        }
     }
 
     const url = 'http://localhost:8080/api/products';
@@ -205,10 +229,10 @@ function HomeUser() {
                                     <div id="tab1" className="tab-pane active">
                                         <div className="products-slick" data-nav="#slick-nav-1">
 
-                                            {products.map(pro => (
+                                            {products?products.map(pro => (
                                                 <div className="product" key={pro.id}>
                                                     <div className="product-img">
-                                                        <img src={product1} alt="" />
+                                                        <img src={pro.images?pro.images[0].name:product1} alt="" />
                                                         <div className="product-label">
                                                             <span className="sale">-30%</span>
                                                             <span className="new">NEW</span>
@@ -218,6 +242,8 @@ function HomeUser() {
                                                         <p className="product-category">Category</p>
                                                         <h3 className="product-name" onClick={() => handelCLickProduct(pro)}><a href="/user/product">{pro.name}</a></h3>
                                                         <h4 className="product-price">VNĐ {pro.price} <del className="product-old-price">$990.00</del></h4>
+                                                        <h3 className="product-name"><a href="#">{pro.name}</a></h3>
+                                                        <h4 className="product-price">{formatCash(pro.price+"")} VNĐ <del className="product-old-price">$990.00</del></h4>
                                                         <div className="product-rating">
                                                             <i className="fa fa-star"></i>
                                                             <i className="fa fa-star"></i>
@@ -238,10 +264,21 @@ function HomeUser() {
                                                         (<div className="add-to-cart">
                                                             <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
                                                         </div>)
+                                                    {
+                                                    // carts?carts.some(p=>p.id===pro.id)?
+                                                    // (<div className="add-to-cart">
+                                                    // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
+                                                    //  </div>):
+                                                    // (<div className="add-to-cart">
+                                                    // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                    //  </div>):
+                                                     (<div className="add-to-cart">
+                                                    <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                     </div>)
                                                     }
 
                                                 </div>
-                                            ))}
+                                            )):""}
 
                                             {/* <div className="product">
                                                 <div className="product-img">

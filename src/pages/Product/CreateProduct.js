@@ -19,6 +19,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
 import qs from "qs";
 import moment from "moment";
+
+
 const children = [];
 const dateFormat = "YYYY/MM/DD";
 const handleChange = (value) => {
@@ -26,44 +28,56 @@ const handleChange = (value) => {
 };
 
 function CreateProduct() {
+
   const [imageUpload, setImageUpload] = useState(null);
   const [imageUrls, setImageUrls] = useState([]);
-  const [images, setImages] = useState([{ name: "" }]);
-  const [image, SetImage] = useState();
-  const imagesListRef = ref(storage, "images/");
+  const [images, setImages] = useState([]);
+  //const [images, setImages] = useState([{ name: "" }]);
+
+  const imagesListRef = ref(storage, "images/");//all url
   const uploadFile = () => {
     if (imageUpload == null) return;
     const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+    console.log("imageUpload",imageUpload)//File { name:,...}
+    console.log("imageRef",imageRef)//_service: {…}, _location: {…}
     uploadBytes(imageRef, imageUpload).then((snapshot) => {
-      // getDownloadURL(snapshot.ref).then((url) => {
-      //   setImageUrls((prev) => [...prev, url]);
-      // });
-      console.log(imageUpload);
-      console.log(imageRef.fullPath);
-      console.log(imageRef.fullPath.slice(7));
-      const img1 = imageRef.fullPath.slice(7);
-      images.push((name = img1));
+      getDownloadURL(snapshot.ref).then((url) => {
+        console.log("url",url)
+        setImages((prev) => [...prev, url]);
+        console.log("snapshot.ref",snapshot.ref)//_service: {…}, _location: {…}
+        setImageUrls((prev) => [...prev, url]);//set url ->all url
+      });
+      console.log("imageUrls",imageUrls)
+      const img1 = imageRef.fullPath;//images/name.jpg69813eb7-a589-45bf-88b3-edd21ce0dac2
+      //const img1 = imageRef.fullPath.slice(7);
+      //images.push((name = img1));
+      console.log("images",img1)
       // setImages((prev) => [...prev, img]);
-      // setImages(imageRef.fullPath.slice(7));
+      //setImages(imageRef);
       alert("upload image success");
     });
   };
 
+  //xử lú sau khi uploadfile
   useEffect(() => {
-    listAll(imagesListRef).then((response) => {
+    listAll(imageUpload).then((response) => {
+      console.log("imagesListRef",imagesListRef)
       response.items.forEach((item) => {
+        console.log("item",item)
         getDownloadURL(item).then((url) => {
           setImageUrls((prev) => [...prev, url]);
+          setImages((prev) => [...prev, url]);
         });
       });
     });
     console.log("--------------- ảnh ------------");
-    images.forEach((image) => console.log(image));
-  }, []);
+    imageUrls.forEach((image) => console.log(image));
+  }, [images]);
+
   //xử lý hình ảnh
-  const [screenSize, setScreenSize] = useState();
-  const [resolution, setResolution] = useState();
-  const [frequency, setFrequency] = useState();
+  const [screenSize, setScreenSize] = useState("11.6 inch");
+  const [resolution, setResolution] = useState("HD (1366 x 768)");
+  const [frequency, setFrequency] = useState("60 Hz");
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState();
   const [p_n, setPN] = useState();
@@ -71,23 +85,26 @@ function CreateProduct() {
   const [quantity, setQuantity] = useState();
   const [size, setSize] = useState();
   const [weight, setWeight] = useState();
-  const [debut, setDebut] = useState();
+  const [length, setLength] = useState();
+  const [height, setHeight] = useState();
+  const [width, setWidth] = useState();
+  const [debut, setDebut] = useState(getDate);
   const [origin, setOrigin] = useState();
   const [imei, setImei] = useState();
   const [secutity, setSecutity] = useState();
-  const [hard_drive, setHardDrive] = useState();
+  const [hard_drive, setHardDrive] = useState("120GB SSD");
   const [screen, setScreen] = useState();
-  const [win, setWin] = useState();
+  const [win, setWin] = useState("Window");
   const [slot, setSlot] = useState();
   const [optical, setOptical] = useState();
   const [processor, SetProcessor] = useState();
   const [battery, setBattery] = useState();
-  const [capacity, setCapacity] = useState();
-  const [ram, setRam] = useState();
+  const [capacity, setCapacity] = useState("VGA ADM");
+  const [ram, setRam] = useState("4GB");
   const [category, setCategory] = useState([]);
-  const [categoryId, setCategoryId] = useState();
+  const [categoryId, setCategoryId] = useState(1);
   const [manufacture, setManufacture] = useState([]);
-  const [manufactureId, SetManufactureId] = useState();
+  const [manufactureId, setManufactureId] = useState(1);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -96,10 +113,34 @@ function CreateProduct() {
       search2: "",
     },
   });
+  function getDate() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    if (month.toString().length == 1) {
+      month = '0' + month;
+    }
+    if (day.toString().length == 1) {
+      day = '0' + day;
+    }
+    var date = year + '/' + month + '/' + day;
+    return date;
+  }
 
-  const onChangeDate = (date, dateString) => {
-    console.log(dateString);
-    setDebut(dateString);
+  // const onChangeDate = (date, dateString) => {
+  //   console.log(dateString);
+  //   setDebut(dateString);
+  // };
+  const handleChangeDate = (val, dateStrings) => {
+    setDebut(dateStrings);
+  };
+
+  //Calendar
+  const setDates = (val, dateStrings) => {
+    console.log(dateStrings);
+    if (dateStrings!= null)
+    setDebut(dateStrings);
   };
 
   const notify = () => {
@@ -169,13 +210,13 @@ function CreateProduct() {
   useEffect(() => {
     loadDataCategory();
     loadDataManufacture();
-    console.log("image sau khi upload");
-    console.log(images);
+    // console.log("image sau khi upload");
+    // console.log(images);
   }, []);
 
   const handleClick = (e) => {
     e.preventDefault();
-    uploadFile();
+    //uploadFile();
     const product = {
       name,
       quantity,
@@ -188,13 +229,20 @@ function CreateProduct() {
       origin,
       categoryId,
       manufactureId,
+      length,
+      width,
+      height,
+      images,
       configurationEntity: {
         processor,
         ram,
         slot,
         battery,
         secutity,
-        screen: screenSize + " " + resolution + " " + frequency,
+        screen,
+        screenSize,
+        resolution,
+        frequency,
         optical,
         hard_drive,
         win,
@@ -215,15 +263,24 @@ function CreateProduct() {
         debut: product.debut,
         p_n: product.p_n,
         origin: product.origin,
-        categoryId: categoryId,
-        manufactureId: manufactureId,
+        categoryId: product.categoryId,
+        manufactureId: product.manufactureId,
+        length:product.length,
+        width:product.width,
+        height:product.height,
+        images:product.images.map((item) => 
+          ({name:item,
+          product:null,
+          return_id:null,
+          exchange_id:null}))
+        ,
         configurationEntity: {
           processor: product.configurationEntity.processor,
           ram: product.configurationEntity.ram,
           slot : product.configurationEntity.slot,
           battery: product.configurationEntity.battery,
           secutity: product.configurationEntity.secutity,
-          screen: product.configurationEntity.screen,
+          screen: product.configurationEntity.screenSize + " " + product.configurationEntity.resolution + " " + product.configurationEntity.frequency,
           optical: product.configurationEntity.optical,
           hard_drive: product.configurationEntity.hard_drive,
           win: product.configurationEntity.win,
@@ -301,6 +358,32 @@ function CreateProduct() {
         </div>
         <div className="row">
           <div className="col-4">
+            <label>Độ dài</label>
+            <Input
+              placeholder="Độ dài"
+              value={length}
+              onChange={(e) => setLength(e.target.value)}
+            />
+          </div>
+          <div className="col-4">
+            <label>Độ rộng</label>
+            <Input
+              placeholder="Độ rộng"
+              value={width}
+              onChange={(e) => setWidth(e.target.value)}
+            />
+          </div>
+          <div className="col-4">
+            <label>Cao</label>
+            <Input
+              placeholder="Cao"
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-4">
             <label>Cân nặng</label>
             <Input
               placeholder="Cân nặng"
@@ -312,10 +395,17 @@ function CreateProduct() {
             <label>Năm sản xuất</label>
             <br />
             <Space direction="vertical">
-              <DatePicker
+              {/* <DatePicker
                 defaultValue={moment("2015/01/01", dateFormat)}
                 onChange={onChangeDate}
                 format={dateFormat}
+              /> */}
+              <DatePicker
+                format={dateFormat}
+                onChange={handleChangeDate}
+                onCalendarChange={setDates}
+                value={moment(debut, dateFormat)}
+                //type="date"
               />
             </Space>
           </div>
@@ -330,6 +420,7 @@ function CreateProduct() {
               value={categoryId}
               onChange={(e) => {
                 const selectCategory = e.target.value;
+                console.log("cate",e.target.value)
                 setCategoryId(selectCategory);
               }}
             >
@@ -599,7 +690,7 @@ function CreateProduct() {
               value={manufactureId}
               onChange={(e) => {
                 const selectCategory = e.target.value;
-                SetManufactureId(selectCategory);
+                setManufactureId(selectCategory);
               }}
             >
               {manufacture.map((manufacture) => (
@@ -612,6 +703,22 @@ function CreateProduct() {
           </div>
         </div>
       </div>
+
+      {/* image */}
+      <div className="img">
+      <input
+        type="file"
+        onChange={(event) => {
+          setImageUpload(event.target.files[0]);
+        }}
+      />
+      {/* stop */}
+      <button onClick={uploadFile}> Upload Image</button>
+      {imageUrls?imageUrls.map((url) => {
+        return <img src={url} />;
+      }):""}
+    </div>
+
       <div className="row">
         <div className="col-12 mb-3">
           <Button

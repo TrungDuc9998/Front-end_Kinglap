@@ -1,31 +1,18 @@
-import {
-  Table,
-  Slider,
-  Select,
-  Input,
-  Button,
-  Modal,
-  DatePicker,
-  Radio,
-  Space,
-} from "antd";
+import { Table, Select, Input, Button, Modal, DatePicker, Space } from "antd";
 import {
   CheckCircleOutlined,
   DeleteOutlined,
-  EditOutlined,
-  RightCircleOutlined,
-  EyeOutlined,
-  PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  RollbackOutlined,
+  EyeOutlined,
   RetweetOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
 import qs from "qs";
 import axios from "axios";
 import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
-import { Link, Route, Router } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -44,7 +31,7 @@ const getRandomOrderParams = (params) => ({
   searchStatus: params.pagination?.searchStatus,
 });
 
-const OrderSuccess = () => {
+const OrderDelivering = () => {
   let navigate = useNavigate();
   const [data, setData] = useState([]);
   const [dataOD, setDataOD] = useState();
@@ -57,7 +44,7 @@ const OrderSuccess = () => {
     pagination: {
       current: 1,
       pageSize: 10,
-      searchStatus: "DA_NHAN",
+      searchStatus: "DANG_GIAO",
     },
   });
 
@@ -68,9 +55,10 @@ const OrderSuccess = () => {
 
   const onConfirm = (record) => {
     const isPut = true;
-    Modal.success({
+    Modal.confirm({
       title: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
-      okText: "Yes",
+      okText: "Có",
+      cancelText: "Không",
       okType: "primary",
       onOk: () => {
         confirmOrder(record, isPut);
@@ -90,14 +78,6 @@ const OrderSuccess = () => {
     });
   };
 
-  const showModalData = (id) => {
-    axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
-      setDataOD(res.data);
-    });
-    setView(true);
-  };
-
   const confirmOrder = (record) => {
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
@@ -110,7 +90,7 @@ const OrderSuccess = () => {
         address: record.address,
         status: "DA_NHAN",
         note: record.note | undefined,
-        customerName: record.customerName | undefined,
+        customerName: record.customerName,
         phone: record.phone | undefined,
         orderDetails: [
           {
@@ -125,6 +105,14 @@ const OrderSuccess = () => {
     }).then((res) => {
       loadDataOrder();
     });
+  };
+
+  const showModalData = (id) => {
+    axios.get(url + "/" + id).then((res) => {
+      console.log(res.data);
+      setDataOD(res.data);
+    });
+    setView(true);
   };
 
   const loadDataOrder = () => {
@@ -146,13 +134,13 @@ const OrderSuccess = () => {
       title: "Mã đơn đặt",
       dataIndex: "id",
       sorter: true,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Người đặt",
       dataIndex: "customerName",
       sorter: true,
-      width: "15%",
+      width: "20%",
     },
     {
       title: "Tổng tiền",
@@ -186,10 +174,10 @@ const OrderSuccess = () => {
         return (
           <>
             <div
-              className="bg-success text-center text-light"
+              className="bg-primary text-center text-light"
               style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
             >
-              Đã nhận hàng
+              Đang giao
             </div>
           </>
         );
@@ -202,31 +190,27 @@ const OrderSuccess = () => {
       render: (id, record) => {
         return (
           <>
-            <Button
+            <EyeOutlined
+              style={{ fontSize: "20px" }}
               onClick={() => {
                 showModalData(id);
               }}
-              waring
-            >
-              Hiển thị
-            </Button>
-            <Button
-              className="ms-2"
-              danger
-              onClick={() => navigate(`/admin/order/exchange/${id}`)}
-            >
-              Đổi hàng
-            </Button>
-            {/* <CheckCircleOutlined
-              style={{ marginLeft: 12 }}
+            />
+            <CheckCircleOutlined
+              style={{ marginLeft: 14, fontSize: "20px" }}
               onClick={() => {
                 onConfirm(record);
               }}
             />
-            <DeleteOutlined
-              onClick={() => onCancel(record)}
-              style={{ color: "red", marginLeft: 12 }}
-            /> */}
+            <RollbackOutlined
+              style={{ marginLeft: 14, fontSize: "20px" }}
+              onClick={() => navigate(`/admin/return/${id}`)}
+            />
+            <RetweetOutlined
+              className="ms-3"
+              style={{ fontSize: "20px", color: "red" }}
+              onClick={() => navigate(`/admin/order/exchange/${id}`)}
+            />
           </>
         );
       },
@@ -240,23 +224,19 @@ const OrderSuccess = () => {
   const onSearch = (value) => {
     console.log("search:", value);
   };
-  const [open, setOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
-
   const OrderDelivering = (record, IsPut) => {
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: record.id,
-        userId: record.userId | undefined,
+        userId: record.userId,
         total: record.total,
         payment: record.payment,
         address: record.address,
         status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
         note: record.note | undefined,
-        customerName: record.customerName | undefined,
+        customerName: record.customerName,
         phone: record.phone | undefined,
         orderDetails: [
           {
@@ -292,14 +272,31 @@ const OrderSuccess = () => {
           <label>Tên khách hàng</label>
           <Input placeholder="Nhập tên khách hàng" />
         </div>
+        <div className="col-4 mt-4">
+          <label>Trạng thái</label>
+          <br />
+          <Select
+            style={{ width: "300px", borderRadius: "5px" }}
+            showSearch
+            placeholder="Chọn trạng thái"
+            optionFilterProp="children"
+            onChange={onChange}
+            onSearch={onSearch}
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+          >
+            <Option key={1} value="jack">Hoạt động</Option>
+            <Option key={2} value="lucy">Không hoạt động</Option>
+          </Select>
+        </div>
         <div className="col-6 mt-4">
           <label>Thời gian đặt: </label>
-          <br/>
-          <Space className="mx-2" direction="vertical" style={{minWidth: "90%"}} size={12}>
+          <Space className="mx-2" direction="vertical" size={12}>
             <RangePicker size={"middle"} />
           </Space>
         </div>
-        <div className="col-12 text-center mt-4 ">
+        <div className="col-12 text-center ">
           <Button
             className="mt-2"
             type="primary-uotline"
@@ -338,7 +335,7 @@ const OrderSuccess = () => {
             pagination={tableParams.pagination}
             loading={loading}
           />
-          <Modal
+          {/* <Modal
             title="Xác nhận đơn hàng"
             visible={isEditing}
             onCancel={() => {
@@ -349,7 +346,8 @@ const OrderSuccess = () => {
             }}
           >
             Bạn có muốn xác nhận đơn hàng không ?
-          </Modal>
+          </Modal> */}
+
           <Modal
             title="Chi tiết đơn hàng"
             visible={isView}
@@ -360,47 +358,30 @@ const OrderSuccess = () => {
               setView(false);
             }}
           >
-            <div className="row">
-              <div className="col-12">
-                <div className="row">
-                  <div className="col-6">
-                    <p>Khách hàng: </p>
-                    <p>Số điện thoại: </p>
-                  </div>
-                  <div className="col-6">
-                    <p>Ngày nhận: </p>
-                    <p>Tổng tiền: </p>
-                    <p>Trạng thái: </p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-12">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">Mã HDCT</th>
-                      <th scope="col">Tên sản phẩm</th>
-                      <th scope="col">Giá</th>
-                      <th scope="col">Số lượng</th>
-                      <th scope="col">Tổng tiền</th>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th scope="col">Mã HDCT</th>
+                  <th scope="col">Tên sản phẩm</th>
+                  <th scope="col">Giá</th>
+                  <th scope="col">Số lượng</th>
+                  <th scope="col">Tổng tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dataOD?.map((item, index) => {
+                  return (
+                    <tr key={index}>
+                      <td>{item.id}</td>
+                      <td>{item.product.name}</td>
+                      <td>{item.product.price}</td>
+                      <td>{item.quantity}</td>
+                      <td>{item.quantity * item.product.price}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {dataOD?.map((item, index) => {
-                      return (
-                        <tr key={index}>
-                          <td>{item.id}</td>
-                          <td>{item.product.name}</td>
-                          <td>{item.product.price}</td>
-                          <td>{item.quantity}</td>
-                          <td>{item.quantity * item.product.price}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                  );
+                })}
+              </tbody>
+            </table>
           </Modal>
         </div>
       </div>
@@ -408,4 +389,4 @@ const OrderSuccess = () => {
   );
 };
 
-export default OrderSuccess;
+export default OrderDelivering;

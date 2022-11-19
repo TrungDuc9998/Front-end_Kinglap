@@ -13,7 +13,7 @@ const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
   searchUsername: params.pagination?.search1,
-  searchStatus: params.pagination?.search2,
+  searchStatus: params.pagination?.searchStatus,
 });
 
 const toastSuccess = (message) => {
@@ -92,6 +92,7 @@ function Table1() {
   const [totalWeight, setTotalWeight] = useState();
   const [note, setNote] = useState();
   const [userId, setUserId] = useState();
+  const [discounts, setDiscounts] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -100,7 +101,35 @@ function Table1() {
       search2: "",
     },
   });
+  const [tableParamDiscount, setTableParamDiscount] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      searchStatus: 1,
+    },
+  });
 
+  const loadDataDisCount = () => {
+    fetch(
+      `http://localhost:8080/api/discount?${qs.stringify(
+        getRandomuserParams(tableParamDiscount)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDiscounts(results.data.data);
+        console.log(results.data.data);
+        setLoading(false);
+        setTableParamDiscount({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
 
   const loadInfo = () => {
     fetch(
@@ -171,17 +200,15 @@ function Table1() {
   };
 
   const handleSubmitOrder = () => {
-    console.log('clientName' + valueUser );
-    console.log('phoneNumberForm' + phoneClient );
+    console.log("clientName" + valueUser);
+    console.log("phoneNumberForm" + phoneClient);
     if (payment === undefined) {
       toastError("Vui lòng chọn hình thức thanh toán !");
-    }else if(valueUser === undefined | phoneClient === undefined){
-      toastError('Vui lòng nhập đầy đủ thông tin khách hàng !')
-    }else {
+    } else {
       const order = {
         payment: payment,
-        total: total,
-        userId: userId,
+        total: total + shipping,
+        userId: userId === undefined ? null : userId,
         address:
           valueProvince !== undefined
             ? (addressDetail === undefined ? "" : addressDetail + ",") +
@@ -192,8 +219,8 @@ function Table1() {
               valueProvince
             : "TẠI CỬA HÀNG",
         note: note,
-        customerName : valueUser,
-        phone : phoneClient
+        customerName: valueUser === undefined ? fullNameForm : valueUser,
+        phone: phoneClient === undefined ? phoneNumberForm : phoneClient,
       };
       const orderDetails = [];
       dataCart?.forEach((item, index) => {
@@ -204,6 +231,7 @@ function Table1() {
           total: item.total,
         });
       });
+      console.log(orderDetails);
       try {
         fetch("http://localhost:8080/api/orders", {
           method: "POST",
@@ -214,13 +242,12 @@ function Table1() {
             total: order.total,
             address: order.address,
             note: order.note,
-            customerName: order.customerName,
-            phone : order.phone,
-            status: "CHO_XAC_NHAN",   
+            customerName: order.customerName == "" ? "Nguyễn Thị Huệ" : order.customerName ,
+            phone: order.phone,
+            status: "CHO_XAC_NHAN",
             orderDetails: orderDetails,
           }),
         }).then((res) => {
-          // res.json();
           console.log("đặt hàng thành công !");
           console.log(orderDetails);
           console.log(res.data);
@@ -237,6 +264,11 @@ function Table1() {
     console.log("id cart update " + id);
     console.log("quantity: " + quantity);
     console.log(cart);
+    let tong =
+      cart.total === cart.productId.price * quantity
+        ? cart.total
+        : cart.productId.price * quantity;
+    console.log("tong tiền: ", tong);
     fetch(`http://localhost:8080/api/carts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -244,18 +276,16 @@ function Table1() {
         productId: cart.productId.id,
         userId: cart.useId | 1,
         quantity: quantity !== undefined ? quantity + 1 : cart.quantity,
-        // total: cart.total | (cart.productId.price * quantity),
-        total:
-          cart.total === cart.productId.price * quantity
-            ? cart.total
-            : cart.productId.price * quantity,
+        total: cart.total,
+        // total:
+        //   cart.total === cart.productId.price * quantity
+        //     ? cart.total
+        //     : cart.productId.price * quantity,
       }),
     }).then((res) => {
-      // res.json();
       console.log("load data cart:");
       console.log(res.data);
       loadDataCart();
-      // notify();
     });
   };
 
@@ -293,16 +323,28 @@ function Table1() {
   };
 
   const onChange = (value) => {
-    console.log("DATA PROVINCE: " + value);
     setProvinceID(value);
     loadDataDistrict(value);
   };
   const onSearch = (value) => {
-    console.log("province Id khi onClick: " + ProvinceID);
     if (value.target.innerText !== "") {
       setValueProvince(value.target.innerText);
       loadDataDistrict();
     }
+  };
+
+
+  const onChangeDiscount = (value) => {
+    console.log("DATA Discount: " + value);
+    // setProvinceID(value);
+    // loadDataDistrict(value);
+  };
+  const onSearchDisCount = (value) => {
+    console.log("discount Id khi onClick: " + value);
+    // if (value.target.innerText !== "") {
+    //   setValueProvince(value.target.innerText);
+    //   loadDataDistrict();
+    // }
   };
 
   const onChangeDistricts = (value) => {
@@ -433,7 +475,6 @@ function Table1() {
   };
 
   const loadDataWard = (value) => {
-    console.log("districtId khi service:" + value);
     if (value != null) {
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
@@ -580,6 +621,7 @@ function Table1() {
     loadDataProduct();
     loadDataClient();
     loadDataCart();
+    loadDataDisCount();
     loadInfo();
     setDisableCountry(true);
   }, [(total != undefined) | (ProvinceID != 1)]);
@@ -644,8 +686,6 @@ function Table1() {
 
   const handleTableChange = (pagination) => {
     tableParams.pagination = pagination;
-    // tableParams.pagination.search1 = searchUsername;
-    // tableParams.pagination.search2 = searchStatus;
     setLoading(true);
     fetch(
       `http://localhost:8080/api/carts?${qs.stringify(
@@ -703,7 +743,7 @@ function Table1() {
     setFullNameForm(item.fullName);
     setPhoneNumberForm(item.phoneNumber);
     setAddRessForm(item.address);
-    setUserId(item.id) 
+    setUserId(item.id);
   };
 
   return (
@@ -876,6 +916,7 @@ function Table1() {
                   value={address}
                   placeholder="Nhập địa chỉ"
                   onChange={changeAddRess}
+                  onClick = {changeAddRess}
                 />
               </Modal>
             </div>
@@ -890,7 +931,10 @@ function Table1() {
             <div className="col-6">
               <div className="form-group">
                 <label>Số điện thoại khách hàng</label>
-                <Input onChange={(e)=> setPhoneClient(e.target.value)} value={phoneNumberForm} />
+                <Input
+                  onChange={(e) => setPhoneClient(e.target.value)}
+                  value={phoneNumberForm}
+                />
               </div>
             </div>
           </div>
@@ -906,21 +950,34 @@ function Table1() {
                   }}
                   onChange={handleChangePayment}
                 >
-                  <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
-                  <Option value="GIAO HÀNG TẠI NHÀ">Giao hàng tại nhà</Option>
+                  <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
+                  <Option key={"GIAO HÀNG TẠI NHÀ"} value="GIAO HÀNG TẠI NHÀ">Giao hàng tại nhà</Option>
                 </Select>
               </div>
             </div>
             <div className="col-6">
               <div className="form-group">
                 <label>Khuyến mãi</label>
-                <Space direction="vertical">
-                  <InputNumber
-                    style={{ width: 240 }}
-                    addonAfter={"%"}
-                    defaultValue={0}
-                  />
-                </Space>
+                <Select
+                  // disabled={disableCountry}
+                  showSearch
+                  placeholder="Chọn dịch vụ"
+                  optionFilterProp="children"
+                  style={{
+                    width: 240,
+                  }}
+                  onChange={onChangeDiscount}
+                  onClick={onSearchDisCount}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {discounts?.map((item) => (
+                    <Option key={item.id} value={item.name}>
+                      {item.name} - {item.ratio}%
+                    </Option>
+                  ))}
+                </Select>
               </div>
             </div>
           </div>
@@ -1041,9 +1098,8 @@ function Table1() {
                 }}
                 onChange={handleChangePayment}
               >
-                <Option value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
-                <Option value="TÀI KHOẢN ATM">Tài khoản ATM</Option>
-                <Option value="TÀI KHOẢN VN PAY">Tài khoản VN PAY</Option>
+                <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
+                <Option key={"TÀI KHOẢN VN PAY"} value="TÀI KHOẢN VN PAY">Tài khoản VN PAY</Option>
               </Select>
             </div>
             <div className="col-6">
