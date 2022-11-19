@@ -14,11 +14,13 @@ function reducer(state, action) {
         }
         case ADD_TO_CART: {
             let data_add_cart = action.payload
-            let add_cart = JSON.parse(localStorage.getItem('carts'))
+            let add_cart = JSON.parse(localStorage.getItem('carts'))?JSON.parse(localStorage.getItem('carts')):[]
             let indexCart = -1;
-            indexCart =(JSON.parse(localStorage.getItem('carts'))?JSON.parse(localStorage.getItem('carts')):add_cart).findIndex(value => {
-                return value.id === data_add_cart.id
-            })
+            if(add_cart){
+                indexCart =add_cart.findIndex(value => {
+                    return value.id === data_add_cart.id
+                }) 
+            }
             data_add_cart.quantity=1
             if (indexCart===-1){
                 add_cart.push(data_add_cart)

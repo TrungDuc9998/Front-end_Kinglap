@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import 'toastr/build/toastr.min.css';
 import toastrs from "toastr";
 import { useNavigate } from "react-router-dom";
+import CurrencyFormat from "react-currency-format";
 const { Option } = Select;
 
 const getRandomuserParams = (params) => ({
@@ -46,57 +47,38 @@ const Product = () => {
   };
 
   const columns = [
-    {
-        title: "Ảnh",
-        dataIndex: "images",
-        key: 'images',
-        width: "20%",
-        render: (_,{images}) => (
-            <List>
-            <VirtualList
-              data={images}
-              height={200}
-              itemHeight={150}
-              itemKey="id"
-              onScroll={onScroll}
-            >
-              {(item) => (
-                <List.Item key={item.id}>
-                  <List.Item.Meta
-                    avatar={
-                        <Image.PreviewGroup>
-                            <Image src={item.name}>
-                            </Image>
-                            {/* <Avatar shape="square" size={200} src={item.name} /> */}
+    // {
+    //     title: "Ảnh",
+    //     dataIndex: "images",
+    //     key: 'images',
+    //     width: "20%",
+    //     render: (_,{images}) => (
+    //         <List>
+    //         <VirtualList
+    //           data={images}
+    //           height={200}
+    //           itemHeight={150}
+    //           itemKey="id"
+    //           onScroll={onScroll}
+    //         >
+    //           {(item) => (
+    //             <List.Item key={item.id}>
+    //               <List.Item.Meta
+    //                 avatar={
+    //                     <Image.PreviewGroup>
+    //                         <Image src={item.name}>
+    //                         </Image>
+    //                         {/* <Avatar shape="square" size={200} src={item.name} /> */}
                             
-                        </Image.PreviewGroup>
-                    }
-                  />
-                </List.Item>
-              )}
-            </VirtualList>
-          </List>
-            // <>{images.map(item => {
-            //     return (
-            //         <InfiniteScroll
-            //             dataLength={images.length}
-            //             next={load}
-            //             hasMore={images.length < 50}
-            //             loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
-            //             endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
-            //             scrollableTarget="scrollableDiv"
-            //         >
-            //             <Image.PreviewGroup>
-            //                 <Image width={200} key={item} src={item.name} />
-            //             </Image.PreviewGroup>
-            //         </InfiniteScroll>
-                    
-                
-            //     )
-            //   })}
-            // </>
-        ) 
-    }, 
+    //                     </Image.PreviewGroup>
+    //                 }
+    //               />
+    //             </List.Item>
+    //           )}
+    //         </VirtualList>
+    //       </List>
+    //     ) 
+    // }, 
     {
       title: "Tên sản phẩm",
       dataIndex: "name",
@@ -116,42 +98,51 @@ const Product = () => {
       title: "Giá tiền",
       dataIndex: "price",
       width: "20%",
+      render: (price) => 
+        <>
+          <CurrencyFormat
+            style={{fontSize:"14px"}}
+            value={price}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        </>
     },
     {
       title: "Số lượng",
       dataIndex: "quantity",
       width: "10%",
     },
-    {
-      title: "Ngày phát hành",
-      dataIndex: "debut",
-      width: "10%",
-    },
-    {
-      title: "Kích cỡ",
-      dataIndex: "size",
-      width: "10%",
-    },
-    {
-      title: "Nặng",
-      dataIndex: "weight",
-      width: "10%",
-    },
-    {
-      title: "Cao",
-      dataIndex: "height",
-      width: "10%",
-    },
-    {
-      title: "Chiều dài",
-      dataIndex: "length",
-      width: "10%",
-    },
-    {
-      title: "Chiều rộng",
-      dataIndex: "width",
-      width: "10%",
-    },
+    // {
+    //   title: "Ngày phát hành",
+    //   dataIndex: "debut",
+    //   width: "10%",
+    // },
+    // {
+    //   title: "Kích cỡ",
+    //   dataIndex: "size",
+    //   width: "10%",
+    // },
+    // {
+    //   title: "Cân nặng",
+    //   dataIndex: "weight",
+    //   width: "10%",
+    // },
+    // {
+    //   title: "Cao",
+    //   dataIndex: "height",
+    //   width: "10%",
+    // },
+    // {
+    //   title: "Chiều dài",
+    //   dataIndex: "length",
+    //   width: "10%",
+    // },
+    // {
+    //   title: "Chiều rộng",
+    //   dataIndex: "width",
+    //   width: "10%",
+    // },
     {
       title: "Trạng thái",
       dataIndex: "status",
