@@ -15,6 +15,7 @@ import Discount from "../pages/Discount";
 import HomeUser from "../pages/customer/HomeUser";
 import Cart from "../pages/customer/Cart";
 import Checkout from "../pages/customer/checkout";
+import ViewProduct from "../pages/customer/view_product";
 import UpdateOrder from "../pages/Order/UpdateOrder";
 import OrderDelivering from "../pages/Order/OrderDelivering";
 import OrderWait from "../pages/Order/OrderWait";
@@ -91,6 +92,9 @@ const publicRoutes = [
     component: Checkout,
   },
   {
+    path: "/user/product",
+    component: ViewProduct,
+  }
     path: "/admin/order/:id",
     component: UpdateOrder,
   },
