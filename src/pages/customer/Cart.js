@@ -7,8 +7,8 @@ import { setCheckoutCart } from "../../store/Actions";
 import { Select, Input, Button, Checkbox, InputNumber, Space, Modal } from "antd";
 import {
     DeleteOutlined
-} from "@ant-design/icons";
-import CurrencyFormat from "react-currency-format";
+  } from "@ant-design/icons";
+  import CurrencyFormat from "react-currency-format";
 
 function Cart() {
     const [total, setTotal] = useState(0);
