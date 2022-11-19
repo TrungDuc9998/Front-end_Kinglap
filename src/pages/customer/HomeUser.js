@@ -55,9 +55,10 @@ function HomeUser() {
       }
     const [state, dispatch] = useContext(Context);
     const handleAddToCart = (product) => {
-        const findCart = (JSON.parse(localStorage.getItem('carts'))?JSON.parse(localStorage.getItem('carts')):state.cart).find(value => {
+        const findCart = (JSON.parse(localStorage.getItem('carts'))?JSON.parse(localStorage.getItem('carts')):[]).find(value => {
             return value.id === product.id
         })
+        console.log("findCart",findCart)
         if(findCart!=null){
             if(findCart.quantity<5){
                 dispatch(addToCart(product))
@@ -225,7 +226,7 @@ function HomeUser() {
                                             {products?products.map(pro => (
                                                 <div className="product" key={pro.id}>
                                                     <div className="product-img">
-                                                        <img src={product1} alt="" />
+                                                        <img src={pro.images?pro.images[0].name:product1} alt="" />
                                                         <div className="product-label">
                                                             <span className="sale">-30%</span>
                                                             <span className="new">NEW</span>
