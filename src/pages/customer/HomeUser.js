@@ -53,7 +53,7 @@ function HomeUser() {
             theme: "light",
         });
     }
-    
+
     const [state, dispatch] = useContext(Context);
     const handleAddToCart = (product) => {
         const findCart = (JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : []).find(value => {
