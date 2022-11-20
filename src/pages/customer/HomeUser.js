@@ -76,11 +76,7 @@ function HomeUser() {
         
     }
     const handleClickAddToCart = (product) => {
-        if(localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
-            navigate(`/login`)
-        } else {
         handleAddToCart(product)
-        }
     }
     const handleClickRemoveFromCart = (product) => {
         dispatch({
