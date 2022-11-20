@@ -8,6 +8,7 @@ import {
   DatePicker,
   Space,
   InputNumber,
+  Image,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -27,7 +28,6 @@ import { useNavigate } from "react-router-dom";
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-
 
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -90,7 +90,6 @@ const OrderConfirm = () => {
   };
 
   const showModalData = (id) => {
-    console.log(">>>>>>>>" + id);
     axios.get(url + "/" + id).then((res) => {
       console.log(res.data);
       setDataOD(res.data);
@@ -134,7 +133,7 @@ const OrderConfirm = () => {
         return (
           <>
             <CurrencyFormat
-              style={{fontSize:"14px"}}
+              style={{ fontSize: "14px" }}
               value={total}
               displayType={"text"}
               thousandSeparator={true}
@@ -273,10 +272,9 @@ const OrderConfirm = () => {
     console.log(todos);
   };
 
-
   const handleUpdateOrderDetail = (item) => {
     console.log(item);
-  }
+  };
 
   const resetEditing = () => {
     setEditing(false);
@@ -299,8 +297,13 @@ const OrderConfirm = () => {
         </div>
         <div className="col-7 mt-4">
           <label>Thời gian đặt: </label>
-          <br/>
-          <Space className="mx-2" direction="vertical" style={{minWidth: "80%"}} size={12}>
+          <br />
+          <Space
+            className="mx-2"
+            direction="vertical"
+            style={{ minWidth: "80%" }}
+            size={12}
+          >
             <RangePicker size={"middle"} />
           </Space>
         </div>
@@ -325,7 +328,6 @@ const OrderConfirm = () => {
           </Button>
         </div>
       </div>
-      
 
       <div
         className="mt-4 row"
@@ -339,13 +341,14 @@ const OrderConfirm = () => {
         <div className="col-12">
           <Table
             columns={columns}
+            rowKey={(record) => record.id}
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
           />
-          {/* <Modal
+          <Modal
             title="Xác nhận đơn hàng"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               resetEditing();
             }}
@@ -354,20 +357,21 @@ const OrderConfirm = () => {
             }}
           >
             Bạn có muốn xác nhận đơn hàng không ?
-          </Modal> */}
+          </Modal>
 
           <Modal
             title="Chi tiết đơn hàng"
-            visible={isView}
+            open={isView}
             onCancel={() => {
               setView(false);
             }}
-            onOk={()=>handleUpdateOrderDetail()}
+            onOk={() => handleUpdateOrderDetail()}
           >
             <table class="table">
               <thead>
                 <tr>
                   <th scope="col">Mã HDCT</th>
+                  <th>Hình ảnh</th>
                   <th scope="col">Tên sản phẩm</th>
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
@@ -380,6 +384,12 @@ const OrderConfirm = () => {
                   return (
                     <tr key={index}>
                       <td>{item.id}</td>
+                      <td>
+                        <Image
+                          width={90}
+                          src={item.product.images[0].name}
+                        />{" "}
+                      </td>
                       <td>{item.product.name}</td>
                       <td>{item.product.price}</td>
                       <td>

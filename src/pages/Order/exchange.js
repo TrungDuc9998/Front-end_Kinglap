@@ -10,6 +10,7 @@ import {
   Radio,
   Space,
   Alert,
+  Image
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -74,6 +75,7 @@ const Exchange = () => {
     setIsModalOpen(true);
   };
   const handleOk = () => {
+    console.log("order Detail ID: " + item.id);
     const data = [];
     dataCart?.forEach((element) => {
       data.push({
@@ -81,17 +83,25 @@ const Exchange = () => {
         productId: element.id,
         total: element.price,
         quantity: 1,
+        isCheck: item?.id,
       });
     });
+    console.log(data);
 
     if (reason != undefined) {
       fetch("http://localhost:8080/api/orders/exchanges", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }).then((res) => {});
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Success:", data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
     }
-
     setIsModalOpen(false);
     handleSubmitReturn(data, item);
   };
@@ -108,8 +118,6 @@ const Exchange = () => {
         quantity: 1,
       });
     });
-    console.log('data list exchange detail');
-    console.log(ExchangeDetail);
 
     var date = new Date().getDate();
     var month = new Date().getMonth() + 1;
@@ -139,7 +147,7 @@ const Exchange = () => {
               reason: reason,
               description: note,
               isCheck: "1",
-              status: "YEU_CAU",
+              status: "CHUA_XU_LY",
               returnDetailEntities: ExchangeDetail,
             }),
           }).then((res) => {});
@@ -153,7 +161,8 @@ const Exchange = () => {
                 total: dataOrderDetail.total,
                 quantity: dataOrderDetail.quantity,
                 status: dataOrderDetail.status,
-                isCheck: 1,
+                isCheck: dataOrderDetail.id,
+                isUpdate: 1,
               }),
             }
           ).then((res) => {});
@@ -425,10 +434,11 @@ const Exchange = () => {
         }}
       >
         <div className="col-12">
-          <table class="table">
+          <table className="table">
             <thead>
               <tr>
                 <th scope="col">Mã HDCT</th>
+                <th>Hình ảnh</th>
                 <th scope="col">Tên sản phẩm</th>
                 <th scope="col">Giá</th>
                 <th scope="col">Số lượng</th>
@@ -441,6 +451,12 @@ const Exchange = () => {
                 return (
                   <tr key={index}>
                     <td>{item.id}</td>
+                    <td>
+                        <Image
+                          width={100}
+                          src={item.product.images[0].name}
+                        />{" "}
+                      </td>
                     <td>{item.product.name}</td>
                     <td>
                       <CurrencyFormat
@@ -450,15 +466,7 @@ const Exchange = () => {
                         thousandSeparator={true}
                       />
                     </td>
-                    <td>
-                      <InputNumber
-                        min={1}
-                        max={item.quantity}
-                        defaultValue={1}
-                        onChange={onChange}
-                      />
-                      / {item.quantity}
-                    </td>
+                    <td>{item.quantity}</td>
                     <td>
                       <CurrencyFormat
                         style={{ fontSize: "14px" }}
@@ -469,19 +477,14 @@ const Exchange = () => {
                     </td>
                     <td>
                       {item.isCheck === null ? (
-                        <Button
-                          // onClick={() =>
-                          //   handleSubmitReturn(item, valueInputNumber)
-                          // }
-                          onClick={() => showModal(item)}
-                        >
+                        <Button onClick={() => showModal(item)}>
                           Chọn sản phẩm
                         </Button>
                       ) : (
                         ""
                       )}
-                      {item.isCheck === 3 ? (
-                        <i className="text-danger">Yêu cầu đổi</i>
+                      {item.quantity === 0 ? (
+                        <i className="text-danger">Sản phẩm trước đó</i>
                       ) : (
                         ""
                       )}

@@ -363,7 +363,7 @@ const ReturnConfirm = () => {
           />
           <Modal
             title="Xác nhận đơn hàng"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               resetEditing();
             }}
@@ -376,7 +376,7 @@ const ReturnConfirm = () => {
 
           <Modal
             title="Chi tiết đơn trả"
-            visible={isView}
+            open={isView}
             onCancel={() => {
               setView(false);
             }}

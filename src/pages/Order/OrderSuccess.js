@@ -6,7 +6,7 @@ import {
   Button,
   Modal,
   DatePicker,
-  Radio,
+  Image,
   Space,
 } from "antd";
 import {
@@ -206,7 +206,6 @@ const OrderSuccess = () => {
               onClick={() => {
                 showModalData(id);
               }}
-              waring
             >
               Hiển thị
             </Button>
@@ -294,8 +293,13 @@ const OrderSuccess = () => {
         </div>
         <div className="col-6 mt-4">
           <label>Thời gian đặt: </label>
-          <br/>
-          <Space className="mx-2" direction="vertical" style={{minWidth: "90%"}} size={12}>
+          <br />
+          <Space
+            className="mx-2"
+            direction="vertical"
+            style={{ minWidth: "90%" }}
+            size={12}
+          >
             <RangePicker size={"middle"} />
           </Space>
         </div>
@@ -333,14 +337,14 @@ const OrderSuccess = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            // rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
           />
           <Modal
             title="Xác nhận đơn hàng"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               resetEditing();
             }}
@@ -352,7 +356,7 @@ const OrderSuccess = () => {
           </Modal>
           <Modal
             title="Chi tiết đơn hàng"
-            visible={isView}
+            open={isView}
             onCancel={() => {
               setView(false);
             }}
@@ -379,6 +383,7 @@ const OrderSuccess = () => {
                   <thead>
                     <tr>
                       <th scope="col">Mã HDCT</th>
+                      <th>Hình ảnh</th>
                       <th scope="col">Tên sản phẩm</th>
                       <th scope="col">Giá</th>
                       <th scope="col">Số lượng</th>
@@ -390,10 +395,27 @@ const OrderSuccess = () => {
                       return (
                         <tr key={index}>
                           <td>{item.id}</td>
+                          <td>
+                            {" "}
+                            <Image
+                              width={100}
+                              src={item.product.images[0].name}
+                            />{" "}
+                          </td>
                           <td>{item.product.name}</td>
-                          <td>{item.product.price}</td>
+                          <td>
+                            {item.product.price.toLocaleString("it-IT", {
+                              style: "currency",
+                              currency: "VND",
+                            })}
+                          </td>
                           <td>{item.quantity}</td>
-                          <td>{item.quantity * item.product.price}</td>
+                          <td>
+                            {item.total.toLocaleString("it-IT", {
+                              style: "currency",
+                              currency: "VND",
+                            })}
+                          </td>
                         </tr>
                       );
                     })}
