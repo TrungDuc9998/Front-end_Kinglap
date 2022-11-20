@@ -253,19 +253,14 @@ function HomeUser() {
                                                             <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
                                                         </div>
                                                     </div>
-                                                    {
-                                                        // carts?carts.some(p=>p.id===pro.id)?
-                                                        // (<div className="add-to-cart">
-                                                        // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
-                                                        //  </div>):
-                                                        // (<div className="add-to-cart">
-                                                        // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                                        //  </div>):
+                                                    {carts.some(p => p.id === pro.id) ?
+                                                        (<div className="add-to-cart">
+                                                            <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
+                                                        </div>) :
                                                         (<div className="add-to-cart">
                                                             <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
                                                         </div>)
                                                     }
-
                                                 </div>
                                             )) : ""}
 
