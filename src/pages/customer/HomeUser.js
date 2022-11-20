@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import Context from '../../store/Context';
-import { addToCart, setCheckoutCart, viewProduct } from "../../store/Actions";
+import { addToCart, setCheckoutCart } from "../../store/Actions";
 import './css/home.css';
 import anh1 from '../../asset/images/products/shop01.png'
 import anh3 from '../../asset/images/products/shop02.png'
@@ -13,10 +13,10 @@ import product5 from '../../asset/images/products/product05.png'
 import product6 from '../../asset/images/products/product06.png'
 import product8 from '../../asset/images/products/product08.png'
 
-import { Heart, Repeat, Eye, ShoppingCart, Link } from 'react-feather';
+import { Heart, Repeat, Eye, ShoppingCart } from 'react-feather';
 import {
     DeleteOutlined
-} from "@ant-design/icons";
+  } from "@ant-design/icons";
 
 import ProductIndex from '../customer/product/ProductIndex'
 import { useSelector } from "react-redux";
@@ -27,125 +27,122 @@ import 'toastr/build/toastr.min.css';
 import toastrs from "toastr";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
 
 function HomeUser() {
+    let navigate = useNavigate();
     const notifySuccess = (message) => {
         toast.success(message, {
-            position: "top-right",
-            autoClose: 1000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
         });
-    }
-    const notifyError = (message) => {
+      }
+      const notifyError = (message) => {
         toast.error(message, {
-            position: "top-right",
-            autoClose: 1000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
         });
-    }
-
+      }
     const [state, dispatch] = useContext(Context);
     const handleAddToCart = (product) => {
-        const findCart = (JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : []).find(value => {
+        const findCart = (JSON.parse(localStorage.getItem('carts'))?JSON.parse(localStorage.getItem('carts')):[]).find(value => {
             return value.id === product.id
         })
-        console.log("findCart", findCart)
-        if (findCart != null) {
-            if (findCart.quantity < 5) {
+        console.log("findCart",findCart)
+        if(findCart!=null){
+            if(findCart.quantity<5){
                 dispatch(addToCart(product))
                 notifySuccess('Thêm vào giỏ hàng thành công!')
-            } else {
+            }else{
                 notifyError('Đã tồn tại 5 sản phẩm trong giỏ hàng! Liên hệ cửa hàng để đặt mua số lượng lớn')
             }
-        } else {
+        }else{
             dispatch(addToCart(product))
             notifySuccess('Thêm vào giỏ hàng thành công!')
         }
-
-
+        
+        
     }
-    const handelCLickProduct = (product) => {
-        dispatch(viewProduct(product))
-        console.log('state', state)
-    }
-
     const handleClickAddToCart = (product) => {
-        if (localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
-            window.location.href = '/login';
-        }
+        if(localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
+            navigate(`/login`)
+        } else {
         handleAddToCart(product)
+        }
     }
     const handleClickRemoveFromCart = (product) => {
         dispatch({
-            type: "REMOVE_CART",
-            payload: product
+            type:"REMOVE_CART",
+            payload:product
         })
     }
     function formatCash(str) {
-        if (str.length > 1) {
-            return str.split('').reverse().reduce((prev, next, index) => {
-                return ((index % 3) ? next : (next + ',')) + prev
-            })
-        } else {
-            return ""
+        if(str.length>1){
+          return str.split('').reverse().reduce((prev, next, index) => {
+            return ((index % 3) ? next : (next + ',')) + prev
+          })
+        }else{
+          return ""
         }
     }
 
     const url = 'http://localhost:8080/api/products';
     const [totalSet, setTotal] = useState(10);
     const [products, setData] = useState([{
-        id: "",
-        name: "",
-        price: null,
-        quantity: null,
-        active: 1,
+        id:"",
+        name:"",
+        price:null,
+        quantity:null,
+        active:1,
         imei: null,
         weight: null,
         size: null,
         debut: null,
         categoryId: null,
-        images: null
-    }]
-    );
+        images:null
+        }]
+      );
     const getRandomuserParams = (params) => ({
         limit: params.pagination?.pageSize,
         page: params.pagination?.current,
-    });
+      });
     const [tableParams, setTableParams] = useState({
         pagination: {
-            current: 1,
-            pageSize: 5
+          current: 1,
+          pageSize: 5
         },
-    });
+      });
     //APILoadList
     const getData = () => {
-        axios.get(url + `?${qs.stringify(
-            getRandomuserParams(tableParams)
+        axios.get(url+`?${qs.stringify(
+        getRandomuserParams(tableParams)
         )}`)
-            // .then((res) => res.json())
-            .then((results) => {
-                setData(results.data.data.data);
-                //console.log(products[0].images[0].name)
-                setTotal(results.data.data.total);
-                //localStorage.setItem("products",JSON.stringify(products))
-                setTableParams({
-                    ...tableParams,
-                    pagination: {
-                        ...tableParams.pagination,
-                        total: totalSet,
-                    }
-                });
+        // .then((res) => res.json())
+        .then((results ) => {
+            setData(results.data.data.data);
+            //console.log(products[0].images[0].name)
+            setTotal(results.data.data.total);
+            //localStorage.setItem("products",JSON.stringify(products))
+            setTableParams({
+            ...tableParams,
+            pagination: {
+                ...tableParams.pagination,
+                total: totalSet, 
+            }
             });
+        });
     };
 
     //LoadList
@@ -153,7 +150,7 @@ function HomeUser() {
         getData();
     }, [JSON.stringify(tableParams)]);
     const carts = JSON.parse(localStorage.getItem('carts'));
-    console.log("c:", carts);
+    console.log("c:",carts);
 
 
     // const products = useSelector(state => state.productReducer);
@@ -232,10 +229,10 @@ function HomeUser() {
                                     <div id="tab1" className="tab-pane active">
                                         <div className="products-slick" data-nav="#slick-nav-1">
 
-                                            {products ? products.map(pro => (
+                                            {products?products.map(pro => (
                                                 <div className="product" key={pro.id}>
                                                     <div className="product-img">
-                                                        <img src={pro.images ? pro.images[0].name : product1} alt="" />
+                                                        <img src={pro.images?pro.images[0].name:product1} alt="" />
                                                         <div className="product-label">
                                                             <span className="sale">-30%</span>
                                                             <span className="new">NEW</span>
@@ -243,10 +240,8 @@ function HomeUser() {
                                                     </div>
                                                     <div className="product-body">
                                                         <p className="product-category">Category</p>
-                                                        <h3 className="product-name" onClick={() => handelCLickProduct(pro)}><a href="/user/product">{pro.name}</a></h3>
-                                                        <h4 className="product-price">VNĐ {pro.price} <del className="product-old-price">$990.00</del></h4>
                                                         <h3 className="product-name"><a href="#">{pro.name}</a></h3>
-                                                        <h4 className="product-price">{formatCash(pro.price + "")} VNĐ <del className="product-old-price">$990.00</del></h4>
+                                                        <h4 className="product-price">{formatCash(pro.price+"")} VNĐ <del className="product-old-price">$990.00</del></h4>
                                                         <div className="product-rating">
                                                             <i className="fa fa-star"></i>
                                                             <i className="fa fa-star"></i>
@@ -260,16 +255,21 @@ function HomeUser() {
                                                             <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
                                                         </div>
                                                     </div>
-                                                    {carts.some(p => p.id === pro.id) ?
-                                                        (<div className="add-to-cart">
-                                                            <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
-                                                        </div>) :
-                                                        (<div className="add-to-cart">
-                                                            <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                                        </div>)
+                                                    {
+                                                    // carts?carts.some(p=>p.id===pro.id)?
+                                                    // (<div className="add-to-cart">
+                                                    // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
+                                                    //  </div>):
+                                                    // (<div className="add-to-cart">
+                                                    // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                    //  </div>):
+                                                     (<div className="add-to-cart">
+                                                    <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                                     </div>)
                                                     }
+                                                    
                                                 </div>
-                                            )) : ""}
+                                            )):""}
 
                                             {/* <div className="product">
                                                 <div className="product-img">
@@ -731,7 +731,7 @@ function HomeUser() {
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     )
 }
 
