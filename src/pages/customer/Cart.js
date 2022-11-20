@@ -1,16 +1,18 @@
 import React, { useContext, useState, useEffect } from "react";
 import './css/cart.css';
 import imProduct from '../../asset/images/products/product01.png';
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import StoreContext from '../../store/Context';
 import { setCheckoutCart } from "../../store/Actions";
+import { useNavigate } from "react-router-dom";
 import { Select, Input, Button, Checkbox, InputNumber, Space, Modal } from "antd";
 import {
     DeleteOutlined
-  } from "@ant-design/icons";
-  import CurrencyFormat from "react-currency-format";
+} from "@ant-design/icons";
+import CurrencyFormat from "react-currency-format";
 
 function Cart() {
+    let navigate = useNavigate();
     const [total, setTotal] = useState(0);
     const [state, dispatch] = useContext(StoreContext);
     console.log("list cart", state.cart)
@@ -26,18 +28,21 @@ function Cart() {
     useEffect(() => {
         getTotal();
     }, [carts]);
+
     const handleCheckout = () => {
-        if (localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
-            window.location.href = '/login';
+        if (localStorage.getItem("token") == null || localStorage.getItem("token") === "") {
+            navigate('/login');
+        } else {
+            navigate('/user/checkout');
+            const checkboxes = document.querySelectorAll('input[name="ck"]');
+            checkboxes.forEach((checkbox) => {
+                if (checkbox.checked == true) {
+                    carts.forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "")
+                }
+                setChecked(checked)
+            });
+            dispatch(setCheckoutCart(checked))
         }
-        const checkboxes = document.querySelectorAll('input[name="ck"]');
-        checkboxes.forEach((checkbox) => {
-            if (checkbox.checked == true) {
-                carts.forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "")
-            }
-            setChecked(checked)
-        });
-        dispatch(setCheckoutCart(checked))
     }
 
     const [checked, setChecked] = useState([]);
@@ -97,7 +102,7 @@ function Cart() {
                             />
                         </div>
                         <div className="col-3 img">
-                            <img alt="Ảnh sản phẩm" src={product.images?product.images[0].name:imProduct} className="img-content"></img>
+                            <img alt="Ảnh sản phẩm" src={product.images ? product.images[0].name : imProduct} className="img-content"></img>
                         </div>
                         <div className="col-7 mt-3 d-block ">
                             <div>
@@ -121,14 +126,14 @@ function Cart() {
                                     ></InputNumber>
                                 </span>
                                 <p className="d-flex"><span className="price me-3 text-danger">
-                                <CurrencyFormat
-                                    style={{fontSize:"14px"}}
-                                    value={product.price*product.quantity}
-                                    displayType={"text"}
-                                    thousandSeparator={true}
-                                />
+                                    <CurrencyFormat
+                                        style={{ fontSize: "14px" }}
+                                        value={product.price * product.quantity}
+                                        displayType={"text"}
+                                        thousandSeparator={true}
+                                    />
                                     {/* {formatCash(product.price*product.quantity+"")} */}
-                                    </span> <span className="price ms-3">17.000.000</span>
+                                </span> <span className="price ms-3">17.000.000</span>
                                     <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm 30%</button>
                                 </p>
                                 <DeleteOutlined
@@ -151,7 +156,7 @@ function Cart() {
                     <span className="text-danger cart-footer-text">{formatCash(total + "")} VNĐ</span>
                 </div>
                 <div className="mt-2">
-                    <Link className="btn btn-primary btn-cart" onClick={handleCheckout} to={"/user/checkout"}>Tiến hành đặt hàng</Link>
+                    <a className="btn btn-primary btn-cart" onClick={handleCheckout}>Tiến hành đặt hàng</a>
                 </div>
                 <div className="mt-2">
                     <button className="btn btn-outline-primary btn-cart">Chọn thêm sản phẩm</button>
