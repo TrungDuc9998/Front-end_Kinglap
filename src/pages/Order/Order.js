@@ -677,7 +677,7 @@ const Order = () => {
                       ? tableParamsWait.pagination.total
                       : 0}
                   </h3>
-                  <h6 className="text-center text-secondary">Đang giao</h6>
+                  <h6 className="text-center text-secondary">Chờ lấy hàng</h6>
                 </div>
               </div>
             </div>
@@ -811,7 +811,7 @@ const Order = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -819,7 +819,7 @@ const Order = () => {
           />
           <Modal
             title="Huỷ đơn hàng"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               setEditing(false);
             }}
@@ -849,7 +849,7 @@ const Order = () => {
 
           <Modal
             title="Chi tiết đơn hàng"
-            visible={isView}
+            open={isView}
             onCancel={() => {
               setView(false);
             }}
@@ -857,7 +857,7 @@ const Order = () => {
               setView(false);
             }}
           >
-            <table class="table">
+            <table className="table">
               <thead>
                 <tr>
                   <th scope="col">Mã HDCT</th>

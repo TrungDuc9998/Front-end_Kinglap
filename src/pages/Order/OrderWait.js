@@ -6,7 +6,7 @@ import {
   Button,
   Modal,
   DatePicker,
-  Radio,
+  Image,
   Space,
 } from "antd";
 import {
@@ -23,7 +23,7 @@ import axios from "axios";
 import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-const url = 'http://localhost:8080/api/orders';
+const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -79,7 +79,7 @@ const OrderWait = () => {
         total: record.total,
         payment: record.payment,
         address: record.address,
-        status: 'DANG_GIAO',
+        status: "DANG_GIAO",
         note: record.note | undefined,
         customerName: record.customerName,
         phone: record.phone | undefined,
@@ -89,7 +89,7 @@ const OrderWait = () => {
             productId: record.orderDetails.productId,
             total: record.orderDetails.total,
             quantity: record.orderDetails.quantity,
-            status: 'DANG_GIAO',
+            status: "DANG_GIAO",
           },
         ],
       }),
@@ -99,11 +99,10 @@ const OrderWait = () => {
   };
 
   const showModalData = (id) => {
-    axios.get(url + "/" + id)
-      .then((res) => {
-        console.log(res.data);
-        setDataOD(res.data);
-      })
+    axios.get(url + "/" + id).then((res) => {
+      console.log(res.data);
+      setDataOD(res.data);
+    });
     setView(true);
   };
 
@@ -171,12 +170,13 @@ const OrderWait = () => {
         return (
           <>
             <EyeOutlined
+              style={{ marginLeft: 12, color: "red", fontSize: "23px" }}
               onClick={() => {
                 showModalData(id);
               }}
             />
             <CheckCircleOutlined
-              style={{ marginLeft: 12 }}
+              style={{ marginLeft: 12, color: "green", fontSize: "23px" }}
               onClick={() => {
                 onConfirm(record);
               }}
@@ -187,8 +187,7 @@ const OrderWait = () => {
     },
   ];
 
-  const onChange = (value) => {
-  };
+  const onChange = (value) => {};
 
   const onSearch = (value) => {
     console.log("search:", value);
@@ -303,14 +302,14 @@ const OrderWait = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            // rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
           />
           <Modal
             title="Xác nhận đơn hàng"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               resetEditing();
             }}
@@ -322,8 +321,8 @@ const OrderWait = () => {
           </Modal>
 
           <Modal
-            title="Hiển thị 1"
-            visible={isView}
+            title="Chi tiết đơn hàng"
+            open={isView}
             onCancel={() => {
               setView(false);
             }}
@@ -331,10 +330,11 @@ const OrderWait = () => {
               setView(false);
             }}
           >
-            <table class="table">
+            <table className="table">
               <thead>
                 <tr>
                   <th scope="col">Mã HDCT</th>
+                  <th>Hình ảnh</th>
                   <th scope="col">Tên sản phẩm</th>
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
@@ -347,10 +347,13 @@ const OrderWait = () => {
                   return (
                     <tr key={index}>
                       <td>{item.id}</td>
+                      <td>
+                        <Image width={100} src={item.product.images[0].name} />{" "}
+                      </td>
                       <td>{item.product.name}</td>
-                      <td>{item.product.price}</td>
+                      <td>{item.product.price.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</td>
                       <td>{item.quantity}</td>
-                      <td>{item.quantity * item.product.price}</td>
+                      <td>{item.total.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</td>
                       {/* <td>{item.status}</td> */}
                     </tr>
                   );

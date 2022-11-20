@@ -1,4 +1,4 @@
-import { Table, Select, Input, Button, Modal, DatePicker, Space } from "antd";
+import { Table, Select, Input, Button, Modal, DatePicker, Space,Image } from "antd";
 import {
   CheckCircleOutlined,
   DeleteOutlined,
@@ -50,13 +50,14 @@ const OrderDelivering = () => {
 
   useEffect(() => {
     loadDataOrder();
-    console.log(dataOrder);
   }, [dataOrder != undefined]);
 
   const onConfirm = (record) => {
     const isPut = true;
     Modal.confirm({
-      title: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
+      icon: <CheckCircleOutlined className="text-success" />,
+      title: "Xác nhận đơn hàng",
+      content: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
       okText: "Có",
       cancelText: "Không",
       okType: "primary",
@@ -109,7 +110,6 @@ const OrderDelivering = () => {
 
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
       setDataOD(res.data);
     });
     setView(true);
@@ -134,7 +134,7 @@ const OrderDelivering = () => {
       title: "Mã đơn đặt",
       dataIndex: "id",
       sorter: true,
-      width: "15%",
+      width: "10%",
     },
     {
       title: "Người đặt",
@@ -185,23 +185,29 @@ const OrderDelivering = () => {
     },
     {
       title: "Thao tác",
-      width: "30%",
+      width: "35%",
       dataIndex: "id",
       render: (id, record) => {
         return (
           <>
-            <EyeOutlined
-              style={{ fontSize: "20px" }}
+            <Button
+              className="secondary"
               onClick={() => {
                 showModalData(id);
               }}
-            />
-            <CheckCircleOutlined
-              style={{ marginLeft: 14, fontSize: "20px" }}
+            >
+              Hiển thị
+            </Button>
+            <Button
+              className="ms-2"
+              type="primary"
               onClick={() => {
                 onConfirm(record);
               }}
-            />
+              danger
+            >
+              Xác nhận
+            </Button>
             <RollbackOutlined
               style={{ marginLeft: 14, fontSize: "20px" }}
               onClick={() => navigate(`/admin/return/${id}`)}
@@ -286,8 +292,12 @@ const OrderDelivering = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option key={1} value="jack">Hoạt động</Option>
-            <Option key={2} value="lucy">Không hoạt động</Option>
+            <Option key={1} value="jack">
+              Hoạt động
+            </Option>
+            <Option key={2} value="lucy">
+              Không hoạt động
+            </Option>
           </Select>
         </div>
         <div className="col-6 mt-4">
@@ -330,7 +340,7 @@ const OrderDelivering = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            // rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
@@ -350,7 +360,7 @@ const OrderDelivering = () => {
 
           <Modal
             title="Chi tiết đơn hàng"
-            visible={isView}
+            open={isView}
             onCancel={() => {
               setView(false);
             }}
@@ -362,6 +372,7 @@ const OrderDelivering = () => {
               <thead>
                 <tr>
                   <th scope="col">Mã HDCT</th>
+                  <th>Hình ảnh</th>
                   <th scope="col">Tên sản phẩm</th>
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
@@ -373,10 +384,23 @@ const OrderDelivering = () => {
                   return (
                     <tr key={index}>
                       <td>{item.id}</td>
+                      <td>
+                        <Image width={100} src={item.product.images[0].name} />{" "}
+                      </td>
                       <td>{item.product.name}</td>
-                      <td>{item.product.price}</td>
+                      <td>
+                        {item.product.price.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </td>
                       <td>{item.quantity}</td>
-                      <td>{item.quantity * item.product.price}</td>
+                      <td>
+                        {item.total.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </td>
                     </tr>
                   );
                 })}
