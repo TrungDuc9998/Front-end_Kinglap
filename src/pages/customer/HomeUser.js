@@ -80,6 +80,9 @@ function HomeUser() {
     }
 
     const handleClickAddToCart = (product) => {
+        if (localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
+            window.location.href = '/login';
+        }
         handleAddToCart(product)
     }
     const handleClickRemoveFromCart = (product) => {

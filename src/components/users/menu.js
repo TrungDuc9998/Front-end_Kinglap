@@ -6,6 +6,15 @@ import logo from '../../asset/images/LOGO LAPTOP.png'
 
 
 function Menu() {
+
+    const yourCart = () => {
+        if (localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
+            window.location.href = '/login';
+        } else {
+            window.location.href = '/user/cart';
+        }
+    }
+
     return (
         <>
             <header>
@@ -83,7 +92,7 @@ function Menu() {
                                     </div>
 
                                     <div className="">
-                                        <Link to={"/user/cart"} aria-expanded="true">
+                                        <Link onClick={yourCart} aria-expanded="true">
                                             <ShoppingCart></ShoppingCart>
                                             <span>Your Cart</span>
                                         </Link>
