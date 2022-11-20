@@ -53,14 +53,15 @@ function HomeUser() {
             theme: "light",
         });
     }
+    
     const [state, dispatch] = useContext(Context);
     const handleAddToCart = (product) => {
-        const findCart = (JSON.parse(localStorage.getItem('carts'))?JSON.parse(localStorage.getItem('carts')):[]).find(value => {
+        const findCart = (JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : []).find(value => {
             return value.id === product.id
         })
-        console.log("findCart",findCart)
-        if(findCart!=null){
-            if(findCart.quantity<5){
+        console.log("findCart", findCart)
+        if (findCart != null) {
+            if (findCart.quantity < 5) {
                 dispatch(addToCart(product))
                 notifySuccess('Thêm vào giỏ hàng thành công!')
             } else {
