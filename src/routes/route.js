@@ -94,7 +94,8 @@ const publicRoutes = [
   {
     path: "/user/product",
     component: ViewProduct,
-  }
+  },
+  {
     path: "/admin/order/:id",
     component: UpdateOrder,
   },
