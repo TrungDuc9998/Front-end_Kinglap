@@ -1,4 +1,4 @@
-import { ADD_TO_CART, CHECK_OUT_CART, CHANGE_CART_QTY, REMOVE_CART, VIEW_PRODUCT } from './constants'
+import { ADD_TO_CART, CHECK_OUT_CART, CHANGE_CART_QTY, REMOVE_CART, VIEW_PRODUCT, ADD_TO_CART_BY_VIEW } from './constants'
 const initState = {
     cartCheckout: [],
     cart: JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : [],
@@ -46,6 +46,15 @@ function reducer(state, action) {
             localStorage.setItem('carts', JSON.stringify(state.cart));
             return state
 
+        }
+
+        case ADD_TO_CART_BY_VIEW: {
+            state = {
+                ...state.cartCheckout,
+                cart: [...state.cart, { ...action.payload.product, quantity: action.payload.quantity, total: 0 }],
+            }
+            localStorage.setItem('carts', JSON.stringify(state.cart));
+            return state;
         }
         case CHANGE_CART_QTY: {
             state = {
