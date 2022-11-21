@@ -16,3 +16,60 @@
 .ant-select.ant-select-single.ant-select-allow-clear.ant-select-show-arrow.ant-select-show-search {
     width: 100% !important;
 }
+
+.export.pdf {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
+
+.ant-modal-body {
+    padding: 50px !important;
+    background-image: url("https://visme.co/blog/wp-content/uploads/2017/07/50-Beautiful-and-Minimalist-Presentation-Backgrounds-036.jpg");
+}
+
+/* .order {
+    
+} */
+
+.title {
+    text-align: center;
+}
+
+.title > p {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 10px;
+    margin: 20px;
+}
+
+.title > h1 {
+    font-size: 60px;
+    font-weight: 600;
+    margin-bottom: 40px;
+}
+
+.content > h5 {
+    font-size: 18px;
+    font-weight: 500;
+    color: black;
+}
+
+.ant-modal-body > button {
+    border-radius: 25px;
+    float: right;
+    padding: 10px 30px;
+}
+
+.table {
+    border: 1px solid;
+}
+
+.thao_tac {
+    display: flex;
+    justify-content: space-between;
+}
+
+.thao_tac > span > svg {
+    font-size: 20px;
+}
