@@ -20,7 +20,6 @@ function Cart() {
     const getTotal = () => {
         let totalSum = 0;
         carts?.forEach((item) => (totalSum += item.price * item.quantity));
-        console.log("tổng tiền sau khi tính: " + totalSum);
         setTotal(totalSum);
     }
 
