@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { publicRoutes } from "./routes/route"
+import { publicRoutes } from "./routes/route";
 import DefaultLayout from "./components/layout/DefaultLayout/index";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
-import 'antd/dist/antd.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
+import "antd/dist/antd.min.css";
 import { Fragment } from "react";
 import AppUser from "./pages/customer/AppUser";
 function App() {
@@ -16,17 +16,29 @@ function App() {
             const LayoutCustomer = route.Layout === null ? Fragment : AppUser;
             const Page = route.component;
             if (route.path.includes("/admin")) {
-              return <Route key={index} path={route.path} element={
-                <Layout>
-                  <Page />
-                </Layout>
-              } />
+              return (
+                <Route
+                  key={index}
+                  path={route.path}
+                  element={
+                    <Layout>
+                      <Page />
+                    </Layout>
+                  }
+                />
+              );
             } else {
-              return <Route key={index} path={route.path} element={
-                <LayoutCustomer>
-                  <Page />
-                </LayoutCustomer>
-              } />
+              return (
+                <Route
+                  key={index}
+                  path={route.path}
+                  element={
+                    <LayoutCustomer>
+                      <Page />
+                    </LayoutCustomer>
+                  }
+                />
+              );
               // <>
               // <Menu />
               // <Navbar />
@@ -35,7 +47,6 @@ function App() {
               // <Footer />
               //  </>
             }
-
           })}
         </Routes>
       </div>

@@ -59,7 +59,8 @@ const OrderWait = () => {
     const isPut = true;
     Modal.confirm({
       icon: <CheckCircleOutlined />,
-      title: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
+      title: "Xác nhận đơn hàng",
+      content:`Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
       okText: "Có",
       cancelText: "Không",
       okType: "primary",

@@ -1,12 +1,4 @@
-import {
-  Select,
-  Input,
-  Button,
-  Checkbox,
-  InputNumber,
-  Space,
-  Image,
-} from "antd";
+import { Select, Input, Button, InputNumber, Space, Image } from "antd";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import qs from "qs";
@@ -102,6 +94,7 @@ function Table1() {
   const [note, setNote] = useState();
   const [userId, setUserId] = useState();
   const [discounts, setDiscounts] = useState();
+  const [userNameLogin, setUserNameLogin] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -387,6 +380,15 @@ function Table1() {
     }
   };
 
+  const onChangePhoneNumber = (value) => {
+    console.log("changProduct: "+ value);
+  }
+
+  const onSearchPhoneNumber = (value) => {
+    console.log('search product: ' + value);
+  }
+  
+
   const onChangeProduct = (value) => {
     setValueProduct(value);
     let isUpdate = false;
@@ -626,6 +628,9 @@ function Table1() {
   };
 
   useEffect(() => {
+    if (localStorage.getItem("username") != undefined) {
+      setUserNameLogin(localStorage.getItem("username"));
+    }
     loadDataProvince();
     loadDataProduct();
     loadDataClient();
@@ -779,7 +784,8 @@ function Table1() {
                   {data != undefined
                     ? data.map((item, index) => (
                         <Option key={index} value={item.id}>
-                          {item.name}      {/* <Image width={90} src={item.images[0].name}/>{" "} */}
+                          {item.name}{" "}
+                          {/* <Image width={90} src={item.images[0].name}/>{" "} */}
                         </Option>
                       ))
                     : ""}
@@ -934,12 +940,37 @@ function Table1() {
             <div className="col-6">
               <div className="form-group">
                 <label>Thông tin người bán</label>
-                <Input placeholder="Hà Trung Kiên" />
+                <Input
+                  readOnly="true"
+                  value={userNameLogin}
+                  placeholder="Hà Trung Kiên"
+                />
               </div>
             </div>
             <div className="col-6">
               <div className="form-group">
                 <label>Số điện thoại khách hàng</label>
+                <Select
+                  style={{
+                    width: "100%"
+                  }}
+                  showSearch
+                  placeholder="Số điện thoại khách hàng"
+                  optionFilterProp="children"
+                  onChange={onChangePhoneNumber}
+                  onClick={onSearchPhoneNumber}
+                  filterOption={(input, option) =>
+                    option.children.includes(input.toLowerCase())
+                  }
+                >
+                  {data != undefined
+                    ? users.map((item, index) => (
+                        <Option key={index} value={item.id}>
+                          {item.phoneNumber}{" "}
+                        </Option>
+                      ))
+                    : ""}
+                </Select>
                 <Input
                   onChange={(e) => setPhoneClient(e.target.value)}
                   value={phoneNumberForm}
@@ -1086,17 +1117,20 @@ function Table1() {
                 <label>Tổng tiền</label>
                 <br />
                 {/* <Space direction="vertical"> */}
-                  <Input
-                    className="text-danger fw-bold"
-                    style={{
-                      width: 240,
-                    }}
-                    disabled={true}
-                    value={total.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
-                    onChange={(e) => setTotal(e.target.value)}
-                    // addonAfter={"VNĐ"}
-                    defaultValue={0}
-                  />
+                <Input
+                  className="text-danger fw-bold"
+                  style={{
+                    width: 240,
+                  }}
+                  readOnly={true}
+                  value={total.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                  onChange={(e) => setTotal(e.target.value)}
+                  // addonAfter={"VNĐ"}
+                  defaultValue={0}
+                />
                 {/* </Space> */}
               </div>
             </div>
@@ -1123,16 +1157,18 @@ function Table1() {
               <div className="form-group">
                 <label>Phí ship</label>
                 {/* <Space direction="vertical"> */}
-                  <Input
-                    style={{
-                      width: 240,
-                    }}
-                    className="text-danger fw-bold"
-                    disabled
-                    value={shipping.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
-                    defaultValue={0}
-                   
-                  />
+                <Input
+                  style={{
+                    width: 240,
+                  }}
+                  className="text-danger fw-bold"
+                  readOnly={true}
+                  value={shipping.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                  defaultValue={0}
+                />
                 {/* </Space> */}
               </div>
             </div>
