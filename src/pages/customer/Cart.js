@@ -94,7 +94,7 @@ function Cart() {
                             />
                         </div>
                         <div className="col-3 img">
-                            {/* <img alt="Ảnh sản phẩm" src={product.images?product.images[0].name:imProduct} className="img-content"></img> */}
+                            <img alt="Ảnh sản phẩm" src={product.images ? product.images[0].name : imProduct} className="img-content"></img>
                         </div>
                         <div className="col-7 mt-3 d-block ">
                             <div>
