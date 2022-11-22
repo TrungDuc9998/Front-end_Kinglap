@@ -233,7 +233,7 @@ function HomeUser() {
                                             {products ? products.map(pro => (
                                                 <div className="product" key={pro.id}>
                                                     <div className="product-img">
-                                                        {/* <img src={pro.images?pro.images[0].name:product1} alt="" /> */}
+                                                        <img src={pro.images ? pro.images[0].name : product1} alt="" />
                                                         <div className="product-label">
                                                             <span className="sale">-30%</span>
                                                             <span className="new">NEW</span>
