@@ -40,3 +40,7 @@
     opacity: 1;
     visibility: visible;
 }
+
+.ant-modal-body {
+    padding: 0 !important;
+}

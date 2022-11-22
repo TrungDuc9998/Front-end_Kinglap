@@ -224,7 +224,6 @@ function HomeUser() {
                                 <div className="products-tabs">
                                     <div id="tab1" className="tab-pane active">
                                         <div className="products-slick" data-nav="#slick-nav-1">
-
                                             {products?products.map(pro => (
                                                 <div className="product" key={pro.id}>
                                                     <div className="product-img">
