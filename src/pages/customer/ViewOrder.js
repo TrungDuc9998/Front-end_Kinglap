@@ -36,7 +36,6 @@ function ViewOrder() {
   const getData = () => {
     let userId = localStorage.getItem("username");
     console.log(userId);
-
     fetch(
       `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
         getRandomuserParams(tableParams))}`
@@ -58,6 +57,7 @@ function ViewOrder() {
   };
   useEffect(() => {
     getData();
+    // loadDataOrder();
   }, [JSON.stringify(tableParams)]);
 
   const columns = [
@@ -90,7 +90,7 @@ function ViewOrder() {
       sorter: true,
       width: "15%",
       render: (payment) => {
-        if (payment === "TAI CUA HANG") {
+        if (payment === "TẠI CỬA HÀNG") {
           return (
             <>
               <div
@@ -272,6 +272,7 @@ function ViewOrder() {
   const [isView, setView] = useState(false);
   const [order, setOrder] = useState();
   const [idCancel, setIDCancel] = useState();
+  const [count, setCount] = useState();
 
   const showModalCancel = () => {
     setEditing(true);
@@ -280,11 +281,17 @@ function ViewOrder() {
     setConfirm(true);
   };
   const showModalData = (id) => {
+    console.log('id show modal: ',id);
+    setOrderId(id);
     axios.get(url + "/" + id).then((res) => {
       setOrder(res.data);
+      console.log(res.data);
     });
-    setOrderId(id);
+   
+    console.log(orderId);
     setView(true);
+    console.log('show modal');
+    loadDataOrder(id);
   };
 
   const load = () => {
@@ -318,9 +325,12 @@ function ViewOrder() {
     });
   };
 
-  const onChangeInput = (value, id, proId) => {
-    console.log("changed", value, id, proId);
+  const onChangeInput = (value, id, proId, price) => {
+    console.log("changed", value, id, proId, price);
     const set = new Set();
+    
+    setCount(value);
+
     const orderDetail = {
       id: id,
       total: 1,
@@ -356,10 +366,25 @@ function ViewOrder() {
       }
     }
     setTodos(todos);
+    console.log(todos);
+    console.log(order);
+    let count = -1;
+    order?.forEach((element,index) => {
+      if(element.id == id){
+        count = index;
+      }
+    })
+    console.log('quantity: ', quantity, 'price: ', price);
+    const total = (quantity*price);
+    console.log(total);
+    order[count].total = Number(price*value)
+    setOrder(order);
+    console.log(order);
+    // handleUpdateOrderDetail();
   };
 
-  const loadDataOrder = () => {
-    fetch(`http://localhost:8080/api/orders/get/${orderId}`)
+  const loadDataOrder = (id) => {
+    fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
         setDataOrder(res.data);
@@ -367,57 +392,37 @@ function ViewOrder() {
   };
 
   const handleUpdateOrderDetail = () => {
-    // const od = {
-    //   id: order.id,
-    //   total: order.total,
-    //   payment: order.payment,
-    //   address: order.address,
-    //   status: order.status,
-    //   note: order.note,
-    //   customerName: order.customerName,
-    //   phone: order.phone,
-    //   user: order.user,
-    //   orderDetails: todos,
-    // };
-    // console.log(od);
-    // fetch(`http://localhost:8080/api/orders/${order.id}`, {
-    //   method: "PUT",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({
-    //     // id: order.id,
-    //     // total: order.total,
-    //     // payment: order.payment,
-    //     // address: order.address,
-    //     // status: order.status,
-    //     // note: order.note,
-    //     // customerName: order.customerName,
-    //     // phone: order.phone,
-    //     // user: order.user,
-    //     // orderDetails: todos,
-    //     id: order.id,
-    //     total: order.total,
-    //     payment: order.payment,
-    //     address: order.address,
-    //     status: order.status,
-    //     note: order.not,
-    //     customerName: order.customerName,
-    //     phone: order.phone,
-    //     user: order.user,
-    //     orderDetails: todos,
-    //     // orderDetails: [
-    //     //   {
-    //     //     id: 74,
-    //     //     total: 1.929e7,
-    //     //     quantity: 4,
-    //     //     status: "CHO_XAC_NHAN",
-    //     //     isCheck: null,
-    //     //     productId: 1,
-    //     //   },
-    //     // ],
-    //   }),
-    // }).then((res) => {
-    //   console.log("thành công!");
-    // });
+    const od = {
+      id: dataOrder.id,
+      total: dataOrder.total,
+      payment: dataOrder.payment,
+      address: dataOrder.address,
+      status: dataOrder.status,
+      note: dataOrder.note,
+      customerName: dataOrder.customerName,
+      phone: dataOrder.phone,
+      user: dataOrder.user,
+      orderDetails: todos,
+    };
+    console.log(od);
+    fetch(`http://localhost:8080/api/orders/${dataOrder.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: dataOrder.id,
+        total: dataOrder.total,
+        payment: dataOrder.payment,
+        address: dataOrder.address,
+        status: dataOrder.status,
+        note: dataOrder.not,
+        customerName: dataOrder.customerName,
+        phone: dataOrder.phone,
+        user: dataOrder.user,
+        orderDetails: todos,
+      }),
+    }).then((res) => {
+      console.log("thành công!");
+    });
   };
 
   return (
@@ -573,6 +578,7 @@ function ViewOrder() {
                 });
                 setEditing(false);
                 setLoading(true);
+                
               }}
             >
               <label>
@@ -589,7 +595,8 @@ function ViewOrder() {
               }}
               onOk={() => {
                 // setView(false);
-                loadDataOrder();
+                // loadDataOrder();
+                handleUpdateOrderDetail();
               }}
             >
               <table className="table">
@@ -615,6 +622,7 @@ function ViewOrder() {
                         <td>
                           <InputNumber
                             // style={{width: "20%"}}
+                            disabled={item.status != 'CHO_XAC_NHAN' ? true: false}
                             min={1}
                             max={item.product.quantity}
                             value={quantity}
@@ -624,6 +632,7 @@ function ViewOrder() {
                                 event,
                                 item.id,
                                 item.product.id,
+                                item.product.price,
                                 quantity
                               )
                             }

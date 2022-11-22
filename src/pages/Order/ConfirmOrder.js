@@ -58,7 +58,7 @@ const OrderConfirm = () => {
 
   useEffect(() => {
     loadDataOrder();
-  }, [dataOrder != undefined]);
+  }, []);
 
   const onConfirm = (record) => {
     const isPut = true;

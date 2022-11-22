@@ -10,7 +10,7 @@ import {
   Radio,
   Space,
   Alert,
-  Image
+  Image,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -26,12 +26,12 @@ import {
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 import CurrencyFormat from "react-currency-format";
-import { useNavigate } from "react-router-dom";
 import OrderDelivering from "./OrderDelivering";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 const { TextArea } = Input;
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { render } from "@testing-library/react";
 const { Option } = Select;
@@ -74,6 +74,7 @@ const Exchange = () => {
     setItem(item);
     setIsModalOpen(true);
   };
+
   const handleOk = () => {
     console.log("order Detail ID: " + item.id);
     const data = [];
@@ -102,13 +103,11 @@ const Exchange = () => {
           console.error("Error:", error);
         });
     }
-    setIsModalOpen(false);
     handleSubmitReturn(data, item);
+    setIsModalOpen(false);
   };
 
   const handleSubmitReturn = (data, dataOrderDetail) => {
-    console.log("id orderDetail: " + item.id);
-
     const ExchangeDetail = [];
     data?.forEach((element) => {
       ExchangeDetail.push({
@@ -168,7 +167,7 @@ const Exchange = () => {
           ).then((res) => {});
           toastSuccess("Gửi yêu cầu thành công!");
           loadDataOrder(id);
-          // location.reload();
+          loadDataProduct();
         } catch (err) {
           console.log(err);
           toastError("Gửi yêu cầu thất bại!");
@@ -212,7 +211,7 @@ const Exchange = () => {
   useEffect(() => {
     loadDataOrder(id);
     loadDataProduct();
-  }, [order != undefined]);
+  }, []);
 
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
@@ -268,7 +267,6 @@ const Exchange = () => {
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res.data);
         setOrder(res.data);
       });
   };
@@ -452,11 +450,8 @@ const Exchange = () => {
                   <tr key={index}>
                     <td>{item.id}</td>
                     <td>
-                        <Image
-                          width={100}
-                          src={item.product.images[0].name}
-                        />{" "}
-                      </td>
+                      <Image width={100} src={item.product.images[0].name} />{" "}
+                    </td>
                     <td>{item.product.name}</td>
                     <td>
                       <CurrencyFormat
@@ -598,6 +593,7 @@ const Exchange = () => {
             <thead>
               <tr>
                 <th>STT</th>
+                <th>Hình ảnh</th>
                 <th>Tên sản phẩm</th>
                 <th>Giá tiền</th>
                 <th>Xuất xứ</th>
@@ -610,6 +606,7 @@ const Exchange = () => {
                 return (
                   <tr key={index}>
                     <td>{index}</td>
+                    <Image width={90} src={item.images[0].name} />{" "}
                     <td>{item.name}</td>
                     <td>
                       {" "}

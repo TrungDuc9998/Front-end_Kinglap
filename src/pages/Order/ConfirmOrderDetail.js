@@ -1,4 +1,13 @@
-import { Table, Slider, Select, Input, Button, InputNumber, Modal, Image } from "antd";
+import {
+  Table,
+  Slider,
+  Select,
+  Input,
+  Button,
+  InputNumber,
+  Modal,
+  Image,
+} from "antd";
 import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
@@ -92,24 +101,6 @@ const ConfirmOrderDetail = () => {
   };
 
   const handleUpdateOrderDetail = () => {
-    console.log(
-      order.id,
-      "-",
-      order.user,
-      "-",
-      order.total,
-      "-",
-      order.payment,
-      "-",
-      order.status,
-      "-",
-      order.note,
-      "- ",
-      order.customerName,
-      "-",
-      order.phone
-    );
-
     const od = {
       id: order.id,
       total: order.total,
@@ -127,16 +118,6 @@ const ConfirmOrderDetail = () => {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        // id: order.id,
-        // total: order.total,
-        // payment: order.payment,
-        // address: order.address,
-        // status: order.status,
-        // note: order.note,
-        // customerName: order.customerName,
-        // phone: order.phone,
-        // user: order.user,
-        // orderDetails: todos,
         id: order.id,
         total: order.total,
         payment: order.payment,
@@ -147,19 +128,10 @@ const ConfirmOrderDetail = () => {
         phone: order.phone,
         user: order.user,
         orderDetails: todos,
-        // orderDetails: [
-        //   {
-        //     id: 74,
-        //     total: 1.929e7,
-        //     quantity: 4,
-        //     status: "CHO_XAC_NHAN",
-        //     isCheck: null,
-        //     productId: 1,
-        //   },
-        // ],
       }),
     }).then((res) => {
       console.log("thành công!");
+      loadDataOrder(id)
     });
   };
 
@@ -222,8 +194,8 @@ const ConfirmOrderDetail = () => {
     });
   };
 
-  const onChange = (value, id, proId) => {
-    console.log("changed", value, id, proId);
+  const onChange = (value, id, proId, price) => {
+    console.log("changed", value, id, proId, price);
     const set = new Set();
     const orderDetail = {
       id: id,
@@ -260,8 +232,21 @@ const ConfirmOrderDetail = () => {
         });
       }
     }
-    console.log(todos);
+    let i = -1;
+    order?.orderDetails.forEach((element, index) => {
+      if (element.id === id) {
+        i = index;
+      }
+    });
+    order.orderDetails[i].total = Number(value * price);
+    order.orderDetails[i].quantity = value;
+    console.log(order.orderDetails[i].total);
+    console.log(order.orderDetails[i].quantity);
+    setOrder(order);
+    console.log(order);
     setTodos(todos);
+    console.log('orderID: ',order.id);
+    loadDataOrder(order.id)
   };
 
   const resetEditing = () => {
@@ -331,7 +316,7 @@ const ConfirmOrderDetail = () => {
               </tr>
             </thead>
             <tbody>
-              {order?.orderDetails.map((item, index) => {
+              {order?.orderDetails?.map((item, index) => {
                 return (
                   <tr key={index}>
                     <td>{item.id}</td>
@@ -355,7 +340,13 @@ const ConfirmOrderDetail = () => {
                         value={quantity}
                         defaultValue={item.quantity}
                         onChange={(event) =>
-                          onChange(event, item.id, item.product.id, quantity)
+                          onChange(
+                            event,
+                            item.id,
+                            item.product.id,
+                            item.product.price,
+                            quantity
+                          )
                         }
                       />
                     </td>
@@ -367,17 +358,6 @@ const ConfirmOrderDetail = () => {
                         thousandSeparator={true}
                       />
                     </td>
-                    {/* <td>
-                        {item.isCheck === null ? (
-                          <Button type="danger"
-                            onClick={() =>
-                              handleSubmitReturn(item, valueInputNumber)
-                            }
-                          > Trả hàng</Button>
-                        ) : (
-                          ""
-                        )}
-                      </td> */}
                   </tr>
                 );
               })}
@@ -385,15 +365,6 @@ const ConfirmOrderDetail = () => {
           </table>
         </div>
         <div className="col-12 text-center mb-3 mt-2">
-          {/* <Button
-            onClick={handleUpdateOrderDetail}
-            type="primary"
-            shape="round"
-            icon={<CheckCircleOutlined />}
-            className=" mt-2 mb-2"
-          >
-            Cập nhật đơn hàng
-          </Button> */}
           <Button onClick={confirm}>Cập nhật đơn hàng</Button>
         </div>
       </div>
