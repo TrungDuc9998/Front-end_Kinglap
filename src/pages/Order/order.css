@@ -23,9 +23,11 @@
     left: -9999px;
 }
 
-.ant-modal-body {
+.order {
     padding: 50px !important;
-    background-image: url("https://visme.co/blog/wp-content/uploads/2017/07/50-Beautiful-and-Minimalist-Presentation-Backgrounds-036.jpg");
+    background-image: url("../../image/logo1.png");
+    background-repeat: no-repeat;
+    background-size: 200px 80px;
 }
 
 /* .order {
@@ -44,7 +46,7 @@
 }
 
 .title > h1 {
-    font-size: 60px;
+    font-size: 55px;
     font-weight: 600;
     margin-bottom: 40px;
 }
