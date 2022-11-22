@@ -8,9 +8,11 @@ import {
   DatePicker,
   Radio,
   Space,
+  Image,
 } from "antd";
 import {
   CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
@@ -26,12 +28,6 @@ import Item from "antd/lib/list/Item";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const url = "http://localhost:8080/api/returns";
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
-  });
-};
 
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -41,9 +37,9 @@ const getRandomOrderParams = (params) => ({
 });
 
 const ExchangeSuccess = () => {
-  const [data, setData] = useState([]);
   const [dataOD, setDataOD] = useState();
-  const [order,setOrder] = useState();
+  const [order, setOrder] = useState();
+  const [dataProduct, setDataProduct] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
@@ -54,14 +50,13 @@ const ExchangeSuccess = () => {
       current: 1,
       pageSize: 10,
       check: 1,
-      // searchStatus: "YEU_CAU",
     },
   });
 
   useEffect(() => {
     loadDataExchange();
-    console.log(dataExchange);
-  }, [dataExchange != undefined]);
+    // getProduct();
+  }, []);
 
   const loadDataOrder = (data) => {
     setLoading(true);
@@ -75,8 +70,9 @@ const ExchangeSuccess = () => {
   const onConfirm = (record) => {
     const isPut = true;
     Modal.confirm({
-      icon: <CheckCircleOutlined />,
-      title: `Bạn có muốn xác nhận đổi hàng ${record.id}  không?`,
+      icon: <CheckCircleOutlined className="text-success" />,
+      title: "Xác nhận đổi đơn hàng",
+      content: `Bạn có muốn xác nhận đổi đơn hàng này không ?`,
       okText: "Có",
       cancelText: "Không",
       okType: "primary",
@@ -87,27 +83,32 @@ const ExchangeSuccess = () => {
   };
 
   const confirmUpdateStatus = (record, isPut) => {
-    console.log(record);
-    const returnDetail = [];
-    record.returnDetailEntities.forEach((item) => {
-      returnDetail.push({
-        id: item.id,
-        productId: item.productId,
-        quantity: item.quantity,
-      });
-    });
-    fetch(`http://localhost:8080/api/returns/${record.id}`, {
+    console.log(record.orderDetail.id);
+    fetch(`http://localhost:8080/api/${record.id}/updateReturnDetails`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        orderId: record.orderId,
-        reason: record.reason,
-        description: record.description,
-        status: isPut === true ? "XAC_NHAN" : "KHONG_XAC_NHAN",
-        isCheck: "1",
-        returnDetailEntities: returnDetail,
+        productId: 1,
+        orderDetailId: 1,
+        quantity: 1,
+        status: isPut === true ? "DA_XAC_NHAN" : "KHONG_XAC_NHAN",
       }),
     }).then((res) => {});
+    fetch(
+      `http://localhost:8080/api/orders/${record.orderDetail.id}/orderDetails`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: record.productId.id,
+          total: record.orderDetail.total,
+          quantity: record.quantity,
+          status: record.orderDetail.status,
+          isCheck: 1,
+        }),
+      }
+    ).then((res) => {});
+    loadDataExchange();
   };
 
   const onCancel = (record) => {
@@ -124,12 +125,16 @@ const ExchangeSuccess = () => {
   };
 
   const showModalData = (id, orderId) => {
-    console.log("orderId: " + orderId);
+    // console.log("orderId: " + orderId);
     axios.get(url + "/" + id).then((res) => {
       console.log(res.data);
       setDataOD(res.data);
     });
-    loadDataOrder(orderId);
+    fetch(`http://localhost:8080/api/orders/get/${orderId}`)
+      .then((res) => res.json())
+      .then((res) => {
+        setOrder(res.data);
+      });
     setView(true);
   };
 
@@ -142,6 +147,8 @@ const ExchangeSuccess = () => {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log(results);
+        console.log(results.data);
         setDataExchange(results.data.data);
         setLoading(false);
       });
@@ -171,25 +178,14 @@ const ExchangeSuccess = () => {
       dataIndex: "status",
       with: "45%",
       render: (status) => {
-        if (status === "YEU_CAU") {
+        if (status === "CHUA_XU_LY") {
           return (
             <>
               <div
-                className="bg-primary text-center text-light"
+                className="bg-danger text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-                Yêu cầu đổi hàng
-              </div>
-            </>
-          );
-        } else if (status === "XAC_NHAN") {
-          return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                Đã xác nhận
+                Chưa xử lý
               </div>
             </>
           );
@@ -197,10 +193,10 @@ const ExchangeSuccess = () => {
           return (
             <>
               <div
-                className="bg-danger text-center text-light"
+                className="bg-success text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-                Đã huỷ
+                Đã xử lý
               </div>
             </>
           );
@@ -274,6 +270,19 @@ const ExchangeSuccess = () => {
     });
   };
 
+  const getOrderDetail = () => {};
+  const getProduct = (id) => {
+    let count = 0;
+    let name;
+    fetch(`http://localhost:8080/api/products/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        // setDataProduct(res.data);
+        console.log(res.name);
+        return res.name;
+      });
+  };
+
   const resetEditing = () => {
     setEditing(false);
   };
@@ -342,14 +351,14 @@ const ExchangeSuccess = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            // rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={dataExchange}
             pagination={tableParams.pagination}
             loading={loading}
           />
           <Modal
             title="Xác nhận đơn hàng"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               resetEditing();
             }}
@@ -361,8 +370,9 @@ const ExchangeSuccess = () => {
           </Modal>
 
           <Modal
+            style={{ width: "1000px" }}
             title="Chi tiết đơn đổi"
-            visible={isView}
+            open={isView}
             onCancel={() => {
               setView(false);
             }}
@@ -370,26 +380,53 @@ const ExchangeSuccess = () => {
               setView(false);
             }}
           >
-          
-            <table class="table">
+            <table className="table">
               <thead>
                 <tr>
-                  <th>STT</th>
-                  <th scope="col">Tên sản phẩm</th>
-                  <th>Hoá đơn ct</th>
-                  <th>Sản phẩm trước đó</th>
-                  <th scope="col">Số lượng</th>
+                  <th>Hình ảnh</th>
+                  <th scope="col">Sản phẩm trước đó</th>
+                  <th>Đổi sang sản phẩm</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {dataOD?.map((item, index) => {
                   return (
                     <tr key={index}>
-                      <td>{index}</td>
-                      <td>{item.orderDetailId}</td>
-                      <td>{item.orderDetailId}</td>
-                      <td>{item.productId}</td>
-                      <td>{item.quantity}</td>
+                      <td>
+                        <Image
+                          width={90}
+                          src={item.orderDetail.product.images[0].name}
+                        />{" "}
+                      </td>
+                      <td>{item.orderDetail.product.name}</td>
+                      <td>{item.productId.name}</td>
+                      <td>
+                        {item.status === "YEU_CAU" ? (
+                          <>
+                            <CheckCircleOutlined
+                              style={{
+                                marginLeft: 12,
+                                fontSize: "20px",
+                                color: "green",
+                              }}
+                              onClick={() => {
+                                onConfirm(item);
+                              }}
+                            />
+                            <CloseCircleOutlined
+                              onClick={() => onCancel(item)}
+                              style={{
+                                color: "red",
+                                marginLeft: 12,
+                                fontSize: "20px",
+                              }}
+                            />
+                          </>
+                        ) : (
+                          ""
+                        )}
+                      </td>
                     </tr>
                   );
                 })}

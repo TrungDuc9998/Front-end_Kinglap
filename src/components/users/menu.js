@@ -1,11 +1,33 @@
 import React from "react";
 import './css/layout.css';
 import { Phone, Mail, MapPin, DollarSign, User, Heart, ShoppingCart } from 'react-feather';
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import logo from '../../asset/images/LOGO LAPTOP.png'
+import { useNavigate } from "react-router-dom";
 
 
 function Menu() {
+    let navigate = useNavigate();
+    const yourCart = () => {
+        navigate("/user/cart");
+    }
+
+    const toAdmin = () => {
+        if (localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
+            navigate('/login');
+        } else {
+            navigate('/admin/order');
+        }
+    }
+
+    const yourOrder = () => {
+        if (localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
+            navigate('/login');
+        } else {
+            navigate('/user/order');
+        }
+    }
+
     return (
         <>
             <header>
@@ -33,10 +55,10 @@ function Menu() {
                         </ul>
                         <ul className="nav justify-content-end">
                             <li className="nav-item">
-                                <Link to={'/admin/order/create'}>
+                                <a style={{color:"ưhite"}} onClick={toAdmin}>
                                     <DollarSign size={12} color="red"></DollarSign>
                                     Admin
-                                </Link>
+                                </a>
                             </li>
                             <li className="nav-item">
                                 <Link to={'/'}>
@@ -76,17 +98,17 @@ function Menu() {
                             <div className="col-md-3 clearfix">
                                 <div className="header-ctn">
                                     <div>
-                                        <a href="/user/order">
+                                        <a style={{color:"white"}} onClick={yourOrder}>
                                             <Heart></Heart>
                                             <span>Your Wishlist</span>
                                         </a>
                                     </div>
 
                                     <div className="">
-                                        <Link to={"/user/cart"} aria-expanded="true">
+                                        <a style={{color:"white"}} onClick={yourCart} aria-expanded="true">
                                             <ShoppingCart></ShoppingCart>
                                             <span>Your Cart</span>
-                                        </Link>
+                                        </a>
                                     </div>
                                 </div>
                             </div>

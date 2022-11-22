@@ -16,6 +16,7 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  PrinterOutlined
 } from "@ant-design/icons";
 import "../Order/order.css";
 import Moment from "react-moment";
@@ -24,9 +25,10 @@ import qs from "qs";
 import axios from "axios";
 import toastrs from "toastr";
 import { ToastContainer, toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CurrencyFormat from "react-currency-format";
+import ReactToPrint from "react-to-print"
 const { Option } = Select;
 const url = "http://localhost:8080/api/orders";
 const url_pro = "http://localhost:8080/api/products";
@@ -45,6 +47,7 @@ const Order = () => {
   const [dataSuccess, setDataSuccess] = useState([]);
   const [dataDelivering, setDataDelivering] = useState([]);
   const [dataOD, setDataOD] = useState();
+  const [dataO, setDataO] = useState();
   const [dateOrder, setDateOrder] = useState(getDateTime);
   const [searchStatus, setSearchStatus] = useState();
   const [searchName, setSearchName] = useState();
@@ -52,6 +55,8 @@ const Order = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
+  const [isOrder, setOrder] = useState(false);
+  const componentRef = useRef();
   const [dataCancel, setDataCancel] = useState([]);
   const [dataWait, setDataWait] = useState([]);
   const [dataPending, setDataPedning] = useState([]);
@@ -332,6 +337,18 @@ const Order = () => {
     setView(true);
   };
 
+  const showModalOrder = (id) => {
+    axios.get(url + "/get/" + id)
+      .then((res) => {
+        setDataO(res.data.data);
+      })
+    axios.get(url + "/" + id)
+      .then((res) => {
+        setDataOD(res.data);
+      })
+    setOrder(true);
+  };
+
   const showModalCancel = () => {
     setEditing(true);
   };
@@ -356,23 +373,23 @@ const Order = () => {
       render(createdAt) {
         return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
       },
-      width: "14%",
+      width: "10%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
       sorter: true,
-      width: "9%",
+      width: "10%",
       render(total) {
         return (
           <>
             <CurrencyFormat
-              style={{fontSize:"14px"}}
+              style={{ fontSize: "14px" }}
               value={total}
               displayType={"text"}
               thousandSeparator={true}
             />
-             vnđ
+            vnđ
           </>
         );
       },
@@ -381,7 +398,7 @@ const Order = () => {
       title: "Hình thức thanh toán",
       dataIndex: "payment",
       sorter: true,
-      width: "13%",
+      width: "14%",
       render: (payment) => {
         if (payment === "TẠI CỬA HÀNG") {
           return (
@@ -430,7 +447,7 @@ const Order = () => {
     {
       title: "Trạng thái đơn hàng",
       dataIndex: "status",
-      width: "15%",
+      width: "13%",
       render: (status) => {
         if (status === "CHO_XAC_NHAN") {
           return (
@@ -498,11 +515,11 @@ const Order = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "20%",
+      width: "11%",
       render: (id, data) => {
         if (data.status === "CHO_XAC_NHAN") {
           return (
-            <>
+            <div className="thao_tac">
               <EyeOutlined
                 onClick={() => {
                   showModalData(data.id);
@@ -522,17 +539,27 @@ const Order = () => {
                   setIDCancel(data.id);
                 }}
               />
-            </>
+              <PrinterOutlined
+                onClick={() => {
+                  showModalOrder(data.id);
+                }}
+              />
+            </div>
           );
         } else {
           return (
-            <>
+            <div className="thao_tac">
               <EyeOutlined
                 onClick={() => {
                   showModalData(data.id);
                 }}
               />
-            </>
+              <PrinterOutlined
+                onClick={() => {
+                  showModalOrder(data.id);
+                }}
+              />
+            </div>
           );
         }
       },
@@ -575,42 +602,6 @@ const Order = () => {
 
   const onSearch = (value) => {
     console.log("search:", value);
-  };
-  const [open, setOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
-
-  const showModal = () => {
-    setOpen(true);
-  };
-
-  const handleOk = () => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
-  };
-
-  const onEdit = (record) => {
-    setEditing(true);
-  };
-
-  const onView = (record) => {
-    setView(true);
-  };
-
-  const handleCancel = () => {
-    console.log("Clicked cancel button");
-    setOpen(false);
-  };
-
-  //xử lý date
-  const [size, setSize] = useState("middle");
-
-  const handleSizeChange = (e) => {
-    setSize(e.target.value);
   };
   const navigate = useNavigate();
   const [keyOrder, setKey] = useState("/order/create");
@@ -677,7 +668,7 @@ const Order = () => {
                       ? tableParamsWait.pagination.total
                       : 0}
                   </h3>
-                  <h6 className="text-center text-secondary">Đang giao</h6>
+                  <h6 className="text-center text-secondary">Chờ lấy hàng</h6>
                 </div>
               </div>
             </div>
@@ -811,7 +802,7 @@ const Order = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -819,7 +810,7 @@ const Order = () => {
           />
           <Modal
             title="Huỷ đơn hàng"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               setEditing(false);
             }}
@@ -849,7 +840,7 @@ const Order = () => {
 
           <Modal
             title="Chi tiết đơn hàng"
-            visible={isView}
+            open={isView}
             onCancel={() => {
               setView(false);
             }}
@@ -857,7 +848,7 @@ const Order = () => {
               setView(false);
             }}
           >
-            <table class="table">
+            <table className="table">
               <thead>
                 <tr>
                   <th scope="col">Mã HDCT</th>
@@ -895,6 +886,77 @@ const Order = () => {
                 })}
               </tbody>
             </table>
+          </Modal>
+
+          <Modal
+            title="Hiển thị hóa đơn"
+            visible={isOrder}
+            onCancel={() => {
+              setOrder(false);
+            }}
+          >
+            <div className="order" ref={componentRef}>
+              <div className="title">
+                <p>Số điện thoại: 0338861522</p>
+                <p>Email: ptung539@gmail.com</p>
+                <p>Địa chỉ: Lạng Giang - Bắc Giang</p>
+                <p>Ngân hàng: NCB - Số tài khoản: 899983869999 </p>
+                <p>Chủ tài khoản: Nguyễn Văn A</p>
+                <h1>Hóa đơn mua hàng</h1>
+              </div>
+              <div className="content">
+                <h5>Mã hóa đơn:   {dataO?.id}</h5>
+                <h5>Ngày mua hàng:
+                  <Moment format="DD-MM-YYYY">
+                    {dataO?.createdAt}
+                  </Moment>
+                </h5>
+                <h5>Tên khách hàng: {dataO?.customerName}</h5>
+                <h5>Địa chỉ: {dataO?.address}</h5>
+                <h5>Số điện thoại: {dataO?.phone}</h5>
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th scope="col">Mã HDCT</th>
+                      <th scope="col">Tên sản phẩm</th>
+                      <th scope="col">Giá(VNĐ)</th>
+                      <th scope="col">Số lượng</th>
+                      <th scope="col">Tổng tiền(VNĐ)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataOD?.map((item, index) => {
+                      return (
+                        <tr key={index}>
+                          <td>{item.id}</td>
+                          <td>{item.product.name}</td>
+                          <td>{item.product.price}</td>
+                          <td>{item.quantity}</td>
+                          <td>{item.quantity * item.product.price}</td>
+                        </tr>
+                      );
+                    })}
+                    <tr>
+                      <td colSpan={4}>Tổng tiền</td>
+                      <td>{dataO?.total}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h5>Tổng số tiền phải thanh toán: {dataO?.total} VNĐ</h5>
+                <h5>Trạng thái đơn hàng:
+                  {dataO ? dataO.status == "CHO_XAC_NHAN" ? " chờ xác nhận" : dataO.status == "CHO_LAY_HANG" ? " chờ lấy hàng" :
+                    dataO.status == "DANG_GIAO" ? " đang giao" : dataO.status == "DA_NHAN" ? " đã nhận" : " đã hủy" : ""}
+                </h5>
+              </div>
+            </div>
+            <ReactToPrint
+              trigger={() => {
+                return <button>Xuất hóa đơn</button>
+              }}
+              content={() => componentRef.current}
+              documentTitle='Order'
+              pageStyle='print'
+            />
           </Modal>
         </div>
       </div>

@@ -1,12 +1,4 @@
-import {
-  Table,
-  Slider,
-  Select,
-  Input,
-  Button,
-  InputNumber,
-  Modal,
-} from "antd";
+import { Table, Slider, Select, Input, Button, InputNumber, Modal, Image } from "antd";
 import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
@@ -14,6 +6,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import CurrencyFormat from "react-currency-format";
 import { ToastContainer, toast } from "react-toastify";
 const { TextArea } = Input;
 import { useParams } from "react-router-dom";
@@ -99,9 +92,6 @@ const ConfirmOrderDetail = () => {
   };
 
   const handleUpdateOrderDetail = () => {
-    console.log("submit");
-    console.log(todos);
-    console.log(order);
     console.log(
       order.id,
       "-",
@@ -132,8 +122,6 @@ const ConfirmOrderDetail = () => {
       user: order.user,
       orderDetails: todos,
     };
-
-    console.log(od);
 
     fetch(`http://localhost:8080/api/orders/${order.id}`, {
       method: "PUT",
@@ -180,7 +168,6 @@ const ConfirmOrderDetail = () => {
 
     if (reason != undefined) {
       try {
-        console.log("vào fetch");
         fetch("http://localhost:8080/api/returns", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -230,8 +217,8 @@ const ConfirmOrderDetail = () => {
       okText: "Có",
       cancelText: "Không",
       onOk: () => {
-       handleUpdateOrderDetail();
-      }
+        handleUpdateOrderDetail();
+      },
     });
   };
 
@@ -331,10 +318,11 @@ const ConfirmOrderDetail = () => {
         }}
       >
         <div className="col-12">
-          <table class="table">
+          <table className="table">
             <thead>
               <tr>
-                <th >Mã HDCT</th>
+                <th>Mã HDCT</th>
+                <th>Hình ảnh</th>
                 <th scope="col">Tên sản phẩm</th>
                 <th scope="col">Giá</th>
                 <th scope="col">Số lượng</th>
@@ -347,8 +335,18 @@ const ConfirmOrderDetail = () => {
                 return (
                   <tr key={index}>
                     <td>{item.id}</td>
+                    <td>
+                      <Image width={100} src={item.product.images[0].name} />{" "}
+                    </td>
                     <td>{item.product.name}</td>
-                    <td>{item.product.price}</td>
+                    <td>
+                      <CurrencyFormat
+                        style={{ fontSize: "14px" }}
+                        value={item.product.price}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </td>
                     <td>
                       <InputNumber
                         // style={{width: "20%"}}
@@ -361,7 +359,14 @@ const ConfirmOrderDetail = () => {
                         }
                       />
                     </td>
-                    <td>{item.total}</td>
+                    <td>
+                      <CurrencyFormat
+                        style={{ fontSize: "14px" }}
+                        value={item.total}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </td>
                     {/* <td>
                         {item.isCheck === null ? (
                           <Button type="danger"

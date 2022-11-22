@@ -1,9 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
 import './css/cart.css';
 import imProduct from '../../asset/images/products/product01.png';
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import StoreContext from '../../store/Context';
 import { setCheckoutCart } from "../../store/Actions";
+import { useNavigate } from "react-router-dom";
 import { Select, Input, Button, Checkbox, InputNumber, Space, Modal } from "antd";
 import {
     DeleteOutlined
@@ -11,6 +12,7 @@ import {
 import CurrencyFormat from "react-currency-format";
 
 function Cart() {
+    let navigate = useNavigate();
     const [total, setTotal] = useState(0);
     const [state, dispatch] = useContext(StoreContext);
     console.log("list cart", state.cart)
@@ -26,6 +28,7 @@ function Cart() {
     useEffect(() => {
         getTotal();
     }, [carts]);
+
     const handleCheckout = () => {
         const checkboxes = document.querySelectorAll('input[name="ck"]');
         checkboxes.forEach((checkbox) => {
@@ -35,6 +38,19 @@ function Cart() {
             setChecked(checked)
         });
         dispatch(setCheckoutCart(checked))
+        if (localStorage.getItem("token") == null || localStorage.getItem("token") === "") {
+            navigate('/login');
+        } else {
+            navigate('/user/checkout');
+            const checkboxes = document.querySelectorAll('input[name="ck"]');
+            checkboxes.forEach((checkbox) => {
+                if (checkbox.checked == true) {
+                    carts.forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "")
+                }
+                setChecked(checked)
+            });
+            dispatch(setCheckoutCart(checked))
+        }
     }
 
     const [checked, setChecked] = useState([]);
@@ -148,7 +164,7 @@ function Cart() {
                     <span className="text-danger cart-footer-text">{formatCash(total + "")} VNĐ</span>
                 </div>
                 <div className="mt-2">
-                    <Link className="btn btn-primary btn-cart" onClick={handleCheckout} to={"/user/checkout"}>Tiến hành đặt hàng</Link>
+                    <a className="btn btn-primary btn-cart" onClick={handleCheckout}>Tiến hành đặt hàng</a>
                 </div>
                 <div className="mt-2">
                     <button className="btn btn-outline-primary btn-cart">Chọn thêm sản phẩm</button>

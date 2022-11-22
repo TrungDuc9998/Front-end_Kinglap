@@ -1,4 +1,4 @@
-import { Select, Input, Button, Checkbox, InputNumber, Space } from "antd";
+import { Select, Input, Button, InputNumber, Space, Image } from "antd";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import qs from "qs";
@@ -6,6 +6,7 @@ import "../Order/table.css";
 import { Table, Modal } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
+import CurrencyFormat from "react-currency-format";
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -93,6 +94,7 @@ function Table1() {
   const [note, setNote] = useState();
   const [userId, setUserId] = useState();
   const [discounts, setDiscounts] = useState();
+  const [userNameLogin, setUserNameLogin] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -242,7 +244,8 @@ function Table1() {
             total: order.total,
             address: order.address,
             note: order.note,
-            customerName: order.customerName == "" ? "Nguyễn Thị Huệ" : order.customerName ,
+            customerName:
+              order.customerName == "" ? "Nguyễn Thị Huệ" : order.customerName,
             phone: order.phone,
             status: "CHO_XAC_NHAN",
             orderDetails: orderDetails,
@@ -333,7 +336,6 @@ function Table1() {
     }
   };
 
-
   const onChangeDiscount = (value) => {
     console.log("DATA Discount: " + value);
     // setProvinceID(value);
@@ -377,6 +379,15 @@ function Table1() {
       SubmitShipping();
     }
   };
+
+  const onChangePhoneNumber = (value) => {
+    console.log("changProduct: "+ value);
+  }
+
+  const onSearchPhoneNumber = (value) => {
+    console.log('search product: ' + value);
+  }
+  
 
   const onChangeProduct = (value) => {
     setValueProduct(value);
@@ -617,6 +628,9 @@ function Table1() {
   };
 
   useEffect(() => {
+    if (localStorage.getItem("username") != undefined) {
+      setUserNameLogin(localStorage.getItem("username"));
+    }
     loadDataProvince();
     loadDataProduct();
     loadDataClient();
@@ -759,7 +773,7 @@ function Table1() {
                   placeholder="Tên sản phẩm"
                   optionFilterProp="children"
                   style={{
-                    width: 400,
+                    width: 700,
                   }}
                   onChange={onChangeProduct}
                   onClick={onSearchProduct}
@@ -768,9 +782,10 @@ function Table1() {
                   }
                 >
                   {data != undefined
-                    ? data.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.name}
+                    ? data.map((item, index) => (
+                        <Option key={index} value={item.id}>
+                          {item.name}{" "}
+                          {/* <Image width={90} src={item.images[0].name}/>{" "} */}
                         </Option>
                       ))
                     : ""}
@@ -916,7 +931,7 @@ function Table1() {
                   value={address}
                   placeholder="Nhập địa chỉ"
                   onChange={changeAddRess}
-                  onClick = {changeAddRess}
+                  onClick={changeAddRess}
                 />
               </Modal>
             </div>
@@ -925,12 +940,37 @@ function Table1() {
             <div className="col-6">
               <div className="form-group">
                 <label>Thông tin người bán</label>
-                <Input placeholder="Hà Trung Kiên" />
+                <Input
+                  readOnly="true"
+                  value={userNameLogin}
+                  placeholder="Hà Trung Kiên"
+                />
               </div>
             </div>
             <div className="col-6">
               <div className="form-group">
                 <label>Số điện thoại khách hàng</label>
+                <Select
+                  style={{
+                    width: "100%"
+                  }}
+                  showSearch
+                  placeholder="Số điện thoại khách hàng"
+                  optionFilterProp="children"
+                  onChange={onChangePhoneNumber}
+                  onClick={onSearchPhoneNumber}
+                  filterOption={(input, option) =>
+                    option.children.includes(input.toLowerCase())
+                  }
+                >
+                  {data != undefined
+                    ? users.map((item, index) => (
+                        <Option key={index} value={item.id}>
+                          {item.phoneNumber}{" "}
+                        </Option>
+                      ))
+                    : ""}
+                </Select>
                 <Input
                   onChange={(e) => setPhoneClient(e.target.value)}
                   value={phoneNumberForm}
@@ -950,8 +990,12 @@ function Table1() {
                   }}
                   onChange={handleChangePayment}
                 >
-                  <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
-                  <Option key={"GIAO HÀNG TẠI NHÀ"} value="GIAO HÀNG TẠI NHÀ">Giao hàng tại nhà</Option>
+                  <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">
+                    Tại cửa hàng
+                  </Option>
+                  <Option key={"GIAO HÀNG TẠI NHÀ"} value="GIAO HÀNG TẠI NHÀ">
+                    Giao hàng tại nhà
+                  </Option>
                 </Select>
               </div>
             </div>
@@ -1072,19 +1116,22 @@ function Table1() {
               <div className="form-group">
                 <label>Tổng tiền</label>
                 <br />
-                <Space direction="vertical">
-                  <InputNumber
-                    className="text-danger fw-bold"
-                    style={{
-                      width: 240,
-                    }}
-                    disabled={true}
-                    value={total}
-                    onChange={(e) => setTotal(e.target.value)}
-                    addonAfter={"VNĐ"}
-                    defaultValue={0}
-                  />
-                </Space>
+                {/* <Space direction="vertical"> */}
+                <Input
+                  className="text-danger fw-bold"
+                  style={{
+                    width: 240,
+                  }}
+                  readOnly={true}
+                  value={total.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                  onChange={(e) => setTotal(e.target.value)}
+                  // addonAfter={"VNĐ"}
+                  defaultValue={0}
+                />
+                {/* </Space> */}
               </div>
             </div>
           </div>
@@ -1098,25 +1145,31 @@ function Table1() {
                 }}
                 onChange={handleChangePayment}
               >
-                <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">Tại cửa hàng</Option>
-                <Option key={"TÀI KHOẢN VN PAY"} value="TÀI KHOẢN VN PAY">Tài khoản VN PAY</Option>
+                <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">
+                  Tại cửa hàng
+                </Option>
+                <Option key={"TÀI KHOẢN VN PAY"} value="TÀI KHOẢN VN PAY">
+                  Tài khoản VN PAY
+                </Option>
               </Select>
             </div>
             <div className="col-6">
               <div className="form-group">
                 <label>Phí ship</label>
-                <Space direction="vertical">
-                  <InputNumber
-                    style={{
-                      width: 240,
-                    }}
-                    className="text-danger"
-                    disabled
-                    value={shipping}
-                    defaultValue={0}
-                    addonAfter={"VNĐ"}
-                  />
-                </Space>
+                {/* <Space direction="vertical"> */}
+                <Input
+                  style={{
+                    width: 240,
+                  }}
+                  className="text-danger fw-bold"
+                  readOnly={true}
+                  value={shipping.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                  defaultValue={0}
+                />
+                {/* </Space> */}
               </div>
             </div>
           </div>
@@ -1143,6 +1196,7 @@ function Table1() {
                 <thead>
                   <tr>
                     <th>STT</th>
+                    <th>Hình ảnh</th>
                     <th>Tên sản phẩm</th>
                     <th>Đơn giá</th>
                     <th>Số lượng</th>
@@ -1154,8 +1208,21 @@ function Table1() {
                     return (
                       <tr key={index}>
                         <td>{index}</td>
+                        <td>
+                          <Image
+                            width={90}
+                            src={item.productId.images[0].name}
+                          />
+                        </td>
                         <td>{item.productId.name}</td>
-                        <td>{item.productId.price}</td>
+                        <td>
+                          <CurrencyFormat
+                            style={{ fontSize: "14px" }}
+                            value={item.productId.price}
+                            displayType={"text"}
+                            thousandSeparator={true}
+                          />
+                        </td>
                         <td key={item.productId.id}>
                           <InputNumber
                             // disabled={isDisabled}
@@ -1175,7 +1242,14 @@ function Table1() {
                             max={item.productId.quantity}
                           />
                         </td>
-                        <td>{item.total}</td>
+                        <td>
+                          <CurrencyFormat
+                            style={{ fontSize: "14px" }}
+                            value={item.total}
+                            displayType={"text"}
+                            thousandSeparator={true}
+                          />
+                        </td>
                         <td>
                           <DeleteOutlined
                             onClick={() => onDelete(item.id)}
@@ -1197,7 +1271,7 @@ function Table1() {
               /> */}
               <Modal
                 title="Xóa sản phẩm "
-                visible={isDelete}
+                open={isDelete}
                 onCancel={() => {
                   setDelete(false);
                 }}

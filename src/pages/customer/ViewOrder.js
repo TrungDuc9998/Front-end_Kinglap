@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import product8 from "../../asset/images/products/product08.png";
 import qs from "qs";
-import { Modal, Table, Tabs, InputNumber } from "antd";
+import { Modal, Table, Tabs, InputNumber,Image } from "antd";
 import toastrs from "toastr";
 import { ToastContainer, toast } from "react-toastify";
 import {
@@ -21,7 +21,7 @@ function ViewOrder() {
   const [totalSet, setTotal] = useState(10);
   const [todos, setTodos] = useState([]);
   const [quantity, setQuantity] = useState();
-  const [dataOrder,setDataOrder] = useState();
+  const [dataOrder, setDataOrder] = useState();
   const [orderId, setOrderId] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -34,20 +34,26 @@ function ViewOrder() {
     page: params.pagination?.current,
   });
   const getData = () => {
-    axios
-      .get(url + `?${qs.stringify(getRandomuserParams(tableParams))}`)
+    let userId = localStorage.getItem("username");
+    console.log(userId);
+
+    fetch(
+      `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
+        getRandomuserParams(tableParams))}`
+    )
+      .then((res) => res.json())
       .then((results) => {
-        setOrders(results.data.data.data);
-        setOrderDetails(results.data.data.data[0].orderDetails);
-        // console.log(results.data.data.data)
-        setTotal(results.data.data.total);
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: totalSet,
-          },
-        });
+        console.log(results);
+            setOrders(results);
+            setOrderDetails(results[0].orderDetails);
+            setTotal(results.total);
+            setTableParams({
+              ...tableParams,
+              pagination: {
+                ...tableParams.pagination,
+                total: totalSet,
+              },
+            });
       });
   };
   useEffect(() => {
@@ -72,10 +78,15 @@ function ViewOrder() {
       dataIndex: "total",
       sorter: true,
       width: "9%",
+      render(total) {
+        return(
+          total.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})
+        )
+      }
     },
     {
       title: "Hình thức thanh toán",
-      dataIndex: "total",
+      dataIndex: "payment",
       sorter: true,
       width: "15%",
       render: (payment) => {
@@ -230,14 +241,14 @@ function ViewOrder() {
                   showModalData(data.id);
                 }}
               />
-              <CheckCircleOutlined
+              {/* <CheckCircleOutlined
                 className="ms-2"
                 style={{ fontSize: "20px", color: "blue" }}
                 onClick={() => {
                   showModalConfirm(data.id);
                   setIDCancel(data.id);
                 }}
-              />
+              /> */}
             </>
           );
         } else {
@@ -330,7 +341,6 @@ function ViewOrder() {
         todos?.forEach((item, index) => {
           if (item.id === id) {
             abc = index;
-            console.log(abc);
           }
         });
         todos[abc].quantity = value;
@@ -345,17 +355,13 @@ function ViewOrder() {
         });
       }
     }
-    console.log(todos);
     setTodos(todos);
   };
 
   const loadDataOrder = () => {
-    console.log(orderId);
-    // setLoading(true);
     fetch(`http://localhost:8080/api/orders/get/${orderId}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res.data);
         setDataOrder(res.data);
       });
   };
@@ -429,7 +435,7 @@ function ViewOrder() {
                   children: (
                     <Table
                       columns={columns}
-                      rowKey={(record) => record++}
+                      rowKey={(record) => record.id}
                       dataSource={orders.filter(
                         (order) => order.status === "CHO_XAC_NHAN"
                       )}
@@ -510,7 +516,7 @@ function ViewOrder() {
 
             <Modal
               title="Xác nhận"
-              visible={isConfirm}
+              open={isConfirm}
               onCancel={() => {
                 setConfirm(false);
               }}
@@ -543,7 +549,7 @@ function ViewOrder() {
 
             <Modal
               title="Xác nhận"
-              visible={isEditing}
+              open={isEditing}
               onCancel={() => {
                 setEditing(false);
               }}
@@ -577,7 +583,7 @@ function ViewOrder() {
 
             <Modal
               title="Chi tiết đơn hàng"
-              visible={isView}
+              open={isView}
               onCancel={() => {
                 setView(false);
               }}
@@ -590,11 +596,12 @@ function ViewOrder() {
                 <thead>
                   <tr>
                     <th scope="col">Mã HDCT</th>
+                    <th>Hình ảnh</th>
                     <th scope="col">Tên sản phẩm</th>
                     <th scope="col">Giá</th>
                     <th scope="col">Số lượng</th>
                     <th scope="col">Tổng tiền</th>
-                    <th scope="col">Trạng thái</th>
+                    {/* <th scope="col">Trạng thái</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -602,8 +609,9 @@ function ViewOrder() {
                     return (
                       <tr key={index}>
                         <td>{item.id}</td>
+                        <td> <Image width={90} src={item.product.images[0].name} />{" "}</td>
                         <td>{item.product.name}</td>
-                        <td>{item.product.price}</td>
+                        <td>{item.product.price.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</td>
                         <td>
                           <InputNumber
                             // style={{width: "20%"}}
@@ -621,8 +629,8 @@ function ViewOrder() {
                             }
                           />
                         </td>
-                        <td>{item.quantity * item.product.price}</td>
-                        <td>{item.status}</td>
+                        <td>{item.total.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</td>
+                        {/* <td>{item.status}</td> */}
                       </tr>
                     );
                   })}

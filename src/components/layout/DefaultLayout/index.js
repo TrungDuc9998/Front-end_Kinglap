@@ -11,7 +11,7 @@ import {
   UserSwitchOutlined
 } from "@ant-design/icons";
 import { Breadcrumb, Layout, Menu } from "antd";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Header1 } from './Header'
 const { Header, Content, Footer, Sider } = Layout;
@@ -53,7 +53,14 @@ const items = [
 
 const DefaultLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [userName,setUserName] = useState();
   const navigate = useNavigate();
+
+  useEffect(()=> {
+    if(localStorage.getItem("username") != undefined){
+      setUserName(localStorage.getItem("username"));
+    }
+  },[]);
   return (
     <Layout
       style={{
@@ -86,7 +93,8 @@ const DefaultLayout = ({ children }) => {
             textAlign: "center"
           }}>
           <div className="d-flex justify-content-end me-5">
-            <Link to={'login'} className="acc"><UserSwitchOutlined className="me-2 ic" style={{ fontSize: '22px' }} />Đăng nhập</Link>
+            <Link to={'login'} className="acc"><UserSwitchOutlined className="me-2 ic text-light" style={{ fontSize: '22px' }} />
+            <i className="text-light"> {userName!= undefined? 'Xin chào, '+userName : "Đăng nhập"} </i></Link>
           </div>
         </Header>
         <Content

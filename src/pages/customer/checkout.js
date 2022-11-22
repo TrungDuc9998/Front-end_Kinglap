@@ -34,52 +34,56 @@ function Checkout() {
     const [totalWith, setTotalWidth] = useState();
 
     const createOrder = () => {
-        if (status == 0) {
-            fetch(
-                `http://localhost:8080/api/orders`,
-                {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: 147,
-                        total: parseInt(getTotal(carts)) + parseInt(shipping),
-                        payment: payment,
-                        // type: type,
-                        address: type === 1 ? 'TẠI CỬA HÀNG' : (address + ', ' + valueWard + ', ' + valueDistrict + ', ' + value),
-                        phone: phone,
-                        customerName: name,
-                        // email: email,
-                        status: status,
-                        orderDetails: getListSetListOrderDetails(carts)
-                    })
-                }
-            )
-                .then((results) => {
-                    if (results.status == 200) {
-                        toastSuccess("Đặt hàng thành công!");
-                    } else {
-                        toastError(results.message);
-                    }
-                });
+        if (localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
+            window.location.href = '/login';
         } else {
-            fetch(
-                `http://localhost:8080/api/vnpay`,
-                {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        vnp_OrderInfo: "Thanh toán VnPay cho khách hàng " + name,
-                        orderType: "other",
-                        amount: parseInt(getTotal(carts)) + parseInt(shipping),
-                        bankCode: "NCB",
-                        language: "vn"
+            if (payment == 0) {
+                fetch(
+                    `http://localhost:8080/api/orders`,
+                    {
+                        method: "POST",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: 147,
+                            total: parseInt(getTotal(carts)) + parseInt(shipping),
+                            payment: payment,
+                            // type: type,
+                            address: type === 1 ? 'TẠI CỬA HÀNG' : (address + ', ' + valueWard + ', ' + valueDistrict + ', ' + value),
+                            phone: phone,
+                            customerName: name,
+                            // email: email,
+                            status: status,
+                            orderDetails: getListSetListOrderDetails(carts)
+                        })
+                    }
+                )
+                    .then((results) => {
+                        if (results.status == 200) {
+                            toastSuccess("Đặt hàng thành công!");
+                        } else {
+                            toastError(results.message);
+                        }
+                    });
+            } else {
+                fetch(
+                    `http://localhost:8080/api/vnpay`,
+                    {
+                        method: "POST",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            vnp_OrderInfo: "Thanh toán VnPay cho khách hàng " + name,
+                            orderType: "other",
+                            amount: parseInt(getTotal(carts)) + parseInt(shipping),
+                            bankCode: "NCB",
+                            language: "vn"
+                        })
+                    }
+                )
+                    .then((response) => response.json())
+                    .then((data) => {
+                        window.location.href = data.paymentUrl;
                     })
-                }
-            )
-                .then((response) => response.json())
-                .then((data) => {
-                    window.location.href = data.paymentUrl;
-                })
+            }
         }
     }
 
