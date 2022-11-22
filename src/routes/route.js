@@ -107,7 +107,6 @@ const publicRoutes = [
     path: "/admin/order/wait",
     component: OrderWait,
   },
-  ,
   {
     path: "/admin/order/exchange/:id",
     component: Exchange,
