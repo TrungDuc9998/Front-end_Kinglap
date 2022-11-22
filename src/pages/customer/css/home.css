@@ -1370,11 +1370,15 @@ svg {
 }
 
 /* ----------------------------------- */
-.product .product-body .product-img {
+.product .product-img {
     min-height: 237.35px;
-    width: 237.35px;
-    height: 237.35px;
 }
+
+.product .product-img >img{
+    width: 100%;
+    max-height: 237.35px;
+}
+
 
 .product .product-body .product-name>a {
     overflow: hidden;
