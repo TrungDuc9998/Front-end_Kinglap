@@ -254,7 +254,7 @@
     box-shadow: 0px 0px 0px 0px #E4E7ED, 0px 0px 0px 1px #E4E7ED;
     -webkit-transition: 0.2s all;
     transition: 0.2s all;
-    width: 18%;
+    width: 18.4%;
     margin-left: 20px;
 }
 
@@ -1367,4 +1367,38 @@
 
 svg {
     margin-right: 0 !important;
+}
+
+/* ----------------------------------- */
+.product .product-img {
+    min-height: 237.35px;
+}
+
+.product .product-img >img{
+    width: 100%;
+    max-height: 237.35px;
+}
+
+
+.product .product-body .product-name>a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 20px;
+    -webkit-line-clamp: 2;
+    height: 40px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    word-wrap: break-word;
+}
+
+.product .product-body .product-price {
+    line-height: 20px;
+    -webkit-line-clamp: 2;
+    height: 40px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+.product .product-body .product-price .product-old-price {
+    display: block;
 }

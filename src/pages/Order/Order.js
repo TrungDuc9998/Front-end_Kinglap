@@ -930,19 +930,41 @@ const Order = () => {
                         <tr key={index}>
                           <td>{item.id}</td>
                           <td>{item.product.name}</td>
-                          <td>{item.product.price}</td>
+                          <td><CurrencyFormat
+                            style={{ fontSize: "14px" }}
+                            value={item.product.price}
+                            displayType={"text"}
+                            thousandSeparator={true}
+                          /></td>
                           <td>{item.quantity}</td>
-                          <td>{item.quantity * item.product.price}</td>
+                          <td><CurrencyFormat
+                            style={{ fontSize: "14px" }}
+                            value={item.quantity * item.product.price}
+                            displayType={"text"}
+                            thousandSeparator={true}
+                          /></td>
                         </tr>
+
                       );
                     })}
                     <tr>
                       <td colSpan={4}>Tổng tiền</td>
-                      <td>{dataO?.total}</td>
+                      <td><CurrencyFormat
+                        style={{ fontSize: "14px" }}
+                        value={dataO?.total}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      /></td>
+
                     </tr>
                   </tbody>
                 </table>
-                <h5>Tổng số tiền phải thanh toán: {dataO?.total} VNĐ</h5>
+                <h5>Tổng số tiền phải thanh toán: <CurrencyFormat
+                  style={{ fontSize: "14px" }}
+                  value={dataO?.total}
+                  displayType={"text"}
+                  thousandSeparator={true}
+                /> VNĐ</h5>
                 <h5>Trạng thái đơn hàng:
                   {dataO ? dataO.status == "CHO_XAC_NHAN" ? " chờ xác nhận" : dataO.status == "CHO_LAY_HANG" ? " chờ lấy hàng" :
                     dataO.status == "DANG_GIAO" ? " đang giao" : dataO.status == "DA_NHAN" ? " đã nhận" : " đã hủy" : ""}
