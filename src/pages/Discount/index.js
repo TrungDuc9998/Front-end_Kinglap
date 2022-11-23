@@ -11,8 +11,7 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-// import { Formik, Field,Form, ErrorMessage } from 'formik';
-// import * as Yup from 'yup';
+import Product from "../Product/index";
 import moment from "moment";
 import axios from "axios";
 import 'toastr/build/toastr.min.css';
@@ -23,7 +22,15 @@ import Moment from 'react-moment';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const url = 'http://localhost:8080/api/discount';
+const url_Pro = 'http://localhost:8080/api/products';
 
+export function compareTime(endDate) {
+  const now = new Date();
+  if (new Date(endDate) > now) {
+    return 1
+  }
+  return 0
+}
 
 const Discount = () => {
   const [data, setData] = useState([{
@@ -62,6 +69,9 @@ const Discount = () => {
   const [searchStartDate, setSearchStartDate] = useState(getDateTime());
   const [searchEndDate, setSearchEndDate] = useState(getDateTime());
   const [modalText, setModalText] = useState("Content of the modal");
+  const [dataProduct, setDataProduct] = useState();
+  const [dataDiscount, setDataDiscount] = useState();
+  const [checked, setChecked] = useState([]);
 
   const notifySuccess = (message) => {
     toast.success(message, {
@@ -131,6 +141,25 @@ const Discount = () => {
     },
   });
 
+  // Call API product 
+  const handAPIProduct = () => {
+    axios.get(url_Pro + "/all").then((res) => {
+      console.log(res.data);
+      setDataProduct(res.data);
+    });
+    setView(true);
+  }
+
+  // Call API Product
+  const showDataProduct = (id) => {
+    console.log(id);
+
+    axios.get(url + "/" + id).then((res) => {
+      console.log(">>>>>>>>>", res.data);
+      setDataDiscount(res.data);
+    });
+    handAPIProduct()
+  }
 
   const columns = [
     {
@@ -219,7 +248,7 @@ const Discount = () => {
               <UnlockOutlined
                 className="mt-2"
                 type="dashed"
-                onClick={() => activeItem(id)}
+                onClick={() => activeItem(id, data)}
                 style={{ borderRadius: "10px" }}
               />
               <EditOutlined
@@ -232,7 +261,6 @@ const Discount = () => {
                 onClick={() => onDelete(id)}
                 style={{ color: "red", marginLeft: 12 }}
               />
-
             </>
           );
         } else if (data.active == 1 || data.active == 0) {
@@ -241,7 +269,7 @@ const Discount = () => {
               <UnlockOutlined
                 className="mt-2"
                 type="dashed"
-                onClick={() => activeItem(id)}
+                onClick={() => activeItem(id, data)}
                 style={{ borderRadius: "10px" }}
               />
               <EditOutlined
@@ -255,6 +283,18 @@ const Discount = () => {
         }
       },
     },
+    {
+      title: "Thao tác",
+      dataIndex: "id",
+      width: "10%",
+      render: (id, data) => {
+        if (data.active == 1) {
+          return (
+            <Button type="danger" style={{ borderRadius: "7px" }} onClick={() => { showDataProduct(id) }}>Áp dụng</Button>
+          )
+        }
+      }
+    }
   ];
 
   //APILoadList
@@ -265,6 +305,9 @@ const Discount = () => {
     )}`)
       // .then((res) => res.json())
       .then((results) => {
+        results.data.data.data.forEach((x) => {
+          x.active = x.active === 2 ? x.active : compareTime(x.endDate)
+        })
         setData(results.data.data.data);
         setTotal(results.data.data.total);
         setLoading(false);
@@ -292,7 +335,6 @@ const Discount = () => {
     });
   };
 
-
   const showModalAdd = () => {
     setAdd(true);
   };
@@ -309,10 +351,6 @@ const Discount = () => {
   const onView = (record) => {
     setView(true);
   };
-  // const showModalEdit = () => {
-  //   setEditing(true);
-  // };
-
 
   const draft = () => {
     axios.post(url + "/draft", form)
@@ -382,6 +420,7 @@ const Discount = () => {
     }
 
   }
+
 
   //Delete
   const onDelete = (id) => {
@@ -453,22 +492,15 @@ const Discount = () => {
         endDate: dateStrings[1]
       });
   };
-  // const setDatesSearch = (e) => {
-  //   console.log(e);
-  //   if(e[0]!="")
-  //   setSearchStartDate(e[0]._d);
-  //   if(e[1]!="")
-  //   setSearchEndDate(e[1]._d);
-  // };
-
-
 
   const handleCancel = () => {
     console.log("Clicked cancel button");
     setAdd(false);
     setEditing(false);
     setValues(formDefault);
+    setView(false);
   };
+
 
   //search
   const search = () => {
@@ -495,7 +527,26 @@ const Discount = () => {
       });
   }
 
+  // Call API DiscountProduct
+  const handDiscountProduct = () => {
+    const checkbox1 = document.querySelectorAll('input[name="checkbox');
+    checkbox1.forEach((checkbox) => {
+      if (checkbox.checked == true) {
+        checked.push(checkbox.value);
+      }
+      setChecked(checked);
+    })
+    console.log(checked);
 
+    axios.put(url_Pro + "/discountProduct/" + dataDiscount.data.id,
+      checked
+    ).then((res) => {
+      console.log(">>>>>>>>>DiscountProduct", res.data);
+      setDataDiscount(res.data);
+      handAPIProduct();
+      handleCancel()
+    });
+  }
 
   const clearSearchForm = () => {
     setSearchStartDate(getDateTime());
@@ -511,170 +562,39 @@ const Discount = () => {
     });
     getData();
   }
-  const activeItem = (id) => {
-    let activeItem = window.confirm('Chuyển trạng thái thành hoạt động?')
-    if (activeItem) {
-      handleConfirmActive(id)
+  const activeItem = (id, data) => {
+    Modal.confirm({
+      title: "Chuyển trạng thái",
+      content: "Bạn có muốn chuyển trạng thái",
+      onOk() {
+        handleConfirmActive(id, data)
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    })
+  }
+  const handleConfirmActive = (id, data) => {
+    if (data.active == 0 || data.active == 2) {
+      axios.put(url + "/active/" + id)
+        .then(res => {
+          notifySuccess('Chuyển trạng thái hoạt động thành công!')
+          getData();
+          console.log(res.data);
+        }
+        )
+    } else if (data.active == 1) {
+      axios.put(url + "/inactive/" + id)
+        .then(res => {
+          notifySuccess('Chuyển trạng thái không hoạt động thành công!')
+          getData();
+          console.log(res.data);
+        }
+        )
     }
   }
-  const handleConfirmActive = (id) => {
-    axios.put(url + "/active/" + id)
-      .then(res => {
-        notifySuccess('Chuyển trạng thái hoạt động thành công!')
-        getData();
-        console.log(res.data);
-      }
-      )
-  }
-
-  // const validationSchema=Yup.object({
-  //   name: Yup.string()
-  //   .max(15, 'Must be 15 characters or less')
-  //   .required('Name is required'),
-  //   ratio: Yup.number().min(0,"Giá trị thấp nhất là 0").required("Không được để trống").nullable(),
-  //   startDate: Yup.date()
-  //   .transform(function transformDate(castValue, originalValue) {
-  //     return originalValue ? new Date(originalValue) : castValue;
-  //   })
-  //   .typeError("Thời gian không đúng định dạng")
-  //   .required("Không được để trống")
-  //   .nullable(),
-  //   endDate: Yup.date()
-  //   .test(
-  //     "is-greater-time",
-  //     "Thời gian kết thúc phải lớn hơn thời gian bắt đầu",
-  //     function (value) {
-  //       const { discount } = this.data;
-  //       if (discount && value) {
-  //         let startDate = moment(discount?.startDate).format("dd-MM-yyyy HH:mm:ss");
-  //         let endDate = moment(discount?.endDate).format("dd-MM-yyyy HH:mm:ss");
-  //         if (startDate <= endDate) {
-  //           return true;
-  //         } else {
-  //           return false;
-  //         }
-  //       }
-  //       return true;
-  //     }
-  //   )
-  //   .transform(function transformDate(castValue, originalValue) {
-  //     return originalValue ? new Date(originalValue) : castValue;
-  //   })
-  //   .typeError("Thời gian không đúng định dạng")
-  //   .required("Không được để trống")
-  //   .nullable(),
-
-  //   })
   return (
     <div>
-      {/* <div
-        className="row"
-        style={{
-          borderRadius: "20px",
-          height: "auto",
-          border: "1px solid #d9d9d9",
-          background: "#fafafa",
-        }}
-      >
-          <Formik
-            initialValues={data}
-            validationSchema={validationSchema}
-            enableReinitialize
-            
-            onChange={onChange}
-            // onSubmit={data ? submitFormEdit : submitFormAdd}
-            
-            >{({ errors, status, touched }) => (
-              <Form>
-                <div className="row">
-                <div className="row">
-                  <div className="col-6 mt-4">
-                    <label>Tiêu đề</label>
-                    <br></br>
-                    <Field  style={{width: "300px", borderRadius: "5px" }} placeholder="Nhập tiêu đề"  name="name" type="text" className={'form-control' + (errors.name && touched.name ? ' is-invalid' : '')} value={data.name=== null ? "" :data.name} onChange={onChange}/>
-                    <ErrorMessage name="name" component="div" className="invalid-feedback" />
-                  </div>
-                  <div className="col-xl-6 col-12 mt-4">
-                    <label>Thời gian giảm giá: </label>
-                    <br></br>
-                    <Space direction="vertical" size={12}  style={{width: "300px", borderRadius: "5px" }}>
-                      <RangePicker
-                        size={"middle"}
-                        showTime={{ format: 'HH:mm:ss' }}
-                        name=""
-                        //defaultValue={[moment(new Date(), "yyyy/MM/DD HH:mm:ss"), moment(new Date(), "yyyy/MM/DD HH:mm:ss")]}
-                        format={"yyyy/MM/DD HH:mm:ss"}
-                        onChange={onChangeDate}
-                        onOk={onOk}
-                      />
-                    </Space>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-6 mt-4">
-                    <label>Tỉ lệ</label>
-                    <br></br>
-                    <Input  style={{width: "300px", borderRadius: "5px" }} placeholder="Nhập tỉ lệ" name="ratio" type="text" className={'form-control' + (errors.ratio && touched.ratio ? ' is-invalid' : '')} value={data.ratio=== null ? "" :data.ratio} onChange={onChange}/>
-                  </div>
-                  <div className="col-xl-6 col-12 mt-4">
-                    <label>Trạng thái</label>
-                    <br />
-                    <Select
-                      style={{width: "300px", borderRadius: "5px" }}
-                      showSearch
-                      placeholder="Chọn trạng thái"
-                      optionFilterProp="children"
-                      name="active" type="text" 
-                      // className={'form-control' + (errors.name && touched.name ? ' is-invalid' : '')} 
-                      value={data.active=== null ? "" :data.active} onChange={onChange}
-                      onSearch={onSearch}
-                      filterOption={(input, option) =>
-                        option.children.toLowerCase().includes(input.toLowerCase())
-                      }
-                    >
-                      <Option value="1">Hoạt động</Option>
-                      <Option value="0">Không hoạt động</Option>
-                    </Select>
-                  </div>
-                </div>
-                
-                
-              </div>
-              <div className="row">
-                  <div className="col-12 text-center ">
-                    <Button
-                      className="mt-2 mb-2"
-                      type="primary-uotline"
-                      // onClick={showModal}
-                      style={{ borderRadius: "10px" }}
-                    >
-                    <ReloadOutlined/>Đặt lại
-                    </Button>
-                    <Button
-                      className="mt-2 mb-2"
-                      type="primary-success"
-                      onClick={showModal}
-                      style={{ borderRadius: "10px" }}
-                    >
-                    Save
-                    </Button>
-                  <Button
-                      className="mx-2  mt-2 mb-2"
-                      type="primary"
-                      // onClick={showModal}
-                      style={{ borderRadius: "10px" }}
-                    >
-                    <SearchOutlined />Tìm kiếm
-                    </Button>
-                  </div>
-              </div>
-              
-              </Form>
-          )}
-          </Formik>
-      </div> */}
-
-
       <ToastContainer />
       <div className="row">
         <div className="col-12 mt-4">
@@ -730,6 +650,58 @@ const Discount = () => {
             </div>
           </div>
 
+          {/* Modal Áp dụng mã giảm giá */}
+          <Modal
+            title="Áp dụng mã giảm giá"
+            visible={isView}
+            // onOk={handleAdd}
+            confirmLoading={confirmLoading}
+            onCancel={handleCancel}
+            footer={[
+              <Button key="back" onClick={handleCancel} style={{ borderRadius: "7px" }}>
+                Hủy
+              </Button>,
+              <Button type="danger" onClick={handDiscountProduct}
+                style={{ borderRadius: "7px" }}>
+                Áp dụng
+              </Button>
+            ]}
+          >
+            {/* console.log(id); */}
+            <div className="row">
+              <div className="col-12">
+                {/* <h1>abc{dataDiscount?.id}</h1> */}
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Tên sản phẩm</th>
+                      <th scope="col">Giá tiền</th>
+                      <th scope="col">Số lượng</th>
+                      <th scope="col">Mã máy</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataProduct?.map((item, index) => {
+                      // console.log("ratio", id);
+                      return (
+                        <tr key={index}>
+                          <td><input type={"checkbox"} name="checkbox" value={item.id} ></input></td>
+                          <td>{item.name}</td>
+                          <td>{item.price}</td>
+                          <td>{item.quantity}</td>
+                          <td>{item.imei}</td>
+                          {/* <td>{item.price - (item.price * item.discount)}</td> */}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Modal>
+
+
           {/* Add */}
           <div className="row">
             <div className="col-12 mt-4">
@@ -737,7 +709,7 @@ const Discount = () => {
                 className="offset-11 "
                 type="primary"
                 onClick={showModalAdd}
-                style={{ borderRadius: "10px" }}
+                style={{ borderRadius: "5px" }}
               >
                 <PlusOutlined />
                 Thêm mới
@@ -786,35 +758,11 @@ const Discount = () => {
                         />
                       </Space>
                     </div>
-                    {/* <div className="col-12 mt-1">
-                      <label>Trạng thái<span className="text-danger"> *</span></label>
-                      <Select
-                        style={{ width: "472px", borderRadius: "5px" }}
-                        showSearch
-                        placeholder="Chọn trạng thái"
-                        optionFilterProp="children"
-                        onChange={(e) => handleChange(e)} name="active" value={form.active}
-                        // onSearch={onSearch}
-                        filterOption={(input, option) =>
-                          option.children.toLowerCase().includes(input.toLowerCase())
-                        }
-                      >
-                        <Option value={1}>Hoạt động</Option>
-                        <Option value={0}>Không hoạt động</Option>
-                      </Select>
-                    </div> */}
                   </div>
-                  {/* <Button
-                    className="mt-2"
-                    onClick={() => draft()}
-                    style={{ borderRadius: "10px" }}
-                  >
-                    <ReloadOutlined />
-                    Nháp
-                  </Button> */}
                 </div>
               </Modal>
             </div>
+
           </div>
         </div>
       </div>
@@ -872,24 +820,6 @@ const Discount = () => {
                     />
                   </Space>
                 </div>
-                {/* <div className="col-12 mt-1">
-                  <label>Trạng thái<span className="text-danger"> *</span></label>
-                  <Select
-                    style={{ width: "472px", borderRadius: "5px" }}
-                    showSearch
-                    placeholder="Chọn trạng thái"
-                    optionFilterProp="children"
-                    onChange={(e) => handleChange(e)} name="active" value={form.active}
-                    // onSearch={onSearch}
-                    filterOption={(input, option) =>
-                      option.children.toLowerCase().includes(input.toLowerCase())
-                    }
-                  >
-                    <Option value={1}>Hoạt động</Option>
-                    <Option value={0}>Không hoạt động</Option>
-                    <Option value={2}>Nháp</Option>
-                  </Select>
-                </div> */}
               </div>
 
             </div>
