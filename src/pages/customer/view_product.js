@@ -120,7 +120,7 @@ function ViewProduct() {
             <ToastContainer />
             <div className="container mt-2">
                 <div className="row">
-                    <div className="col-2 bg-success">ádasdas</div>
+                    {/* <div className="col-2 bg-success">ádasdas</div> */}
                     <div className="col-5 img-content">
                         <div id="carouselExampleCaptions" className="carousel carousel-dark slide" data-bs-ride="false">
                             <div className="carousel-indicators">
@@ -151,7 +151,7 @@ function ViewProduct() {
                             </button>
                         </div>
                     </div>
-                    <div className="col-5 info">
+                    <div className="col-6 info">
                         <div className="product-details">
                             <p className="product-name" style={{ fontWeight: "600", fontSize: '25px' }}>{product.name}</p>
                             <div>

@@ -76,7 +76,6 @@ const Exchange = () => {
   };
 
   const handleOk = () => {
-    console.log("order Detail ID: " + item.id);
     const data = [];
     dataCart?.forEach((element) => {
       data.push({

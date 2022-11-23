@@ -120,12 +120,14 @@ const Return = () => {
             orderId: order.id,
             reason: reason,
             description: note,
-            status: "YEU_CAU",
+            status: "CHUA_XU_LY",
             isCheck: 2,
             returnDetailEntities: [
               {
                 productId: item.product.id,
                 quantity: valueInputNumber != undefined ? valueInputNumber : 1,
+                orderDetailId: item.id,
+                quantity: 1
               },
             ],
           }),
@@ -140,6 +142,7 @@ const Return = () => {
             quantity: item.quantity,
             status: item.status,
             isCheck: 2,
+            isUpdate: 2
           }),
         }).then((res) => {});
         toastSuccess("Gửi yêu cầu thành công!");
