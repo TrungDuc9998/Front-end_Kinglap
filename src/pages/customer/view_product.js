@@ -15,6 +15,11 @@ import { Eye, Heart, Repeat, ShoppingCart } from "react-feather";
 import axios from "axios";
 import qs from "qs";
 function ViewProduct() {
+    const handelCLickProduct = (product) => {
+        dispatch(viewProduct(product))
+        console.log('state', state)
+    }
+
     const url = 'http://localhost:8080/api/products';
     const [totalSet, setTotal] = useState(10);
     const [products, setData] = useState([{
@@ -67,7 +72,7 @@ function ViewProduct() {
         getData();
     }, [JSON.stringify(tableParams)]);
 
-    console.log("pro", products)
+    // console.log("pro", product.images)
 
 
     // modal
@@ -135,16 +140,13 @@ function ViewProduct() {
                                 <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
                             </div>
                             <div className="carousel-inner">
-                                <div className="carousel-item active">
-                                    <img src={product1} className="d-block w-100" alt="..." />
-                                </div>
-                                <div className="carousel-item">
-                                    <img src={product2} className="d-block w-100" alt="..." />
-
-                                </div>
-                                <div className="carousel-item">
-                                    <img src={product3} className="d-block w-100" alt="..." />
-                                </div>
+                                {
+                                    product.images.map(image => (
+                                        <div className="carousel-item active">
+                                            <img className="d-block w-100" src={image.name} alt="" />
+                                        </div>
+                                    ))
+                                }
                             </div>
                             <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
                                 <span className="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -158,12 +160,12 @@ function ViewProduct() {
                     </div>
                     <div className="col-7 info">
                         <div className="product-details">
-                            <p className="product-name" style={{ fontWeight: "600", fontSize: '25px' }}>{product.name}</p>
+                            <p className="product-name" style={{ fontWeight: "600", fontSize: '25px', wordWrap: 'break-word' }}>{product.name}</p>
                             <div>
-                                <h3 className="product-price">${product.price}<del className="product-old-price ms-3">$3000</del></h3>
+                                <h3 className="product-price">₫  {product.price}<del className="product-old-price ms-3">₫ 3000</del></h3>
                                 <span className="product-available">In Stock</span>
                             </div>
-                            <p>Mô tả sản phẩm</p>
+                            <p>Số lượng còn lại: {product.quantity - quantity} </p>
                             <Input
                                 value={quantity}
                                 className="m-2"
@@ -325,7 +327,7 @@ function ViewProduct() {
                                     {products.map(pro => (
                                         <div className="product col-2" key={pro.id}>
                                             <div className="product-img">
-                                                <img src={product1} alt="" />
+                                                <img src={pro.images ? pro.images[0].name : product1} alt="" />
                                                 <div className="product-label">
                                                     <span className="sale">-30%</span>
                                                     <span className="new">NEW</span>
@@ -333,8 +335,8 @@ function ViewProduct() {
                                             </div>
                                             <div className="product-body">
                                                 <p className="product-category">Category</p>
-                                                <h3 className="product-name" ><a href="/user/product">{pro.name}</a></h3>
-                                                <h4 className="product-price">VNĐ {pro.price} <del className="product-old-price">$990.00</del></h4>
+                                                <h3 className="product-name" onClick={() => handelCLickProduct(pro)}><a href="/user/product">{pro.name}</a></h3>
+                                                <h4 className="product-price">₫ {pro.price} <del className="product-old-price">₫  990.00</del></h4>
                                                 <div className="product-rating">
                                                     <i className="fa fa-star"></i>
                                                     <i className="fa fa-star"></i>
