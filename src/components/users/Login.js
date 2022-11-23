@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import '../users/css/log.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
 
 
 function Login() {
+    let navigate = useNavigate();
     let signInButton = () => {
         document.getElementById('container').classList.remove("right-panel-active");
     }
@@ -12,12 +16,71 @@ function Login() {
     let [username, setUsername] = useState('');
     let [password, setPassword] = useState('');
 
+    const [username2, setUsername2] = useState('');
+    const [password2, setPassword2] = useState('');
+    const [password3, setPassword3] = useState('');
+
     let acc = {
         'username': username,
         'password': password
     }
 
+    let acc2 = {
+        'username': username2,
+        'newPassword': password2,
+        'status': 1
+    }
+
+    const toastSuccess = (message) => {
+        toast.success(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    };
+
+    const toastError = (message) => {
+        toast.error(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    }
+
     const roles = [];
+
+    let handelSignUp = () => {
+        if (password3 !== password2) {
+            toastError("Xác nhận mật khẩu không chính xác!")
+        } else {
+            fetch('http://localhost:8080/api/users', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": 'application/json',
+                    "Accept": 'application/json'
+                },
+                body: JSON.stringify(acc2)
+            }).then((res) => res.json())
+                .then((results) => {
+                    if (results.data == null) {
+                        toastError(results.message);
+                    } else {
+                        signInButton();
+                        toastSuccess("Đăng ký thành công!");
+                    }
+                })
+        }
+    }
 
     let handelSubmit = () => {
         fetch('http://localhost:8080/auth/login', {
@@ -55,6 +118,7 @@ function Login() {
     }
     return (
         <>
+            <ToastContainer></ToastContainer>
             <div className="log">
                 <div className="container1" id="container">
                     <div className="form-container sign-up-container">
@@ -69,10 +133,10 @@ function Login() {
                                 </svg></a>
                             </div>
                             <span>or use your email for registration</span>
-                            <input type="text" className="form-control ip" placeholder="Name" />
-                            <input type="email" className="form-control mt-2 ip" placeholder="Email" />
-                            <input type="password" className="form-control mt-2 ip" placeholder="Password" />
-                            <button>Sign Up</button>
+                            <input type="text" className="form-control ip" placeholder="User Name" value={username2} onChange={e => setUsername2(e.target.value)} />
+                            <input type="password" className="form-control mt-2 ip" placeholder="Password" value={password2} onChange={e => setPassword2(e.target.value)} />
+                            <input type="password" className="form-control mt-2 ip" placeholder="Confirm Password" value={password3} onChange={e => setPassword3(e.target.value)} />
+                            <button type="button" onClick={handelSignUp} >Sign Up</button>
                         </form>
                     </div>
                     <div className="form-container sign-in-container">
