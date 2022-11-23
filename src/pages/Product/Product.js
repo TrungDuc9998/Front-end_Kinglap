@@ -14,6 +14,7 @@ import 'toastr/build/toastr.min.css';
 import toastrs from "toastr";
 import { useNavigate } from "react-router-dom";
 import CurrencyFormat from "react-currency-format";
+import CreateProduct from "./CreateProduct";
 const { Option } = Select;
 
 const getRandomuserParams = (params) => ({
@@ -226,7 +227,11 @@ const Product = () => {
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
-                onEdit(data.id, data.username, data.status);
+                //onEdit(data.id, data.username, data.status);
+                navigate('/admin/product/edit')
+                console.log("data",data);
+                localStorage.setItem("productEdit",JSON.stringify(data));
+                // <CreateProduct/>
               }}
             />
             <DeleteOutlined
@@ -297,9 +302,6 @@ const Product = () => {
   const [searchStatus, setSearchStatus] = useState();
   const [username, setUsername] = useState();
   const [status, setStatus] = useState();
-  const [password1, setPassword1] = useState();
-  const [password2, setPassword2] = useState();
-  const [password3, setPassword3] = useState();
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
@@ -338,36 +340,6 @@ const Product = () => {
     setOpen(true);
   };
 
-  const handleOk = () => {
-    if (password2 === password1) {
-      fetch(
-        `http://localhost:8080/api/users`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, newPassword: password1, status: 1 }) }).then((res) => res.json())
-        .then((results) => {
-          toastrs.options = {
-            timeOut: 6000
-          }
-          toastrs.clear();
-          if (results.data == null) {
-            toastrs.error(results.message);
-          } else {
-            toastrs.success("Thêm mới thành công!");
-            load();
-            setUsername("");
-            setPassword3("");
-            setPassword1("");
-            setPassword2("");
-            setOpen(false);
-          }
-        });
-    } else {
-      toastrs.options = {
-        timeOut: 6000
-      }
-      toastrs.clear();
-      toastrs.error("Xác nhận tài khoản không chính xác!");
-    }
-  };
-
   const changeSearchUserName = (event) => {
     setSearchUsername(event.target.value);
   };
@@ -376,22 +348,6 @@ const Product = () => {
 
   const changeSearchStatus = (value) => {
     setSearchStatus(value);
-  };
-
-  const changeUsername = (event) => {
-    setUsername(event.target.value);
-  };
-
-  const changePassword1 = (event) => {
-    setPassword1(event.target.value);
-  };
-
-  const changePassword2 = (event) => {
-    setPassword2(event.target.value);
-  };
-
-  const changePassword3 = (event) => {
-    setPassword3(event.target.value);
   };
 
   const onEdit = (id, username, status) => {
@@ -477,29 +433,7 @@ const Product = () => {
             <PlusOutlined />
             Thêm mới
           </Button>
-          <Modal
-            title="Tạo mới"
-            open={open}
-            onOk={handleOk}
-            confirmLoading={confirmLoading}
-            onCancel={handleCancel}
-          >
-            <label>
-              Tài khoản
-              <span className="text-danger"> *</span>
-            </label>
-            <Input type="text" name="username" value={username} placeholder="Nhập tài khoản" onChange={changeUsername} />
-            <label>
-              Mật khẩu
-              <span className="text-danger"> *</span>
-            </label>
-            <Input type="password" name="password1" value={password1} placeholder="Nhập mật khẩu" onChange={changePassword1} />
-            <label>
-              Xác nhận mật khẩu
-              <span className="text-danger"> *</span>
-            </label>
-            <Input type="password" name="password2" value={password2} placeholder="Nhập lại mật khẩu" onChange={changePassword2} />
-          </Modal>
+          
         </div>
       </div>
 
@@ -521,71 +455,6 @@ const Product = () => {
             loading={loading}
             onChange={handleTableChange}
           />
-          <Modal
-            title="Cập nhật"
-            visible={isEditing}
-            onCancel={() => {
-              setEditing(false);
-            }}
-            onOk={() => {
-              if (password1 == null || password2 == null || password3 == null) {
-                toastrs.options = {
-                  timeOut: 6000
-                }
-                toastrs.clear();
-                toastrs.error("Vui lòng nhập đầy đủ thông tin!");
-              } else {
-                if (password2 != password1) {
-                  toastrs.options = {
-                    timeOut: 6000
-                  }
-                  toastrs.clear();
-                  toastrs.error("Nhập lại mật khẩu không chính xác!");
-                } else {
-                  setLoading(true);
-                  fetch(
-                    `http://localhost:8080/api/users/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password3, newPassword: password1, status: status }) }).then((res) => res.json())
-                    .then((results) => {
-                      toastrs.options = {
-                        timeOut: 6000
-                      }
-                      toastrs.clear();
-                      if (results.data == null) {
-                        toastrs.error(results.message);
-                      } else {
-                        toastrs.success("Cập nhật thành công!");
-                        load();
-                        setUsername("");
-                        setPassword3("");
-                        setPassword1("");
-                        setPassword2("");
-                        setEditing(false);
-                      }
-                    });
-                }
-              }
-            }}
-          >
-            <label>
-              Tài khoản
-            </label>
-            <Input type="text" name="username" value={username} placeholder="Nhập tài khoản" onChange={changeUsername} disabled={true} />
-            <label>
-              Mật khẩu cũ
-              <span className="text-danger"> *</span>
-            </label>
-            <Input type="password" name="password3" value={password3} placeholder="Nhập mật khẩu cũ" onChange={changePassword3} />
-            <label>
-              Mật khẩu mới
-              <span className="text-danger"> *</span>
-            </label>
-            <Input type="password" name="password1" value={password1} placeholder="Nhập mật khẩu mới" onChange={changePassword1} />
-            <label>
-              Xác nhận mật khẩu
-              <span className="text-danger"> *</span>
-            </label>
-            <Input type="password" name="password2" value={password2} placeholder="Nhập lại mật khẩu" onChange={changePassword2} />
-          </Modal>
           <Modal
             title="Xóa người dùng"
             visible={isDelete}

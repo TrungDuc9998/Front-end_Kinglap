@@ -3,6 +3,7 @@ import Category from "../pages/Category";
 import Product from "../pages/Product/Product";
 // import { Children, Component } from "react";
 import CreateProduct from "../pages/Product/CreateProduct";
+import EditProduct from "../pages/Product/EditProduct";
 import Order from "../pages/Order/Order";
 import Login from "../components/users/Login";
 import CreateOrder from "../pages/Order/CreateOrder";
@@ -41,6 +42,10 @@ const publicRoutes = [
   {
     path: "/admin/product/create",
     component: CreateProduct,
+  },
+  {
+    path: "/admin/product/edit",
+    component: EditProduct,
   },
   {
     path: "/admin/order",

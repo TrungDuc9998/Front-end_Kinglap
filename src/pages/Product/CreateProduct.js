@@ -2,6 +2,7 @@ import {
   PlusCircleFilled,
   ReloadOutlined,
   UploadOutlined,
+  DeleteOutlined
 } from "@ant-design/icons";
 import {
   ref,
@@ -12,7 +13,7 @@ import {
 } from "firebase/storage";
 import { storage } from "../../image/firebase/firebase";
 import { v4 } from "uuid";
-import { Button, Input, Select, DatePicker, Space } from "antd";
+import { Button, Input, Select, DatePicker, Space, Carousel, Image } from "antd";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,60 +22,24 @@ import qs from "qs";
 import moment from "moment";
 
 
-const children = [];
+
 const dateFormat = "YYYY/MM/DD";
+//phụ kiện
+const children = [];
 const handleChange = (value) => {
   console.log(`selected ${value}`);
 };
 
 function CreateProduct() {
-
-  const [imageUpload, setImageUpload] = useState(null);
-  const [imageUrls, setImageUrls] = useState([]);
-  const [images, setImages] = useState([]);
-  //const [images, setImages] = useState([{ name: "" }]);
-
-  const imagesListRef = ref(storage, "images/");//all url
-  const uploadFile = () => {
-    if (imageUpload == null) return;
-    const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
-    console.log("imageUpload",imageUpload)//File { name:,...}
-    console.log("imageRef",imageRef)//_service: {…}, _location: {…}
-    uploadBytes(imageRef, imageUpload).then((snapshot) => {
-      getDownloadURL(snapshot.ref).then((url) => {
-        console.log("url",url)
-        setImages((prev) => [...prev, url]);
-        console.log("snapshot.ref",snapshot.ref)//_service: {…}, _location: {…}
-        setImageUrls((prev) => [...prev, url]);//set url ->all url
-      });
-      console.log("imageUrls",imageUrls)
-      const img1 = imageRef.fullPath;//images/name.jpg69813eb7-a589-45bf-88b3-edd21ce0dac2
-      //const img1 = imageRef.fullPath.slice(7);
-      //images.push((name = img1));
-      console.log("images",img1)
-      // setImages((prev) => [...prev, img]);
-      //setImages(imageRef);
-      alert("upload image success");
-    });
+  //css Image
+  const contentStyle = {
+    margin: 0,
+    height: '160px',
+    color: '#fff',
+    lineHeight: '160px',
+    textAlign: 'center',
+    background: '#364d79',
   };
-
-  //xử lú sau khi uploadfile
-  useEffect(() => {
-    listAll(imageUpload).then((response) => {
-      console.log("imagesListRef",imagesListRef)
-      response.items.forEach((item) => {
-        console.log("item",item)
-        getDownloadURL(item).then((url) => {
-          setImageUrls((prev) => [...prev, url]);
-          setImages((prev) => [...prev, url]);
-        });
-      });
-    });
-    console.log("--------------- ảnh ------------");
-    imageUrls.forEach((image) => console.log(image));
-  }, [images]);
-
-  //xử lý hình ảnh
   const [screenSize, setScreenSize] = useState("11.6 inch");
   const [resolution, setResolution] = useState("HD (1366 x 768)");
   const [frequency, setFrequency] = useState("60 Hz");
@@ -91,7 +56,7 @@ function CreateProduct() {
   const [debut, setDebut] = useState(getDate);
   const [origin, setOrigin] = useState();
   const [imei, setImei] = useState();
-  const [secutity, setSecutity] = useState();
+  const [security, setSecurity] = useState();
   const [hard_drive, setHardDrive] = useState("120GB SSD");
   const [screen, setScreen] = useState();
   const [win, setWin] = useState("Window");
@@ -113,6 +78,49 @@ function CreateProduct() {
       search2: "",
     },
   });
+  const [imageUpload, setImageUpload] = useState(null);
+  const [imageUrls, setImageUrls] = useState([]);
+  const [images, setImages] = useState([]);
+  //const [images, setImages] = useState([{ name: "" }]);
+
+  const imagesListRef = ref(storage, "images/");//all url
+  const uploadFile = () => {
+    if (imageUpload == null) return;
+    const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+    // console.log("imageUpload",imageUpload)//File { name:,...}
+    // console.log("imageRef",imageRef)//_service: {…}, _location: {…}
+    uploadBytes(imageRef, imageUpload).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        setImages((prev) => [...prev, url]);
+        console.log("snapshot.ref",snapshot.ref)//_service: {…}, _location: {…}
+        setImageUrls((prev) => [...prev, url]);//set url ->all url
+      });
+    // console.log("imageUrls",imageUrls)
+      alert("upload image success");
+    });
+  };
+
+  //xử lý sau khi uploadfile
+  useEffect(() => {
+    listAll(imageUpload).then((response) => {
+      // console.log("imagesListRef",imagesListRef)
+      response.items.forEach((item) => {
+        console.log("item",item)
+        getDownloadURL(item).then((url) => {
+          setImageUrls((prev) => [...prev, url]);
+          setImages((prev) => [...prev, url]);
+        });
+      });
+    });
+  }, [images]);
+
+  const handleClickRemove=(url)=>{
+    const urlImg=imageUrls.filter(i=>i!==url)
+    console.log("urlImg", urlImg)
+    (setImageUrls(urlImg));
+   }
+
+  
   function getDate() {
     var now = new Date();
     var year = now.getFullYear();
@@ -128,10 +136,6 @@ function CreateProduct() {
     return date;
   }
 
-  // const onChangeDate = (date, dateString) => {
-  //   console.log(dateString);
-  //   setDebut(dateString);
-  // };
   const handleChangeDate = (val, dateStrings) => {
     setDebut(dateStrings);
   };
@@ -210,13 +214,10 @@ function CreateProduct() {
   useEffect(() => {
     loadDataCategory();
     loadDataManufacture();
-    // console.log("image sau khi upload");
-    // console.log(images);
   }, []);
 
   const handleClick = (e) => {
     e.preventDefault();
-    //uploadFile();
     const product = {
       name,
       quantity,
@@ -233,12 +234,12 @@ function CreateProduct() {
       width,
       height,
       images,
-      configurationEntity: {
+      configuration: {
         processor,
         ram,
         slot,
         battery,
-        secutity,
+        security,
         screen,
         screenSize,
         resolution,
@@ -268,23 +269,23 @@ function CreateProduct() {
         length:product.length,
         width:product.width,
         height:product.height,
-        images:product.images.map((item) => 
+        images:imageUrls.map((item) => 
           ({name:item,
           product:null,
           return_id:null,
           exchange_id:null}))
         ,
-        configurationEntity: {
-          processor: product.configurationEntity.processor,
-          ram: product.configurationEntity.ram,
-          slot : product.configurationEntity.slot,
-          battery: product.configurationEntity.battery,
-          secutity: product.configurationEntity.secutity,
-          screen: product.configurationEntity.screenSize + " " + product.configurationEntity.resolution + " " + product.configurationEntity.frequency,
-          optical: product.configurationEntity.optical,
-          hard_drive: product.configurationEntity.hard_drive,
-          win: product.configurationEntity.win,
-          capacity: product.configurationEntity.capacity
+        configuration: {
+          processor: product.configuration.processor,
+          ram: product.configuration.ram,
+          slot : product.configuration.slot,
+          battery: product.configuration.battery,
+          security: product.configuration.security,
+          screen: product.configuration.screenSize + " " + product.configuration.resolution + " " + product.configuration.frequency,
+          optical: product.configuration.optical,
+          hard_drive: product.configuration.hard_drive,
+          win: product.configuration.win,
+          capacity: product.configuration.capacity
         },
       }),
     }).then((res) => {
@@ -292,6 +293,7 @@ function CreateProduct() {
       notify();
     });
   };
+  
 
   return (
     <div
@@ -539,8 +541,8 @@ function CreateProduct() {
             <label>Bảo mật công nghệ</label>
             <Input
               placeholder="Bảo mật công nghệ"
-              value={secutity}
-              onChange={(e) => setSecutity(e.target.value)}
+              value={security}
+              onChange={(e) => setSecurity(e.target.value)}
             />
           </div>
           <div className="col-4">
@@ -714,9 +716,24 @@ function CreateProduct() {
       />
       {/* stop */}
       <button onClick={uploadFile}> Upload Image</button>
-      {imageUrls?imageUrls.map((url) => {
+      <Carousel autoplay>
+        {imageUrls?imageUrls.map((url, index) => {
+          return (<div style={contentStyle}>
+                  <Image.PreviewGroup>
+                      <Image src={url}>
+                      </Image>
+                      {/* <Avatar shape="square" size={200} src={item.name} /> */}
+                      <div className="">
+                        <button className="" onClick={() => handleClickRemove(url)}  ><DeleteOutlined size={18}></DeleteOutlined> Remove image</button>
+                      </div>
+                  </Image.PreviewGroup>
+                </div>
+                )
+          }):""}
+        </Carousel>
+      {/* {imageUrls?imageUrls.map((url) => {
         return <img src={url} />;
-      }):""}
+      }):""} */}
     </div>
 
       <div className="row">
@@ -734,16 +751,7 @@ function CreateProduct() {
         </div>
       </div>
       <div className="row">
-        {/* <input
-          type="file"
-          onChange={(event) => {
-            setImageUpload(event.target.files[0]);
-          }}
-        /> */}
-        {/* <button onClick={uploadFile}> Upload Image</button> */}
-        {/* {imageUrls.map((url,index) => {
-          return <img key={index} src={url} />;
-        })} */}
+        
       </div>
     </div>
   );
