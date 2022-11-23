@@ -29,6 +29,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CurrencyFormat from "react-currency-format";
 import ReactToPrint from "react-to-print"
+import QRCode from "react-qr-code";
 const { Option } = Select;
 const url = "http://localhost:8080/api/orders";
 const url_pro = "http://localhost:8080/api/products";
@@ -373,10 +374,10 @@ const Order = () => {
       render(createdAt) {
         return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
       },
-      width: "10%",
+      width: "9%",
     },
     {
-      title: "Tổng tiền",
+      title: "Tổng tiền(VNĐ)",
       dataIndex: "total",
       sorter: true,
       width: "10%",
@@ -398,7 +399,7 @@ const Order = () => {
       title: "Hình thức thanh toán",
       dataIndex: "payment",
       sorter: true,
-      width: "14%",
+      width: "13%",
       render: (payment) => {
         if (payment === "TẠI CỬA HÀNG") {
           return (
@@ -442,7 +443,7 @@ const Order = () => {
       title: "Địa chỉ nhận hàng",
       dataIndex: "address",
       sorter: true,
-      width: "20%",
+      width: "25%",
     },
     {
       title: "Trạng thái đơn hàng",
@@ -515,7 +516,7 @@ const Order = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "11%",
+      width: "8%",
       render: (id, data) => {
         if (data.status === "CHO_XAC_NHAN") {
           return (
@@ -526,7 +527,6 @@ const Order = () => {
                 }}
               />
               <EditOutlined
-                style={{ marginLeft: 12 }}
                 onClick={() => {
                   console.log("key key");
                   navigate("update");
@@ -896,6 +896,14 @@ const Order = () => {
             }}
           >
             <div className="order" ref={componentRef}>
+            <div className="qrcode">
+                <QRCode
+                  size={256}
+                  style={{ height: "100px", width: "100px" }}
+                  value={"https://kinglap.000webhostapp.com/order/Order" + dataO?.id + ".pdf"}
+                  viewBox={`0 0 256 256`}
+                />
+              </div>
               <div className="title">
                 <p>Số điện thoại: 0338861522</p>
                 <p>Email: ptung539@gmail.com</p>
@@ -976,7 +984,7 @@ const Order = () => {
                 return <button>Xuất hóa đơn</button>
               }}
               content={() => componentRef.current}
-              documentTitle='Order'
+              documentTitle={"Order" + dataO?.id}
               pageStyle='print'
             />
           </Modal>
