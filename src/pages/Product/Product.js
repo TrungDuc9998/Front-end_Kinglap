@@ -12,6 +12,8 @@ import qs from "qs";
 import React, { useEffect, useState } from "react";
 import 'toastr/build/toastr.min.css';
 import toastrs from "toastr";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 import CurrencyFormat from "react-currency-format";
 import CreateProduct from "./CreateProduct";
@@ -38,6 +40,31 @@ const Product = () => {
       search2: '',
     },
   });
+  const notifySuccess = (message) => {
+    toast.success(message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
+  const notifyError = (message) => {
+    toast.error(message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
+
 
   var i = 0;
 
@@ -161,7 +188,7 @@ const Product = () => {
             </>
           );
         }
-        if (status == 0) {
+        if (status == 'INACTIVE') {
           return (
             <>
               <div
@@ -181,18 +208,18 @@ const Product = () => {
       dataIndex: "data",
       width: "10%",
       render: (id, data) => {
-        if (data.status == 1) {
+        if (data.status == "ACTIVE") {
           return (
             <>
               <UnlockOutlined
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/users/close/${data.id}`, { method: "PUT" }).then(() => load());
+                    `http://localhost:8080/api/products/inactive/${data.id}`, { method: "PUT" }).then(() => load());
                   toastrs.options = {
                     timeOut: 6000,
                   }
-                  toastrs.success("Khóa thành công!");
+                  notifySuccess("Khóa thành công!");
                 }}
               />
             </>
@@ -204,11 +231,11 @@ const Product = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/users/open/${data.id}`, { method: "PUT" }).then(() => load());
+                    `http://localhost:8080/api/products/active/${data.id}`, { method: "PUT" }).then(() => load());
                   toastrs.options = {
                     timeOut: 6000
                   }
-                  toastrs.success("Mở khóa thành công!");
+                  notifySuccess("Mở khóa thành công!");
                 }}
               />
             </>
@@ -368,6 +395,7 @@ const Product = () => {
 
   return (
     <div>
+      <ToastContainer />
       <div
         className="row"
         style={{
@@ -469,7 +497,7 @@ const Product = () => {
                 timeOut: 6000
               }
               toastrs.clear();
-              toastrs.success("Xóa thành công!");
+              notifySuccess("Xóa thành công!");
             }}
           >
             Bạn muốn xóa người dùng này chứ?
