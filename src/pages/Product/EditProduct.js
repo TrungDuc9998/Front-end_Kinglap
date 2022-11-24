@@ -235,7 +235,7 @@ import {
     };
   
     const notify = () => {
-      toast.success("Thêm sản phẩm thành công !", {
+      toast.success("Sửa sản phẩm thành công !", {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
