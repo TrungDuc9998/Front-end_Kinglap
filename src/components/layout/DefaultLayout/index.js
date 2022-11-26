@@ -30,6 +30,7 @@ const items = [
     getItem("Quản lý thể loại", "/admin/category"),
     getItem("Danh sách sản phẩm", "/admin/product"),
     getItem("Tạo sản phẩm", "/admin/product/create"),
+    getItem("Quản lý linh kiện", "/admin/accessories"),
   ]),
   getItem("Quản đơn hàng", "sub2", <UserOutlined />, [
     getItem("Quản lý đơn đặt hàng", "/admin/order"),

@@ -26,6 +26,7 @@ import ExchangeSuccess from "../pages/Order/ExchangeSuccess";
 import Return from "../pages/Order/Return"
 import ReturnConfirm from "../pages/Order/ReturnConfirm"
 import ConfirmOrderDetail from "../pages/Order/ConfirmOrderDetail";
+import Accessories from "../pages/Accessories";
 const publicRoutes = [
   {
     path: "/",
@@ -135,6 +136,10 @@ const publicRoutes = [
   {
     path: "/admin/order/:id/confirm/",
     component: ConfirmOrderDetail,
+  },
+  {
+    path: "/admin/accessories",
+    component: Accessories,
   },
 
 ];
