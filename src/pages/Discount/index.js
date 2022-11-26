@@ -11,7 +11,6 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import Product from "../Product/index";
 import moment from "moment";
 import axios from "axios";
 import 'toastr/build/toastr.min.css';

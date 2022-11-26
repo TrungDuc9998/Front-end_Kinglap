@@ -30,14 +30,6 @@ function Cart() {
     }, [carts]);
 
     const handleCheckout = () => {
-        const checkboxes = document.querySelectorAll('input[name="ck"]');
-        checkboxes.forEach((checkbox) => {
-            if (checkbox.checked == true) {
-                carts.forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "")
-            }
-            setChecked(checked)
-        });
-        dispatch(setCheckoutCart(checked))
         if (localStorage.getItem("token") == null || localStorage.getItem("token") === "") {
             navigate('/login');
         } else {

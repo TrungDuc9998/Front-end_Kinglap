@@ -2,18 +2,46 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import product8 from "../../asset/images/products/product08.png";
 import qs from "qs";
-import { Modal, Table, Tabs, InputNumber,Image } from "antd";
-import toastrs from "toastr";
-import { ToastContainer, toast } from "react-toastify";
+import { Modal, Table, Tabs, InputNumber, Image } from "antd";
 import {
   DeleteOutlined,
   EyeOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
+import { useSearchParams } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const onChange = (key) => {
   console.log(key);
 };
+
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  })
+};
+
+const toastError = (message) => {
+  toast.error(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+}
+
 function ViewOrder() {
   const [orders, setOrders] = useState([]);
   const [orderDetails, setOrderDetails] = useState([]);
@@ -23,6 +51,7 @@ function ViewOrder() {
   const [quantity, setQuantity] = useState();
   const [dataOrder, setDataOrder] = useState();
   const [orderId, setOrderId] = useState();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -33,9 +62,9 @@ function ViewOrder() {
     limit: params.pagination?.pageSize,
     page: params.pagination?.current,
   });
+
   const getData = () => {
     let userId = localStorage.getItem("username");
-    console.log(userId);
     fetch(
       `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
         getRandomuserParams(tableParams))}`
@@ -43,18 +72,65 @@ function ViewOrder() {
       .then((res) => res.json())
       .then((results) => {
         console.log(results);
-            setOrders(results);
-            setOrderDetails(results[0].orderDetails);
-            setTotal(results.total);
-            setTableParams({
-              ...tableParams,
-              pagination: {
-                ...tableParams.pagination,
-                total: totalSet,
-              },
-            });
+        setOrders(results);
+        setOrderDetails(results[0].orderDetails);
+        setTotal(results.total);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: totalSet,
+          },
+        });
       });
+    let param = searchParams.get("vnp_ResponseCode");
+    if (param === "00") {
+      let total = localStorage.getItem("total");
+      let payment = localStorage.getItem("payment");
+      let address = localStorage.getItem("address");
+      let type = localStorage.getItem("type");
+      let phone = localStorage.getItem("phone");
+      let customerName = localStorage.getItem("customerName");
+      let status = localStorage.getItem("status");
+      let orderDetails = localStorage.getItem("orderDetails");
+      let valueWard = localStorage.getItem("valueWard");
+      let valueDistrict = localStorage.getItem("valueDistrict");
+      let value = localStorage.getItem("value");
+      fetch(
+        `http://localhost:8080/api/orders/user`,
+        {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: localStorage.getItem("id"),
+            total: total,
+            money: payment === 'VN_PAY' ? total : total * 0.1,
+            payment: payment,
+            // type: type,
+            address: type == 0 ? 'TẠI CỬA HÀNG' : (address + ', ' + valueWard + ', ' + valueDistrict + ', ' + value),
+            phone: phone,
+            customerName: customerName,
+            // email: email,
+            status: status,
+            orderDetails: JSON.parse(orderDetails)
+          })
+        }
+      ).then(() => {
+        localStorage.removeItem("total");
+        localStorage.removeItem("payment");
+        localStorage.removeItem("address");
+        localStorage.removeItem("type");
+        localStorage.removeItem("phone");
+        localStorage.removeItem("customerName");
+        localStorage.removeItem("status");
+        localStorage.removeItem("orderDetails");
+        localStorage.removeItem("valueWard");
+        localStorage.removeItem("valueDistrict");
+        localStorage.removeItem("value");
+      })
+    }
   };
+
   useEffect(() => {
     getData();
     // loadDataOrder();
@@ -79,8 +155,8 @@ function ViewOrder() {
       sorter: true,
       width: "9%",
       render(total) {
-        return(
-          total.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})
+        return (
+          total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
         )
       }
     },
@@ -90,38 +166,26 @@ function ViewOrder() {
       sorter: true,
       width: "15%",
       render: (payment) => {
-        if (payment === "TẠI CỬA HÀNG") {
+        if (payment === "VN_PAY") {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
                 style={{ width: "80%", borderRadius: "5px", padding: "4px" }}
               >
-                Tại cửa hàng
+                Thanh toán qua VN PAY
               </div>
             </>
           );
         }
-        if (payment === "TAI KHOAN ATM") {
+        if (payment === "DAT_COC") {
           return (
             <>
               <div
                 className="bg-danger text-center text-light"
                 style={{ borderRadius: "5px", padding: "4px", width: "80%" }}
               >
-                Tài khoản ATM
-              </div>
-            </>
-          );
-        }
-        if (payment === "THANH TOAN VNPAY") {
-          return (
-            <>
-              <div
-                className="bg-primary text-center text-light"
-                style={{ borderRadius: "5px", padding: "4px", width: "80%" }}
-              >
-                Ví VNPAY
+                Đặt cọc qua VN PAY
               </div>
             </>
           );
@@ -281,13 +345,13 @@ function ViewOrder() {
     setConfirm(true);
   };
   const showModalData = (id) => {
-    console.log('id show modal: ',id);
+    console.log('id show modal: ', id);
     setOrderId(id);
     axios.get(url + "/" + id).then((res) => {
       setOrder(res.data);
       console.log(res.data);
     });
-   
+
     console.log(orderId);
     setView(true);
     console.log('show modal');
@@ -328,7 +392,7 @@ function ViewOrder() {
   const onChangeInput = (value, id, proId, price) => {
     console.log("changed", value, id, proId, price);
     const set = new Set();
-    
+
     setCount(value);
 
     const orderDetail = {
@@ -369,15 +433,15 @@ function ViewOrder() {
     console.log(todos);
     console.log(order);
     let count = -1;
-    order?.forEach((element,index) => {
-      if(element.id == id){
+    order?.forEach((element, index) => {
+      if (element.id == id) {
         count = index;
       }
     })
     console.log('quantity: ', quantity, 'price: ', price);
-    const total = (quantity*price);
+    const total = (quantity * price);
     console.log(total);
-    order[count].total = Number(price*value)
+    order[count].total = Number(price * value)
     setOrder(order);
     console.log(order);
     // handleUpdateOrderDetail();
@@ -529,19 +593,7 @@ function ViewOrder() {
                 fetch(`http://localhost:8080/api/orders/received/${idCancel}`, {
                   method: "PUT",
                 }).then(() => load());
-                toastrs.options = {
-                  timeOut: 6000,
-                };
-                toast.success("Hủy thành công!", {
-                  position: "top-right",
-                  autoClose: 1000,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "light",
-                });
+                toastSuccess("Hủy thành công!")
                 setConfirm(false);
                 setLoading(true);
               }}
@@ -563,22 +615,10 @@ function ViewOrder() {
                   `http://localhost:8080/api/orders/cancelled/${idCancel}`,
                   { method: "PUT" }
                 ).then(() => load());
-                toastrs.options = {
-                  timeOut: 6000,
-                };
-                toast.success("Hủy thành công!", {
-                  position: "top-right",
-                  autoClose: 1000,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "light",
-                });
+                toastSuccess("Hủy thành công!")
                 setEditing(false);
                 setLoading(true);
-                
+
               }}
             >
               <label>
@@ -618,11 +658,11 @@ function ViewOrder() {
                         <td>{item.id}</td>
                         <td> <Image width={90} src={item.product.images[0].name} />{" "}</td>
                         <td>{item.product.name}</td>
-                        <td>{item.product.price.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</td>
+                        <td>{item.product.price.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</td>
                         <td>
                           <InputNumber
                             // style={{width: "20%"}}
-                            disabled={item.status != 'CHO_XAC_NHAN' ? true: false}
+                            disabled={item.status != 'CHO_XAC_NHAN' ? true : false}
                             min={1}
                             max={item.product.quantity}
                             value={quantity}
@@ -638,7 +678,7 @@ function ViewOrder() {
                             }
                           />
                         </td>
-                        <td>{item.total.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</td>
+                        <td>{item.total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</td>
                         {/* <td>{item.status}</td> */}
                       </tr>
                     );
