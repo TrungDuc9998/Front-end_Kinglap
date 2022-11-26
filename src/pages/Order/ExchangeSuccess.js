@@ -141,7 +141,7 @@ const ExchangeSuccess = () => {
   const loadDataExchange = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/returns?${qs.stringify(
+      `http://localhost:8080/api/staff/returns?${qs.stringify(
         getRandomOrderParams(tableParams)
       )}`
     )

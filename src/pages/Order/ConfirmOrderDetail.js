@@ -140,7 +140,7 @@ const ConfirmOrderDetail = () => {
 
     if (reason != undefined) {
       try {
-        fetch("http://localhost:8080/api/returns", {
+        fetch("http://localhost:8080/api/auth/returns", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
