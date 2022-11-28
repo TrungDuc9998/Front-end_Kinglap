@@ -26,7 +26,7 @@ import { useNavigate } from "react-router-dom";
 import Item from "antd/lib/list/Item";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const url = "http://localhost:8080/api/returns";
+const url = "http://localhost:8080/api/staff/returns";
 const onDelete = (record) => {
   Modal.confirm({
     title: "Xoá thể loại",
@@ -135,7 +135,7 @@ const ReturnConfirm = () => {
   const loadDataExchange = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/returns?${qs.stringify(
+      `http://localhost:8080/api/staff/returns?${qs.stringify(
         getRandomOrderParams(tableParams)
       )}`
     )
