@@ -4,8 +4,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import product from '../../asset/images/products/product01.png';
 import './css/checkout.css';
 import StoreContext from '../../store/Context';
+import { useNavigate } from "react-router-dom";
 
 function Checkout() {
+    const navigate = useNavigate();
     const [state, dispath] = useContext(StoreContext);
     const carts = state.cartCheckout;
     const [valueDistrict, setValueDistrict] = useState("");
@@ -35,43 +37,56 @@ function Checkout() {
 
     const createOrder = () => {
         if (localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
-            window.location.href = '/login';
+            navigate('/login');
         } else {
-            if (payment == 0) {
-                fetch(
-                    `http://localhost:8080/api/orders`,
-                    {
-                        method: "POST",
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userId: 147,
-                            total: parseInt(getTotal(carts)) + parseInt(shipping),
-                            payment: payment,
-                            // type: type,
-                            address: type === 1 ? 'TẠI CỬA HÀNG' : (address + ', ' + valueWard + ', ' + valueDistrict + ', ' + value),
-                            phone: phone,
-                            customerName: name,
-                            // email: email,
-                            status: status,
-                            orderDetails: getListSetListOrderDetails(carts)
-                        })
-                    }
-                )
-                    .then((results) => {
-                        if (results.status == 200) {
-                            toastSuccess("Đặt hàng thành công!");
-                        } else {
-                            toastError(results.message);
-                        }
-                    });
-            } else {
+            if (payment === "DAT_COC") {
+                localStorage.setItem("total", parseInt(getTotal(carts)) + parseInt(shipping));
+                localStorage.setItem("payment", payment);
+                localStorage.setItem("address", address);
+                localStorage.setItem("type", type);
+                localStorage.setItem("phone", phone);
+                localStorage.setItem("customerName", name);
+                localStorage.setItem("status", status);
+                localStorage.setItem("orderDetails", JSON.stringify(getListSetListOrderDetails(carts)));
+                localStorage.setItem("valueWard", valueWard);
+                localStorage.setItem("valueDistrict", valueDistrict);
+                localStorage.setItem("value", value);
                 fetch(
                     `http://localhost:8080/api/vnpay`,
                     {
                         method: "POST",
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            vnp_OrderInfo: "Thanh toán VnPay cho khách hàng " + name,
+                            vnp_OrderInfo: "Đặt cọc qua VnPay cho khách hàng " + name,
+                            orderType: "other",
+                            amount: (parseInt(getTotal(carts)) + parseInt(shipping)) * 0.1,
+                            bankCode: "NCB",
+                            language: "vn"
+                        })
+                    }
+                )
+                    .then((response) => response.json())
+                    .then((data) => {
+                        window.location = data.paymentUrl;
+                    })
+            } else {
+                localStorage.setItem("total", parseInt(getTotal(carts)) + parseInt(shipping));
+                localStorage.setItem("payment", payment);
+                localStorage.setItem("address", address);
+                localStorage.setItem("phone", phone);
+                localStorage.setItem("customerName", name);
+                localStorage.setItem("status", status);
+                localStorage.setItem("orderDetails", JSON.stringify(getListSetListOrderDetails(carts)));
+                localStorage.setItem("valueWard", valueWard);
+                localStorage.setItem("valueDistrict", valueDistrict);
+                localStorage.setItem("value", value);
+                fetch(
+                    `http://localhost:8080/api/vnpay`,
+                    {
+                        method: "POST",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            vnp_OrderInfo: "Thanh toán qua VnPay cho khách hàng " + name,
                             orderType: "other",
                             amount: parseInt(getTotal(carts)) + parseInt(shipping),
                             bankCode: "NCB",
@@ -81,7 +96,7 @@ function Checkout() {
                 )
                     .then((response) => response.json())
                     .then((data) => {
-                        window.location.href = data.paymentUrl;
+                        window.location = data.paymentUrl;
                     })
             }
         }
@@ -128,7 +143,7 @@ function Checkout() {
     const changePayment = (event) => {
         setPayment(event.target.value)
         console.log(event.target.value)
-        if (event.target.value === "0") {
+        if (event.target.value === "DAT_COC") {
             setStatus('CHO_XAC_NHAN');
         } else {
             setStatus('CHO_LAY_HANG');
@@ -395,6 +410,7 @@ function Checkout() {
         }
         return price;
     }
+
     const showCarts = (carts) => {
         let cartList = carts;
         if (cartList.length > 0) {
@@ -425,7 +441,7 @@ function Checkout() {
             <ToastContainer></ToastContainer>
             <div className="checkout row pt-2 mt-5 pb-4">
                 <div className="col-12 col-md-7">
-                    <p style={{ fontWeight: '600' }}>1. Địa chỉ giao hàng</p>
+                    <p style={{ fontWeight: '600' }}>1. Thông tin khách hàng</p>
                     <div className="ck-content">
                         <form className="form-info p-0 ">
                             <div><label>Họ tên</label>
@@ -433,127 +449,6 @@ function Checkout() {
                             </div>
                             <div><label>Số điện thoại</label>
                                 <input type={'text'} className="form-control radio-ip" placeholder="Số điện thoại" onChange={changePhone}></input>
-                            </div>
-                            <div><label>Email</label>
-                                <input type={'text'} className="form-control radio-ip" placeholder="Email" onChange={changeEmail}></input>
-                            </div>
-                            <div className="search-inner">
-                                <label>Tỉnh/Thành phố</label>
-                                <input
-                                    type={'text'}
-                                    className="form-control radio-ip"
-                                    placeholder="Tên tỉnh thành"
-                                    value={value}
-                                    onChange={onChangeProvince}
-                                    onClick={() => onSearchProvince(value)}
-                                />
-                            </div>
-                            <div className="dropdown">
-                                {array
-                                    .filter((item) => {
-                                        const searchTerm = value.toString().toLowerCase();
-                                        const fullName =
-                                            item.ProvinceName !== undefined
-                                                ? item.ProvinceName.toLowerCase()
-                                                : "";
-                                        return (
-                                            searchTerm &&
-                                            fullName.startsWith(searchTerm) &&
-                                            fullName !== searchTerm
-                                        );
-                                    })
-                                    .slice(0, 10)
-                                    .map((item) => (
-                                        <div
-                                            onClick={() =>
-                                                onSearchProvince(item.ProvinceName, item.ProvinceID)
-                                            }
-                                            className="dropdown-row"
-                                            key={item.ProvinceName}
-                                        >
-                                            {item.ProvinceName}
-                                        </div>
-                                    ))}
-                            </div>
-                            <div className="search-inner">
-                                <label>Tên quận huyện</label>
-                                <input
-                                    type={'text'}
-                                    className="form-control radio-ip"
-                                    placeholder="Tên quận huyện"
-                                    value={valueDistrict}
-                                    onChange={onChangeDistrict}
-                                    onClick={() => onSearchDistrict(valueDistrict)}
-                                    onKeyDown={_handleKeyDown}
-                                />
-                            </div>
-                            <div className="dropdown">
-                                {district
-                                    .filter((item) => {
-                                        const searchTerm = valueDistrict.toString().toLowerCase();
-                                        const fullName =
-                                            item.DistrictName !== undefined
-                                                ? item.DistrictName.toLowerCase()
-                                                : "";
-
-                                        return (
-                                            searchTerm &&
-                                            fullName.startsWith(searchTerm) &&
-                                            fullName !== searchTerm
-                                        );
-                                    })
-                                    .slice(0, 5)
-                                    .map((item) => (
-                                        <div
-                                            onClick={() =>
-                                                onSearchDistrict(item.DistrictName, item.DistrictID)
-                                            }
-                                            className="dropdown-row"
-                                            key={item.DistrictID}
-                                        >
-                                            {item.DistrictName}
-                                        </div>
-                                    ))}
-                            </div>
-                            <div className="search-inner">
-                                <label>Tên phường xã</label>
-                                <input
-                                    type={'text'}
-                                    className="form-control radio-ip"
-                                    placeholder="Tên phường xã"
-                                    value={valueWard}
-                                    disabled={isDisabled}
-                                    onChange={onChangeWard}
-                                    onClick={() => onSearchWard(valueWard)}
-                                />
-                            </div>
-                            <div className="dropdown">
-                                {Ward.filter((item) => {
-                                    const searchTerm = valueWard.toString().toLowerCase();
-                                    const fullName = item.WardName !== undefined
-                                        ? item.WardName.toLowerCase() : "";
-
-                                    return (
-                                        searchTerm &&
-                                        fullName.startsWith(searchTerm) &&
-                                        fullName !== searchTerm
-                                    );
-                                })
-                                    .slice(0, 10)
-                                    .map((item) => (
-                                        <div
-                                            onClick={() =>
-                                                onSearchWard(item.WardName, item.WardCode)
-                                            }
-                                            className="dropdown-row"
-                                            key={item.WardName}
-                                        >
-                                            {item.WardName}
-                                        </div>
-                                    ))}
-                            </div>
-                            <div><label>Địa chỉ</label>
-                                <input type={'text'} className="form-control radio-ip" placeholder="Nhập số nhà/Tên đường" onChange={changeAddress}></input>
                             </div>
                         </form>
                     </div>
@@ -566,9 +461,141 @@ function Checkout() {
                                     <input type={'radio'} name="ip-rdo" value={'1'} onChange={changeType}></input> <label>Lấy tại nhà</label>
                                 </div>
                             </form>
-
                             {showCarts(carts)}
                         </div>
+                    </div>
+                    <div>
+                        {type === '1' ? (
+                            <div>
+                                <div className="ck-content">
+                                    <div className="col-12" style={{ paddingLeft: '20px' }}>
+                                        <p style={{ fontWeight: '600' }}>Địa chỉ giao hàng</p>
+                                        <form className="form-info">
+                                            <div className="search-inner">
+                                                <label>Tỉnh/Thành phố</label>
+                                                <input
+                                                    type={'text'}
+                                                    className="form-control radio-ip"
+                                                    placeholder="Tên tỉnh thành"
+                                                    value={value}
+                                                    onChange={onChangeProvince}
+                                                    onClick={() => onSearchProvince(value)}
+                                                />
+                                            </div>
+                                            <div className="dropdown">
+                                                {array
+                                                    .filter((item) => {
+                                                        const searchTerm = value.toString().toLowerCase();
+                                                        const fullName =
+                                                            item.ProvinceName !== undefined
+                                                                ? item.ProvinceName.toLowerCase()
+                                                                : "";
+                                                        return (
+                                                            searchTerm &&
+                                                            fullName.startsWith(searchTerm) &&
+                                                            fullName !== searchTerm
+                                                        );
+                                                    })
+                                                    .slice(0, 10)
+                                                    .map((item) => (
+                                                        <div
+                                                            onClick={() =>
+                                                                onSearchProvince(item.ProvinceName, item.ProvinceID)
+                                                            }
+                                                            className="dropdown-row"
+                                                            key={item.ProvinceName}
+                                                        >
+                                                            {item.ProvinceName}
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                            <div className="search-inner">
+                                                <label>Tên quận huyện</label>
+                                                <input
+                                                    type={'text'}
+                                                    className="form-control radio-ip"
+                                                    placeholder="Tên quận huyện"
+                                                    value={valueDistrict}
+                                                    onChange={onChangeDistrict}
+                                                    onClick={() => onSearchDistrict(valueDistrict)}
+                                                    onKeyDown={_handleKeyDown}
+                                                />
+                                            </div>
+                                            <div className="dropdown">
+                                                {district
+                                                    .filter((item) => {
+                                                        const searchTerm = valueDistrict.toString().toLowerCase();
+                                                        const fullName =
+                                                            item.DistrictName !== undefined
+                                                                ? item.DistrictName.toLowerCase()
+                                                                : "";
+
+                                                        return (
+                                                            searchTerm &&
+                                                            fullName.startsWith(searchTerm) &&
+                                                            fullName !== searchTerm
+                                                        );
+                                                    })
+                                                    .slice(0, 5)
+                                                    .map((item) => (
+                                                        <div
+                                                            onClick={() =>
+                                                                onSearchDistrict(item.DistrictName, item.DistrictID)
+                                                            }
+                                                            className="dropdown-row"
+                                                            key={item.DistrictID}
+                                                        >
+                                                            {item.DistrictName}
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                            <div className="search-inner">
+                                                <label>Tên phường xã</label>
+                                                <input
+                                                    type={'text'}
+                                                    className="form-control radio-ip"
+                                                    placeholder="Tên phường xã"
+                                                    value={valueWard}
+                                                    disabled={isDisabled}
+                                                    onChange={onChangeWard}
+                                                    onClick={() => onSearchWard(valueWard)}
+                                                />
+                                            </div>
+                                            <div className="dropdown">
+                                                {Ward.filter((item) => {
+                                                    const searchTerm = valueWard.toString().toLowerCase();
+                                                    const fullName = item.WardName !== undefined
+                                                        ? item.WardName.toLowerCase() : "";
+
+                                                    return (
+                                                        searchTerm &&
+                                                        fullName.startsWith(searchTerm) &&
+                                                        fullName !== searchTerm
+                                                    );
+                                                })
+                                                    .slice(0, 10)
+                                                    .map((item) => (
+                                                        <div
+                                                            onClick={() =>
+                                                                onSearchWard(item.WardName, item.WardCode)
+                                                            }
+                                                            className="dropdown-row"
+                                                            key={item.WardName}
+                                                        >
+                                                            {item.WardName}
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                            <div><label>Địa chỉ</label>
+                                                <input type={'text'} className="form-control radio-ip" placeholder="Nhập số nhà/Tên đường" onChange={changeAddress}></input>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            ""
+                        )}
                     </div>
                 </div>
                 <div className="col-12 col-md-5">
@@ -605,8 +632,8 @@ function Checkout() {
                     <div className="content-right ">
                         <div >
                             <form className="form-htgh ms-5">
-                                <div><input type={'radio'} name="ip-ht" value={'0'} onChange={changePayment}></input> <label>Thanh toán tiền mặt khi nhận hàng</label></div>
-                                <div><input type={'radio'} name="ip-ht" value={'1'} onChange={changePayment}></input> <label>Thanh toán qua VN PAY</label></div>
+                                <div><input type={'radio'} name="ip-ht" value={'VN_PAY'} onChange={changePayment}></input> <label>Thanh toán qua VN PAY</label></div>
+                                <div><input type={'radio'} name="ip-ht" value={'DAT_COC'} onChange={changePayment}></input> <label>Đặt cọc qua VN PAY</label></div>
                             </form>
                         </div>
                     </div>
