@@ -1,4 +1,5 @@
-import { Table, Slider, Select, Input, Button, Modal } from "antd";
+import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space } from "antd";
+import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -6,9 +7,19 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  UnlockOutlined
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
+// import Product from "../Product/index";
+import moment from "moment";
+import axios from "axios";
+import 'toastr/build/toastr.min.css';
+import toastrs from "toastr";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Moment from 'react-moment';
+const url = 'http://localhost:8080/api';
 const { Option } = Select;
 
 const onDelete = (record) => {
@@ -18,17 +29,71 @@ const onDelete = (record) => {
   });
 };
 
-const getRandomuserParams = (params) => ({
-  results: params.pagination?.pageSize,
-  page: params.pagination?.current,
-  ...params,
-});
-
 const BatteryCharger = () => {
-  const [data, setData] = useState();
+  const notifySuccess = (message) => {
+    toast.success(message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
+  const notifyError = (message) => {
+    toast.error(message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
+  const [category, setCategory] = useState([]);
+  const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
-  const [isView, setView] = useState(false);
+  const [data, setData] = useState([{
+    id: "",
+    batteryType: "",
+    battery: "",
+    charger: "",
+    price: null,
+    categoryId: null,
+    active: 1,
+  }]
+  );
+  const [formDefault, setValuesDefault] = useState({
+    id: "",
+    batteryType: "",
+    battery: "",
+    charger: "",
+    price: null,
+    categoryId: null,
+    active: 1,
+  }
+  );
+  const [form, setValues] = useState({
+    id: "",
+    batteryType: "",
+    battery: "",
+    charger: "",
+    price: null,
+    categoryId: null,
+    active: 1,
+  }
+  );
+  //loadParam getList
+  const getRandomuserParams = (params) => ({
+    limit: params.pagination?.pageSize,
+    page: params.pagination?.current,
+  });
+  //phân trang Table
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -36,83 +101,100 @@ const BatteryCharger = () => {
     },
   });
 
+  const loadDataCategory = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/category?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        console.log(results.data.data);
+        setCategory(results.data.data);
+        setLoading(false);
+      });
+  };
+
   const columns = [
     {
-      title: "Tên thể loại",
-      dataIndex: "name",
+      title: "Loại pin",
+      dataIndex: "batteryType",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
       width: "20%",
     },
     {
-      title: "Ngày tạo",
-      dataIndex: "name",
+      title: "Dung lượng pin",
+      dataIndex: "battery",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
       width: "20%",
     },
     {
-      title: "Người tạo",
-      dataIndex: "name",
+      title: "Nguồn cấp",
+      dataIndex: "charger",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
-    },
-    {
-      title: "Ngày cập nhật",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
       width: "20%",
     },
     {
-      title: "Người cập nhật",
-      dataIndex: "name",
+      title: "Giá",
+      dataIndex: "price",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
+      render: (price) => `${price}`,
+      width: "20%",
     },
-    // {
-    //   title: "Email",
-    //   dataIndex: "email",
-    // },
+    {
+      title: "Danh mục",
+      dataIndex: "categoryId",
+      sorter: true,
+      render: (categoryId) => `${categoryId}`,
+      width: "20%",
+    },
     {
       title: "Trạng thái",
-      dataIndex: "Trạng thái",
+      dataIndex: "status",
       with: "30%",
-      render: (record) => {
-        return (
-          <>
-            <div
-              className="bg-success text-center text-light"
-              style={{ width: "100px", borderRadius: "5px" }}
-            >
-              Hoạt động
-            </div>
-          </>
-        );
+      render: (status) => {
+        if (status == 'ACTIVE') {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100px", borderRadius: "5px" }}
+              >
+                Hoạt động
+              </div>
+            </>
+          );
+        }
+        if (status == 'INACTIVE') {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100px", borderRadius: "5px" }}
+              >
+                Không hoạt động
+              </div>
+            </>
+          );
+        }
       },
     },
     {
       title: "Thao tác",
-      dataIndex: "Thao tác",
-      width: "30%",
-      render: (record) => {
+      dataIndex: "id",
+      width: "20%",
+      render: (id) => {
         return (
           <>
-            <EyeOutlined
-              onClick={() => {
-                onView(record);
-              }}
-            />
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
-                onEdit(record);
+                onEdit(id);
               }}
             />
             <DeleteOutlined
-              onClick={() => onDelete(record)}
+              onClick={() => onDelete(id)}
               style={{ color: "red", marginLeft: 12 }}
             />
           </>
@@ -121,31 +203,40 @@ const BatteryCharger = () => {
     },
   ];
 
-  const fetchData = () => {
+  //APILoadList
+  const getData = () => {
     setLoading(true);
-    fetch(
-      `https://randomuser.me/api?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then(({ results }) => {
-        setData(results);
+    axios.get(url + `/staff/batteryCharger?${qs.stringify(
+      getRandomuserParams(tableParams)
+    )}`)
+      .then((results) => {
+        setData(results.data.data.data);
+        setTotal(results.data.data.total);
         setLoading(false);
         setTableParams({
           ...tableParams,
           pagination: {
             ...tableParams.pagination,
-            total: 200, // 200 is mock data, you should read it from server
-            // total: data.totalCount,
-          },
+            total: totalSet,
+          }
         });
       });
   };
 
+  //LoadList
   useEffect(() => {
-    fetchData();
+    getData();
+    loadDataCategory();
   }, [JSON.stringify(tableParams)]);
+
+  //OnChange Form
+  const handle = (e) => {
+    setValues({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  }
+
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -180,11 +271,98 @@ const BatteryCharger = () => {
   };
 
   const onEdit = (record) => {
+    showModalEdit(record);
     setEditing(true);
   };
 
-  const onView = (record) => {
-    setView(true);
+  //btn Add
+  const handleAdd = (e) => {
+    setModalText("The modal will be closed after two seconds");
+    setConfirmLoading(true);
+    submitAdd(e);
+    setTimeout(() => {
+      setConfirmLoading(false);
+    }, 2000);
+  };
+  function submitAdd(e) {
+    if (form.ratio < 0 || form.ratio > 100) {
+      notifyError('Tỉ lệ phải từ 0-100!');
+    } else {
+      e.preventDefault();
+      axios.post(url+"/admin/batteryCharger", form)
+        .then(res => {
+          notifySuccess('Thêm bản ghi thành công')
+          // setAdd(false);
+          setOpen(false);
+          getData();
+          setValues(formDefault);
+          console.log(res.data);
+        }).catch((error) => {
+          notifyError('Yêu cầu nhập đủ các trường!');
+          return;
+        })
+    }
+
+  }
+  //loadFormEdit
+  const showModalEdit = (id) => {
+    axios.get(url + "/admin/batteryCharger/" + id)
+      .then(res => {
+        console.log(res.data.data);
+        setValues(res.data.data);
+      })
+  };
+
+  //btn Edit
+  const handleEdit = (e) => {
+    setModalText("The modal will be closed after two seconds");
+    setConfirmLoading(true);
+    submitEdit(e);
+    setTimeout(() => {
+      setConfirmLoading(false);
+    }, 2000);
+  };
+  function submitEdit(e) {
+    if (form.ratio < 0 || form.ratio > 100) {
+      notifyError('Tỉ lệ phải từ 0-100!');
+    } else {
+      // e.preventDefault();
+      axios.put(url + "/admin/batteryCharger/" + form.id, form)
+        .then(res => {
+          notifySuccess('Sửa bản ghi thành công')
+          getData();
+          setEditing(false);
+          setValues(formDefault);
+          console.log(res.data);
+        }).catch((error) => {
+          notifyError('Yêu cầu nhập đủ các trường!');
+          return;
+        })
+    }
+
+  }
+
+
+  //Delete
+  const onDelete = (id) => {
+    Modal.confirm({
+      title: "Xoá giảm giá",
+      content: "Bạn có muốn xoá bản ghi này không?",
+      onOk() {
+        axios.delete(url + "/admin/batteryCharger/" + id)
+          .then(res => {
+            notifySuccess('Xóa bản ghi thành công!')
+            getData();
+            console.log(res.data);
+          }).catch((errorMessage) => {
+            notifyError('Xóa bản ghi không thành công!');
+            return;
+          })
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -193,7 +371,8 @@ const BatteryCharger = () => {
   };
   return (
     <div>
-      <div
+      <ToastContainer />
+      {/* <div
         className="row"
         style={{
           borderRadius: "20px",
@@ -203,8 +382,23 @@ const BatteryCharger = () => {
         }}
       >
         <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <Input placeholder="Nhập tên thể loại" />
+          <label>Loại pin</label>
+          <Input placeholder="Nhập loại pin" />
+        </div>
+        <div className="col-4 mt-4">
+          <label>Dung lượng pin</label>
+          <Input placeholder="Nhập dung lượng pin" />
+        </div>
+        <div className="col-4 mt-4">
+          <label>Power supply</label>
+          <Input placeholder="Nhập power supply" />
+        </div>
+        <div className="col-4 mt-4">
+          <label>Giá</label>
+          <Input placeholder="Nhập giá" 
+          value={form.price}
+          // onChange={(e) => setPrice(e.target.value)}
+          />
         </div>
         <div className="col-4 mt-4">
           <label>Trạng thái</label>
@@ -242,7 +436,7 @@ const BatteryCharger = () => {
           <SearchOutlined />Tìm kiếm
           </Button>
         </div>
-      </div>
+      </div> */}
       <div className="row">
         <div className="col-12 mt-4">
           <Button
@@ -256,14 +450,49 @@ const BatteryCharger = () => {
           <Modal
             title="Tạo mới"
             open={open}
-            onOk={handleOk}
+            onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
           >
-            <div className="form group">
-              <label>Tên thể loại</label>
-              <Input placeholder="Tên thể loại" />
+            <div className="col-4 mt-4">
+              <label>Loại pin</label>
+              <Input placeholder="Nhập loại pin" onChange={(e) => handle(e)} type="text" name="batteryType" value={form.batteryType}/>
             </div>
+            <div className="col-4 mt-4">
+              <label>Dung lượng pin</label>
+              <Input placeholder="Nhập dung lượng pin" onChange={(e) => handle(e)} type="text" name="battery" value={form.battery}/>
+            </div>
+            <div className="col-4 mt-4">
+              <label>Power supply</label>
+              <Input placeholder="Nhập power supply" onChange={(e) => handle(e)} type="text" name="charger" value={form.charger}/>
+            </div>
+            <div className="col-4 mt-4">
+              <label>Giá</label>
+              <Input placeholder="Nhập giá" 
+              name="price"
+              value={form.price}
+              onChange={(e) => handle(e)}
+              />
+            </div>
+            <div className="col-4 mt-4">
+            <label>
+              Thể loại
+              <span className="text-danger me-2"> * </span>
+            </label>
+            <br />
+            <select
+              className="form-select"
+              name="categoryId"
+              value={form.categoryId}
+              onChange={(e) => handle(e)}
+            >
+              {category.map((cate) => (
+                <option key={cate.id} value={cate.id}>
+                  {cate.name}
+                </option>
+              ))}
+            </select>
+          </div>
           </Modal>
         </div>
       </div>
@@ -280,7 +509,7 @@ const BatteryCharger = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record.login.uuid}
+            //rowKey={(record) => console.log('record',record)}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -292,33 +521,50 @@ const BatteryCharger = () => {
             onCancel={() => {
               setEditing(false);
             }}
-            onOk={() => {
+            onOk={(e) => {
+              handleEdit(e);
               setEditing(false);
             }}
           >
+            <div className="col-4 mt-4">
+              <label>Loại pin</label>
+              <Input placeholder="Nhập loại pin" onChange={(e) => handle(e)} type="text" name="batteryType" value={form.batteryType}/>
+            </div>
+            <div className="col-4 mt-4">
+              <label>Dung lượng pin</label>
+              <Input placeholder="Nhập dung lượng pin" onChange={(e) => handle(e)} type="text" name="battery" value={form.battery}/>
+            </div>
+            <div className="col-4 mt-4">
+              <label>Power supply</label>
+              <Input placeholder="Nhập power supply" onChange={(e) => handle(e)} type="text" name="charger" value={form.charger}/>
+            </div>
+            <div className="col-4 mt-4">
+              <label>Giá</label>
+              <Input placeholder="Nhập giá" 
+              name="price"
+              value={form.price}
+              onChange={(e) => handle(e)}
+              />
+            </div>
+            <div className="col-4 mt-4">
             <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
+              Thể loại
+              <span className="text-danger me-2"> * </span>
             </label>
-            <Input placeholder="Tên thể loại" />
-          </Modal>
-
-          <Modal
-            // style={{borderRadius:"10px"}}
-            title="Hiển thị"
-            visible={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
-            }}
-          >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+            <br />
+            <select
+              className="form-select"
+              name="categoryId"
+              value={form.categoryId}
+              onChange={(e) => handle(e)}
+            >
+              {category.map((cate) => (
+                <option key={cate.id} value={cate.id}>
+                  {cate.name}
+                </option>
+              ))}
+            </select>
+          </div>
           </Modal>
         </div>
       </div>
