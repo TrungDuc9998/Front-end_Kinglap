@@ -1,7 +1,7 @@
-/* .ant-modal-footer {
-    display: none;
+.ant-modal-footer {
+    /* display: none; */
     background-color: red;
-} */
+}
 #create {
     margin-left: 250px;
     width: 200px;
