@@ -309,6 +309,7 @@ const Category = () => {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log(results);
         setData(results.data.data);
         setLoading(false);
         setTableParams({

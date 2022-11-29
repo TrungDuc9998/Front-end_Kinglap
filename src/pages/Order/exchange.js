@@ -164,9 +164,9 @@ const Exchange = () => {
                 isUpdate: 1,
               }),
             }
-          ).then((res) => {});
+          ).then((res) =>  loadDataOrder(id));
           toastSuccess("Gửi yêu cầu thành công!");
-          loadDataOrder(id);
+         
           loadDataProduct();
         } catch (err) {
           console.log(err);
@@ -358,7 +358,7 @@ const Exchange = () => {
                 Số điện thoại: <b>{order?.phone}</b>{" "}
               </div>
               <div className="ms-5 mt-2">
-                Trạnh thái: <b>Đã nhận hàng</b>{" "}
+                Trạng thái: <b>Đã nhận hàng</b>{" "}
               </div>
               <div className="mt-2">
                 <TextArea
@@ -441,6 +441,7 @@ const Exchange = () => {
                 <th scope="col">Giá</th>
                 <th scope="col">Số lượng</th>
                 <th scope="col">Tổng tiền</th>
+                <th>Trạng thái</th>
                 <th scope="col">Thao tác</th>
               </tr>
             </thead>
@@ -469,6 +470,10 @@ const Exchange = () => {
                         displayType={"text"}
                         thousandSeparator={true}
                       />
+                    </td>
+                    <td>
+                      {item.isCheck ===1 ? (<p className="text-primary fw-bold">Ban đầu</p>): ""}
+                      {item.id == item.isCheck ? (<p className="text-danger">Đổi sang</p>): ""}
                     </td>
                     <td>
                       {item.isCheck === null ? (
@@ -561,10 +566,10 @@ const Exchange = () => {
                     />
                   </i>
                 </p>
-                <p>
+                {/* <p>
                   Trạng thái:{" "}
                   <i className="text-danger">{item?.product.quantity}</i>
-                </p>
+                </p> */}
               </div>
             </div>
             <Select

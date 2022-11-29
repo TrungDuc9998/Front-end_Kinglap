@@ -16,7 +16,7 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  PrinterOutlined
+  PrinterOutlined,
 } from "@ant-design/icons";
 import "../Order/order.css";
 import Moment from "react-moment";
@@ -28,7 +28,7 @@ import { ToastContainer, toast } from "react-toastify";
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CurrencyFormat from "react-currency-format";
-import ReactToPrint from "react-to-print"
+import ReactToPrint from "react-to-print";
 import QRCode from "react-qr-code";
 const { Option } = Select;
 const url = "http://localhost:8080/api/orders";
@@ -339,14 +339,12 @@ const Order = () => {
   };
 
   const showModalOrder = (id) => {
-    axios.get(url + "/get/" + id)
-      .then((res) => {
-        setDataO(res.data.data);
-      })
-    axios.get(url + "/" + id)
-      .then((res) => {
-        setDataOD(res.data);
-      })
+    axios.get(url + "/get/" + id).then((res) => {
+      setDataO(res.data.data);
+    });
+    axios.get(url + "/" + id).then((res) => {
+      setDataOD(res.data);
+    });
     setOrder(true);
   };
 
@@ -374,7 +372,7 @@ const Order = () => {
       render(createdAt) {
         return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
       },
-      width: "9%",
+      width: "10%",
     },
     {
       title: "Tổng tiền(VNĐ)",
@@ -384,13 +382,10 @@ const Order = () => {
       render(total) {
         return (
           <>
-            <CurrencyFormat
-              style={{ fontSize: "14px" }}
-              value={total}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-            vnđ
+            {total.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
           </>
         );
       },
@@ -731,7 +726,7 @@ const Order = () => {
             <Option value="DA_HUY">Đã hủy</Option>
           </Select>
         </div>
-        <div className="col-4 mt-3">
+        {/* <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
           <br />
           <DatePicker
@@ -742,7 +737,7 @@ const Order = () => {
             format={"yyyy-MM-DD HH:mm:ss"}
             type="datetime"
           />
-        </div>
+        </div> */}
         <div className="col-12 text-center mt-4">
           <Button
             className="mt-2"
@@ -762,7 +757,7 @@ const Order = () => {
             <SearchOutlined />
             Tìm kiếm
           </Button>
-          <Button
+          {/* <Button
             className="mx-2  mt-2"
             type="primary"
             onClick={searchDate}
@@ -770,7 +765,7 @@ const Order = () => {
           >
             <SearchOutlined />
             Tìm kiếm Date
-          </Button>
+          </Button> */}
         </div>
       </div>
       <div className="row">
@@ -896,11 +891,15 @@ const Order = () => {
             }}
           >
             <div className="order" ref={componentRef}>
-            <div className="qrcode">
+              <div className="qrcode">
                 <QRCode
                   size={256}
                   style={{ height: "100px", width: "100px" }}
-                  value={"https://kinglap.000webhostapp.com/order/Order" + dataO?.id + ".pdf"}
+                  value={
+                    "https://kinglap.000webhostapp.com/order/Order" +
+                    dataO?.id +
+                    ".pdf"
+                  }
                   viewBox={`0 0 256 256`}
                 />
               </div>
@@ -913,11 +912,10 @@ const Order = () => {
                 <h1>Hóa đơn mua hàng</h1>
               </div>
               <div className="content">
-                <h5>Mã hóa đơn:   {dataO?.id}</h5>
-                <h5>Ngày mua hàng:
-                  <Moment format="DD-MM-YYYY">
-                    {dataO?.createdAt}
-                  </Moment>
+                <h5>Mã hóa đơn: {dataO?.id}</h5>
+                <h5>
+                  Ngày mua hàng:
+                  <Moment format="DD-MM-YYYY">{dataO?.createdAt}</Moment>
                 </h5>
                 <h5>Tên khách hàng: {dataO?.customerName}</h5>
                 <h5>Địa chỉ: {dataO?.address}</h5>
@@ -938,54 +936,72 @@ const Order = () => {
                         <tr key={index}>
                           <td>{item.id}</td>
                           <td>{item.product.name}</td>
-                          <td><CurrencyFormat
-                            style={{ fontSize: "14px" }}
-                            value={item.product.price}
-                            displayType={"text"}
-                            thousandSeparator={true}
-                          /></td>
+                          <td>
+                            <CurrencyFormat
+                              style={{ fontSize: "14px" }}
+                              value={item.product.price}
+                              displayType={"text"}
+                              thousandSeparator={true}
+                            />
+                          </td>
                           <td>{item.quantity}</td>
-                          <td><CurrencyFormat
-                            style={{ fontSize: "14px" }}
-                            value={item.quantity * item.product.price}
-                            displayType={"text"}
-                            thousandSeparator={true}
-                          /></td>
+                          <td>
+                            <CurrencyFormat
+                              style={{ fontSize: "14px" }}
+                              value={item.quantity * item.product.price}
+                              displayType={"text"}
+                              thousandSeparator={true}
+                            />
+                          </td>
                         </tr>
-
                       );
                     })}
                     <tr>
                       <td colSpan={4}>Tổng tiền</td>
-                      <td><CurrencyFormat
-                        style={{ fontSize: "14px" }}
-                        value={dataO?.total}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      /></td>
-
+                      <td>
+                        <CurrencyFormat
+                          style={{ fontSize: "14px" }}
+                          value={dataO?.total}
+                          displayType={"text"}
+                          thousandSeparator={true}
+                        />
+                      </td>
                     </tr>
                   </tbody>
                 </table>
-                <h5>Tổng số tiền phải thanh toán: <CurrencyFormat
-                  style={{ fontSize: "14px" }}
-                  value={dataO?.total}
-                  displayType={"text"}
-                  thousandSeparator={true}
-                /> VNĐ</h5>
-                <h5>Trạng thái đơn hàng:
-                  {dataO ? dataO.status == "CHO_XAC_NHAN" ? " chờ xác nhận" : dataO.status == "CHO_LAY_HANG" ? " chờ lấy hàng" :
-                    dataO.status == "DANG_GIAO" ? " đang giao" : dataO.status == "DA_NHAN" ? " đã nhận" : " đã hủy" : ""}
+                <h5>
+                  Tổng số tiền phải thanh toán:{" "}
+                  <CurrencyFormat
+                    style={{ fontSize: "14px" }}
+                    value={dataO?.total}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />{" "}
+                  VNĐ
+                </h5>
+                <h5>
+                  Trạng thái đơn hàng:
+                  {dataO
+                    ? dataO.status == "CHO_XAC_NHAN"
+                      ? " chờ xác nhận"
+                      : dataO.status == "CHO_LAY_HANG"
+                      ? " chờ lấy hàng"
+                      : dataO.status == "DANG_GIAO"
+                      ? " đang giao"
+                      : dataO.status == "DA_NHAN"
+                      ? " đã nhận"
+                      : " đã hủy"
+                    : ""}
                 </h5>
               </div>
             </div>
             <ReactToPrint
               trigger={() => {
-                return <button>Xuất hóa đơn</button>
+                return <button>Xuất hóa đơn</button>;
               }}
               content={() => componentRef.current}
               documentTitle={"Order" + dataO?.id}
-              pageStyle='print'
+              pageStyle="print"
             />
           </Modal>
         </div>
