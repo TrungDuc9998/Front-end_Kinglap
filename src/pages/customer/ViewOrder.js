@@ -2,13 +2,13 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import product8 from "../../asset/images/products/product08.png";
 import qs from "qs";
-import { Modal, Table, Tabs, InputNumber, Image } from "antd";
+import { Modal, Table, Tabs, InputNumber, Image, Button } from "antd";
 import {
   DeleteOutlined,
   EyeOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -43,6 +43,7 @@ const toastError = (message) => {
 };
 
 function ViewOrder() {
+  let navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [orderDetails, setOrderDetails] = useState([]);
   const url = "http://localhost:8080/api/orders";
@@ -145,13 +146,13 @@ function ViewOrder() {
 
   const columns = [
     {
-      title: "Mã HD",
+      title: "Mã đơn hàng",
       dataIndex: "id",
       sorter: true,
       width: "7%",
     },
     {
-      title: "Ngày tạo",
+      title: "Ngày đặt hàng",
       dataIndex: "createdAt",
       sorter: true,
       width: "14%",
@@ -163,6 +164,18 @@ function ViewOrder() {
       width: "9%",
       render(total) {
         return total.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        });
+      },
+    },
+    {
+      title: "Đã thanh toán",
+      dataIndex: "money",
+      sorter: true,
+      width: "9%",
+      render(money) {
+        return money.toLocaleString("it-IT", {
           style: "currency",
           currency: "VND",
         });
@@ -313,6 +326,7 @@ function ViewOrder() {
                   showModalData(data.id);
                 }}
               />
+
               {/* <CheckCircleOutlined
                 className="ms-2"
                 style={{ fontSize: "20px", color: "blue" }}
@@ -321,6 +335,31 @@ function ViewOrder() {
                   setIDCancel(data.id);
                 }}
               /> */}
+            </>
+          );
+        } else if (data.status === "DA_NHAN") {
+          return (
+            <>
+              <Button
+                onClick={() => {
+                  showModalData(data.id);
+                }}
+              >
+                Hiển thị
+              </Button>
+              <Button
+                className="mt-2"
+                danger
+                onClick={() => navigate(`/user/order/exchange/${data.id}`)}
+              >
+                Đổi hàng
+              </Button>
+              <Button
+                className="mt-2"
+                onClick={() => navigate(`/user/order/return/${data.id}`)}
+              >
+                Trả hàng
+              </Button>
             </>
           );
         } else {
@@ -655,7 +694,7 @@ function ViewOrder() {
                     <th scope="col">Giá</th>
                     <th scope="col">Số lượng</th>
                     <th scope="col">Tổng tiền</th>
-                    {/* <th scope="col">Trạng thái</th> */}
+                    <th scope="col">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -704,7 +743,7 @@ function ViewOrder() {
                             currency: "VND",
                           })}
                         </td>
-                        {/* <td>{item.status}</td> */}
+                        <td></td>
                       </tr>
                     );
                   })}
