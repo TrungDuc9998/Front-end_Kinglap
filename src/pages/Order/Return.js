@@ -8,7 +8,7 @@ import {
   Modal,
   DatePicker,
   Radio,
-  Space,
+  Image,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -112,26 +112,26 @@ const Return = () => {
 
     if (reason != undefined) {
       try {
-        console.log("vào fetch");
-        fetch("http://localhost:8080/api/returns", {
+        fetch("http://localhost:8080/api/auth/returns", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             orderId: order.id,
             reason: reason,
             description: note,
-            status: "YEU_CAU",
+            status: "CHUA_XU_LY",
             isCheck: 2,
             returnDetailEntities: [
               {
                 productId: item.product.id,
                 quantity: valueInputNumber != undefined ? valueInputNumber : 1,
+                orderDetailId: item.id,
               },
             ],
           }),
         }).then((res) => {});
 
-        fetch(`http://localhost:8080/api/orders/${item.id}/orderDetails`, {
+        fetch(`http://localhost:8080/api/orders/${item.id}/updateOrderDetail`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -141,7 +141,7 @@ const Return = () => {
             status: item.status,
             isCheck: 2,
           }),
-        }).then((res) => {});
+        }).then((res) => loadDataOrder(id));
         toastSuccess("Gửi yêu cầu thành công!");
         loadDataOrder(id);
         // location.reload();
@@ -203,10 +203,17 @@ const Return = () => {
                 Ngày mua: <b>{order?.updatedAt}</b>
               </div>
               <div className="mt-2">
-                Tổng tiền: <b>{order?.total}</b>
+                Tổng tiền:{" "}
+                <b>
+                  {order?.total.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </b>
               </div>
               <div className="mt-2">
-                Trạnh thái: <b>{order?.status}</b>{" "}
+                Trạnh thái:{" "}
+                <b>{order?.status === "DANG_GIAO" ? "Đang giao" : ""}</b>{" "}
               </div>
               <div className="mt-2">
                 <TextArea
@@ -233,10 +240,11 @@ const Return = () => {
         }}
       >
         <div className="col-12">
-          <table class="table">
+          <table className="table">
             <thead>
               <tr>
                 <th scope="col">Mã HDCT</th>
+                <th>Hình ảnh</th>
                 <th scope="col">Tên sản phẩm</th>
                 <th scope="col">Giá</th>
                 <th scope="col">Số lượng</th>
@@ -249,8 +257,17 @@ const Return = () => {
                 return (
                   <tr key={index}>
                     <td>{item.id}</td>
+                    <td>
+                      <Image width={100} src={item.product.images[0].name} />{" "}
+                    </td>
                     <td>{item.product.name}</td>
-                    <td>{item.product.price}</td>
+                    <td>
+                      {item.product.price.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </td>
+
                     <td>
                       <InputNumber
                         // style={{width: "20%"}}
@@ -261,14 +278,23 @@ const Return = () => {
                       />
                       / {item.quantity}
                     </td>
-                    <td>{item.quantity * item.product.price}</td>
+                    <td className="pt-2">
+                      {item?.total.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </td>
                     <td>
                       {item.isCheck === null ? (
-                        <Button type="danger"
+                        <Button
+                          type="danger"
                           onClick={() =>
                             handleSubmitReturn(item, valueInputNumber)
                           }
-                        > Trả hàng</Button>
+                        >
+                          {" "}
+                          Trả hàng
+                        </Button>
                       ) : (
                         ""
                       )}

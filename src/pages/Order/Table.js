@@ -95,6 +95,7 @@ function Table1() {
   const [userId, setUserId] = useState();
   const [discounts, setDiscounts] = useState();
   const [userNameLogin, setUserNameLogin] = useState();
+  const [typeOrder, setTypeOrder] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -198,19 +199,29 @@ function Table1() {
     } else {
       setDisableCountry(false);
     }
+    setTypeOrder(value);
+  };
+
+  const handleChangePayment2 = (value) => {
     setPayment(value);
   };
 
   const handleSubmitOrder = () => {
-    console.log("clientName" + valueUser);
-    console.log("phoneNumberForm" + phoneClient);
-    if (payment === undefined) {
-      toastError("Vui lòng chọn hình thức thanh toán !");
+    console.log(dataCart.length);
+    if (dataCart === undefined || dataCart.length === 0) {
+      toastError("Vui lòng thêm sản phẩm vào giỏ hàng");
+    } else if (
+      payment === undefined ||
+      typeOrder === undefined ||
+      (fullNameForm === undefined && valueUser === undefined) ||
+      (phoneClient === undefined && phoneNumberForm === undefined)
+    ) {
+      toastError("Vui lòng điền đầy đủ thông tin !");
     } else {
       const order = {
         payment: payment,
         total: total + shipping,
-        userId: userId === undefined ? null : userId,
+        userId: userId === undefined ? 1 : userId,
         address:
           valueProvince !== undefined
             ? (addressDetail === undefined ? "" : addressDetail + ",") +
@@ -223,14 +234,17 @@ function Table1() {
         note: note,
         customerName: valueUser === undefined ? fullNameForm : valueUser,
         phone: phoneClient === undefined ? phoneNumberForm : phoneClient,
+        money: 0,
+        status: "CHO_XAC_NHAN",
       };
       const orderDetails = [];
       dataCart?.forEach((item, index) => {
         orderDetails.push({
-          productId: item.productId.id,
           quantity: item.quantity,
           status: "CHO_XAC_NHAN",
           total: item.total,
+          productId: item.productId.id,
+          isCheck: null,
         });
       });
       console.log(orderDetails);
@@ -243,11 +257,12 @@ function Table1() {
             userId: order.userId | null,
             total: order.total,
             address: order.address,
-            note: order.note,
+            note: "acv",
             customerName:
               order.customerName == "" ? "Nguyễn Thị Huệ" : order.customerName,
             phone: order.phone,
             status: "CHO_XAC_NHAN",
+            money: 0,
             orderDetails: orderDetails,
           }),
         }).then((res) => {
@@ -255,6 +270,7 @@ function Table1() {
           console.log(orderDetails);
           console.log(res.data);
         });
+        // debugger
         console.log(order);
         toastSuccess("Thêm hoá đơn thành công");
       } catch (err) {
@@ -264,14 +280,10 @@ function Table1() {
   };
 
   const updateCart = (cart, id, quantity) => {
-    console.log("id cart update " + id);
-    console.log("quantity: " + quantity);
-    console.log(cart);
     let tong =
       cart.total === cart.productId.price * quantity
         ? cart.total
         : cart.productId.price * quantity;
-    console.log("tong tiền: ", tong);
     fetch(`http://localhost:8080/api/carts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -280,10 +292,6 @@ function Table1() {
         userId: cart.useId | 1,
         quantity: quantity !== undefined ? quantity + 1 : cart.quantity,
         total: cart.total,
-        // total:
-        //   cart.total === cart.productId.price * quantity
-        //     ? cart.total
-        //     : cart.productId.price * quantity,
       }),
     }).then((res) => {
       console.log("load data cart:");
@@ -381,13 +389,12 @@ function Table1() {
   };
 
   const onChangePhoneNumber = (value) => {
-    console.log("changProduct: "+ value);
-  }
+    console.log("changProduct: " + value);
+  };
 
   const onSearchPhoneNumber = (value) => {
-    console.log('search product: ' + value);
-  }
-  
+    console.log("search product: " + value);
+  };
 
   const onChangeProduct = (value) => {
     setValueProduct(value);
@@ -585,12 +592,6 @@ function Table1() {
   const url = "http://localhost:8080/api/orders";
 
   const SubmitShipping = (value) => {
-    console.log("service id submit shipping: " + serviceId);
-    console.log("ward code submit shipping: " + value);
-    console.log("ward code value: " + wardCode);
-    console.log("total length: " + Math.round(totalLength * 0.1));
-    console.log("total weight: " + totalWeight * 1000);
-    console.log("total width: " + Math.round(totalLength * 0.1));
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
       {
@@ -617,14 +618,12 @@ function Table1() {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log("GIÁ SHIP SAU KHI TÍNH: " + data.data.total);
         setShipping(data.data.total);
         setIsDisabled(true);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-    // }
   };
 
   useEffect(() => {
@@ -952,7 +951,7 @@ function Table1() {
                 <label>Số điện thoại khách hàng</label>
                 <Select
                   style={{
-                    width: "100%"
+                    width: "100%",
                   }}
                   showSearch
                   placeholder="Số điện thoại khách hàng"
@@ -999,7 +998,7 @@ function Table1() {
                 </Select>
               </div>
             </div>
-            <div className="col-6">
+            {/* <div className="col-6">
               <div className="form-group">
                 <label>Khuyến mãi</label>
                 <Select
@@ -1023,7 +1022,7 @@ function Table1() {
                   ))}
                 </Select>
               </div>
-            </div>
+            </div> */}
           </div>
           <div className="row mt-3">
             <div className="col-6">
@@ -1109,10 +1108,31 @@ function Table1() {
                 <TextArea
                   value={addressDetail}
                   onChange={(e) => setAddressDetail(e.target.value)}
-                  rows={4}
+                  rows={6}
                   placeholder={"Địa chỉ chi tiết"}
                 />
               </div>
+            </div>
+          </div>
+          <div className="row mt-3">
+            {/* <div className="col-6">
+              <label>Hình thức thanh toán</label>
+              <Select
+                placeholder="Hình thức thanh toán"
+                style={{
+                  width: 240,
+                }}
+                onChange={handleChangePayment2}
+              >
+                <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">
+                  Tại cửa hàng
+                </Option>
+                <Option key={"TÀI KHOẢN VN PAY"} value="TÀI KHOẢN VN PAY">
+                  Tài khoản VN PAY
+                </Option>
+              </Select>
+            </div> */}
+            <div className="col-6">
               <div className="form-group">
                 <label>Tổng tiền</label>
                 <br />
@@ -1133,25 +1153,6 @@ function Table1() {
                 />
                 {/* </Space> */}
               </div>
-            </div>
-          </div>
-          <div className="row mt-3">
-            <div className="col-6">
-              <label>Hình thức thanh toán</label>
-              <Select
-                placeholder="Hình thức thanh toán"
-                style={{
-                  width: 240,
-                }}
-                onChange={handleChangePayment}
-              >
-                <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">
-                  Tại cửa hàng
-                </Option>
-                <Option key={"TÀI KHOẢN VN PAY"} value="TÀI KHOẢN VN PAY">
-                  Tài khoản VN PAY
-                </Option>
-              </Select>
             </div>
             <div className="col-6">
               <div className="form-group">

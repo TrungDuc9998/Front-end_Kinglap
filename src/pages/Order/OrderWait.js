@@ -60,7 +60,7 @@ const OrderWait = () => {
     Modal.confirm({
       icon: <CheckCircleOutlined />,
       title: "Xác nhận đơn hàng",
-      content:`Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
+      content: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
       okText: "Có",
       cancelText: "Không",
       okType: "primary",
@@ -138,6 +138,16 @@ const OrderWait = () => {
       title: "Tổng tiền",
       dataIndex: "total",
       sorter: true,
+      render(total) {
+        return (
+          <>
+            {total.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
       width: "15%",
     },
     {
@@ -352,9 +362,19 @@ const OrderWait = () => {
                         <Image width={100} src={item.product.images[0].name} />{" "}
                       </td>
                       <td>{item.product.name}</td>
-                      <td>{item.product.price.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</td>
+                      <td>
+                        {item.product.price.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </td>
                       <td>{item.quantity}</td>
-                      <td>{item.total.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</td>
+                      <td>
+                        {item.total.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </td>
                       {/* <td>{item.status}</td> */}
                     </tr>
                   );

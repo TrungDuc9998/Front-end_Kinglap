@@ -9,8 +9,8 @@ import {
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useSearchParams } from "react-router-dom";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const onChange = (key) => {
   console.log(key);
@@ -26,7 +26,7 @@ const toastSuccess = (message) => {
     draggable: true,
     progress: undefined,
     theme: "light",
-  })
+  });
 };
 
 const toastError = (message) => {
@@ -40,7 +40,7 @@ const toastError = (message) => {
     progress: undefined,
     theme: "light",
   });
-}
+};
 
 function ViewOrder() {
   const [orders, setOrders] = useState([]);
@@ -67,7 +67,8 @@ function ViewOrder() {
     let userId = localStorage.getItem("username");
     fetch(
       `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
-        getRandomuserParams(tableParams))}`
+        getRandomuserParams(tableParams)
+      )}`
     )
       .then((res) => res.json())
       .then((results) => {
@@ -96,26 +97,32 @@ function ViewOrder() {
       let valueWard = localStorage.getItem("valueWard");
       let valueDistrict = localStorage.getItem("valueDistrict");
       let value = localStorage.getItem("value");
-      fetch(
-        `http://localhost:8080/api/orders/user`,
-        {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: localStorage.getItem("id"),
-            total: total,
-            money: payment === 'VN_PAY' ? total : total * 0.1,
-            payment: payment,
-            // type: type,
-            address: type == 0 ? 'TẠI CỬA HÀNG' : (address + ', ' + valueWard + ', ' + valueDistrict + ', ' + value),
-            phone: phone,
-            customerName: customerName,
-            // email: email,
-            status: status,
-            orderDetails: JSON.parse(orderDetails)
-          })
-        }
-      ).then(() => {
+      fetch(`http://localhost:8080/api/orders/user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: localStorage.getItem("id"),
+          total: total,
+          money: payment === "VN_PAY" ? total : total * 0.1,
+          payment: payment,
+          // type: type,
+          address:
+            type == 0
+              ? "TẠI CỬA HÀNG"
+              : address +
+                ", " +
+                valueWard +
+                ", " +
+                valueDistrict +
+                ", " +
+                value,
+          phone: phone,
+          customerName: customerName,
+          // email: email,
+          status: status,
+          orderDetails: JSON.parse(orderDetails),
+        }),
+      }).then(() => {
         localStorage.removeItem("total");
         localStorage.removeItem("payment");
         localStorage.removeItem("address");
@@ -127,7 +134,7 @@ function ViewOrder() {
         localStorage.removeItem("valueWard");
         localStorage.removeItem("valueDistrict");
         localStorage.removeItem("value");
-      })
+      });
     }
   };
 
@@ -155,10 +162,11 @@ function ViewOrder() {
       sorter: true,
       width: "9%",
       render(total) {
-        return (
-          total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
-        )
-      }
+        return total.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        });
+      },
     },
     {
       title: "Hình thức thanh toán",
@@ -345,7 +353,7 @@ function ViewOrder() {
     setConfirm(true);
   };
   const showModalData = (id) => {
-    console.log('id show modal: ', id);
+    console.log("id show modal: ", id);
     setOrderId(id);
     axios.get(url + "/" + id).then((res) => {
       setOrder(res.data);
@@ -354,7 +362,7 @@ function ViewOrder() {
 
     console.log(orderId);
     setView(true);
-    console.log('show modal');
+    console.log("show modal");
     loadDataOrder(id);
   };
 
@@ -437,11 +445,11 @@ function ViewOrder() {
       if (element.id == id) {
         count = index;
       }
-    })
-    console.log('quantity: ', quantity, 'price: ', price);
-    const total = (quantity * price);
+    });
+    console.log("quantity: ", quantity, "price: ", price);
+    const total = quantity * price;
     console.log(total);
-    order[count].total = Number(price * value)
+    order[count].total = Number(price * value);
     setOrder(order);
     console.log(order);
     // handleUpdateOrderDetail();
@@ -515,22 +523,6 @@ function ViewOrder() {
                   ),
                 },
                 {
-                  label: `Đang giao hàng`,
-                  key: "DANG_GIAO",
-                  children: (
-                    <Table
-                      columns={columns}
-                      rowKey={(record) => record++}
-                      dataSource={orders.filter(function (order) {
-                        return order.status === "DANG_GIAO";
-                      })}
-                      pagination={tableParams.pagination}
-                      loading={loading}
-                      onChange={handleTableChange}
-                    />
-                  ),
-                },
-                {
                   label: `Chờ lấy hàng`,
                   key: "CHO_LAY_HANG",
                   children: (
@@ -539,6 +531,22 @@ function ViewOrder() {
                       rowKey={(record) => record++}
                       dataSource={orders.filter(function (order) {
                         return order.status === "CHO_LAY_HANG";
+                      })}
+                      pagination={tableParams.pagination}
+                      loading={loading}
+                      onChange={handleTableChange}
+                    />
+                  ),
+                },
+                {
+                  label: `Đang giao hàng`,
+                  key: "DANG_GIAO",
+                  children: (
+                    <Table
+                      columns={columns}
+                      rowKey={(record) => record++}
+                      dataSource={orders.filter(function (order) {
+                        return order.status === "DANG_GIAO";
                       })}
                       pagination={tableParams.pagination}
                       loading={loading}
@@ -593,7 +601,7 @@ function ViewOrder() {
                 fetch(`http://localhost:8080/api/orders/received/${idCancel}`, {
                   method: "PUT",
                 }).then(() => load());
-                toastSuccess("Hủy thành công!")
+                toastSuccess("Hủy thành công!");
                 setConfirm(false);
                 setLoading(true);
               }}
@@ -615,10 +623,9 @@ function ViewOrder() {
                   `http://localhost:8080/api/orders/cancelled/${idCancel}`,
                   { method: "PUT" }
                 ).then(() => load());
-                toastSuccess("Hủy thành công!")
+                toastSuccess("Hủy thành công!");
                 setEditing(false);
                 setLoading(true);
-
               }}
             >
               <label>
@@ -656,13 +663,26 @@ function ViewOrder() {
                     return (
                       <tr key={index}>
                         <td>{item.id}</td>
-                        <td> <Image width={90} src={item.product.images[0].name} />{" "}</td>
+                        <td>
+                          {" "}
+                          <Image
+                            width={90}
+                            src={item.product.images[0].name}
+                          />{" "}
+                        </td>
                         <td>{item.product.name}</td>
-                        <td>{item.product.price.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</td>
+                        <td>
+                          {item.product.price.toLocaleString("it-IT", {
+                            style: "currency",
+                            currency: "VND",
+                          })}
+                        </td>
                         <td>
                           <InputNumber
                             // style={{width: "20%"}}
-                            disabled={item.status != 'CHO_XAC_NHAN' ? true : false}
+                            disabled={
+                              item.status != "CHO_XAC_NHAN" ? true : false
+                            }
                             min={1}
                             max={item.product.quantity}
                             value={quantity}
@@ -678,7 +698,12 @@ function ViewOrder() {
                             }
                           />
                         </td>
-                        <td>{item.total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</td>
+                        <td>
+                          {item.total.toLocaleString("it-IT", {
+                            style: "currency",
+                            currency: "VND",
+                          })}
+                        </td>
                         {/* <td>{item.status}</td> */}
                       </tr>
                     );

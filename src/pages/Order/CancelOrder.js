@@ -135,6 +135,12 @@ const CancelOrder = () => {
       width: "20%",
     },
     {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      sorter: true,
+      width: "20%",
+    },
+    {
       title: "Trạng thái",
       dataIndex: "status",
       with: "45%",
@@ -247,14 +253,14 @@ const CancelOrder = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            // rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
           />
           <Modal
             title="Xác nhận đơn hàng"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               resetEditing();
             }}
@@ -267,7 +273,7 @@ const CancelOrder = () => {
 
           <Modal
             title="Chi tiết đơn hàng"
-            visible={isView}
+            open={isView}
             onCancel={() => {
               setView(false);
             }}
@@ -275,7 +281,7 @@ const CancelOrder = () => {
               setView(false);
             }}
           >
-            <table class="table">
+            <table className="table">
               <thead>
                 <tr>
                   <th scope="col">Mã HDCT</th>
