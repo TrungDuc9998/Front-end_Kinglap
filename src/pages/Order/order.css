@@ -6,7 +6,7 @@
 }
 
 .ant-modal-wrap .ant-modal {
-    width: 60% !important;
+    max-width: max-content !important;
 }
 
 .ant-picker {
@@ -58,6 +58,11 @@
     color: black;
 }
 
+/* .ant-modal-body {
+    padding: 15px 25px !important;
+} */
+
+
 .ant-modal-body > button {
     border-radius: 25px;
     float: right;
@@ -81,4 +86,6 @@
     position: absolute;
     right: 5%;
     top: 5%;
+
+    display: none;
 }
