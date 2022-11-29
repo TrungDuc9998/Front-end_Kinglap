@@ -415,3 +415,105 @@ svg {
     width: 250px;
     height: 70px;
 } */
+
+/* responsive header */
+@media only screen and (max-width: 1400px) {
+    .header-search >form {
+        width: max-content;
+    }
+    .header-search >form >input.input {
+        width: 295px;
+    }
+
+    .header-search >form >button.search-btn {
+        width: 100px;
+        padding: 0 !important;
+        border: 1px solid #D10024;
+    }
+}
+
+@media only screen and (max-width: 1199.5px) {
+    .header-search >form {
+        width: max-content;
+    }
+    .header-search >form >input.input {
+        width: 195px;
+    }
+
+    .header-search >form >button.search-btn {
+        width: 100px;
+        padding: 0 !important;
+        border: 1px solid #D10024;
+    }
+}
+
+@media only screen and (max-width: 991.5px) {
+    #top-header {
+        display: flex;
+    }
+
+    #top-header > .container {
+        display: block;
+    }
+
+    #top-header > .container > .nav {
+        width: 100%;
+    }
+
+    #top-header > .container > .nav.justify-content-end {
+        justify-content: start !important;
+    }
+    .row.d-flex.justify-conten-center {
+        display: block !important;
+        width: 750px;
+    }
+
+    .row.d-flex.justify-conten-center > .col-md-3 {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .row.d-flex.justify-conten-center > .col-md-3 > .header-logo {
+        float: none;
+    }
+
+    .header-search >form >input.input {
+        width: 460px;
+    }
+
+    .row.d-flex.justify-conten-center > .col-md-6 {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .row.d-flex.justify-conten-center > .col-md-3.clearfix {
+        width: 100%;
+        display: flex;
+        justify-content: end;
+    }
+}
+
+@media only screen and (max-width: 767.5px) {
+    .row.d-flex.justify-conten-center {
+        width: 100%;
+        margin: 0;
+    }
+
+    #top-header > .container {
+        max-width: 100%;
+    }
+
+    #header > .container {
+        max-width: 100%;   
+    }
+
+    .header-search {
+        width: 100%;
+    }
+
+    /* .header-search >form >input.input {
+        width: 100%;
+    } */
+}

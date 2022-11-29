@@ -1,5 +1,5 @@
 .ant-modal-footer {
-    display: none;
+    /* display: none; */
     background-color: red;
 }
 #create {
