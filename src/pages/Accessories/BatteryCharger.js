@@ -104,7 +104,7 @@ const BatteryCharger = () => {
   const loadDataCategory = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/category?${qs.stringify(
+      `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`
     )

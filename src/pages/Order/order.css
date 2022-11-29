@@ -5,9 +5,9 @@
     align-items: center;
 }
 
-.ant-modal-wrap .ant-modal {
+/* .ant-modal-wrap .ant-modal {
     max-width: max-content !important;
-}
+} */
 
 .ant-picker {
     width: 100%;
@@ -58,10 +58,14 @@
     color: black;
 }
 
-/* .ant-modal-body {
+.ant-modal-body {
     padding: 15px 25px !important;
-} */
+    width: 600px;
+}
 
+.ant-modal-content {
+    width: 800px;
+}
 
 .ant-modal-body > button {
     border-radius: 25px;

@@ -2,15 +2,15 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import product8 from "../../asset/images/products/product08.png";
 import qs from "qs";
-import { Modal, Table, Tabs, InputNumber, Image } from "antd";
+import { Modal, Table, Tabs, InputNumber, Image, Button } from "antd";
 import {
   DeleteOutlined,
   EyeOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
-import { useSearchParams } from "react-router-dom";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const onChange = (key) => {
   console.log(key);
@@ -26,7 +26,7 @@ const toastSuccess = (message) => {
     draggable: true,
     progress: undefined,
     theme: "light",
-  })
+  });
 };
 
 const toastError = (message) => {
@@ -40,9 +40,10 @@ const toastError = (message) => {
     progress: undefined,
     theme: "light",
   });
-}
+};
 
 function ViewOrder() {
+  let navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [orderDetails, setOrderDetails] = useState([]);
   const url = "http://localhost:8080/api/orders";
@@ -67,7 +68,8 @@ function ViewOrder() {
     let userId = localStorage.getItem("username");
     fetch(
       `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
-        getRandomuserParams(tableParams))}`
+        getRandomuserParams(tableParams)
+      )}`
     )
       .then((res) => res.json())
       .then((results) => {
@@ -96,26 +98,32 @@ function ViewOrder() {
       let valueWard = localStorage.getItem("valueWard");
       let valueDistrict = localStorage.getItem("valueDistrict");
       let value = localStorage.getItem("value");
-      fetch(
-        `http://localhost:8080/api/orders/user`,
-        {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: localStorage.getItem("id"),
-            total: total,
-            money: payment === 'VN_PAY' ? total : total * 0.1,
-            payment: payment,
-            // type: type,
-            address: type == 0 ? 'TẠI CỬA HÀNG' : (address + ', ' + valueWard + ', ' + valueDistrict + ', ' + value),
-            phone: phone,
-            customerName: customerName,
-            // email: email,
-            status: status,
-            orderDetails: JSON.parse(orderDetails)
-          })
-        }
-      ).then(() => {
+      fetch(`http://localhost:8080/api/orders/user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: localStorage.getItem("id"),
+          total: total,
+          money: payment === "VN_PAY" ? total : total * 0.1,
+          payment: payment,
+          // type: type,
+          address:
+            type == 0
+              ? "TẠI CỬA HÀNG"
+              : address +
+                ", " +
+                valueWard +
+                ", " +
+                valueDistrict +
+                ", " +
+                value,
+          phone: phone,
+          customerName: customerName,
+          // email: email,
+          status: status,
+          orderDetails: JSON.parse(orderDetails),
+        }),
+      }).then(() => {
         localStorage.removeItem("total");
         localStorage.removeItem("payment");
         localStorage.removeItem("address");
@@ -127,7 +135,7 @@ function ViewOrder() {
         localStorage.removeItem("valueWard");
         localStorage.removeItem("valueDistrict");
         localStorage.removeItem("value");
-      })
+      });
     }
   };
 
@@ -138,13 +146,13 @@ function ViewOrder() {
 
   const columns = [
     {
-      title: "Mã HD",
+      title: "Mã đơn hàng",
       dataIndex: "id",
       sorter: true,
       width: "7%",
     },
     {
-      title: "Ngày tạo",
+      title: "Ngày đặt hàng",
       dataIndex: "createdAt",
       sorter: true,
       width: "14%",
@@ -155,10 +163,23 @@ function ViewOrder() {
       sorter: true,
       width: "9%",
       render(total) {
-        return (
-          total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
-        )
-      }
+        return total.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        });
+      },
+    },
+    {
+      title: "Đã thanh toán",
+      dataIndex: "money",
+      sorter: true,
+      width: "9%",
+      render(money) {
+        return money.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        });
+      },
     },
     {
       title: "Hình thức thanh toán",
@@ -305,6 +326,7 @@ function ViewOrder() {
                   showModalData(data.id);
                 }}
               />
+
               {/* <CheckCircleOutlined
                 className="ms-2"
                 style={{ fontSize: "20px", color: "blue" }}
@@ -313,6 +335,31 @@ function ViewOrder() {
                   setIDCancel(data.id);
                 }}
               /> */}
+            </>
+          );
+        } else if (data.status === "DA_NHAN") {
+          return (
+            <>
+              <Button
+                onClick={() => {
+                  showModalData(data.id);
+                }}
+              >
+                Hiển thị
+              </Button>
+              <Button
+                className="mt-2"
+                danger
+                onClick={() => navigate(`/user/order/exchange/${data.id}`)}
+              >
+                Đổi hàng
+              </Button>
+              <Button
+                className="mt-2"
+                onClick={() => navigate(`/user/order/return/${data.id}`)}
+              >
+                Trả hàng
+              </Button>
             </>
           );
         } else {
@@ -345,7 +392,7 @@ function ViewOrder() {
     setConfirm(true);
   };
   const showModalData = (id) => {
-    console.log('id show modal: ', id);
+    console.log("id show modal: ", id);
     setOrderId(id);
     axios.get(url + "/" + id).then((res) => {
       setOrder(res.data);
@@ -354,7 +401,7 @@ function ViewOrder() {
 
     console.log(orderId);
     setView(true);
-    console.log('show modal');
+    console.log("show modal");
     loadDataOrder(id);
   };
 
@@ -437,11 +484,11 @@ function ViewOrder() {
       if (element.id == id) {
         count = index;
       }
-    })
-    console.log('quantity: ', quantity, 'price: ', price);
-    const total = (quantity * price);
+    });
+    console.log("quantity: ", quantity, "price: ", price);
+    const total = quantity * price;
     console.log(total);
-    order[count].total = Number(price * value)
+    order[count].total = Number(price * value);
     setOrder(order);
     console.log(order);
     // handleUpdateOrderDetail();
@@ -593,7 +640,7 @@ function ViewOrder() {
                 fetch(`http://localhost:8080/api/orders/received/${idCancel}`, {
                   method: "PUT",
                 }).then(() => load());
-                toastSuccess("Hủy thành công!")
+                toastSuccess("Hủy thành công!");
                 setConfirm(false);
                 setLoading(true);
               }}
@@ -615,10 +662,9 @@ function ViewOrder() {
                   `http://localhost:8080/api/orders/cancelled/${idCancel}`,
                   { method: "PUT" }
                 ).then(() => load());
-                toastSuccess("Hủy thành công!")
+                toastSuccess("Hủy thành công!");
                 setEditing(false);
                 setLoading(true);
-
               }}
             >
               <label>
@@ -648,7 +694,7 @@ function ViewOrder() {
                     <th scope="col">Giá</th>
                     <th scope="col">Số lượng</th>
                     <th scope="col">Tổng tiền</th>
-                    {/* <th scope="col">Trạng thái</th> */}
+                    <th scope="col">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -656,13 +702,26 @@ function ViewOrder() {
                     return (
                       <tr key={index}>
                         <td>{item.id}</td>
-                        <td> <Image width={90} src={item.product.images[0].name} />{" "}</td>
+                        <td>
+                          {" "}
+                          <Image
+                            width={90}
+                            src={item.product.images[0].name}
+                          />{" "}
+                        </td>
                         <td>{item.product.name}</td>
-                        <td>{item.product.price.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</td>
+                        <td>
+                          {item.product.price.toLocaleString("it-IT", {
+                            style: "currency",
+                            currency: "VND",
+                          })}
+                        </td>
                         <td>
                           <InputNumber
                             // style={{width: "20%"}}
-                            disabled={item.status != 'CHO_XAC_NHAN' ? true : false}
+                            disabled={
+                              item.status != "CHO_XAC_NHAN" ? true : false
+                            }
                             min={1}
                             max={item.product.quantity}
                             value={quantity}
@@ -678,8 +737,13 @@ function ViewOrder() {
                             }
                           />
                         </td>
-                        <td>{item.total.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</td>
-                        {/* <td>{item.status}</td> */}
+                        <td>
+                          {item.total.toLocaleString("it-IT", {
+                            style: "currency",
+                            currency: "VND",
+                          })}
+                        </td>
+                        <td></td>
                       </tr>
                     );
                   })}
