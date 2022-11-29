@@ -27,6 +27,8 @@ import Return from "../pages/Order/Return"
 import ReturnConfirm from "../pages/Order/ReturnConfirm"
 import ConfirmOrderDetail from "../pages/Order/ConfirmOrderDetail";
 import Accessories from "../pages/Accessories";
+import ExchangeUser from "../pages/customer/Order/Exchange";
+import ReturnUser from "../pages/customer/Order/Return";
 const publicRoutes = [
   {
     path: "/",
@@ -140,6 +142,14 @@ const publicRoutes = [
   {
     path: "/admin/accessories",
     component: Accessories,
+  },
+  {
+    path: "/user/order/exchange/:id",
+    component: ExchangeUser,
+  },
+  {
+    path: "/user/order/return/:id",
+    component: ReturnUser,
   },
 
 ];
