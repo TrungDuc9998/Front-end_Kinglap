@@ -22,6 +22,7 @@ import {
   ReloadOutlined,
   SearchOutlined,
   CloseCircleOutlined,
+  RetweetOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
@@ -124,57 +125,60 @@ const Exchange = () => {
     var hours = new Date().getHours();
     var min = new Date().getMinutes();
     var sec = new Date().getSeconds();
-    setCurrentDate(
-      date + "-" + month + "-" + year + " " + hours + ":" + min + ":" + sec
-    );
+    // setCurrentDate(
+    //   date + "-" + month + "-" + year + " " + hours + ":" + min + ":" + sec
+    // );
+    setCurrentDate(date + "-" + month + "-" + year + " ");
     const event = new Date(order?.updatedAt);
     const event1 = new Date("2022-11-11 18:56:26");
-    if (
-      moment(event.setDate(event.getDate() + 2)).format(
-        "DD-MM-YYYY HH:mm:ss"
-      ) <= currentDate
-    ) {
-      toastError("Bạn đã hết thời gian đổi hàng!");
-    } else {
-      if (reason != undefined) {
-        try {
-          fetch("http://localhost:8080/api/auth/returns", {
-            method: "POST",
+    console.log(
+      moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
+    );
+    console.log(currentDate);
+    // if (
+    //   moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY") <=
+    //   currentDate
+    // ) {
+    //   toastError("Bạn đã hết thời gian đổi hàng!");
+    // } else {
+    if (reason != undefined) {
+      try {
+        fetch("http://localhost:8080/api/auth/returns", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: order.id,
+            reason: reason,
+            description: note,
+            isCheck: "1",
+            status: "CHUA_XU_LY",
+            returnDetailEntities: ExchangeDetail,
+          }),
+        }).then((res) => {});
+        fetch(
+          `http://localhost:8080/api/orders/${dataOrderDetail.id}/orderDetails`,
+          {
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              orderId: order.id,
-              reason: reason,
-              description: note,
-              isCheck: "1",
-              status: "CHUA_XU_LY",
-              returnDetailEntities: ExchangeDetail,
+              productId: dataOrderDetail.product.id,
+              total: dataOrderDetail.total,
+              quantity: dataOrderDetail.quantity,
+              status: dataOrderDetail.status,
+              isCheck: dataOrderDetail.id,
+              isUpdate: 1,
             }),
-          }).then((res) => {});
-          fetch(
-            `http://localhost:8080/api/orders/${dataOrderDetail.id}/orderDetails`,
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                productId: dataOrderDetail.product.id,
-                total: dataOrderDetail.total,
-                quantity: dataOrderDetail.quantity,
-                status: dataOrderDetail.status,
-                isCheck: dataOrderDetail.id,
-                isUpdate: 1,
-              }),
-            }
-          ).then((res) =>  loadDataOrder(id));
-          toastSuccess("Gửi yêu cầu thành công!");
-         
-          loadDataProduct();
-        } catch (err) {
-          console.log(err);
-          toastError("Gửi yêu cầu thất bại!");
-        }
-      } else {
-        toastError("Bạn chưa nhập lý do");
+          }
+        ).then((res) => loadDataOrder(id));
+        toastSuccess("Gửi yêu cầu thành công!");
+        setReason("");
+      } catch (err) {
+        console.log(err);
+        toastError("Gửi yêu cầu thất bại!");
       }
+    } else {
+      toastError("Bạn chưa nhập lý do");
+      // }
     }
     // console.log(moment(event1.setDate(event1.getDate()+2)).format('MMMM DoYYYY, h:mm:ss a'))
   };
@@ -348,17 +352,14 @@ const Exchange = () => {
         <div className="col-12">
           <div className="row">
             <div className="col-6 mt-4 ps-4">
-              <div className="mt-2 ms-5">
+              <div className="mt-2 ms-5 text-success">
                 Mã hoá đơn: <b>{order?.id}</b>
               </div>
-              <div className="mt-2 ms-5">
+              <div className="mt-2 ms-5 text-success">
                 Khách hàng: <b>{order?.customerName}</b>
               </div>
-              <div className="mt-2 ms-5">
+              <div className="mt-2 ms-5 text-success">
                 Số điện thoại: <b>{order?.phone}</b>{" "}
-              </div>
-              <div className="ms-5 mt-2">
-                Trạng thái: <b>Đã nhận hàng</b>{" "}
               </div>
               <div className="mt-2">
                 <TextArea
@@ -372,21 +373,23 @@ const Exchange = () => {
               </div>
             </div>
             <div className="col-6 mt-4 mb-5">
-              <div className="mt-2">
-                Ngày mua: <b>{order?.updatedAt}</b>
+              <div className="mt-2 text-success">
+                Ngày mua: <b className="">{order?.createdAt}</b>
               </div>
-              <div className="mt-2">
-                Tổng tiền trước đó:
+              <div className="mt-2 text-success">
+                Tổng tiền:
                 <b>
-                  <CurrencyFormat
-                    style={{ fontSize: "14px" }}
-                    value={order?.total}
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
+                  {" "}
+                  {order?.total.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
                 </b>
               </div>
-              <div className="mt-2">
+              <div className="mt-2 text-success">
+                Trạng thái: <b>Đã nhận hàng</b>{" "}
+              </div>
+              {/* <div className="mt-2">
                 Tổng tiền tạm tính hiện tại:
                 <b>
                   <CurrencyFormat
@@ -407,7 +410,7 @@ const Exchange = () => {
                     thousandSeparator={true}
                   />
                 </b>
-              </div>
+              </div> */}
               <div className="mt-2">
                 <TextArea
                   onChange={(e) => setNote(e.target.value)}
@@ -441,8 +444,8 @@ const Exchange = () => {
                 <th scope="col">Giá</th>
                 <th scope="col">Số lượng</th>
                 <th scope="col">Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th scope="col">Thao tác</th>
+                <th></th>
+                {/* <th scope="col">Thao tác</th> */}
               </tr>
             </thead>
             <tbody>
@@ -455,26 +458,19 @@ const Exchange = () => {
                     </td>
                     <td>{item.product.name}</td>
                     <td>
-                      <CurrencyFormat
-                        style={{ fontSize: "14px" }}
-                        value={item.product.price}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
+                      {item.product.price.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
                     </td>
                     <td>{item.quantity}</td>
                     <td>
-                      <CurrencyFormat
-                        style={{ fontSize: "14px" }}
-                        value={item.total}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
+                      {item.total.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
                     </td>
-                    <td>
-                      {item.isCheck ===1 ? (<p className="text-primary fw-bold">Ban đầu</p>): ""}
-                      {item.id == item.isCheck ? (<p className="text-danger">Đổi sang</p>): ""}
-                    </td>
+
                     <td>
                       {item.isCheck === null ? (
                         <Button onClick={() => showModal(item)}>
@@ -483,10 +479,14 @@ const Exchange = () => {
                       ) : (
                         ""
                       )}
-                      {item.quantity === 0 ? (
-                        <i className="text-danger">Sản phẩm trước đó</i>
-                      ) : (
+                      {item.isCheck === 1 ? (
+                        <CheckCircleOutlined
+                          style={{ fontSize: "18px", color: "green" }}
+                        />
+                      ) : item.isCheck === null ? (
                         ""
+                      ) : (
+                        <RetweetOutlined style={{ fontSize: "18px" }} />
                       )}
                     </td>
                   </tr>
@@ -514,12 +514,10 @@ const Exchange = () => {
                 <p>
                   Tổng tiền trước đó:{" "}
                   <i className="text-danger">
-                    <CurrencyFormat
-                      style={{ fontSize: "14px" }}
-                      value={item?.total}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
+                    {item?.total.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
                   </i>
                 </p>
               </div>

@@ -211,7 +211,6 @@ function Table1() {
     if (dataCart === undefined || dataCart.length === 0) {
       toastError("Vui lòng thêm sản phẩm vào giỏ hàng");
     } else if (
-      payment === undefined ||
       typeOrder === undefined ||
       (fullNameForm === undefined && valueUser === undefined) ||
       (phoneClient === undefined && phoneNumberForm === undefined)
@@ -219,7 +218,7 @@ function Table1() {
       toastError("Vui lòng điền đầy đủ thông tin !");
     } else {
       const order = {
-        payment: payment,
+        payment: "TẠI CỬA HÀNG",
         total: total + shipping,
         userId: userId === undefined ? 1 : userId,
         address:
@@ -1217,12 +1216,10 @@ function Table1() {
                         </td>
                         <td>{item.productId.name}</td>
                         <td>
-                          <CurrencyFormat
-                            style={{ fontSize: "14px" }}
-                            value={item.productId.price}
-                            displayType={"text"}
-                            thousandSeparator={true}
-                          />
+                          {item.productId.price.toLocaleString("it-IT", {
+                            style: "currency",
+                            currency: "VND",
+                          })}
                         </td>
                         <td key={item.productId.id}>
                           <InputNumber
@@ -1244,12 +1241,10 @@ function Table1() {
                           />
                         </td>
                         <td>
-                          <CurrencyFormat
-                            style={{ fontSize: "14px" }}
-                            value={item.total}
-                            displayType={"text"}
-                            thousandSeparator={true}
-                          />
+                          {item.total.toLocaleString("it-IT", {
+                            style: "currency",
+                            currency: "VND",
+                          })}
                         </td>
                         <td>
                           <DeleteOutlined

@@ -16,6 +16,7 @@ import {
   ReloadOutlined,
   SearchOutlined,
   EyeOutlined,
+  MenuFoldOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
@@ -133,6 +134,18 @@ const CancelOrder = () => {
       dataIndex: "payment",
       sorter: true,
       width: "20%",
+      render: (payment) => {
+        return (
+          <>
+            <div
+              className="bg-info text-center text-light"
+              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+            >
+              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+            </div>
+          </>
+        );
+      },
     },
     {
       title: "Địa chỉ",
@@ -193,6 +206,14 @@ const CancelOrder = () => {
   };
   return (
     <div>
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Đơn hàng đã huỷ</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{

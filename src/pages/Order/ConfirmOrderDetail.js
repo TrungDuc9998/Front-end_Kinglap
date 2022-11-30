@@ -131,7 +131,7 @@ const ConfirmOrderDetail = () => {
       }),
     }).then((res) => {
       console.log("thành công!");
-      loadDataOrder(id)
+      loadDataOrder(id);
     });
   };
 
@@ -245,8 +245,8 @@ const ConfirmOrderDetail = () => {
     setOrder(order);
     console.log(order);
     setTodos(todos);
-    console.log('orderID: ',order.id);
-    loadDataOrder(order.id)
+    console.log("orderID: ", order.id);
+    loadDataOrder(order.id);
   };
 
   const resetEditing = () => {
@@ -325,12 +325,10 @@ const ConfirmOrderDetail = () => {
                     </td>
                     <td>{item.product.name}</td>
                     <td>
-                      <CurrencyFormat
-                        style={{ fontSize: "14px" }}
-                        value={item.product.price}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
+                      {item.product.price.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
                     </td>
                     <td>
                       <InputNumber
@@ -351,12 +349,10 @@ const ConfirmOrderDetail = () => {
                       />
                     </td>
                     <td>
-                      <CurrencyFormat
-                        style={{ fontSize: "14px" }}
-                        value={item.total}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
+                      {item.total.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
                     </td>
                   </tr>
                 );

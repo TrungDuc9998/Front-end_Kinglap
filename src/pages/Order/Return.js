@@ -10,16 +10,7 @@ import {
   Radio,
   Image,
 } from "antd";
-import {
-  CheckCircleOutlined,
-  DoubleRightOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { CheckCircleOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -143,8 +134,6 @@ const Return = () => {
           }),
         }).then((res) => loadDataOrder(id));
         toastSuccess("Gửi yêu cầu thành công!");
-        loadDataOrder(id);
-        // location.reload();
       } catch (err) {
         console.log(err);
         toastError("Gửi yêu cầu thất bại!");
@@ -165,6 +154,15 @@ const Return = () => {
   return (
     <div>
       <ToastContainer></ToastContainer>
+      <div className="row">
+        <div className="col-1" style={{width: "10px"}}>
+          <MenuFoldOutlined style={{fontSize: "20px"}} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Yêu cầu trả hàng/hoàn tiền</h4>
+        </div>
+      </div>
+
       <div
         className="row"
         style={{
@@ -177,20 +175,20 @@ const Return = () => {
       >
         <div className="col-12">
           <div className="row">
-            <div className="col-6 mt-4 ps-4">
+            <div className="col-6 mt-4 ps-4 text-success">
               <div className="mt-2 ms-5">
                 Mã hoá đơn: <b>{order?.id}</b>
               </div>
-              <div className="mt-2 ms-5">
+              <div className="mt-2 ms-5 text-success">
                 Khách hàng: <b>{order?.customerName}</b>
               </div>
-              <div className="mt-2 ms-5">
+              <div className="mt-2 ms-5 text-success">
                 Số điện thoại: <b>{order?.phone}</b>{" "}
               </div>
-              <div className="mt-2">
+              <div className="mt-2 text-success">
                 <TextArea
                   onChange={(e) => setReason(e.target.value)}
-                  className="ms-2 ms-5"
+                  className="ms-2 ms-5 "
                   style={{ width: "80%" }}
                   placeholder="Lý do trả hàng"
                   rows={3}
@@ -199,10 +197,10 @@ const Return = () => {
               </div>
             </div>
             <div className="col-6 mt-4 mb-5">
-              <div className="mt-2">
+              <div className="mt-2 text-success">
                 Ngày mua: <b>{order?.updatedAt}</b>
               </div>
-              <div className="mt-2">
+              <div className="mt-2 text-success">
                 Tổng tiền:{" "}
                 <b>
                   {order?.total.toLocaleString("it-IT", {
@@ -211,9 +209,8 @@ const Return = () => {
                   })}
                 </b>
               </div>
-              <div className="mt-2">
-                Trạnh thái:{" "}
-                <b>{order?.status === "DANG_GIAO" ? "Đang giao" : ""}</b>{" "}
+              <div className="mt-2 text-success">
+                Trạnh thái: <b>Đã nhận</b>{" "}
               </div>
               <div className="mt-2">
                 <TextArea
