@@ -1,4 +1,4 @@
-import { Table, Slider, Select, Input, Button, Modal } from "antd";
+import { Table, Slider, Select, Input, Button, Modal, Form } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -6,138 +6,220 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  CheckCircleOutlined,
+  UnlockOutlined,
+  LockOutlined
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
+import toastrs from "toastr";
+import { ToastContainer, toast } from "react-toastify";
+import Moment from 'react-moment';
 const { Option } = Select;
 
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
+const getRandomuserParams = (params) => ({
+  limit: params.pagination?.pageSize,
+  page: params.pagination?.current,
+  searchName: params.pagination?.search1,
+  searchStatus: params.pagination?.search2,
+});
+
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
   });
 };
 
-const getRandomuserParams = (params) => ({
-  results: params.pagination?.pageSize,
-  page: params.pagination?.current,
-  ...params,
-});
-
 const Origin = () => {
   const [data, setData] = useState();
+  const [isUpdate, setIsUpdate] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
+  const [id, setId] = useState();
+  const [name, setName] = useState();
+  const [isDelete, setDelete] = useState(false);
+  const [searchName, setSearchName] = useState();
+  const [searchStatus, setSearchStatus] = useState();
+
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
+      search1: "",
+      search2: "",
     },
   });
 
   const columns = [
     {
-      title: "Tên thể loại",
+      title: "ID",
+      dataIndex: "id",
+      sorter: true,
+      width: "10%",
+    },
+    {
+      title: "Tên nước sản xuất",
       dataIndex: "name",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
+      width: "25%",
     },
     {
       title: "Ngày tạo",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
+      dataIndex: "createdAt",
+      render(createdAt) {
+        return (
+          <Moment format="DD-MM-YYYY">
+            {createdAt}
+          </Moment>
+        );
+      },
       width: "20%",
-    },
-    {
-      title: "Người tạo",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
     },
     {
       title: "Ngày cập nhật",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
+      dataIndex: "updatedAt",
+      render(updatedAt) {
+        return (
+          <Moment format="DD-MM-YYYY">
+            {updatedAt}
+          </Moment>
+        );
+      },
       width: "20%",
     },
     {
-      title: "Người cập nhật",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
-    },
-    // {
-    //   title: "Email",
-    //   dataIndex: "email",
-    // },
-    {
       title: "Trạng thái",
-      dataIndex: "Trạng thái",
-      with: "30%",
-      render: (record) => {
-        return (
-          <>
-            <div
-              className="bg-success text-center text-light"
-              style={{ width: "100px", borderRadius: "5px" }}
-            >
-              Hoạt động
-            </div>
-          </>
-        );
+      dataIndex: "status",
+      sorter: true,
+      render: (status) => {
+        if (status === "DRAFT") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              >
+                Nháp
+              </div>
+            </>
+          );
+        }
+        if (status === "ACTIVE") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              >
+                Hoạt động
+              </div>
+            </>
+          );
+        } else if (status === "INACTIVE") {
+          return (
+            <>
+              <div
+                className="bg-secondary text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              >
+                Không hoạt động
+              </div>
+            </>
+          );
+        }
       },
+      width: "15%",
     },
     {
       title: "Thao tác",
-      dataIndex: "Thao tác",
-      width: "30%",
-      render: (record) => {
-        return (
-          <>
-            <EyeOutlined
-              onClick={() => {
-                onView(record);
-              }}
-            />
-            <EditOutlined
-              style={{ marginLeft: 12 }}
-              onClick={() => {
-                onEdit(record);
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => onDelete(record)}
-              style={{ color: "red", marginLeft: 12 }}
-            />
-          </>
-        );
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "10%",
+      render: (id, data) => {
+        if (data.status === "DRAFT") {
+          return (
+            <>
+              <DeleteOutlined
+                onClick={() => onDelete(data.id)}
+                style={{ color: "red", marginLeft: 12 }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  onEdit(data.id, data.name);
+                }}
+              />
+            </>
+          );
+        }
+        if (data.status == "ACTIVE") {
+          return (
+            <>
+              <UnlockOutlined
+                style={{ fontSize: "20px" }}
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/admin/origin/${data.id}/inactive`,
+                    { method: "PUT" }
+                  ).then(() => fetchData());
+                  toastSuccess("Khoá thành công !");
+                }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  onEdit(data.id, data.name);
+                }}
+              />
+            </>
+          );
+        } else if (data.status == "INACTIVE") {
+          return (
+            <>
+              <LockOutlined
+                style={{ fontSize: "20px" }}
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/admin/origin/${data.id}/active`,
+                    { method: "PUT" }
+                  ).then(() => fetchData());
+                  toastSuccess("Mở khóa thành công!");
+                }}
+              />
+            </>
+          );
+        }
       },
     },
   ];
 
   const fetchData = () => {
     setLoading(true);
+    setSearchName("");
     fetch(
-      `https://randomuser.me/api?${qs.stringify(
+      `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`
     )
       .then((res) => res.json())
-      .then(({ results }) => {
-        setData(results);
+      .then((results) => {
+        setData(results.data.data);
         setLoading(false);
         setTableParams({
-          ...tableParams,
           pagination: {
-            ...tableParams.pagination,
-            total: 200, // 200 is mock data, you should read it from server
-            // total: data.totalCount,
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
           },
         });
       });
@@ -147,21 +229,79 @@ const Origin = () => {
     fetchData();
   }, [JSON.stringify(tableParams)]);
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
+  const onDelete = (id) => {
+    setId(id);
+    setDelete(true);
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
+  const onEdit = (id, name) => {
+    setId(id);
+    setEditing(true);
+    setName(name);
+  };
+
+  const handleTableChange = (pagination) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.search2 = searchStatus;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/staff/origin?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const search = () => {
+    console.log(searchStatus);
+    console.log(searchName);
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.search2 = searchStatus;
+    tableParams.pagination.current = 1;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/staff/origin?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
   };
 
   const onSearch = (value) => {
     console.log("search:", value);
   };
+
+  const changeName = (event) => {
+    setName(event.target.value);
+  };
+
+  const changeSearchName = (event) => {
+    setSearchName(event.target.value);
+  };
+
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
@@ -172,25 +312,62 @@ const Origin = () => {
 
   const handleOk = () => {
     setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
-  };
-
-  const onEdit = (record) => {
-    setEditing(true);
-  };
-
-  const onView = (record) => {
-    setView(true);
+    setOpen(false);
+    fetchData();
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
   };
+
+  const handleSubmit = (data) => {
+    if (isUpdate === false) {
+      data.status = "ACTIVE";
+      console.log(data);
+      fetch("http://localhost:8080/api/admin/origin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+        .then((response) => fetchData())
+        .then((data) => {
+          console.log("Success:", data);
+          toastSuccess("Thêm mới thành công !");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+        setOpen(false);
+    }
+  };
+
+  const handleSubmitUpdate = (data) => {
+    if (isUpdate === false) {
+      data.status = "ACTIVE";
+      console.log(data);
+      fetch(`http://localhost:8080/api/admin/origin/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) }).then((res) => res.json())
+        .then((response) => fetchData())
+        .then((data) => {
+          console.log("Success:", data);
+          toastSuccess("Cập nhat thành công !");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      setEditing(false);
+    }
+  };
+
+  const clearSearchForm = () => {
+    fetchData();
+    setSearchName("");
+    setSearchStatus();
+  };
+
+  const changeSearchStatus = (value) => {
+    setSearchStatus(value);
+  };
+
   return (
     <div>
       <div
@@ -203,43 +380,52 @@ const Origin = () => {
         }}
       >
         <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <Input placeholder="Nhập tên thể loại" />
+          <label>Nhập tên quốc gia</label>
+          <Input
+            placeholder="Nhập tên nước muốn tìm"
+            name="searchName"
+            value={searchName}
+            onChange={changeSearchName}
+          />
         </div>
         <div className="col-4 mt-4">
           <label>Trạng thái</label>
           <br />
           <Select
-            style={{ width: "300px", borderRadius: "5px" }}
+            allowClear={true}
+            style={{ width: "400px", borderRadius: "5px" }}
             showSearch
             placeholder="Chọn trạng thái"
             optionFilterProp="children"
-            onChange={onChange}
+            onChange={changeSearchStatus}
             onSearch={onSearch}
             filterOption={(input, option) =>
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
+            <Option value="ACTIVE" selected>
+              Hoạt động
+            </Option>
+            <Option value="INACTIVE">Không hoạt động</Option>
+            <Option value="DRAFT">Nháp</Option>
           </Select>
         </div>
         <div className="col-12 text-center ">
-        <Button
+          <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={showModal}
+            onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
-          <ReloadOutlined/>Đặt lại
+            <ReloadOutlined />Đặt lại
           </Button>
-        <Button
+          <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={showModal}
+            onClick={search}
             style={{ borderRadius: "10px" }}
           >
-          <SearchOutlined />Tìm kiếm
+            <SearchOutlined />Tìm kiếm
           </Button>
         </div>
       </div>
@@ -259,11 +445,46 @@ const Origin = () => {
             onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            footer={null}
           >
-            <div className="form group">
-              <label>Tên thể loại</label>
-              <Input placeholder="Tên thể loại" />
-            </div>
+            <Form
+              initialValues={{
+              }}
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                setIsUpdate(false);
+                handleSubmit(values, isUpdate);
+                console.log({ values });
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <Form.Item
+                name="name"
+                label="Tên nước"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tên quốc gia không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tên quốc giá" />
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Tạo mới
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
         </div>
       </div>
@@ -280,7 +501,7 @@ const Origin = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record.login.uuid}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -292,33 +513,78 @@ const Origin = () => {
             onCancel={() => {
               setEditing(false);
             }}
-            onOk={() => {
-              setEditing(false);
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
             }}
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+            <Form
+              initialValues={{
+              }}
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                setIsUpdate(false);
+                handleSubmitUpdate(values, isUpdate);
+                console.log({ values });
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}>
+              <Form.Item
+                label="Tên nước"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tên quốc gia không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input name="name" value={name} onChange={changeName} />
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Cập nhật
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
-
           <Modal
-            // style={{borderRadius:"10px"}}
-            title="Hiển thị"
-            visible={isView}
+            title="Xóa danh mục"
+            visible={isDelete}
             onCancel={() => {
-              setView(false);
+              setDelete(false);
             }}
             onOk={() => {
-              setView(false);
+              fetch(
+                `http://localhost:8080/api/admin/origin/${id}`, { method: 'DELETE' }).then(() => fetchData());
+              setDelete(false);
+              toastrs.options = {
+                timeOut: 6000
+              }
+              toastrs.clear();
+              toast.success('Xóa danh mục thành công!', {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
             }}
+            okText="Xóa"
+            cancelText="Hủy"
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+            Bạn có chắc chắn muốn xóa quốc gia này?
           </Modal>
         </div>
       </div>

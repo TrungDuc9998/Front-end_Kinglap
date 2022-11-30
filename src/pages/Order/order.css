@@ -60,7 +60,7 @@
 
 .ant-modal-body {
     padding: 15px 25px !important;
-    width: 600px;
+    width: 100%;
 }
 
 .ant-modal-content {

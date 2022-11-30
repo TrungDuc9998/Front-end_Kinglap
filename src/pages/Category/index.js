@@ -55,7 +55,6 @@ const Category = () => {
           </Moment>
         );
       },
-      // render: (createdAt) => `${createdAt}`,
       width: "20%",
     },
     {

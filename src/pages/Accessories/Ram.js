@@ -483,7 +483,7 @@ const Ram = () => {
           >
             <Form
               initialValues={{
-                cpuCompany: name,
+                // cpuCompany: name,
               }}
               autoComplete="off"
               labelCol={{ span: 7 }}
