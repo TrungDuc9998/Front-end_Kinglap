@@ -9,110 +9,91 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const { Option } = Select;
 
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
+const getRandomuserParams = (params) => ({
+  limit: params.pagination?.limit,
+  page: params.pagination?.page,
+});
+
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
   });
 };
 
-const getRandomuserParams = (params) => ({
-  results: params.pagination?.pageSize,
-  page: params.pagination?.current,
-  ...params,
-});
+const toastError = (message) => {
+  toast.error(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
 
 const Storage = () => {
+  const [detail, setDetail] = useState([]);
   const [data, setData] = useState();
+  const [dataDetail, setDataDetail] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
   const [tableParams, setTableParams] = useState({
     pagination: {
-      current: 1,
-      pageSize: 10,
+      page: 1,
+      limit: 10,
     },
   });
 
   const columns = [
     {
-      title: "Tên thể loại",
-      dataIndex: "name",
+      title: "Bộ lưu trữ chi tiết",
+      dataIndex: "storageDetail",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
+      render: (storageDetail) => `${storageDetail.storageType.name} (${storageDetail.type}, ${storageDetail.capacity})`,
+      width: "25%",
     },
     {
-      title: "Ngày tạo",
-      dataIndex: "name",
+      title: "Tổng số khe cắm SSD/HDD",
+      dataIndex: "total",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
+      width: "25%",
     },
     {
-      title: "Người tạo",
-      dataIndex: "name",
+      title: "Số khe SSD/HDD còn lại",
+      dataIndex: "number",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
-    },
-    {
-      title: "Ngày cập nhật",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
-    },
-    {
-      title: "Người cập nhật",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
-    },
-    // {
-    //   title: "Email",
-    //   dataIndex: "email",
-    // },
-    {
-      title: "Trạng thái",
-      dataIndex: "Trạng thái",
-      with: "30%",
-      render: (record) => {
-        return (
-          <>
-            <div
-              className="bg-success text-center text-light"
-              style={{ width: "100px", borderRadius: "5px" }}
-            >
-              Hoạt động
-            </div>
-          </>
-        );
-      },
+      width: "25%",
     },
     {
       title: "Thao tác",
-      dataIndex: "Thao tác",
-      width: "30%",
-      render: (record) => {
+      dataIndex: "id",
+      width: "25%",
+      render: (id, data) => {
         return (
           <>
-            <EyeOutlined
-              onClick={() => {
-                onView(record);
-              }}
-            />
+            <ToastContainer></ToastContainer>
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
-                onEdit(record);
+                onEdit(id, data);
               }}
             />
             <DeleteOutlined
-              onClick={() => onDelete(record)}
+              onClick={() => onDelete(id)}
               style={{ color: "red", marginLeft: 12 }}
             />
           </>
@@ -121,23 +102,97 @@ const Storage = () => {
     },
   ];
 
-  const fetchData = () => {
+  const columnsDetail = [
+    {
+      title: "Kiểu ổ cứng",
+      dataIndex: "storageType",
+      sorter: true,
+      render: (storageType) => `${storageType.name}`,
+      width: "25%",
+    },
+    {
+      title: "Loại",
+      dataIndex: "type",
+      sorter: true,
+      width: "25%",
+    },
+    {
+      title: "Dung lượng",
+      dataIndex: "capacity",
+      sorter: true,
+      width: "25%",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "id",
+      width: "25%",
+      render: (id, data) => {
+        return (
+          <>
+            <ToastContainer></ToastContainer>
+            <EditOutlined
+              style={{ marginLeft: 12 }}
+              onClick={() => {
+                onEdit(id, data);
+              }}
+            />
+            <DeleteOutlined
+              onClick={() => onDelete(id)}
+              style={{ color: "red", marginLeft: 12 }}
+            />
+          </>
+        );
+      },
+    },
+  ];
+
+  const onDelete = (id) => {
+    Modal.confirm({
+      title: "Xóa bộ lưu trữ",
+      content: "Bạn có muốn xoá bản ghi này không?",
+      onOk() {
+        fetch(`http://localhost:8080/api/storages/` + id, {
+          method: "DELETE",
+        }).then((res) => res.json())
+          .then((results) => {
+            fetchData();
+            toastSuccess("Xóa bản ghi thành công!");
+          });
+      }
+    });
+  };
+
+  const loadDataDetail = () => {
     setLoading(true);
     fetch(
-      `https://randomuser.me/api?${qs.stringify(
+      `http://localhost:8080/api/storage_details?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`
     )
       .then((res) => res.json())
-      .then(({ results }) => {
-        setData(results);
+      .then((results) => {
+        console.log(results.data.data);
+        setDetail(results.data.data);
+        setLoading(false);
+      });
+  };
+
+  const fetchData = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/storages?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setData(results.data.data);
         setLoading(false);
         setTableParams({
           ...tableParams,
           pagination: {
             ...tableParams.pagination,
-            total: 200, // 200 is mock data, you should read it from server
-            // total: data.totalCount,
+            total: results.data.total,
           },
         });
       });
@@ -145,7 +200,16 @@ const Storage = () => {
 
   useEffect(() => {
     fetchData();
+    loadDataDetail();
   }, [JSON.stringify(tableParams)]);
+
+  const [form, setValues] = useState({
+    id: "",
+    storageDetail: "",
+    storageDetailId: "",
+    total: "",
+    number: "",
+  });
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -170,16 +234,55 @@ const Storage = () => {
     setOpen(true);
   };
 
+  const handleEdit = () => {
+    fetch(`http://localhost:8080/api/storages/` + form.id, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    }).then((res) => res.json())
+      .then((results) => {
+        if (results.data == null) {
+          toastError(results.message);
+        } else {
+          fetchData();
+          toastSuccess("Cập nhật thành công!");
+          setOpen(false);
+        }
+      });
+  }
+
+  const handleSelect = (e) => {
+    setValues({
+      ...form,
+      storageDetailId: e
+    });
+  }
+
+  const handle = (e) => {
+    setValues({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  }
+
   const handleOk = () => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
+    fetch(`http://localhost:8080/api/storages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    }).then((res) => res.json())
+      .then((results) => {
+        if (results.data == null) {
+          toastError(results.message);
+        } else {
+          toastSuccess("Thêm mới thành công!");
+          setOpen(false);
+        }
+      });
   };
 
-  const onEdit = (record) => {
+  const onEdit = (id, data) => {
+    setValues(data);
     setEditing(true);
   };
 
@@ -202,51 +305,11 @@ const Storage = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <Input placeholder="Nhập tên thể loại" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
-          </Select>
-        </div>
-        <div className="col-12 text-center ">
-        <Button
-            className="mt-2"
-            type="primary-uotline"
-            // onClick={showModal}
-            style={{ borderRadius: "10px" }}
-          >
-          <ReloadOutlined/>Đặt lại
-          </Button>
-        <Button
-            className="mx-2  mt-2"
-            type="primary"
-            // onClick={showModal}
-            style={{ borderRadius: "10px" }}
-          >
-          <SearchOutlined />Tìm kiếm
-          </Button>
-        </div>
       </div>
       <div className="row">
         <div className="col-12 mt-4">
           <Button
-            className="offset-11 "
+            className="offset-11"
             type="primary"
             onClick={showModal}
             style={{ borderRadius: "10px" }}
@@ -261,8 +324,32 @@ const Storage = () => {
             onCancel={handleCancel}
           >
             <div className="form group">
-              <label>Tên thể loại</label>
-              <Input placeholder="Tên thể loại" />
+              <label>Kiểu ổ cứng</label>
+              <Select
+                showSearch
+                style={{
+                  width: 300,
+                }}
+                placeholder="Search to Select"
+                optionFilterProp="children"
+                filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                name="storageDetailId"
+                onChange={(e) => handleSelect(e)}
+                options={detail.map((detail) => ({
+                  label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
+                  value: detail.id,
+                }))}
+              />
+            </div>
+            <br></br>
+            <div className="form group">
+              <label>Tổng số khe cắm SSD/HDD</label>
+              <Input name="total" type="total" placeholder="Tổng số khe cắm SSD/HDD" onChange={(e) => handle(e)} />
+            </div>
+            <br></br>
+            <div className="form group">
+              <label>Số khe SSD/HDD còn lại</label>
+              <Input name="number" type="number" placeholder="Số khe SSD/HDD còn lại" onChange={(e) => handle(e)} />
             </div>
           </Modal>
         </div>
@@ -280,9 +367,7 @@ const Storage = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record.login.uuid}
             dataSource={data}
-            pagination={tableParams.pagination}
             loading={loading}
             onChange={handleTableChange}
           />
@@ -294,31 +379,38 @@ const Storage = () => {
             }}
             onOk={() => {
               setEditing(false);
+              handleEdit();
             }}
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
-          </Modal>
-
-          <Modal
-            // style={{borderRadius:"10px"}}
-            title="Hiển thị"
-            visible={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
-            }}
-          >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+            <div className="form group">
+              <label>Kiểu ổ cứng</label>
+              <Select
+                value={form.storageDetail.id}
+                showSearch
+                style={{
+                  width: 300,
+                }}
+                placeholder="Search to Select"
+                optionFilterProp="children"
+                filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                name="storageDetailId"
+                onChange={(e) => handleSelect(e)}
+                options={detail.map((detail) => ({
+                  label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
+                  value: detail.id,
+                }))}
+              />
+            </div>
+            <br></br>
+            <div className="form group">
+              <label>Tổng số khe cắm SSD/HDD</label>
+              <Input name="total" type="number" placeholder="Tổng số khe cắm SSD/HDD" onChange={(e) => handle(e)} value={form.total} />
+            </div>
+            <br></br>
+            <div className="form group">
+              <label>Số khe SSD/HDD còn lại</label>
+              <Input name="number" type="number" placeholder="Số khe SSD/HDD còn lại" onChange={(e) => handle(e)} value={form.number} />
+            </div>
           </Modal>
         </div>
       </div>
