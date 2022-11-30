@@ -25,6 +25,7 @@ import axios from "axios";
 import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import moment from "moment";
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -32,8 +33,10 @@ const { RangePicker } = DatePicker;
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchUsername: params.pagination?.search1,
+  searchName: params.pagination?.search1,
   searchStatus: params.pagination?.searchStatus,
+  searchStartDate: params.pagination?.searchStartDate,
+  searchEndDate: params.pagination?.searchEndDate,
 });
 
 const OrderConfirm = () => {
@@ -44,15 +47,23 @@ const OrderConfirm = () => {
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
   const [dataOrder, setDataOrder] = useState();
+  const [searchStartDate, setSearchStartDate] = useState();
+  const [searchEndDate, setSearchEndDate] = useState();
   const [put, setPut] = useState();
+  const [dateOrder, setDateOrder] = useState(getDateTime);
   const [quantity, setQuantity] = useState();
   const [orderDetails, setOrderDetails] = useState([]);
   const [todos, setTodos] = useState([]);
+  const [searchName, setSearchName] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
       searchStatus: "CHO_XAC_NHAN",
+      search1: "",
+      search2: "",
+      searchStartDate: "",
+      searchEndDate: "",
     },
   });
 
@@ -75,6 +86,33 @@ const OrderConfirm = () => {
     });
   };
 
+  function getDateTime() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var second = now.getSeconds();
+    if (month.toString().length == 1) {
+      month = "0" + month;
+    }
+    if (day.toString().length == 1) {
+      day = "0" + day;
+    }
+    if (hour.toString().length == 1) {
+      hour = "0" + hour;
+    }
+    if (minute.toString().length == 1) {
+      minute = "0" + minute;
+    }
+    if (second.toString().length == 1) {
+      second = "0" + second;
+    }
+    var dateTime =
+      year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+    return dateTime;
+  }
   const onCancel = (record) => {
     const isPut = false;
 
@@ -88,7 +126,9 @@ const OrderConfirm = () => {
       },
     });
   };
-
+  const changeSearchDate = (val, dateStrings) => {
+    setDateOrder(dateStrings);
+  };
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
       console.log(res.data);
@@ -108,6 +148,46 @@ const OrderConfirm = () => {
       .then((results) => {
         setDataOrder(results.data.data);
         setLoading(false);
+      });
+  };
+
+  const searchDate = () => {
+    setLoading(true);
+    fetch(`http://localhost:8080/api/orders/list/date/` + dateOrder)
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrder(results);
+        setLoading(false);
+        setTableParams({});
+      });
+  };
+
+  const search = () => {
+    if (searchDate != undefined && searchEndDate != undefined) {
+      console.log("vào");
+      tableParams.pagination.searchStartDate = searchStartDate;
+      tableParams.pagination.searchEndDate = searchEndDate;
+    }
+    console.log(searchName);
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.current = 1;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrder(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
       });
   };
 
@@ -132,12 +212,10 @@ const OrderConfirm = () => {
       render(total) {
         return (
           <>
-            <CurrencyFormat
-              style={{ fontSize: "14px" }}
-              value={total}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
+            {total.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
           </>
         );
       },
@@ -147,6 +225,18 @@ const OrderConfirm = () => {
       dataIndex: "payment",
       sorter: true,
       width: "20%",
+      render: (payment) => {
+        return (
+          <>
+            <div
+              className="bg-info text-center text-light"
+              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+            >
+              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+            </div>
+          </>
+        );
+      },
     },
     {
       title: "Trạng thái",
@@ -272,6 +362,16 @@ const OrderConfirm = () => {
     console.log(todos);
   };
 
+  const onchangeSearch = (val, dateStrings) => {
+    setSearchStartDate(dateStrings[0]);
+    setSearchEndDate(dateStrings[1]);
+  };
+
+  const handleChangeDateSearch = (val, dateStrings) => {
+    if (dateStrings[0] != null) setSearchStartDate(dateStrings[0]);
+    if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
+  };
+
   const handleUpdateOrderDetail = (item) => {
     console.log(item);
   };
@@ -291,27 +391,66 @@ const OrderConfirm = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-5 mt-4">
-          <label>Tên khách hàng</label>
-          <Input placeholder="Nhập tên sản phẩm" />
+        <div className="col-4 mt-3">
+          <label>Từ khoá</label>
+          <Input
+            type="text"
+            name="searchName"
+            value={searchName}
+            placeholder="Nhập tên khách hàng"
+            onChange={(e) => setSearchName(e.target.value)}
+          />
         </div>
-        <div className="col-7 mt-4">
+        {/* <div className="col-4 mt-3">
+          <label>Trạng thái</label>
+          <br />
+          <Select
+            allowClear={true}
+            style={{ width: "300px", borderRadius: "5px" }}
+            showSearch
+            placeholder="Chọn trạng thái"
+            optionFilterProp="children"
+            // onChange={changeSearchStatus}
+            // onSearch={onSearch}
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+          >
+            <Option value="CHO_XAC_NHAN" selected>
+              Chờ xác nhận
+            </Option>
+            <Option value="CHO_LAY_HANG">Chờ lấy hàng</Option>
+            <Option value="DANG_GIAO">Đang giao</Option>
+            <Option value="DA_NHAN">Đã nhận</Option>
+            <Option value="DA_HUY">Đã hủy</Option>
+          </Select>
+        </div> */}
+        <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
           <br />
           <Space
-            className="mx-2"
             direction="vertical"
-            style={{ minWidth: "80%" }}
             size={12}
+            style={{ width: "100%", borderRadius: "5px" }}
           >
-            <RangePicker size={"middle"} />
+            <RangePicker
+              showTime={{ format: "HH:mm:ss" }}
+              format={"yyyy-MM-DD HH:mm:ss"}
+              onChange={onchangeSearch}
+              onCalendarChange={handleChangeDateSearch}
+              // value={[
+              //   moment(searchStartDate, "yyyy-MM-DD HH:mm:ss"),
+              //   moment(searchEndDate, "yyyy-MM-DD HH:mm:ss"),
+              // ]}
+              type="datetime"
+            />
           </Space>
         </div>
-        <div className="col-12 text-center mt-4 ">
+        <div className="col-12 text-center mt-4">
           <Button
             className="mt-2"
-            type="primary-outline"
-            // onClick={showModal}
+            type="primary-uotline"
+            // onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -320,7 +459,7 @@ const OrderConfirm = () => {
           <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={showModal}
+            onClick={search}
             style={{ borderRadius: "10px" }}
           >
             <SearchOutlined />

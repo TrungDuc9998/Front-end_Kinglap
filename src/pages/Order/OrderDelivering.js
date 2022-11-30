@@ -1,4 +1,13 @@
-import { Table, Select, Input, Button, Modal, DatePicker, Space,Image } from "antd";
+import {
+  Table,
+  Select,
+  Input,
+  Button,
+  Modal,
+  DatePicker,
+  Space,
+  Image,
+} from "antd";
 import {
   CheckCircleOutlined,
   DeleteOutlined,
@@ -150,12 +159,10 @@ const OrderDelivering = () => {
       render(total) {
         return (
           <>
-            <CurrencyFormat
-              style={{ fontSize: "14px" }}
-              value={total}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
+            {total.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
           </>
         );
       },
@@ -165,6 +172,18 @@ const OrderDelivering = () => {
       dataIndex: "payment",
       sorter: true,
       width: "20%",
+      render: (payment) => {
+        return (
+          <>
+            <div
+              className="bg-info text-center text-light"
+              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+            >
+              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+            </div>
+          </>
+        );
+      },
     },
     {
       title: "Trạng thái",
@@ -206,9 +225,9 @@ const OrderDelivering = () => {
               }}
               danger
             >
-              Xác nhận
+              Nhận hàng
             </Button>
-            <RollbackOutlined
+            {/* <RollbackOutlined
               style={{ marginLeft: 14, fontSize: "20px" }}
               onClick={() => navigate(`/admin/return/${id}`)}
             />
@@ -216,7 +235,7 @@ const OrderDelivering = () => {
               className="ms-3"
               style={{ fontSize: "20px", color: "red" }}
               onClick={() => navigate(`/admin/order/exchange/${id}`)}
-            />
+            /> */}
           </>
         );
       },
@@ -278,30 +297,9 @@ const OrderDelivering = () => {
           <label>Tên khách hàng</label>
           <Input placeholder="Nhập tên khách hàng" />
         </div>
-        <div className="col-4 mt-4">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option key={1} value="jack">
-              Hoạt động
-            </Option>
-            <Option key={2} value="lucy">
-              Không hoạt động
-            </Option>
-          </Select>
-        </div>
         <div className="col-6 mt-4">
           <label>Thời gian đặt: </label>
+          <br />
           <Space className="mx-2" direction="vertical" size={12}>
             <RangePicker size={"middle"} />
           </Space>

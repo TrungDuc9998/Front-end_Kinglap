@@ -27,7 +27,6 @@ import toastrs from "toastr";
 import { ToastContainer, toast } from "react-toastify";
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import CurrencyFormat from "react-currency-format";
 import ReactToPrint from "react-to-print";
 import QRCode from "react-qr-code";
 const { Option } = Select;
@@ -39,6 +38,8 @@ const getRandomuserParams = (params) => ({
   page: params.pagination?.current,
   searchName: params.pagination?.search1,
   searchStatus: params.pagination?.search2,
+  searchStartDate: params.pagination?.searchStartDate,
+  searchEndDate: params.pagination?.searchEndDate,
 });
 //date
 const { RangePicker } = DatePicker;
@@ -61,12 +62,16 @@ const Order = () => {
   const [dataCancel, setDataCancel] = useState([]);
   const [dataWait, setDataWait] = useState([]);
   const [dataPending, setDataPedning] = useState([]);
+  const [searchStartDate, setSearchStartDate] = useState();
+  const [searchEndDate, setSearchEndDate] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
       search1: "",
       search2: "",
+      searchStartDate: "",
+      searchEndDate: "",
     },
   });
   const [tableParamsPending, setTableParamsPending] = useState({
@@ -95,6 +100,16 @@ const Order = () => {
       search2: "DA_HUY",
     },
   });
+
+  const onchangeSearch = (val, dateStrings) => {
+    setSearchStartDate(dateStrings[0]);
+    setSearchEndDate(dateStrings[1]);
+  };
+
+  const handleChangeDateSearch = (val, dateStrings) => {
+    if (dateStrings[0] != null) setSearchStartDate(dateStrings[0]);
+    if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
+  };
 
   const [tableParamsDelivering, setTableParamsDelivering] = useState({
     pagination: {
@@ -250,6 +265,12 @@ const Order = () => {
   }, []);
 
   const search = () => {
+    console.log(searchDate);
+    if (searchDate != undefined && searchEndDate != undefined) {
+      console.log("vào");
+      tableParams.pagination.searchStartDate = searchStartDate;
+      tableParams.pagination.searchEndDate = searchEndDate;
+    }
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.current = 1;
@@ -322,10 +343,6 @@ const Order = () => {
     return dateTime;
   }
 
-  const handleChangeDateSearch = (val, dateStrings) => {
-    if (dateStrings != null) setDateOrder(dateStrings);
-  };
-
   const changeSearchDate = (val, dateStrings) => {
     setDateOrder(dateStrings);
   };
@@ -396,42 +413,16 @@ const Order = () => {
       sorter: true,
       width: "13%",
       render: (payment) => {
-        if (payment === "TẠI CỬA HÀNG") {
-          return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "80%", borderRadius: "5px", padding: "4px" }}
-              >
-                Tại cửa hàng
-              </div>
-            </>
-          );
-        }
-        if (payment === "TÀI KHOẢN ATM") {
-          return (
-            <>
-              <div
-                className="bg-danger text-center text-light"
-                style={{ borderRadius: "5px", padding: "4px", width: "80%" }}
-              >
-                Tài khoản ATM
-              </div>
-            </>
-          );
-        }
-        if (payment === "THANH TOAN VNPAY") {
-          return (
-            <>
-              <div
-                className="bg-primary text-center text-light"
-                style={{ borderRadius: "5px", padding: "4px", width: "80%" }}
-              >
-                Ví VNPAY
-              </div>
-            </>
-          );
-        }
+        return (
+          <>
+            <div
+              className="bg-info text-center text-light"
+              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+            >
+              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+            </div>
+          </>
+        );
       },
     },
     {
@@ -726,18 +717,27 @@ const Order = () => {
             <Option value="DA_HUY">Đã hủy</Option>
           </Select>
         </div>
-        {/* <div className="col-4 mt-3">
+        <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
           <br />
-          <DatePicker
-            onChange={changeSearchDate}
-            onCalendarChange={handleChangeDateSearch}
-            value={moment(dateOrder, "yyyy-MM-DD HH:mm:ss")}
-            showTime={{ format: "HH:mm:ss" }}
-            format={"yyyy-MM-DD HH:mm:ss"}
-            type="datetime"
-          />
-        </div> */}
+          <Space
+            direction="vertical"
+            size={12}
+            style={{ width: "100%", borderRadius: "5px" }}
+          >
+            <RangePicker
+              showTime={{ format: "HH:mm:ss" }}
+              format={"yyyy-MM-DD HH:mm:ss"}
+              onChange={onchangeSearch}
+              onCalendarChange={handleChangeDateSearch}
+              // value={[
+              //   moment(searchStartDate, "yyyy-MM-DD HH:mm:ss"),
+              //   moment(searchEndDate, "yyyy-MM-DD HH:mm:ss"),
+              // ]}
+              type="datetime"
+            />
+          </Space>
+        </div>
         <div className="col-12 text-center mt-4">
           <Button
             className="mt-2"
@@ -757,15 +757,6 @@ const Order = () => {
             <SearchOutlined />
             Tìm kiếm
           </Button>
-          {/* <Button
-            className="mx-2  mt-2"
-            type="primary"
-            onClick={searchDate}
-            style={{ borderRadius: "10px" }}
-          >
-            <SearchOutlined />
-            Tìm kiếm Date
-          </Button> */}
         </div>
       </div>
       <div className="row">
@@ -860,21 +851,17 @@ const Order = () => {
                       <td>{item.id}</td>
                       <td>{item.product.name}</td>
                       <td>
-                        <CurrencyFormat
-                          value={item.product.price}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                        vnđ
+                        {item.product.price.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
                       </td>
                       <td>{item.quantity}</td>
                       <td>
-                        <CurrencyFormat
-                          value={item.total}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                        vnđ
+                        {item.total.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
                       </td>
                     </tr>
                   );
@@ -937,21 +924,17 @@ const Order = () => {
                           <td>{item.id}</td>
                           <td>{item.product.name}</td>
                           <td>
-                            <CurrencyFormat
-                              style={{ fontSize: "14px" }}
-                              value={item.product.price}
-                              displayType={"text"}
-                              thousandSeparator={true}
-                            />
+                            {item.product.price.toLocaleString("it-IT", {
+                              style: "currency",
+                              currency: "VND",
+                            })}
                           </td>
                           <td>{item.quantity}</td>
                           <td>
-                            <CurrencyFormat
-                              style={{ fontSize: "14px" }}
-                              value={item.quantity * item.product.price}
-                              displayType={"text"}
-                              thousandSeparator={true}
-                            />
+                            {item.total.toLocaleString("it-IT", {
+                              style: "currency",
+                              currency: "VND",
+                            })}
                           </td>
                         </tr>
                       );
@@ -959,25 +942,20 @@ const Order = () => {
                     <tr>
                       <td colSpan={4}>Tổng tiền</td>
                       <td>
-                        <CurrencyFormat
-                          style={{ fontSize: "14px" }}
-                          value={dataO?.total}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
+                        {dataO?.total.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
                       </td>
                     </tr>
                   </tbody>
                 </table>
                 <h5>
                   Tổng số tiền phải thanh toán:{" "}
-                  <CurrencyFormat
-                    style={{ fontSize: "14px" }}
-                    value={dataO?.total}
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />{" "}
-                  VNĐ
+                  {dataO?.total.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
                 </h5>
                 <h5>
                   Trạng thái đơn hàng:

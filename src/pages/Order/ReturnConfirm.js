@@ -237,11 +237,11 @@ const ReturnConfirm = () => {
         } else {
           return (
             <EyeOutlined
-                style={{ fontSize: "20px" }}
-                onClick={() => {
-                  showModalData(id);
-                }}
-              />
+              style={{ fontSize: "20px" }}
+              onClick={() => {
+                showModalData(id);
+              }}
+            />
           );
         }
       },
@@ -317,9 +317,8 @@ const ReturnConfirm = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="jack">Yêu cầu</Option>
-            <Option value="lucy">Xác nhận</Option>
-            <Option value="lucy">Không xác nhận</Option>
+            <Option value="DA_XU_LY">Đã xử lý</Option>
+            <Option value="CHUA_XU_LY">Chưa xử lý</Option>
           </Select>
         </div>
         <div className="col-12 text-center ">

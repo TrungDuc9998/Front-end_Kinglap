@@ -146,7 +146,7 @@ const OrderSuccess = () => {
       title: "Mã đơn đặt",
       dataIndex: "id",
       sorter: true,
-      width: "20%",
+      width: "10%",
     },
     {
       title: "Người đặt",
@@ -162,12 +162,10 @@ const OrderSuccess = () => {
       render(total) {
         return (
           <>
-            <CurrencyFormat
-              style={{ fontSize: "14px" }}
-              value={total}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
+            {total.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
           </>
         );
       },
@@ -177,6 +175,18 @@ const OrderSuccess = () => {
       dataIndex: "payment",
       sorter: true,
       width: "20%",
+      render: (payment) => {
+        return (
+          <>
+            <div
+              className="bg-info text-center text-light"
+              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+            >
+              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+            </div>
+          </>
+        );
+      },
     },
     {
       title: "Trạng thái",
@@ -197,7 +207,7 @@ const OrderSuccess = () => {
     },
     {
       title: "Thao tác",
-      width: "30%",
+      width: "40%",
       dataIndex: "id",
       render: (id, record) => {
         return (
@@ -215,6 +225,13 @@ const OrderSuccess = () => {
               onClick={() => navigate(`/admin/order/exchange/${id}`)}
             >
               Đổi hàng
+            </Button>
+            <Button
+              className="ms-2"
+              type="primary"
+              onClick={() => navigate(`/admin/return/${id}`)}
+            >
+              Trả hàng
             </Button>
             {/* <CheckCircleOutlined
               style={{ marginLeft: 12 }}
