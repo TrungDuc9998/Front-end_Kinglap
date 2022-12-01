@@ -19,6 +19,7 @@ import {
   ReloadOutlined,
   SearchOutlined,
   RetweetOutlined,
+  MenuFoldOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import qs from "qs";
@@ -294,6 +295,14 @@ const OrderSuccess = () => {
   };
   return (
     <div>
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Đơn hàng đã nhận</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{

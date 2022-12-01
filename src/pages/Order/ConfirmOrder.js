@@ -16,6 +16,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
+  MenuFoldOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -25,6 +26,7 @@ import axios from "axios";
 import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../Order/ConfirmOrder.css"
 import moment from "moment";
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
@@ -381,6 +383,14 @@ const OrderConfirm = () => {
   };
   return (
     <div>
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Xác nhận đơn hàng</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{
@@ -485,7 +495,7 @@ const OrderConfirm = () => {
             pagination={tableParams.pagination}
             loading={loading}
           />
-          <Modal
+          <Modal id="a"
             title="Xác nhận đơn hàng"
             open={isEditing}
             onCancel={() => {

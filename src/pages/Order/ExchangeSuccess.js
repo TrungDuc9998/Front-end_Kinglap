@@ -16,6 +16,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
+  MenuFoldOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -24,7 +25,7 @@ import qs from "qs";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Item from "antd/lib/list/Item";
+import { ToastContainer, toast } from "react-toastify";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const url = "http://localhost:8080/api/returns";
@@ -36,7 +37,21 @@ const getRandomOrderParams = (params) => ({
   searchStatus: params.pagination?.searchStatus,
 });
 
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
+
 const ExchangeSuccess = () => {
+  let navigate = useNavigate();
   const [dataOD, setDataOD] = useState();
   const [order, setOrder] = useState();
   const [dataProduct, setDataProduct] = useState();
@@ -77,9 +92,35 @@ const ExchangeSuccess = () => {
       cancelText: "Không",
       okType: "primary",
       onOk: () => {
-        confirmUpdateStatus(record, isPut);
+        ConfirmReturn(record, isPut);
       },
     });
+  };
+
+  const ConfirmReturn = (data, isPut) => {
+    console.log(data);
+    const returnDetail = [];
+    data.returnDetailEntities.forEach((element) => {
+      returnDetail.push({
+        productId: element.productId.id,
+        orderDetailId: element.orderDetail.id,
+        quantity: element.quantity,
+        status: isPut == true ? "DA_XAC_NHAN" : "KHONG_XAC_NHAN",
+      });
+    });
+    fetch(`http://localhost:8080/api/returns/${data.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        orderId: data.orderId,
+        reason: data.reason,
+        description: data.description,
+        isCheck: 1,
+        status: isPut === true ? "DA_XU_LY" : "KHONG_XU_LY",
+        returnDetailEntities: returnDetail,
+      }),
+    }).then((res) => loadDataExchange());
+    toastSuccess("Cập nhật thành công !");
   };
 
   const confirmUpdateStatus = (record, isPut) => {
@@ -119,7 +160,7 @@ const ExchangeSuccess = () => {
       cancelText: "Không",
       okType: "primary",
       onOk: () => {
-        confirmUpdateStatus(record, isPut);
+        ConfirmReturn(record, isPut);
       },
     });
   };
@@ -147,8 +188,7 @@ const ExchangeSuccess = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
-        console.log(results.data);
+        console.log(results.data.data);
         setDataExchange(results.data.data);
         setLoading(false);
       });
@@ -182,10 +222,21 @@ const ExchangeSuccess = () => {
           return (
             <>
               <div
-                className="bg-danger text-center text-light"
+                className="bg-warning text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
                 Chưa xử lý
+              </div>
+            </>
+          );
+        } else if (status === "KHONG_XU_LY") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                Không xử lý
               </div>
             </>
           );
@@ -210,23 +261,30 @@ const ExchangeSuccess = () => {
       render: (id, record) => {
         return (
           <>
-            <EyeOutlined
-              style={{ fontSize: "20px" }}
-              onClick={() => {
-                showModalData(id, record.orderId);
-              }}
-            />
-            <CheckCircleOutlined
-              className="ms-3"
-              style={{ fontSize: "20px" }}
-              onClick={() => {
-                onConfirm(record);
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => onCancel(record)}
-              style={{ color: "red", marginLeft: 12, fontSize: "20px" }}
-            />
+            {record.status === "DA_XU_LY" || record.status === "KHONG_XU_LY" ? (
+              <EyeOutlined
+                style={{ fontSize: "20px" }}
+                onClick={() => navigate(`/admin/order/exchange/detail/${id}`)}
+              />
+            ) : (
+              <>
+                <EyeOutlined
+                  style={{ fontSize: "20px" }}
+                  onClick={() => navigate(`/admin/order/exchange/detail/${id}`)}
+                />
+                <CheckCircleOutlined
+                  className="ms-3"
+                  style={{ fontSize: "20px" }}
+                  onClick={() => {
+                    onConfirm(record);
+                  }}
+                />
+                <CloseCircleOutlined
+                  onClick={() => onCancel(record)}
+                  style={{ color: "red", marginLeft: 12, fontSize: "20px" }}
+                />
+              </>
+            )}
           </>
         );
       },
@@ -288,6 +346,15 @@ const ExchangeSuccess = () => {
   };
   return (
     <div>
+      <ToastContainer></ToastContainer>
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Yêu cầu đổi hàng</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{
