@@ -26,7 +26,6 @@ import "./Processor.css";
 import { ToastContainer, toast } from "react-toastify";
 const { Option } = Select;
 
-
 const getRandomParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
@@ -115,8 +114,7 @@ const Processor = () => {
       },
     });
   };
-  
-  
+
   const deleteProcessor = (record) => {
     console.log(record);
     fetch(`http://localhost:8080/api/staff/processors/${record.id}`, {
@@ -277,14 +275,13 @@ const Processor = () => {
     },
   ];
 
-
   const clearSearchForm = () => {
     loadDataProcessor();
     // loadDataProcessor();
     // setSearchName("");
     // setSearchStatus();
   };
-  
+
   const handleTableChange = (pagination) => {
     console.log(pagination);
     tableParams.pagination = pagination;
@@ -494,6 +491,11 @@ const Processor = () => {
           <Modal
             id="modal"
             title="Tạo mới"
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
             open={open}
             onOk={handleOk}
             confirmLoading={confirmLoading}
@@ -650,7 +652,7 @@ const Processor = () => {
                 </Select>
               </Form.Item>
               <Form.Item className="text-center">
-                <Button block type="primary" id="create" htmlType="submit">
+                <Button block type="primary" htmlType="submit" id="create">
                   Tạo mới
                 </Button>
               </Form.Item>

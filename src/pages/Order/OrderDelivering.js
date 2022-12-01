@@ -16,12 +16,14 @@ import {
   RollbackOutlined,
   EyeOutlined,
   RetweetOutlined,
+  MenuFoldOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
 import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../Order/ConfirmOrder.css"
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -283,6 +285,14 @@ const OrderDelivering = () => {
   };
   return (
     <div>
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Đơn hàng đang giao</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{
@@ -356,7 +366,7 @@ const OrderDelivering = () => {
             Bạn có muốn xác nhận đơn hàng không ?
           </Modal> */}
 
-          <Modal
+          <Modal id="a"
             title="Chi tiết đơn hàng"
             open={isView}
             onCancel={() => {

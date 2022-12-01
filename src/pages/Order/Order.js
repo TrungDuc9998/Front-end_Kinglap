@@ -267,7 +267,6 @@ const Order = () => {
   const search = () => {
     console.log(searchDate);
     if (searchDate != undefined && searchEndDate != undefined) {
-      console.log("vào");
       tableParams.pagination.searchStartDate = searchStartDate;
       tableParams.pagination.searchEndDate = searchEndDate;
     }
