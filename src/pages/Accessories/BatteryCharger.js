@@ -7,6 +7,7 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  LockOutlined,
   UnlockOutlined
 } from "@ant-design/icons";
 import qs from "qs";
@@ -21,13 +22,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Moment from 'react-moment';
 const url = 'http://localhost:8080/api';
 const { Option } = Select;
-
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
-  });
-};
 
 const BatteryCharger = () => {
   const notifySuccess = (message) => {
@@ -65,7 +59,7 @@ const BatteryCharger = () => {
     charger: "",
     price: null,
     categoryId: null,
-    active: 1,
+    active: "ACTIVE",
   }]
   );
   const [formDefault, setValuesDefault] = useState({
@@ -75,7 +69,7 @@ const BatteryCharger = () => {
     charger: "",
     price: null,
     categoryId: null,
-    active: 1,
+    active: "ACTIVE",
   }
   );
   const [form, setValues] = useState({
@@ -85,19 +79,29 @@ const BatteryCharger = () => {
     charger: "",
     price: null,
     categoryId: null,
-    active: 1,
+    active: "ACTIVE",
   }
   );
+
+  const [searchBatteryType, setSearchBatteryType] = useState();
+  const [searchBattery, setSearchBattery] = useState();
+  const [searchCharger, setSearchCharger] = useState();
   //loadParam getList
   const getRandomuserParams = (params) => ({
     limit: params.pagination?.pageSize,
     page: params.pagination?.current,
+    searchBatteryType: params.pagination?.searchBatteryType,
+    searchBattery: params.pagination?.searchBattery,
+    searchCharger: params.pagination?.searchCharger,
   });
   //phân trang Table
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
+      searchBatteryType:"",
+      searchBattery:"",
+      searchCharger:""
     },
   });
 
@@ -181,16 +185,102 @@ const BatteryCharger = () => {
       },
     },
     {
+      title: "Kích hoạt",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "5%",
+      render: (id, data) => {
+        if (data.status == "ACTIVE") {
+          return (
+            <>
+              <UnlockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/admin/batteryCharger/close/${data.id}`, { method: "PUT" }).then(() => getData());
+                  toastrs.options = {
+                    timeOut: 6000,
+                  }
+                  toast.success('Khóa thành công!', {
+                    position: "top-right",
+                    autoClose: 1000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                }}
+              />
+            </>
+          );
+        } else if (data.status == "INACTIVE") {
+          return (
+            <>
+              <LockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/admin/batteryCharger/open/${data.id}`, { method: "PUT" }).then(() => getData());
+                  toastrs.options = {
+                    timeOut: 6000
+                  }
+                  toast.success('Mở khóa thành công!', {
+                    position: "top-right",
+                    autoClose: 1000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                }}
+              />
+            </>
+          );
+        }
+        else if (data.status == "DRAFT") {
+          return (
+            <>
+              <UnlockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/admin/batteryCharger/open/${data.id}`, { method: "PUT" }).then(() => getData());
+                  toastrs.options = {
+                    timeOut: 6000,
+                  }
+                  toast.success('Khóa thành công!', {
+                    position: "top-right",
+                    autoClose: 1000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                }}
+              />
+            </>
+          );
+        }
+      },
+    },
+    {
       title: "Thao tác",
       dataIndex: "id",
+      dataIndex: "data",
       width: "20%",
-      render: (id) => {
+      render: (id, data) => {
         return (
           <>
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
-                onEdit(id);
+                onEdit(data);
               }}
             />
             <DeleteOutlined
@@ -236,7 +326,12 @@ const BatteryCharger = () => {
       [e.target.name]: e.target.value
     });
   }
-
+  const handleSelect = (e) => {
+    setValues({
+      ...form,
+      categoryId: e
+    });
+  }
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -261,17 +356,8 @@ const BatteryCharger = () => {
     setOpen(true);
   };
 
-  const handleOk = () => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
-  };
-
-  const onEdit = (record) => {
-    showModalEdit(record);
+  const onEdit = (data) => {
+    showModalEdit(data);
     setEditing(true);
   };
 
@@ -305,12 +391,8 @@ const BatteryCharger = () => {
 
   }
   //loadFormEdit
-  const showModalEdit = (id) => {
-    axios.get(url + "/admin/batteryCharger/" + id)
-      .then(res => {
-        console.log(res.data.data);
-        setValues(res.data.data);
-      })
+  const showModalEdit = (data) => {
+    setValues(data);
   };
 
   //btn Edit
@@ -368,11 +450,41 @@ const BatteryCharger = () => {
   const handleCancel = () => {
     console.log("Clicked cancel button");
     setOpen(false);
+    setEditing(false);
+    setValues(formDefault);
   };
+  const search=()=>{
+    setTableParams(
+      tableParams.pagination.current= 1,
+      tableParams.pagination.pageSize= 10,
+      tableParams.pagination.searchBatteryType=searchBatteryType,
+      tableParams.pagination.searchBattery=searchBattery,
+      tableParams.pagination.searchCharger=searchCharger
+    );
+    getData();
+  }
+
+  const clearSearchForm = () => {
+    setSearchBattery("")
+    setSearchBatteryType("")
+    setSearchCharger("")
+    setTableParams({
+      ...tableParams,
+      pagination: {
+        ...tableParams.pagination.current = 1,
+        ...tableParams.pagination.pageSize = 10,
+        ...tableParams.pagination.searchBattery = "",
+        ...tableParams.pagination.searchBatteryType = "",
+        ...tableParams.pagination.searchCharger=""
+      }
+    });
+    getData();
+  }
+
   return (
     <div>
       <ToastContainer />
-      {/* <div
+      <div
         className="row"
         style={{
           borderRadius: "20px",
@@ -381,62 +493,49 @@ const BatteryCharger = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Loại pin</label>
-          <Input placeholder="Nhập loại pin" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Dung lượng pin</label>
-          <Input placeholder="Nhập dung lượng pin" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Power supply</label>
-          <Input placeholder="Nhập power supply" />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Giá</label>
-          <Input placeholder="Nhập giá" 
-          value={form.price}
-          // onChange={(e) => setPrice(e.target.value)}
-          />
-        </div>
-        <div className="col-4 mt-4">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
-          </Select>
-        </div>
-        <div className="col-12 text-center ">
-        <Button
-            className="mt-2"
-            type="primary-uotline"
-            // onClick={showModal}
-            style={{ borderRadius: "10px" }}
-          >
-          <ReloadOutlined/>Đặt lại
-          </Button>
-        <Button
-            className="mx-2  mt-2"
-            type="primary"
-            // onClick={showModal}
-            style={{ borderRadius: "10px" }}
-          >
-          <SearchOutlined />Tìm kiếm
-          </Button>
-        </div>
-      </div> */}
+            <div className="col-4 mt-3">
+              <label>Từ khoá</label>
+              <div className="row">
+                <div className="col-4 mt-4">
+                  <label>Loại pin</label>
+                    <Input placeholder="Nhập loại pin" value={searchBatteryType}
+                      onChange={(e) => setSearchBatteryType(e.target.value)}/>
+                  </div>
+                  <div className="col-4 mt-4">
+                    <label>Dung lượng pin</label>
+                    <Input placeholder="Nhập dung lượng pin"  value={searchBattery}
+                      onChange={(e) => setSearchBattery(e.target.value)}/>
+                  </div>
+                  <div className="col-4 mt-4">
+                    <label>Power supply</label>
+                    <Input placeholder="Nhập power supply"  value={searchCharger}
+                      onChange={(e) => setSearchCharger(e.target.value)}/>
+                  </div>
+              </div>
+              
+            </div>
+            <div className="col-12 text-center ">
+              <Button
+                className="mx-2  mt-2"
+                type="primary"
+                onClick={search}
+                style={{ borderRadius: "10px" }}
+              >
+                <SearchOutlined />
+                Tìm kiếm
+              </Button>
+              <Button
+                className="mt-2"
+                type="primary-uotline"
+                onClick={clearSearchForm}
+                style={{ borderRadius: "10px" }}
+              >
+                <ReloadOutlined />
+                Đặt lại
+              </Button>
+
+            </div>
+      </div>
       <div className="row">
         <div className="col-12 mt-4">
           <Button
@@ -469,8 +568,10 @@ const BatteryCharger = () => {
             <div className="col-4 mt-4">
               <label>Giá</label>
               <Input placeholder="Nhập giá" 
+              type="number"
               name="price"
               value={form.price}
+              min={0}
               onChange={(e) => handle(e)}
               />
             </div>
@@ -480,18 +581,24 @@ const BatteryCharger = () => {
               <span className="text-danger me-2"> * </span>
             </label>
             <br />
-            <select
-              className="form-select"
+            <Select
+              showSearch
+              style={{
+                width: 200,
+              }}
+              placeholder="Search to Select"
+              optionFilterProp="children"
+              filterOption={(input, option) => (option?.label ?? '').includes(input)}
+              // filterSort={(optionA, optionB) =>
+              //   (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+              // }
               name="categoryId"
-              value={form.categoryId}
-              onChange={(e) => handle(e)}
-            >
-              {category.map((cate) => (
-                <option key={cate.id} value={cate.id}>
-                  {cate.name}
-                </option>
-              ))}
-            </select>
+              onChange={(e) => handleSelect(e)}
+              options={category.map((cate) => ({
+                label: cate.name,
+                value: cate.id,
+              }))}
+            />
           </div>
           </Modal>
         </div>
@@ -518,9 +625,7 @@ const BatteryCharger = () => {
           <Modal
             title="Cập nhật"
             visible={isEditing}
-            onCancel={() => {
-              setEditing(false);
-            }}
+            onCancel={handleCancel}
             onOk={(e) => {
               handleEdit(e);
               setEditing(false);
@@ -552,19 +657,27 @@ const BatteryCharger = () => {
               <span className="text-danger me-2"> * </span>
             </label>
             <br />
-            <select
-              className="form-select"
-              name="categoryId"
+            <Select
+              showSearch
+              style={{
+                width: 200,
+              }}
+              placeholder="Search to Select"
+              optionFilterProp="children"
+              filterOption={(input, option) => (option?.label ?? '').includes(input)}
+              // filterSort={(optionA, optionB) =>
+              //   (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+              // }
               value={form.categoryId}
-              onChange={(e) => handle(e)}
-            >
-              {category.map((cate) => (
-                <option key={cate.id} value={cate.id}>
-                  {cate.name}
-                </option>
-              ))}
-            </select>
+              name="categoryId"
+              onChange={(e) => handleSelect(e)}
+              options={category.map((cate) => ({
+                label: cate.name,
+                value: cate.id,
+              }))}
+            />
           </div>
+          
           </Modal>
         </div>
       </div>
