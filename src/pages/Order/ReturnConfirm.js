@@ -15,6 +15,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
+  MenuFoldOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -94,7 +95,7 @@ const ReturnConfirm = () => {
         orderId: record.orderId,
         reason: record.reason,
         description: record.description,
-        status: isPut === true ? "XAC_NHAN" : "KHONG_XAC_NHAN",
+        status: isPut === true ? "DA_XU_LY" : "CHUA_XU_LY",
         isCheck: "2",
         returnDetailEntities: returnDetail,
       }),
@@ -293,6 +294,14 @@ const ReturnConfirm = () => {
   };
   return (
     <div>
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Yêu cầu trả hàng</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{

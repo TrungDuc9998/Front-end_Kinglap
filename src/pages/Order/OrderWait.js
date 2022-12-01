@@ -14,6 +14,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
+  MenuFoldOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -161,7 +162,7 @@ const OrderWait = () => {
               className="bg-info text-center text-light"
               style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
             >
-              {payment === 'VN_PAY' ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
             </div>
           </>
         );
@@ -252,6 +253,14 @@ const OrderWait = () => {
   };
   return (
     <div>
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Chờ lấy hàng</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{
