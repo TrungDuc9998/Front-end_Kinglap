@@ -4,7 +4,7 @@ import axios from "axios";
 import qs from "qs";
 import "../Order/table.css";
 import { Table, Modal } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import CurrencyFormat from "react-currency-format";
 const { Option } = Select;
@@ -93,6 +93,7 @@ function Table1() {
   const [totalWeight, setTotalWeight] = useState();
   const [note, setNote] = useState();
   const [userId, setUserId] = useState();
+  const [dataLogin, setDataLogin] = useState();
   const [discounts, setDiscounts] = useState();
   const [userNameLogin, setUserNameLogin] = useState();
   const [typeOrder, setTypeOrder] = useState();
@@ -142,6 +143,7 @@ function Table1() {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log(results);
         setUsers(results.data.data);
         setLoading(false);
         setTableParams({
@@ -207,6 +209,7 @@ function Table1() {
   };
 
   const handleSubmitOrder = () => {
+    console.log(fullNameForm);
     console.log(dataCart.length);
     if (dataCart === undefined || dataCart.length === 0) {
       toastError("Vui lòng thêm sản phẩm vào giỏ hàng");
@@ -246,7 +249,8 @@ function Table1() {
           isCheck: null,
         });
       });
-      console.log(orderDetails);
+      console.log(shipping);
+      
       try {
         fetch("http://localhost:8080/api/orders", {
           method: "POST",
@@ -254,11 +258,11 @@ function Table1() {
           body: JSON.stringify({
             payment: order.payment,
             userId: order.userId | null,
-            total: order.total,
+            total: (Number(order.total) + Number(shipping)),
             address: order.address,
-            note: "acv",
+            note: "",
             customerName:
-              order.customerName == "" ? "Nguyễn Thị Huệ" : order.customerName,
+              order.customerName == "" ? fullNameForm : order.customerName,
             phone: order.phone,
             status: "CHO_XAC_NHAN",
             money: 0,
@@ -636,7 +640,25 @@ function Table1() {
     loadDataDisCount();
     loadInfo();
     setDisableCountry(true);
+    loadDataUseLogin();
   }, [(total != undefined) | (ProvinceID != 1)]);
+
+  const loadDataUseLogin = () => {
+
+    console.log('load data login');
+    const id = localStorage.getItem("id");
+    fetch(
+      `http://localhost:8080/api/users/find/${id}?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        console.log(results);
+        setDataLogin(results.data.data);
+        setLoading(false);
+      });
+  };
 
   const loadDataClient = () => {
     setLoading(true);
@@ -748,6 +770,8 @@ function Table1() {
     console.log("value user: " + event.target.value);
   };
   const onSearchAndFillUser = (item) => {
+    console.log('giá trị log');
+    console.log(item);
     if (item != null) {
       setFullNameClient(item.fullName);
     }
@@ -755,13 +779,28 @@ function Table1() {
     setFullNameForm(item.fullName);
     setPhoneNumberForm(item.phoneNumber);
     setAddRessForm(item.address);
-    setUserId(item.id);
+    setUserId(item.userId);
   };
 
   return (
     <div>
-      <ToastContainer></ToastContainer>
       <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Đặt hàng</h4>
+        </div>
+      </div>
+      <ToastContainer></ToastContainer>
+      <div
+        className="row"
+        style={{
+          borderRadius: "20px",
+          border: "1px solid #d9d9d9",
+          background: "#fafafa",
+        }}
+      > 
         <div className="btn-search col-12 mt-3 mb-4 d-flex float-end">
           <div className="timk col-4 ">
             <div className="search-container">
@@ -948,7 +987,7 @@ function Table1() {
             <div className="col-6">
               <div className="form-group">
                 <label>Số điện thoại khách hàng</label>
-                <Select
+                {/* <Select
                   style={{
                     width: "100%",
                   }}
@@ -968,7 +1007,7 @@ function Table1() {
                         </Option>
                       ))
                     : ""}
-                </Select>
+                </Select> */}
                 <Input
                   onChange={(e) => setPhoneClient(e.target.value)}
                   value={phoneNumberForm}
@@ -1211,7 +1250,7 @@ function Table1() {
                         <td>
                           <Image
                             width={90}
-                            src={item.productId.images[0].name}
+                            src={item.productId.images[0]?.name}
                           />
                         </td>
                         <td>{item.productId.name}</td>
@@ -1284,17 +1323,16 @@ function Table1() {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="row">
-        <div className="btn-submit">
-          <Button
-            className="text-center"
-            type="button"
-            onClick={handleSubmitOrder}
-          >
-            Hoàn tất đặt hàng
-          </Button>
+        <div className="row mb-5">
+          <div className="btn-submit">
+            <Button
+              className="text-center"
+              type="button"
+              onClick={handleSubmitOrder}
+            >
+              Hoàn tất đặt hàng
+            </Button>
+          </div>
         </div>
       </div>
     </div>

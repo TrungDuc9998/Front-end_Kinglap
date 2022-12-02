@@ -41,14 +41,14 @@ function Accessories() {
           <TabPane tab="Màu" key="7">
             <Color />
           </TabPane>
-          <TabPane tab="Chi tiết màu" key="8">
-          </TabPane>
-          <TabPane tab="Card đồ họa" key="9">
+          {/* <TabPane tab="Chi tiết màu" key="8">
+          </TabPane> */}
+          <TabPane tab="Card" key="9">
             <Card></Card>
           </TabPane>
-          <TabPane tab="Đồ họa" key="11">
+          {/* <TabPane tab="Đồ họa" key="11">
             3rd TAB PANE Content
-          </TabPane>
+          </TabPane> */}
 
         </Tabs>
       </div>
