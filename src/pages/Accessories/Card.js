@@ -59,7 +59,9 @@ function Card() {
                             }}
                         />
                         <DeleteOutlined
-                            onClick={() => showModalCancel(card)}
+                            onClick={
+                                () => showModalCancel(card)
+                            }
                             style={{ color: "red", marginLeft: 12 }}
                         />
                     </>
@@ -72,9 +74,7 @@ function Card() {
         console.log(`selected ${value}`);
     };
 
-    const onSearch = (value) => {
-        console.log("search:", value);
-    };
+
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [modalText, setModalText] = useState("Content of the modal");
@@ -95,16 +95,16 @@ function Card() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(form),
         }).then((results) => {
-            console.log(results)
+            // console.log(results)
+            getData();
             notifySuccess('Thêm mới thành công');
-            setLoading(true);
         })
 
         setModalText("The modal will be closed after two seconds");
         setConfirmLoading(true);
         setTimeout(() => {
             setOpen(false);
-            setConfirmLoading(false);
+            getData();
         }, 2000);
     };
 
@@ -118,16 +118,46 @@ function Card() {
         setOpen(false);
     };
 
+    const search = () => {
+        tableParams.pagination.memory = memorySearch;
+        tableParams.pagination.trandemark = trandemarkSearch;
+        tableParams.pagination.current = 1;
+        setLoading(true);
+        console.log("param", tableParams);
+        fetch(
+            `http://localhost:8080/api/card?${qs.stringify(
+                getRandomuserParams(tableParams)
+            )}`
+        )
+            .then((res) => res.json())
+            .then((results) => {
+                console.log("res", results.data.data);
+                // setData(results.data.data);
+                setLoading(false);
+                setTableParams({
+                    pagination: {
+                        current: 1,
+                        pageSize: 10,
+                        total: results.data.total,
+                    },
+                });
+            });
+    };
+
 
 
     const getRandomuserParams = (params) => ({
         limit: params.pagination?.pageSize,
         page: params.pagination?.current,
+        trandemark: params.pagination?.trandemarkSearch,
+        memory: params.pagination?.memorySearch,
     });
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
-            pageSize: 10
+            pageSize: 5,
+            memory: '',
+            trandemark: ''
         },
     });
     const [totalSet, setTotal] = useState(10);
@@ -138,9 +168,7 @@ function Card() {
         axios.get(url + `?${qs.stringify(
             getRandomuserParams(tableParams)
         )}`)
-            // .then((res) => res.json())
             .then((results) => {
-                // console.log("results", results)
                 setData(results.data.data.data)
                 console.log(cards);
                 setTableParams({
@@ -205,8 +233,16 @@ function Card() {
     const [price, setPrice] = useState()
     const [memory, setMemory] = useState('')
     const [cardId, setCardId] = useState('')
+    const [memorySearch, setMemorySearch] = useState('')
+    const [trandemarkSearch, setTrandemarkSearch] = useState('')
     const onChangeInputTrandemark = (event) => {
         setTrandemark(event.target.value);
+    }
+    const onChangeInputTrandemarkSearch = (event) => {
+        setTrandemarkSearch(event.target.value);
+    }
+    const onChangeInputMemorySearch = (event) => {
+        setMemorySearch(event.target.value);
     }
     const onChangeInputModel = (event) => {
         setModel(event.target.value);
@@ -249,21 +285,26 @@ function Card() {
             theme: "light",
         });
     }
-    const cardDel = {
+    const [cardDel, setCardDel] = useState({
         id: '',
         trandemark: "",
         memory: '',
         price: '',
         model: ''
-    }
+    })
     const showModalCancel = (card) => {
-        cardDel.id = card.id
-        cardDel.trandemark = card.trandemark
-        cardDel.memory = card.memory
-        cardDel.price = card.price
-        cardDel.model = card.model
+        setCardDel(card);
+        console.log(cardDel)
         setDelete(true);
     };
+
+    const Delete = (card) => {
+        axios.delete(`http://localhost:8080/api/card/` + card.id)
+            .then((resualt) => {
+                notifySuccess("Xóa thành công");
+                getData();
+            })
+    }
     return (<>
         <ToastContainer />
         <div>
@@ -276,31 +317,14 @@ function Card() {
                     background: "#fafafa",
                 }}
             >
-                <div className="col-4 mt-4">
-                    <label>Tên thể loại</label>
-                    <Input placeholder="Nhập tên thể loại" />
+                <div className="col-4 mt-5">
+                    <Input placeholder="Hãng" value={trandemarkSearch} onChange={onChangeInputTrandemarkSearch} />
                 </div>
-                <div className="col-4 mt-4">
-                    <label>Trạng thái</label>
-                    <br />
-                    {/* <Select
-                        style={{ width: "300px", borderRadius: "5px" }}
-                        showSearch
-                        placeholder="Chọn trạng thái"
-                        optionFilterProp="children"
-                        onChange={onChange}
-                        onSearch={onSearch}
-                        filterOption={(input, option) =>
-                            option.children.toLowerCase().includes(input.toLowerCase())
-                        }
-                    >
-                        <Option value="jack">Hoạt động</Option>
-                        <Option value="lucy">Không hoạt động</Option>
-                    </Select> */}
+                <div className="col-4 mt-5">
+                    <Input placeholder="Bộ nhớ" value={memorySearch} onChange={onChangeInputMemorySearch} />
                 </div>
-                <div className="col-12 text-center ">
+                <div className="col-4 mt-5">
                     <Button
-                        className="mt-2"
                         type="primary-uotline"
                         // onClick={showModal}
                         style={{ borderRadius: "10px" }}
@@ -308,9 +332,9 @@ function Card() {
                         <ReloadOutlined />Đặt lại
                     </Button>
                     <Button
-                        className="mx-2  mt-2"
+                        className="mx-2 "
                         type="primary"
-                        // onClick={showModal}
+                        onClick={search}
                         style={{ borderRadius: "10px" }}
                     >
                         <SearchOutlined />Tìm kiếm
@@ -438,11 +462,7 @@ function Card() {
                             setDelete(false);
                         }}
                         onOk={() => {
-                            // axios.delete(`http://localhost:8080/api/card/` + cardDel.id, { data: cardDel }).then(
-                            //     // Observe the data keyword this time. Very important
-                            //     // payload is the request body
-                            //     // Do something
-                            // )
+                            Delete(cardDel);
                             setDelete(false);
                             // setLoading(true);
 
