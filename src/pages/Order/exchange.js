@@ -113,7 +113,7 @@ const Exchange = () => {
     data?.forEach((element) => {
       ExchangeDetail.push({
         productId: element.productId,
-        total: element.price,
+        // total: element.price,
         orderDetailId: item.id,
         quantity: 1,
       });

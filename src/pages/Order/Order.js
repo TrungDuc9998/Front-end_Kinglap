@@ -6,7 +6,7 @@ import {
   Button,
   Modal,
   DatePicker,
-  Radio,
+  Image,
   Space,
 } from "antd";
 import {
@@ -201,15 +201,18 @@ const Order = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        setDataPedning(results.data.data);
-        setLoading(false);
-        setTableParamsPending({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
+        if (results.status) console.log(results);
+        if (results.status === 200) {
+          setDataPedning(results.data.data);
+          setLoading(false);
+          setTableParamsPending({
+            pagination: {
+              current: results.data.current_page,
+              pageSize: 10,
+              total: results.data.total,
+            },
+          });
+        }
       });
   };
 
@@ -222,6 +225,7 @@ const Order = () => {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log(results);
         setDataSuccess(results.data.data);
         setLoading(false);
         setTableParamsSuccess({
@@ -412,16 +416,29 @@ const Order = () => {
       sorter: true,
       width: "13%",
       render: (payment) => {
-        return (
-          <>
-            <div
-              className="bg-info text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
-            </div>
-          </>
-        );
+        if (payment != "TẠI CỬA HÀNG") {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+              </div>
+            </>
+          );
+        } else {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                Tại cửa hàng
+              </div>
+            </>
+          );
+        }
       },
     },
     {
@@ -503,15 +520,16 @@ const Order = () => {
       dataIndex: "data",
       width: "8%",
       render: (id, data) => {
-        if (data.status === "CHO_XAC_NHAN") {
+        if (data.status != "DA_HUY") {
           return (
             <div className="thao_tac">
               <EyeOutlined
+                style={{ fontSize: "20px" }}
                 onClick={() => {
                   showModalData(data.id);
                 }}
               />
-              <EditOutlined
+              {/* <EditOutlined
                 onClick={() => {
                   console.log("key key");
                   navigate("update");
@@ -523,8 +541,9 @@ const Order = () => {
                   console.log(data.id);
                   setIDCancel(data.id);
                 }}
-              />
+              /> */}
               <PrinterOutlined
+                style={{ fontSize: "20px" }}
                 onClick={() => {
                   showModalOrder(data.id);
                 }}
@@ -537,11 +556,6 @@ const Order = () => {
               <EyeOutlined
                 onClick={() => {
                   showModalData(data.id);
-                }}
-              />
-              <PrinterOutlined
-                onClick={() => {
-                  showModalOrder(data.id);
                 }}
               />
             </div>
@@ -765,7 +779,6 @@ const Order = () => {
             type="primary"
             style={{ borderRadius: "10px" }}
             onClick={() => {
-              console.log("key key");
               navigate("create");
             }}
           >
@@ -837,6 +850,7 @@ const Order = () => {
               <thead>
                 <tr>
                   <th scope="col">Mã HDCT</th>
+                  <th>Hình ảnh</th>
                   <th scope="col">Tên sản phẩm</th>
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
@@ -848,6 +862,13 @@ const Order = () => {
                   return (
                     <tr key={index}>
                       <td>{item.id}</td>
+                      <td>
+                        {" "}
+                        <Image
+                          width={100}
+                          src={item.product.images[0]?.name}
+                        />{" "}
+                      </td>
                       <td>{item.product.name}</td>
                       <td>
                         {item.product.price.toLocaleString("it-IT", {
@@ -871,115 +892,152 @@ const Order = () => {
 
           <Modal
             title="Hiển thị hóa đơn"
-            visible={isOrder}
+            footer={null}
+            open={isOrder}
             onCancel={() => {
               setOrder(false);
             }}
           >
-            <div className="order" ref={componentRef}>
-              <div className="qrcode">
-                <QRCode
-                  size={256}
-                  style={{ height: "100px", width: "100px" }}
-                  value={
-                    "https://kinglap.000webhostapp.com/order/Order" +
-                    dataO?.id +
-                    ".pdf"
-                  }
-                  viewBox={`0 0 256 256`}
-                />
+            <div>
+              <div className="order" ref={componentRef}>
+                <div className="qrcode bg-primary">
+                  <QRCode
+                    size={256}
+                    style={{ height: "100px", width: "100px" }}
+                    value={
+                      "https://kinglap.000webhostapp.com/order/Order" +
+                      dataO?.id +
+                      ".pdf"
+                    }
+                    viewBox={`0 0 256 256`}
+                  />
+                </div>
+                <div className="title">
+                  <p className="fs-6">Số điện thoại: 0338861522</p>
+                  <p className="fs-6">Email: ptung539@gmail.com</p>
+                  <p className="fs-6">Địa chỉ: Lạng Giang - Bắc Giang</p>
+                  <p className="fs-6">
+                    Ngân hàng: NCB - Số tài khoản: 899983869999{" "}
+                  </p>
+                  <p className="fs-6">Chủ tài khoản: Nguyễn Văn A</p>
+                  <h2 className="fw-bold">HOÁ ĐƠN MUA HÀNG</h2>
+                </div>
+                <div className="">
+                  <p className="fw-bold">Mã hóa đơn: {dataO?.id}</p>
+                  <p className="fw-bold">
+                    Ngày mua hàng:{" "}
+                    <Moment format="DD-MM-YYYY">{dataO?.createdAt}</Moment>
+                  </p>
+                  <p className="fw-bold">
+                    Tên khách hàng: {dataO?.customerName}
+                  </p>
+                  <p className="fw-bold">Địa chỉ: {dataO?.address}</p>
+                  <p className="fw-bold">Số điện thoại: {dataO?.phone}</p>
+                  <table className="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th scope="col">Mã HDCT</th>
+                        <th scope="col">Tên sản phẩm</th>
+                        <th scope="col">Giá(VNĐ)</th>
+                        <th scope="col">Số lượng</th>
+                        <th scope="col" className="fw-bold">
+                          Tổng tiền(VNĐ)
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dataOD?.map((item, index) => {
+                        return (
+                          <tr key={index}>
+                            <td>{item.id}</td>
+                            <td>{item.product.name}</td>
+                            <td>
+                              {item.product.price.toLocaleString("it-IT", {
+                                style: "currency",
+                                currency: "VND",
+                              })}
+                            </td>
+                            <td>{item.quantity}</td>
+                            <td>
+                              {item.total.toLocaleString("it-IT", {
+                                style: "currency",
+                                currency: "VND",
+                              })}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      <tr>
+                        <td colSpan={4}>Tổng tiền</td>
+                        <td>
+                          {dataO?.total.toLocaleString("it-IT", {
+                            style: "currency",
+                            currency: "VND",
+                          })}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p className="fw-bold">
+                    Đã đặt cọc :{" "}
+                    <i className="text-danger fw-bold">
+                      {" "}
+                      {dataO?.money.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </i>
+                  </p>
+                  {/* <p className="fw-bold">
+                    Đã thanh toán :{" "}
+                    <i className="text-danger fw-bold">
+                      {" "}
+                      {dataO?.money.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </i>
+                  </p> */}
+                  <p className="fw-bold">
+                    Tổng số tiền phải thanh toán:{" "}
+                    <i className="text-danger">
+                      {(dataO?.total - dataO?.money).toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </i>
+                  </p>
+                  <p className="fw-bold">
+                    Trạng thái đơn hàng:
+                    <i className="text-danger">
+                      {dataO?.money === 0 ? "Đã thanh toán" : "Đã đặt cọc"}
+                    </i>
+                    {/* <i className="text-danger">
+                      {dataO
+                        ? dataO.status == "CHO_XAC_NHAN"
+                          ? " Chờ xác nhận"
+                          : dataO.status == "CHO_LAY_HANG"
+                          ? " Chờ lấy hàng"
+                          : dataO.status == "DANG_GIAO"
+                          ? " Đang giao"
+                          : dataO.status == "DA_NHAN"
+                          ? " Đã nhận"
+                          : " Đã hủy"
+                        : ""}
+                    </i> */}
+                  </p>
+                </div>
               </div>
-              <div className="title">
-                <p>Số điện thoại: 0338861522</p>
-                <p>Email: ptung539@gmail.com</p>
-                <p>Địa chỉ: Lạng Giang - Bắc Giang</p>
-                <p>Ngân hàng: NCB - Số tài khoản: 899983869999 </p>
-                <p>Chủ tài khoản: Nguyễn Văn A</p>
-                <h1>Hóa đơn mua hàng</h1>
-              </div>
-              <div className="content">
-                <h5>Mã hóa đơn: {dataO?.id}</h5>
-                <h5>
-                  Ngày mua hàng:
-                  <Moment format="DD-MM-YYYY">{dataO?.createdAt}</Moment>
-                </h5>
-                <h5>Tên khách hàng: {dataO?.customerName}</h5>
-                <h5>Địa chỉ: {dataO?.address}</h5>
-                <h5>Số điện thoại: {dataO?.phone}</h5>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th scope="col">Mã HDCT</th>
-                      <th scope="col">Tên sản phẩm</th>
-                      <th scope="col">Giá(VNĐ)</th>
-                      <th scope="col">Số lượng</th>
-                      <th scope="col">Tổng tiền(VNĐ)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dataOD?.map((item, index) => {
-                      return (
-                        <tr key={index}>
-                          <td>{item.id}</td>
-                          <td>{item.product.name}</td>
-                          <td>
-                            {item.product.price.toLocaleString("it-IT", {
-                              style: "currency",
-                              currency: "VND",
-                            })}
-                          </td>
-                          <td>{item.quantity}</td>
-                          <td>
-                            {item.total.toLocaleString("it-IT", {
-                              style: "currency",
-                              currency: "VND",
-                            })}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    <tr>
-                      <td colSpan={4}>Tổng tiền</td>
-                      <td>
-                        {dataO?.total.toLocaleString("it-IT", {
-                          style: "currency",
-                          currency: "VND",
-                        })}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <h5>
-                  Tổng số tiền phải thanh toán:{" "}
-                  {dataO?.total.toLocaleString("it-IT", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                </h5>
-                <h5>
-                  Trạng thái đơn hàng:
-                  {dataO
-                    ? dataO.status == "CHO_XAC_NHAN"
-                      ? " chờ xác nhận"
-                      : dataO.status == "CHO_LAY_HANG"
-                      ? " chờ lấy hàng"
-                      : dataO.status == "DANG_GIAO"
-                      ? " đang giao"
-                      : dataO.status == "DA_NHAN"
-                      ? " đã nhận"
-                      : " đã hủy"
-                    : ""}
-                </h5>
-              </div>
+              <ReactToPrint
+                className="text-center"
+                trigger={() => {
+                  return <button>Xuất hóa đơn</button>;
+                }}
+                content={() => componentRef.current}
+                documentTitle={"Order" + dataO?.id}
+                pageStyle="print"
+              />
             </div>
-            <ReactToPrint
-              trigger={() => {
-                return <button>Xuất hóa đơn</button>;
-              }}
-              content={() => componentRef.current}
-              documentTitle={"Order" + dataO?.id}
-              pageStyle="print"
-            />
           </Modal>
         </div>
       </div>

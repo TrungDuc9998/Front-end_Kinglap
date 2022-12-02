@@ -23,7 +23,7 @@ import axios from "axios";
 import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Order/ConfirmOrder.css"
+import "../Order/ConfirmOrder.css";
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -38,8 +38,10 @@ const onDelete = (record) => {
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchUsername: params.pagination?.search1,
+  searchName: params.pagination?.search1,
   searchStatus: params.pagination?.searchStatus,
+  searchStartDate: params.pagination?.searchStartDate,
+  searchEndDate: params.pagination?.searchEndDate,
 });
 
 const OrderDelivering = () => {
@@ -51,17 +53,34 @@ const OrderDelivering = () => {
   const [isView, setView] = useState(false);
   const [dataOrder, setDataOrder] = useState();
   const [put, setPut] = useState();
+  const [searchStartDate, setSearchStartDate] = useState();
+  const [searchEndDate, setSearchEndDate] = useState();
+  const [searchName, setSearchName] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
       searchStatus: "DANG_GIAO",
+      search1: "",
+      search2: "",
+      searchStartDate: "",
+      searchEndDate: "",
     },
   });
 
   useEffect(() => {
     loadDataOrder();
   }, [dataOrder != undefined]);
+
+  const onchangeSearch = (val, dateStrings) => {
+    setSearchStartDate(dateStrings[0]);
+    setSearchEndDate(dateStrings[1]);
+  };
+
+  const handleChangeDateSearch = (val, dateStrings) => {
+    if (dateStrings[0] != null) setSearchStartDate(dateStrings[0]);
+    if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
+  };
 
   const onConfirm = (record) => {
     const isPut = true;
@@ -78,6 +97,35 @@ const OrderDelivering = () => {
     });
   };
 
+  const search = () => {
+    if (searchStartDate != undefined && searchEndDate != undefined) {
+      console.log("vào");
+      tableParams.pagination.searchStartDate = searchStartDate;
+      tableParams.pagination.searchEndDate = searchEndDate;
+    }
+    console.log(searchName);
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.current = 1;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrder(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
   const onCancel = (record) => {
     const isPut = false;
     Modal.error({
@@ -91,6 +139,7 @@ const OrderDelivering = () => {
   };
 
   const confirmOrder = (record) => {
+    const sdt = record.phone;
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -103,7 +152,7 @@ const OrderDelivering = () => {
         status: "DA_NHAN",
         note: record.note | undefined,
         customerName: record.customerName,
-        phone: record.phone | undefined,
+        phone: sdt,
         orderDetails: [
           {
             id: record.orderDetails.id,
@@ -175,16 +224,29 @@ const OrderDelivering = () => {
       sorter: true,
       width: "20%",
       render: (payment) => {
-        return (
-          <>
-            <div
-              className="bg-info text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
-            </div>
-          </>
-        );
+        if (payment != "TẠI CỬA HÀNG") {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+              </div>
+            </>
+          );
+        }else {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+               Tại cửa hàng
+              </div>
+            </>
+          );
+        }
       },
     },
     {
@@ -280,6 +342,12 @@ const OrderDelivering = () => {
     });
   };
 
+  const clearSearchForm = () => {
+    loadDataOrder();
+    setSearchName("");
+    // setSearchStartDate();
+    // searchEndDate()
+  };
   const resetEditing = () => {
     setEditing(false);
   };
@@ -293,6 +361,7 @@ const OrderDelivering = () => {
           <h4 className="text-danger fw-bold">Đơn hàng đang giao</h4>
         </div>
       </div>
+
       <div
         className="row"
         style={{
@@ -303,22 +372,38 @@ const OrderDelivering = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Tên khách hàng</label>
-          <Input placeholder="Nhập tên khách hàng" />
+        <div className="col-4 mt-3">
+          <label>Từ khoá</label>
+          <Input
+            type="text"
+            name="searchName"
+            value={searchName}
+            placeholder="Nhập tên khách hàng"
+            onChange={(e) => setSearchName(e.target.value)}
+          />
         </div>
-        <div className="col-6 mt-4">
+        <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
           <br />
-          <Space className="mx-2" direction="vertical" size={12}>
-            <RangePicker size={"middle"} />
+          <Space
+            direction="vertical"
+            size={12}
+            style={{ width: "100%", borderRadius: "5px" }}
+          >
+            <RangePicker
+              showTime={{ format: "HH:mm:ss" }}
+              format={"yyyy-MM-DD HH:mm:ss"}
+              onChange={onchangeSearch}
+              onCalendarChange={handleChangeDateSearch}
+              type="datetime"
+            />
           </Space>
         </div>
-        <div className="col-12 text-center ">
+        <div className="col-12 text-center mt-4">
           <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={showModal}
+            onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -327,7 +412,7 @@ const OrderDelivering = () => {
           <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={showModal}
+            onClick={search}
             style={{ borderRadius: "10px" }}
           >
             <SearchOutlined />
@@ -335,7 +420,6 @@ const OrderDelivering = () => {
           </Button>
         </div>
       </div>
-
       <div
         className="mt-4 row"
         style={{
@@ -366,7 +450,8 @@ const OrderDelivering = () => {
             Bạn có muốn xác nhận đơn hàng không ?
           </Modal> */}
 
-          <Modal id="a"
+          <Modal
+            id="a"
             title="Chi tiết đơn hàng"
             open={isView}
             onCancel={() => {

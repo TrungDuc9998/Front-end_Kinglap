@@ -41,8 +41,10 @@ const onDelete = (record) => {
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchUsername: params.pagination?.search1,
+  searchName: params.pagination?.search1,
   searchStatus: params.pagination?.searchStatus,
+  searchStartDate: params.pagination?.searchStartDate,
+  searchEndDate: params.pagination?.searchEndDate,
 });
 
 const OrderSuccess = () => {
@@ -54,11 +56,18 @@ const OrderSuccess = () => {
   const [isView, setView] = useState(false);
   const [dataOrder, setDataOrder] = useState();
   const [put, setPut] = useState();
+  const [searchStartDate, setSearchStartDate] = useState();
+  const [searchEndDate, setSearchEndDate] = useState();
+  const [searchName, setSearchName] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
       searchStatus: "DA_NHAN",
+      search1: "",
+      search2: "",
+      searchStartDate: "",
+      searchEndDate: "",
     },
   });
 
@@ -91,6 +100,35 @@ const OrderSuccess = () => {
     });
   };
 
+  const search = () => {
+    if (searchStartDate != undefined && searchEndDate != undefined) {
+      console.log("vào");
+      tableParams.pagination.searchStartDate = searchStartDate;
+      tableParams.pagination.searchEndDate = searchEndDate;
+    }
+    console.log(searchName);
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.current = 1;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/orders?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrder(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
       console.log(res.data);
@@ -99,7 +137,23 @@ const OrderSuccess = () => {
     setView(true);
   };
 
+  const onchangeSearch = (val, dateStrings) => {
+    setSearchStartDate(dateStrings[0]);
+    setSearchEndDate(dateStrings[1]);
+  };
+
+  const handleChangeDateSearch = (val, dateStrings) => {
+    if (dateStrings[0] != null) setSearchStartDate(dateStrings[0]);
+    if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
+  };
+
+  const clearSearchForm = () => {
+    loadDataOrder();
+    setSearchName("");
+  };
+
   const confirmOrder = (record) => {
+    const sdt = record.phone;
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -112,7 +166,7 @@ const OrderSuccess = () => {
         status: "DA_NHAN",
         note: record.note | undefined,
         customerName: record.customerName | undefined,
-        phone: record.phone | undefined,
+        phone: sdt,
         orderDetails: [
           {
             id: record.orderDetails.id,
@@ -177,16 +231,29 @@ const OrderSuccess = () => {
       sorter: true,
       width: "20%",
       render: (payment) => {
-        return (
-          <>
-            <div
-              className="bg-info text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
-            </div>
-          </>
-        );
+        if (payment != "TẠI CỬA HÀNG") {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+              </div>
+            </>
+          );
+        } else {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                Tại cửa hàng
+              </div>
+            </>
+          );
+        }
       },
     },
     {
@@ -313,27 +380,38 @@ const OrderSuccess = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Tên khách hàng</label>
-          <Input placeholder="Nhập tên khách hàng" />
+        <div className="col-4 mt-3">
+          <label>Từ khoá</label>
+          <Input
+            type="text"
+            name="searchName"
+            value={searchName}
+            placeholder="Nhập tên khách hàng"
+            onChange={(e) => setSearchName(e.target.value)}
+          />
         </div>
-        <div className="col-6 mt-4">
+        <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
           <br />
           <Space
-            className="mx-2"
             direction="vertical"
-            style={{ minWidth: "90%" }}
             size={12}
+            style={{ width: "100%", borderRadius: "5px" }}
           >
-            <RangePicker size={"middle"} />
+            <RangePicker
+              showTime={{ format: "HH:mm:ss" }}
+              format={"yyyy-MM-DD HH:mm:ss"}
+              onChange={onchangeSearch}
+              onCalendarChange={handleChangeDateSearch}
+              type="datetime"
+            />
           </Space>
         </div>
-        <div className="col-12 text-center mt-4 ">
+        <div className="col-12 text-center mt-4">
           <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={showModal}
+            onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -342,7 +420,7 @@ const OrderSuccess = () => {
           <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={showModal}
+            onClick={search}
             style={{ borderRadius: "10px" }}
           >
             <SearchOutlined />
