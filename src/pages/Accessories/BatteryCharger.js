@@ -284,7 +284,7 @@ const BatteryCharger = () => {
               }}
             />
             <DeleteOutlined
-              onClick={() => onDelete(id)}
+              onClick={() => onDelete(data.id)}
               style={{ color: "red", marginLeft: 12 }}
             />
           </>
@@ -296,7 +296,7 @@ const BatteryCharger = () => {
   //APILoadList
   const getData = () => {
     setLoading(true);
-    axios.get(url + `/staff/batteryCharger?${qs.stringify(
+    axios.get(url + `/auth/batteryCharger?${qs.stringify(
       getRandomuserParams(tableParams)
     )}`)
       .then((results) => {
@@ -375,7 +375,7 @@ const BatteryCharger = () => {
       notifyError('Tỉ lệ phải từ 0-100!');
     } else {
       e.preventDefault();
-      axios.post(url+"/admin/batteryCharger", form)
+      axios.post(url+"/staff/batteryCharger", form)
         .then(res => {
           notifySuccess('Thêm bản ghi thành công')
           // setAdd(false);
@@ -488,7 +488,7 @@ const BatteryCharger = () => {
         className="row"
         style={{
           borderRadius: "20px",
-          height: "150px",
+          height: "auto",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
