@@ -6,7 +6,7 @@ import {
   Button,
   Modal,
   DatePicker,
-  Radio,
+  Image,
   Space,
 } from "antd";
 import {
@@ -27,7 +27,7 @@ import { useNavigate } from "react-router-dom";
 import Item from "antd/lib/list/Item";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const url = "http://localhost:8080/api/staff/returns";
+const url = "http://localhost:8080/api/returns";
 const onDelete = (record) => {
   Modal.confirm({
     title: "Xoá thể loại",
@@ -83,8 +83,11 @@ const ReturnConfirm = () => {
     const returnDetail = [];
     record.returnDetailEntities.forEach((item) => {
       returnDetail.push({
-        productId: item.productId,
+        productId: item.productId.id,
+        orderDetailId: item.orderDetail.id,
         quantity: item.quantity,
+        status: isPut == true ? "DA_XAC_NHAN" : "KHONG_XAC_NHAN",
+        id: item.id,
       });
     });
     console.log(returnDetail);
@@ -95,20 +98,28 @@ const ReturnConfirm = () => {
         orderId: record.orderId,
         reason: record.reason,
         description: record.description,
-        status: isPut === true ? "DA_XU_LY" : "CHUA_XU_LY",
-        isCheck: "2",
+        status: isPut === true ? "DA_XU_LY" : "KHONG_XU_LY",
+        isCheck: 2,
         returnDetailEntities: returnDetail,
       }),
-    }).then((res) => {});
-    console.log(returnDetail[0].productId);
-    fetch(`http://localhost:8080/api/orders/${record.orderId}/updateReturn`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        productId: returnDetail[0].productId,
-        quantity: returnDetail[0].quantity,
-      }),
-    }).then((res) => {});
+    }).then((res) => {
+      loadDataExchange();
+    });
+    if (isPut === true) {
+      fetch(
+        `http://localhost:8080/api/orders/${record.orderId}/update/${record.returnDetailEntities[0].orderDetail.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: returnDetail[0].productId,
+            quantity: returnDetail[0].quantity,
+          }),
+        }
+      ).then((res) => {
+        loadDataExchange();
+      });
+    }
   };
 
   const onCancel = (record) => {
@@ -171,7 +182,7 @@ const ReturnConfirm = () => {
       dataIndex: "status",
       with: "40%",
       render: (status) => {
-        if (status === "YEU_CAU") {
+        if (status === "CHUA_XU_LY") {
           return (
             <>
               <div
@@ -182,7 +193,7 @@ const ReturnConfirm = () => {
               </div>
             </>
           );
-        } else if (status === "XAC_NHAN") {
+        } else if (status === "DA_XU_LY") {
           return (
             <>
               <div
@@ -212,7 +223,7 @@ const ReturnConfirm = () => {
       width: "30%",
       dataIndex: "id",
       render: (id, record) => {
-        if (record.status === "YEU_CAU") {
+        if (record.status === "CHUA_XU_LY") {
           return (
             <>
               <EyeOutlined
@@ -364,7 +375,7 @@ const ReturnConfirm = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            // rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={dataExchange}
             pagination={tableParams.pagination}
             loading={loading}
@@ -392,11 +403,14 @@ const ReturnConfirm = () => {
               setView(false);
             }}
           >
-            <table class="table">
+            <table className="table">
               <thead>
                 <tr>
                   <th>STT</th>
-                  <th scope="col">Tên sản phẩm</th>
+                  <td>Hình ảnh</td>
+                  <td>Sản phẩm trước đó</td>
+                  {/* <th>Hình ảnh</th>
+                  <th scope="col">Tên sản phẩm</th> */}
                   <th scope="col">Số lượng</th>
                 </tr>
               </thead>
@@ -405,7 +419,13 @@ const ReturnConfirm = () => {
                   return (
                     <tr key={index}>
                       <td>{item.id}</td>
-                      <td>{item.productId}</td>
+                      <td>
+                        <Image
+                          width={90}
+                          src={item.orderDetail.product.images[0]?.name}
+                        />{" "}
+                      </td>
+                      <td>{item.orderDetail.product.name}</td>
                       <td>{item.quantity}</td>
                     </tr>
                   );

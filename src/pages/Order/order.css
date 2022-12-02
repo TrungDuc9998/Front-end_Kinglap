@@ -36,15 +36,15 @@
 
 .title {
     text-align: center;
-    margin-top: 10%;
+    margin-top: 0%;
 }
 
-.title > p {
+/* .title > p {
     font-size: 20px;
     font-weight: 700;
     line-height: 10px;
     margin: 20px;
-}
+} */
 
 .title > h1 {
     font-size: 55px;
@@ -90,6 +90,4 @@
     position: absolute;
     right: 5%;
     top: 5%;
-
-    display: none;
 }
