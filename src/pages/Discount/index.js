@@ -22,6 +22,8 @@ import Moment from 'react-moment';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const url = 'http://localhost:8080/api/discount';
+const urlStaff = 'http://localhost:8080/api/staff/discount';
+const urlAdmin = 'http://localhost:8080/api/admin/discount';
 const url_Pro = 'http://localhost:8080/api/products';
 
 export function compareTime(endDate) {
@@ -340,7 +342,7 @@ const Discount = () => {
   };
   //loadFormEdit
   const showModalEdit = (id) => {
-    axios.get(url + "/" + id)
+    axios.get(urlStaff + "/" + id)
       .then(res => {
         console.log(res.data.data);
         setValues(res.data.data);
@@ -353,7 +355,7 @@ const Discount = () => {
   };
 
   const draft = () => {
-    axios.post(url + "/draft", form)
+    axios.post(urlStaff + "/draft", form)
       .then(res => {
         notifySuccess('Lưu bản nháp thành công!')
         setAdd(false);
@@ -377,7 +379,7 @@ const Discount = () => {
       notifyError('Tỉ lệ phải từ 0-100!');
     } else {
       e.preventDefault();
-      axios.post(url, form)
+      axios.post(urlStaff, form)
         .then(res => {
           notifySuccess('Thêm bản ghi thành công')
           setAdd(false);
@@ -406,7 +408,7 @@ const Discount = () => {
       notifyError('Tỉ lệ phải từ 0-100!');
     } else {
       e.preventDefault();
-      axios.put(url + "/" + form.id, form)
+      axios.put(urlStaff + "/" + form.id, form)
         .then(res => {
           notifySuccess('Sửa bản ghi thành công')
           getData();
@@ -428,7 +430,7 @@ const Discount = () => {
       title: "Xoá giảm giá",
       content: "Bạn có muốn xoá bản ghi này không?",
       onOk() {
-        axios.delete(url + "/" + id)
+        axios.delete(urlAdmin + "/" + id)
           .then(res => {
             notifySuccess('Xóa bản ghi thành công!')
             getData();
@@ -576,7 +578,7 @@ const Discount = () => {
   }
   const handleConfirmActive = (id, data) => {
     if (data.active == 0 || data.active == 2) {
-      axios.put(url + "/active/" + id)
+      axios.put(urlAdmin + "/active/" + id)
         .then(res => {
           notifySuccess('Chuyển trạng thái hoạt động thành công!')
           getData();
@@ -584,7 +586,7 @@ const Discount = () => {
         }
         )
     } else if (data.active == 1) {
-      axios.put(url + "/inactive/" + id)
+      axios.put(urlAdmin + "/inactive/" + id)
         .then(res => {
           notifySuccess('Chuyển trạng thái không hoạt động thành công!')
           getData();
