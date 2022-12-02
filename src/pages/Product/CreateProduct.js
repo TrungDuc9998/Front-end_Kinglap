@@ -1,27 +1,20 @@
 import {
   PlusCircleFilled,
-  ReloadOutlined,
-  UploadOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  listAll,
-  list,
-} from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { storage } from "../../image/firebase/firebase";
 import { v4 } from "uuid";
-import { Button, Input, Select, DatePicker, Space, Carousel, Image } from "antd";
+import { Button, Input, Select, DatePicker, Space, Image, Form } from "antd";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
 import qs from "qs";
+import "./product.css";
+const { TextArea } = Input;
 import moment from "moment";
-
-
 
 const dateFormat = "YYYY/MM/DD";
 //phụ kiện
@@ -30,15 +23,33 @@ const handleChange = (value) => {
   console.log(`selected ${value}`);
 };
 
+const getRandomuserParams = (params) => ({
+  limit: params.pagination?.pageSize,
+  page: params.pagination?.current,
+});
+
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 2000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
+
 function CreateProduct() {
   //css Image
   const contentStyle = {
     margin: 0,
-    height: '160px',
-    color: '#fff',
-    lineHeight: '160px',
-    textAlign: 'center',
-    background: '#364d79',
+    height: "160px",
+    color: "#fff",
+    lineHeight: "160px",
+    textAlign: "center",
+    background: "#364d79",
   };
   const [screenSize, setScreenSize] = useState("11.6 inch");
   const [resolution, setResolution] = useState("HD (1366 x 768)");
@@ -70,6 +81,14 @@ function CreateProduct() {
   const [categoryId, setCategoryId] = useState(1);
   const [manufacture, setManufacture] = useState([]);
   const [manufactureId, setManufactureId] = useState(1);
+  const [dataOrigin, setDataOrigin] = useState();
+  const [processors, setProcessors] = useState([]);
+  const [dataScreen, setDataScreen] = useState([]);
+  const [dataRam, setDataRam] = useState([]);
+  const [dataCard, setDataCard] = useState([]);
+  const [dataStorage, setDataStorage] = useState([]);
+  const [dataAccessory, setDataAccessory] = useState([]);
+  const [dataColor, setDataColor] = useState([]);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -81,70 +100,217 @@ function CreateProduct() {
   const [imageUpload, setImageUpload] = useState(null);
   const [imageUrls, setImageUrls] = useState([]);
   const [images, setImages] = useState([]);
-  //const [images, setImages] = useState([{ name: "" }]);
-
-  const imagesListRef = ref(storage, "images/");//all url
+  const imagesListRef = ref(storage, "images/"); //all url
   const uploadFile = () => {
     if (imageUpload == null) return;
     const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
-    // console.log("imageUpload",imageUpload)//File { name:,...}
     // console.log("imageRef",imageRef)//_service: {…}, _location: {…}
     uploadBytes(imageRef, imageUpload).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
         setImages((prev) => [...prev, url]);
-        console.log("snapshot.ref",snapshot.ref)//_service: {…}, _location: {…}
-        setImageUrls((prev) => [...prev, url]);//set url ->all url
+        console.log("snapshot.ref", snapshot.ref); //_service: {…}, _location: {…}
+        setImageUrls((prev) => [...prev, url]); //set url ->all url
       });
-    // console.log("imageUrls",imageUrls)
-      alert("upload image success");
+      toastSuccess("upload ảnh thành công !");
     });
   };
+
+  const [form] = Form.useForm();
 
   //xử lý sau khi uploadfile
   useEffect(() => {
     listAll(imageUpload).then((response) => {
       // console.log("imagesListRef",imagesListRef)
       response.items.forEach((item) => {
-        console.log("item",item)
         getDownloadURL(item).then((url) => {
           setImageUrls((prev) => [...prev, url]);
           setImages((prev) => [...prev, url]);
         });
       });
     });
+    loadDataOrigin();
+    loadDataProcess();
+    loadDataScreen();
+    loadDataRam();
+    loadDataCard();
+    loadDataBattery();
+    loadDataManufacture();
+    loadDataAccessor();
+    loadDataStorage();
+    loadDataColor();
   }, [images]);
 
-  const handleClickRemove=(url)=>{
-    const urlImg=imageUrls.filter(i=>i!==url)
-    console.log("urlImg", urlImg)
-    (setImageUrls(urlImg));
-   }
+  const loadDataColor = () => {
+    fetch(
+      `http://localhost:8080/api/auth/colors?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataColor(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
 
-  
+  const loadDataBattery = () => {
+    fetch(
+      `http://localhost:8080/api/staff/batteryCharger?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setBattery(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataAccessor = () => {
+    fetch(
+      `http://localhost:8080/api/auth/accessory?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataAccessory(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataCard = () => {
+    fetch(
+      `http://localhost:8080/api/card?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataCard(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataRam = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/auth/rams?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataRam(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataOrigin = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/staff/origin?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrigin(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataScreen = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/auth/screens?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataScreen(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const handleClickRemove = (url) => {
+    const urlImg = imageUrls.filter((i) => i !== url);
+    console.log("urlImg", urlImg)(setImageUrls(urlImg));
+  };
+
   function getDate() {
     var now = new Date();
     var year = now.getFullYear();
     var month = now.getMonth() + 1;
     var day = now.getDate();
     if (month.toString().length == 1) {
-      month = '0' + month;
+      month = "0" + month;
     }
     if (day.toString().length == 1) {
-      day = '0' + day;
+      day = "0" + day;
     }
-    var date = year + '/' + month + '/' + day;
+    var date = year + "/" + month + "/" + day;
     return date;
   }
 
-  const handleChangeDate = (val, dateStrings) => {
-    setDebut(dateStrings);
+  const handleChangeDate = (date, dateString) => {
+    console.log(date, dateString);
   };
 
   //Calendar
   const setDates = (val, dateStrings) => {
     console.log(dateStrings);
-    if (dateStrings!= null)
-    setDebut(dateStrings);
+    if (dateStrings != null) setDebut(dateStrings);
   };
 
   const notify = () => {
@@ -167,16 +333,65 @@ function CreateProduct() {
     searchStatus: params.pagination?.search2,
   });
 
-  const loadDataManufacture = () => {
+  const loadDataStorage = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/manufactures?${qs.stringify(
+      `http://localhost:8080/api/storage_details?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results.data.data);
+        setDataStorage(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const loadDataProcess = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/auth/processors?${qs.stringify(
+        getRandomMuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setProcessors(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
+  const normFile = (e) => {
+    console.log("Upload event:", e);
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
+  const loadDataManufacture = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/staff/manufactures?${qs.stringify(
+        getRandomMuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
         setManufacture(results.data.data);
         setLoading(false);
         setTableParams({
@@ -192,13 +407,12 @@ function CreateProduct() {
   const loadDataCategory = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/category?${qs.stringify(
+      `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results.data.data);
         setCategory(results.data.data);
         setLoading(false);
         setTableParams({
@@ -266,26 +480,31 @@ function CreateProduct() {
         origin: product.origin,
         categoryId: product.categoryId,
         manufactureId: product.manufactureId,
-        length:product.length,
-        width:product.width,
-        height:product.height,
-        images:imageUrls.map((item) => 
-          ({name:item,
-          product:null,
-          return_id:null,
-          exchange_id:null}))
-        ,
+        length: product.length,
+        width: product.width,
+        height: product.height,
+        images: imageUrls.map((item) => ({
+          name: item,
+          product: null,
+          return_id: null,
+          exchange_id: null,
+        })),
         configuration: {
           processor: product.configuration.processor,
           ram: product.configuration.ram,
-          slot : product.configuration.slot,
+          slot: product.configuration.slot,
           battery: product.configuration.battery,
           security: product.configuration.security,
-          screen: product.configuration.screenSize + " " + product.configuration.resolution + " " + product.configuration.frequency,
+          screen:
+            product.configuration.screenSize +
+            " " +
+            product.configuration.resolution +
+            " " +
+            product.configuration.frequency,
           optical: product.configuration.optical,
           hard_drive: product.configuration.hard_drive,
           win: product.configuration.win,
-          capacity: product.configuration.capacity
+          capacity: product.configuration.capacity,
         },
       }),
     }).then((res) => {
@@ -293,7 +512,73 @@ function CreateProduct() {
       notify();
     });
   };
-  
+
+  const onReset = () => {
+    form.resetFields();
+  };
+
+  const handleSubmit = (data) => {
+    console.log(data);
+    // if (isUpdate === false) {
+    data.status = "ACTIVE";
+    data.debut = moment(data.debut).format("yyyy");
+
+    const quantity = Number(data.quantity);
+    console.log(quantity);
+    data.images = imageUrls.map((item) => ({
+      name: item,
+      product: null,
+      return_id: null,
+      exchange_id: null,
+    }));
+
+    const product = {
+      name: data.name,
+      quantity: Number(data.quantity),
+      price: Number(data.price),
+      imei: data.imei,
+      weight: Number(data.weight),
+      height: Number(data.height),
+      width: Number(data.width),
+      length: Number(data.length),
+      debut: data.debut,
+      categoryId: data.categoryId,
+      manufactureId: data.manufactureId,
+      images: data.images,
+      status: "ACTIVE",
+      processorId: data.processorId,
+      screenId: data.screenId,
+      cardId: data.cardId,
+      originId: data.originId,
+      colorId: data.colorId,
+      batteryId: data.batteryId,
+      ramId: data.ramId,
+      win: data.win,
+      material: data.material,
+      cardOnboard: data.cardOnboard,
+      accessoryId: data.accessoryId,
+      security: data.security,
+      description: data.description,
+    };
+
+    console.log(product);
+
+    fetch("http://localhost:8080/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(product),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+        onReset();
+        toastSuccess("Thêm mới thành công !");
+        // toastSuccess("Thêm mới thành công !");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   return (
     <div
@@ -305,453 +590,630 @@ function CreateProduct() {
         background: "#fafafa",
       }}
     >
+      <ToastContainer></ToastContainer>
       <div>
-        <div className="row">
-          <div className=" mt-4 col-4">
-            <label>Tên sản phẩm</label>
-            <Input
-              placeholder="Tên sản phẩm"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+        <Form
+          form={form}
+          className="me-2 ms-2"
+          initialValues={{
+            cpuCompany: name,
+          }}
+          layout="vertical"
+          autoComplete="off"
+          onFinish={(values) => {
+            handleSubmit(values);
+            console.log({ values });
+          }}
+          onFinishFailed={(error) => {
+            console.log({ error });
+          }}
+        >
+          <div className="row">
+            <div className=" mt-4 col-4">
+              <Form.Item
+                className="mt-2"
+                name="name"
+                label="Tên sản phẩm"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tên sản phẩm không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input
+                  style={{ width: "100%" }}
+                  placeholder="Nhập tên sản phẩm"
+                  value={name}
+                />
+              </Form.Item>
+            </div>
+            <div className=" mt-4 col-4">
+              <Form.Item
+                className="mt-2"
+                name="imei"
+                label="Mã máy"
+                rules={[
+                  {
+                    required: true,
+                    message: "Mã máy không được để trống",
+                  },
+                  { whitespace: true, message: "Giá trị lớn hơn 3 ký tự" },
+                  { min: 3, message: "Giá trị lớn hơn 3 ký tự" },
+                ]}
+                hasFeedback
+              >
+                <Input
+                  style={{ width: "100%" }}
+                  placeholder="Nhập mã máy"
+                  value={imei}
+                />
+              </Form.Item>
+            </div>
+            <div className="col-4 mt-4">
+              <Form.Item
+                className="mt-2"
+                name="categoryId"
+                label="Thể loại sản phẩm"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Thể loại sản phẩm không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn thể loại">
+                  {category.map((cate) => (
+                    <Select.Option value={cate.id}>{cate.name}</Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
           </div>
-          <div className="col-4 mt-4">
-            <label>P/N</label>
-            <Input
-              placeholder="P/N"
-              value={p_n}
-              onChange={(e) => setPN(e.target.value)}
-            />
+          <div className="row">
+            <div className="  col-4">
+              <Form.Item
+                className="mt-2"
+                name="price"
+                label="Giá tiền"
+                rules={[
+                  {
+                    required: true,
+                    message: "Giá tiền không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 6 },
+                ]}
+                hasFeedback
+              >
+                <Input
+                  style={{ width: "100%" }}
+                  placeholder="Nhập giá tiền"
+                  value={price}
+                />
+              </Form.Item>
+            </div>
+            <div className=" col-4">
+              <Form.Item
+                className="mt-2"
+                name="quantity"
+                label="Số lượng"
+                rules={[
+                  {
+                    required: true,
+                    message: "Giá tiền không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input
+                  type="number"
+                  style={{ width: "100%" }}
+                  placeholder="Nhập giá tiền"
+                  value={quantity}
+                />
+              </Form.Item>
+            </div>
+            <div className="col-4 ">
+              <Form.Item
+                className="mt-2"
+                name="colorId"
+                label="Màu sắc"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Màu sắc không được để trống",
+                  },
+                ]}
+              >
+                <Select mode="multiple" placeholder="Chọn màu">
+                  {dataColor?.map((item) => (
+                    <Select.Option value={item.id}>{item.name}</Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
           </div>
-          <div className="col-4 mt-4">
-            <label>IMEI</label>
-            <Input
-              placeholder="IMEI"
-              value={imei}
-              onChange={(e) => setImei(e.target.value)}
-            />
+          <div className="row">
+            <div className="col-2">
+              <Form.Item
+                name="length"
+                label="Chiều dài"
+                rules={[
+                  {
+                    required: true,
+                    message: "Chiều dài không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input
+                  style={{ width: "100%" }}
+                  placeholder="Chiều dài"
+                  type="number"
+                  value={length}
+                />
+              </Form.Item>
+            </div>
+            <div className=" col-2">
+              <Form.Item
+                name="width"
+                label="Chiều rộng"
+                rules={[
+                  {
+                    required: true,
+                    message: "Chiều rộng được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input
+                  style={{ width: "100%" }}
+                  placeholder="Chiều rộng"
+                  value={width}
+                  type="number"
+                />
+              </Form.Item>
+            </div>
+            <div className=" col-2">
+              <Form.Item
+                name="height"
+                label="Chiều cao"
+                rules={[
+                  {
+                    required: true,
+                    message: "Chiều cao không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input
+                  style={{ width: "100%" }}
+                  placeholder="Chiều cao"
+                  type="number"
+                />
+              </Form.Item>
+            </div>
+            <div className=" col-2">
+              <Form.Item
+                name="weight"
+                label="Cân nặng"
+                rules={[
+                  {
+                    required: true,
+                    message: "Cân nặng không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input
+                  style={{ width: "100%" }}
+                  placeholder="Cân nặng"
+                  type="number"
+                />
+              </Form.Item>
+            </div>
+            <div className="col-2">
+              <Form.Item
+                label="Năm sản xuất"
+                name="debut"
+                rules={[
+                  {
+                    required: true,
+                    message: "Năm sản xuất không được để trống",
+                  },
+                ]}
+              >
+                <DatePicker picker="year" />
+              </Form.Item>
+            </div>
+            <div className="col-2">
+              <Form.Item
+                className=""
+                name="originId"
+                label="Xuất xứ"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Xuất xứ không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn xuất xứ">
+                  {dataOrigin?.map((cate) => (
+                    <Select.Option value={cate.id}>{cate.name}</Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
           </div>
-        </div>
-        <div className="row">
-          <div className="col-4">
-            <label>Giá tiền</label>
-            <Input
-              placeholder="Giá tiền"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
+          <div className="row">
+            <div className="col-4">
+              <Form.Item
+                name="material"
+                label="Chất liệu"
+                rules={[
+                  {
+                    required: true,
+                    message: "Chất liệu không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input style={{ width: "100%" }} placeholder="Nhập chất liệu" />
+              </Form.Item>
+            </div>
+            <div className="col-4">
+              <Form.Item
+                name="ramId"
+                label="Ram"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Ram không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn ram">
+                  {dataRam?.map((item) => (
+                    <Select.Option value={item.id}>
+                      {item.ramCapacity +
+                        " " +
+                        item.typeOfRam +
+                        " " +
+                        item.ramSpeed +
+                        " " +
+                        item.maxRamSupport}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <div className="col-4">
+              <Form.Item
+                name="processorId"
+                label="CPU"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "CPU không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn CPU">
+                  {processors?.map((item) => (
+                    <Select.Option value={item.id}>
+                      {item.cpuCompany +
+                        " " +
+                        item.cpuTechnology +
+                        " " +
+                        item.cpuType +
+                        " " +
+                        item.cpuSpeed}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
           </div>
-          <div className="col-4">
-            <label>Số lượng</label>
-            <Input
-              placeholder="Số lượng"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
+          <div className="row">
+            <div className="col-4">
+              <Form.Item
+                name="screenId"
+                label="Màn hình"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Màn hình không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn màn hình">
+                  {dataScreen?.map((item) => (
+                    <Select.Option value={item.id}>
+                      {item.size +
+                        " " +
+                        item.screenTechnology +
+                        " " +
+                        item.resolution +
+                        " " +
+                        item.screenType}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <div className="col-4">
+              <Form.Item
+                name="cardId"
+                label="Card rời"
+                rules={[
+                  {
+                    required: true,
+                    message: "Card rời không được để trống",
+                  },
+                ]}
+                requiredMark="optional"
+              >
+                <Select placeholder="Chọn card rời">
+                  {dataCard?.map((item) => (
+                    <Select.Option value={item.id}>
+                      {item.trandemark + " " + item.model + " " + item.memory}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <div className="col-4">
+              <Form.Item
+                name="win"
+                label="Hệ điều hành"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Hệ điều hành không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn hệ điều hành">
+                  <Select.Option value="Linux">Linux</Select.Option>
+                  <Select.Option value="Window">Window</Select.Option>
+                  <Select.Option value="MacOS">MacOS</Select.Option>
+                </Select>
+              </Form.Item>
+            </div>
+            <div className="col-4">
+              <Form.Item
+                name="cardOnboard"
+                label="Card onboard"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Card rời không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn card onboard">
+                  {dataCard?.map((item) => (
+                    <Select.Option value={item.id}>
+                      {item.trandemark + " " + item.model + " " + item.memory}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <div className="col-4">
+              <Form.Item
+                name="storageId"
+                label="Lưu trữ"
+                rules={[
+                  {
+                    required: true,
+                    message: "Lưu trữ không được để trống",
+                  },
+                ]}
+                requiredMark="optional"
+              >
+                <Select placeholder="Chọn ổ cứng">
+                  {dataStorage?.map((item) => (
+                    <Select.Option value={item.id}>
+                      {item.storageType.name +
+                        " " +
+                        item.type +
+                        " " +
+                        item.capacity}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <div className="col-4">
+              <Form.Item
+                name="batteryId"
+                label="Pin"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Pin không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn loại pin">
+                  {battery?.map((item) => (
+                    <Select.Option value={item.id}>
+                      {item.batteryType +
+                        " " +
+                        item.battery +
+                        " " +
+                        item.charger}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
           </div>
-          <div className="col-4">
-            <label>Kích thước</label>
-            <Input
-              placeholder="Kích thước"
-              value={size}
-              onChange={(e) => setSize(e.target.value)}
-            />
+          <div className="row">
+            <div className="col-4">
+              <Form.Item
+                name="manufactureId"
+                label="Hãng sản xuất"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Hãng sản xuất không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Chọn loại pin">
+                  {manufacture?.map((item) => (
+                    <Select.Option value={item.id}>{item.name}</Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <div className="col-4">
+              <Form.Item
+                className=""
+                name="security"
+                label="Bảo mật"
+                rules={[
+                  {
+                    required: true,
+                    message: "Bảo mật không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input style={{ width: "100%" }} placeholder="Bảo mật" />
+              </Form.Item>
+            </div>
+            <div className="col-4">
+              <Form.Item
+                name="accessoryId"
+                label="Phụ kiện trong hộp"
+                requiredMark="optional"
+                rules={[
+                  {
+                    required: true,
+                    message: "Phụ kiện không được để trống",
+                  },
+                ]}
+              >
+                <Select mode="multiple" placeholder="Chọn các phụ kiện">
+                  {dataAccessory?.map((item) => (
+                    <Select.Option value={item.id}>{item.name}</Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
           </div>
-        </div>
-        <div className="row">
-          <div className="col-4">
-            <label>Độ dài</label>
-            <Input
-              placeholder="Độ dài"
-              value={length}
-              onChange={(e) => setLength(e.target.value)}
-            />
-          </div>
-          <div className="col-4">
-            <label>Độ rộng</label>
-            <Input
-              placeholder="Độ rộng"
-              value={width}
-              onChange={(e) => setWidth(e.target.value)}
-            />
-          </div>
-          <div className="col-4">
-            <label>Cao</label>
-            <Input
-              placeholder="Cao"
-              value={height}
-              onChange={(e) => setHeight(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-4">
-            <label>Cân nặng</label>
-            <Input
-              placeholder="Cân nặng"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-            />
-          </div>
-          <div className="col-4">
-            <label>Năm sản xuất</label>
-            <br />
-            <Space direction="vertical">
-              {/* <DatePicker
-                defaultValue={moment("2015/01/01", dateFormat)}
-                onChange={onChangeDate}
-                format={dateFormat}
-              /> */}
-              <DatePicker
-                format={dateFormat}
-                onChange={handleChangeDate}
-                onCalendarChange={setDates}
-                value={moment(debut, dateFormat)}
-                //type="date"
-              />
-            </Space>
-          </div>
-          <div className="col-4">
-            <label>
-              Thể loại
-              <span className="text-danger me-2"> * </span>
-            </label>
-            <br />
-            <select
-              className="form-select"
-              value={categoryId}
-              onChange={(e) => {
-                const selectCategory = e.target.value;
-                console.log("cate",e.target.value)
-                setCategoryId(selectCategory);
-              }}
-            >
-              {category.map((cate) => (
-                <option key={cate.id} value={cate.id}>
-                  {cate.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-4">
-            <label>Xuất xứ</label>
-            <Input
-              placeholder="Xuất xứ"
-              value={origin}
-              onChange={(e) => setOrigin(e.target.value)}
-            />
-          </div>
-          <div className="col-4">
-            <label>Màu sắc</label>
-            <Input placeholder="Màu sắc" />
-          </div>
-          <div className="col-4">
-            <label>Chất liệu</label>
-            <Input placeholder="Chất liệu" />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-4">
-            <label>Bộ vi xử lý</label>
-            <Input
-              placeholder="Bộ xử lý"
-              value={processor}
-              onChange={(e) => SetProcessor(e.target.value)}
-            />
-          </div>
-          <div className="col-4">
-            <label>RAM</label>
-            <select
-              className="form-select"
-              value={ram}
-              onChange={(e) => {
-                const selectCategory = e.target.value;
-                setRam(selectCategory);
-              }}
-            >
-              <option value="4GB">4GB</option>
-              <option value="8GB">8GB</option>
-              <option value="12GB">12GB</option>
-              <option value="16GB">16GB</option>
-              <option value="32GB">32GB</option>
-              <option value="64GB">64GB</option>
-            </select>
-          </div>
-          <div className="col-4">
-            <label>Số khe cắm</label>
-            <Input
-              placeholder="Số khe cắm"
-              value={slot}
-              onChange={(e) => setSlot(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-4">
-            <label>VGA</label>
-            <select
-              className="form-select"
-              value={capacity}
-              onChange={(e) => {
-                const selectCategory = e.target.value;
-                setCapacity(selectCategory);
-              }}
-            >
-              <option value="VGA ADM">VGA ADM</option>
-              <option value="VGA NVIDIA">VGA NVIDIA</option>
-              <option value="VGA Onboard">VGA Onboard</option>
-            </select>
-          </div>
-
-          <div className="col-4">
-            <label>Ổ cứng</label>
-            <select
-              className="form-select"
-              value={hard_drive}
-              onChange={(e) => {
-                const selectCategory = e.target.value;
-                setHardDrive(selectCategory);
-              }}
-            >
-              <option value="120GB SSD">120GB - SSD</option>
-              <option value="128GB SSD">128GB - SSD</option>
-              <option value="256GB SSD">256GB - SSD</option>
-              <option value="512GB SSD">512GB - SSD</option>
-              <option value="1TB SSD">1TB - SSD</option>
-              <option value="120GB HDD">120GB - HDD</option>
-              <option value="128GB HDD">128GB - HDD</option>
-              <option value="256GB HDD">256GB - HDD</option>
-              <option value="512GB HDD">512GB - HDD</option>
-              <option value="1TB HDD">1TB HDD</option>
-            </select>
-          </div>
-          <div className="col-4">
-            <label>Ổ quang</label>
-            <Input
-              placeholder="Ổ quang"
-              value={optical}
-              onChange={(e) => setOptical(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-4">
-            <label>Bảo mật công nghệ</label>
-            <Input
-              placeholder="Bảo mật công nghệ"
-              value={security}
-              onChange={(e) => setSecurity(e.target.value)}
-            />
-          </div>
-          <div className="col-4">
-            <label>Kích thước màn hình</label>
-            <select
-              className="form-select"
-              value={screenSize}
-              onChange={(e) => {
-                const selectCategory = e.target.value;
-                setScreenSize(selectCategory);
-              }}
-            >
-              <option value="11.6 inch">11.6 inch</option>
-              <option value="12.3 inch">12.3 inch</option>
-              <option value="12.5 inch">12.5 inch</option>
-              <option value="12.4 inch">12.4 inch</option>
-              <option value="13.3 inch">13.3 inch</option>
-              <option value="13.5 inch">13.5 inch</option>
-              <option value="13 inch">13 inch</option>
-              <option value="14.5 inch">14.5 inch</option>
-              <option value="13.6 inch">13.6 inch</option>
-              <option value="13.4 inch">13.4 inch</option>
-              <option value="15 inch">15 inch</option>
-              <option value="14 inch">14 inch</option>
-              <option value="15.6 inch">15.6 inch</option>
-              <option value="16 inch">16 inch</option>
-              <option value="17.3 inch">17.3 inch</option>
-              <option value="17 inch">17 inch</option>
-            </select>
-          </div>
-          <div className="col-4">
-            <label>Độ phân giải màn hình</label>
-            <select
-              className="form-select"
-              value={resolution}
-              onChange={(e) => {
-                const selectCategory = e.target.value;
-                setResolution(selectCategory);
-              }}
-            >
-              <option value="HD (1366 x 768)">HD (1366 x 768)</option>
-              <option value="Full HD (1920 x 1080)">
-                Full HD (1920 x 1080)
-              </option>
-              <option value="WUXGA (1920 x 1200)">WUXGA (1920 x 1200)</option>
-              <option value="QHD (2560 x 1440)">QHD (2560 x 1440)</option>
-              <option value="WQXGA (2560 x 1600)">WQXGA (2560 x 1600)</option>
-              <option value="Pixel Sense (2256 x 1504)">
-                Pixel Sense (2256 x 1504)
-              </option>
-              <option value="Pixel Sense (2736 x 1824)">
-                Pixel Sense (2736 x 1824)
-              </option>
-              <option value="Pixel Sense Display (2880 x 1920)">
-                Pixel Sense Display (2880 x 1920)
-              </option>
-              <option value="2.8K (2880x1800)">2.8K (2880x1800)</option>
-              <option value="Retina (2560 x 1600)">Retina (2560 x 1600)</option>
-              <option value="Retina (2560 x 1664)">Retina (2560 x 1664)</option>
-              <option value="Retina (28880 x 1800)">
-                Retina (28880 x 1800)
-              </option>
-              <option value="4K (3840 x 2160)">4K (3840 x 2160)</option>
-              <option value="Surface laptop go (1536 x 1024)">
-                Surface laptop go (1536 x 1024)
-              </option>
-            </select>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-4">
-            <label>Tần số màn hình</label>
-            <select
-              className="form-select"
-              value={frequency}
-              onChange={(e) => {
-                const selectCategory = e.target.value;
-                setFrequency(selectCategory);
-              }}
-            >
-              <option value="60 Hz">60 Hz</option>
-              <option value="90 Hz">90 Hz</option>
-              <option value="120 Hz">120 Hz</option>
-              <option value="144 Hz">144 Hz</option>
-              <option value="165 Hz">165 Hz</option>
-              <option value="240 Hz">240 Hz</option>
-              <option value="300 Hz">300 Hz</option>
-              <option value="360 Hz">360 Hz</option>
-            </select>
-          </div>
-          <div className="col-4">
-            <label>Giao tiếp không giây</label>
-            <Input placeholder="Giao tiếp không giây" />
-          </div>
-          <div className="col-4">
-            <label>Pin</label>
-            <Input
-              placeholder="Pin"
-              value={battery}
-              onChange={(e) => setBattery(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="row"></div>
-        <div className="row">
-          <div className="col-4">
-            <label>Hệ điều hành</label>
-            <select
-              className="form-select"
-              value={win}
-              onChange={(e) => {
-                const selectCategory = e.target.value;
-                setWin(selectCategory);
-              }}
-            >
-              <option value="Window">Window</option>
-              <option value="Linux">Linux</option>
-              <option value="Mac OS">Mac OS</option>
-              <option value="Docs">Docs</option>
-            </select>
-          </div>
-
-          <div className="col-4">
-            <label>
-              Phụ kiện trong hộp
-              <span className="text-danger"> * </span>
-            </label>
-            <Select
-              mode="tags"
-              style={{
-                width: "100%",
-              }}
-              placeholder="Tags Mode"
-              onChange={handleChange}
-            >
-              {children}
-            </Select>
-          </div>
-          <div className="col-4">
-            <label>
-              Hãng sản xuất
-              <span className="text-danger me-2"> * </span>
-            </label>
-            <br />
-            <select
-              className="form-select"
-              value={manufactureId}
-              onChange={(e) => {
-                const selectCategory = e.target.value;
-                setManufactureId(selectCategory);
-              }}
-            >
-              {manufacture.map((manufacture) => (
-                <option key={manufacture.id} value={manufacture.id}>
-                  {manufacture.name}
-                </option>
-              ))}
-            </select>
-            {manufactureId}
-          </div>
-        </div>
-      </div>
-
-      {/* image */}
-      <div className="img">
-      <input
-        type="file"
-        onChange={(event) => {
-          setImageUpload(event.target.files[0]);
-        }}
-      />
-      {/* stop */}
-      <button onClick={uploadFile}> Upload Image</button>
-      <Carousel autoplay>
-        {imageUrls?imageUrls.map((url, index) => {
-          return (<div style={contentStyle}>
-                  <Image.PreviewGroup>
-                      <Image src={url}>
-                      </Image>
-                      {/* <Avatar shape="square" size={200} src={item.name} /> */}
-                      <div className="">
-                        <button className="" onClick={() => handleClickRemove(url)}  ><DeleteOutlined size={18}></DeleteOutlined> Remove image</button>
-                      </div>
-                  </Image.PreviewGroup>
+          <div className="row">
+            <div className="col-5">
+              <Form.Item label="Mô tả sản phẩm" name="description">
+                <TextArea rows={4} />
+              </Form.Item>
+            </div>
+            <div className="col-7">
+              <div className="row mt-5">
+                <div className="col-6">
+                  <input
+                    className="form-control"
+                    type="file"
+                    onChange={(event) => {
+                      setImageUpload(event.target.files[0]);
+                    }}
+                  />
                 </div>
-                )
-          }):""}
-        </Carousel>
-      {/* {imageUrls?imageUrls.map((url) => {
+                <div className="col-4">
+                  <Button onClick={uploadFile} className="mt-1">
+                    {" "}
+                    Upload Image
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <div></div>
+          </div>
+          <Form.Item className="text-center mt-4">
+            <Button
+              block
+              type="primary"
+              htmlType="submit"
+              style={{ width: "100px" }}
+            >
+              Tạo mới
+            </Button>
+            <Button htmlType="button" className="ms-2" onClick={onReset}>
+              Làm mới
+            </Button>
+          </Form.Item>
+        </Form>
+        <div className="img">
+          {/* <Carousel autoplay>
+            {imageUrls
+              ? imageUrls.map((url, index) => {
+                  return (
+                    <div style={contentStyle}>
+                      <Image.PreviewGroup>
+                        <Image src={url}></Image>
+                     
+                        <div className="">
+                          <button
+                            className=""
+                            onClick={() => handleClickRemove(url)}
+                          >
+                            <DeleteOutlined size={18}></DeleteOutlined> Remove
+                            image
+                          </button>
+                        </div>
+                      </Image.PreviewGroup>
+                    </div>
+                  );
+                })
+              : ""}
+          </Carousel> */}
+          {/* {imageUrls?imageUrls.map((url) => {
         return <img src={url} />;
       }):""} */}
-    </div>
-
-      <div className="row">
-        <div className="col-12 mb-3">
-          <Button
-            className="mt-2"
-            type="primary"
-            onClick={handleClick}
-            style={{ borderRadius: "10px" }}
-          >
-            {" "}
-            <PlusCircleFilled /> Thêm
-          </Button>
-          <ToastContainer />
         </div>
-      </div>
-      <div className="row">
-        
+
+        <div className="row">
+          {/* <div className="col-12 mb-3">
+            <Button
+              className="mt-2"
+              type="primary"
+              onClick={handleClick}
+              style={{ borderRadius: "10px" }}
+            >
+              {" "}
+              <PlusCircleFilled /> Thêm
+            </Button>
+            <ToastContainer />
+          </div> */}
+        </div>
+        <div className="row"></div>
       </div>
     </div>
   );
