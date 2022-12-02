@@ -120,6 +120,8 @@ function Card() {
 
     const search = () => {
         tableParams.pagination.memory = memorySearch;
+
+
         tableParams.pagination.trandemark = trandemarkSearch;
         tableParams.pagination.current = 1;
         setLoading(true);
