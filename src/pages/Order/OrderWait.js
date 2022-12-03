@@ -128,6 +128,7 @@ const OrderWait = () => {
   };
 
   const confirmOrder = (record) => {
+    console.log(record);
     const sdt = record.phone;
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
@@ -144,10 +145,10 @@ const OrderWait = () => {
         phone: sdt,
         orderDetails: [
           {
-            id: record.orderDetails.id,
-            productId: record.orderDetails.productId,
-            total: record.orderDetails.total,
-            quantity: record.orderDetails.quantity,
+            id: record.id,
+            productId: record.productId,
+            total: record.total,
+            quantity: record.quantity,
             status: "DANG_GIAO",
           },
         ],

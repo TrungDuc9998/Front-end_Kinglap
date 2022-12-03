@@ -188,6 +188,8 @@ const ExchangeSuccess = () => {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log('result id');
+        console.log(results);
         console.log(results.data.data);
         setDataExchange(results.data.data);
         setLoading(false);

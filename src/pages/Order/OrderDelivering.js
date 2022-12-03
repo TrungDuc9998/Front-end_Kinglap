@@ -155,10 +155,10 @@ const OrderDelivering = () => {
         phone: sdt,
         orderDetails: [
           {
-            id: record.orderDetails.id,
-            productId: record.orderDetails.productId,
-            total: record.orderDetails.total,
-            quantity: record.orderDetails.quantity,
+            id: record.id,
+            productId: record.productId,
+            total: record.total,
+            quantity: record.quantity,
             status: "DA_NHAN",
           },
         ],
