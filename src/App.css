@@ -83,3 +83,21 @@ input:focus-visible {
 .dropdown .dropdown-row:hover{
   background-color:#d9d9d9;
 }
+
+body  {
+  font-family: sans-serif !important;
+}
+
+.ant-modal {
+  width: 100% !important;
+}
+
+.ant-modal-content {
+  margin: auto;
+}
+
+.ant-layout-content {
+  height: 550px;
+    overflow-x: hidden;
+    overflow-y: auto
+}

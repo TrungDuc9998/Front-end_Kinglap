@@ -16,6 +16,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
+  MenuFoldOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -25,6 +26,7 @@ import axios from "axios";
 import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../Order/ConfirmOrder.css";
 import moment from "moment";
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
@@ -226,16 +228,29 @@ const OrderConfirm = () => {
       sorter: true,
       width: "20%",
       render: (payment) => {
-        return (
-          <>
-            <div
-              className="bg-info text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-              {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
-            </div>
-          </>
-        );
+        if (payment != "TẠI CỬA HÀNG") {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+              </div>
+            </>
+          );
+        }else {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+               Tại cửa hàng
+              </div>
+            </>
+          );
+        }
       },
     },
     {
@@ -299,8 +314,9 @@ const OrderConfirm = () => {
   const [modalText, setModalText] = useState("Content of the modal");
 
   const confirmOrder = (record, IsPut) => {
-    console.log(record);
-
+    console.log(Number(record.phone));
+    const sdt = record.phone;
+    console.log(record.note);
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -313,7 +329,7 @@ const OrderConfirm = () => {
         status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
         note: record.note | undefined,
         customerName: record.customerName,
-        phone: record.phone | undefined,
+        phone: sdt,
         orderDetails: [
           {
             id: record.orderDetails.id,
@@ -372,6 +388,13 @@ const OrderConfirm = () => {
     if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
   };
 
+  const clearSearchForm = () => {
+    loadDataOrder();
+    setSearchName("");
+    // setSearchStartDate();
+    // searchEndDate()
+  };
+
   const handleUpdateOrderDetail = (item) => {
     console.log(item);
   };
@@ -381,6 +404,14 @@ const OrderConfirm = () => {
   };
   return (
     <div>
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Xác nhận đơn hàng</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{
@@ -401,30 +432,6 @@ const OrderConfirm = () => {
             onChange={(e) => setSearchName(e.target.value)}
           />
         </div>
-        {/* <div className="col-4 mt-3">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            allowClear={true}
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
-            // onChange={changeSearchStatus}
-            // onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="CHO_XAC_NHAN" selected>
-              Chờ xác nhận
-            </Option>
-            <Option value="CHO_LAY_HANG">Chờ lấy hàng</Option>
-            <Option value="DANG_GIAO">Đang giao</Option>
-            <Option value="DA_NHAN">Đã nhận</Option>
-            <Option value="DA_HUY">Đã hủy</Option>
-          </Select>
-        </div> */}
         <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
           <br />
@@ -438,10 +445,6 @@ const OrderConfirm = () => {
               format={"yyyy-MM-DD HH:mm:ss"}
               onChange={onchangeSearch}
               onCalendarChange={handleChangeDateSearch}
-              // value={[
-              //   moment(searchStartDate, "yyyy-MM-DD HH:mm:ss"),
-              //   moment(searchEndDate, "yyyy-MM-DD HH:mm:ss"),
-              // ]}
               type="datetime"
             />
           </Space>
@@ -450,7 +453,7 @@ const OrderConfirm = () => {
           <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={clearSearchForm}
+            onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -486,6 +489,7 @@ const OrderConfirm = () => {
             loading={loading}
           />
           <Modal
+            id="a"
             title="Xác nhận đơn hàng"
             open={isEditing}
             onCancel={() => {
