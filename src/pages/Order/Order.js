@@ -866,12 +866,12 @@ const Order = () => {
                         {" "}
                         <Image
                           width={100}
-                          src={item.product.images[0]?.name}
+                          src={item.product?.images[0]?.name}
                         />{" "}
                       </td>
-                      <td>{item.product.name}</td>
+                      <td>{item.product?.name}</td>
                       <td>
-                        {item.product.price.toLocaleString("it-IT", {
+                        {item.product?.price.toLocaleString("it-IT", {
                           style: "currency",
                           currency: "VND",
                         })}
@@ -950,9 +950,9 @@ const Order = () => {
                         return (
                           <tr key={index}>
                             <td>{item.id}</td>
-                            <td>{item.product.name}</td>
+                            <td>{item.product?.name}</td>
                             <td>
-                              {item.product.price.toLocaleString("it-IT", {
+                              {item.product?.price.toLocaleString("it-IT", {
                                 style: "currency",
                                 currency: "VND",
                               })}

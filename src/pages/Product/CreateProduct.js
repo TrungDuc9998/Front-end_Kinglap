@@ -162,7 +162,7 @@ function CreateProduct() {
 
   const loadDataBattery = () => {
     fetch(
-      `http://localhost:8080/api/staff/batteryCharger?${qs.stringify(
+      `http://localhost:8080/api/auth/batteryCharger?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`
     )

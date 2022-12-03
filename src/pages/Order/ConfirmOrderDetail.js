@@ -95,8 +95,8 @@ const ConfirmOrderDetail = () => {
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res.data);
-        setOrder(res.data);
+       
+        setOrder(res);
       });
   };
 
@@ -321,11 +321,11 @@ const ConfirmOrderDetail = () => {
                   <tr key={index}>
                     <td>{item.id}</td>
                     <td>
-                      <Image width={100} src={item.product.images[0].name} />{" "}
+                      <Image width={100} src={item.product?.images[0]?.name} />{" "}
                     </td>
-                    <td>{item.product.name}</td>
+                    <td>{item.product?.name}</td>
                     <td>
-                      {item.product.price.toLocaleString("it-IT", {
+                      {item.product?.price.toLocaleString("it-IT", {
                         style: "currency",
                         currency: "VND",
                       })}
@@ -334,7 +334,7 @@ const ConfirmOrderDetail = () => {
                       <InputNumber
                         // style={{width: "20%"}}
                         min={1}
-                        max={item.product.quantity}
+                        max={item.product?.quantity}
                         value={quantity}
                         defaultValue={item.quantity}
                         onChange={(event) =>

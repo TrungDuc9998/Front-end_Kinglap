@@ -66,6 +66,7 @@ function ViewOrder() {
 
   const getData = () => {
     let userId = localStorage.getItem("username");
+    console.log(userId);
     fetch(
       `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -98,6 +99,21 @@ function ViewOrder() {
       let valueWard = localStorage.getItem("valueWard");
       let valueDistrict = localStorage.getItem("valueDistrict");
       let value = localStorage.getItem("value");
+
+      console.log(
+        total,
+        payment,
+        address,
+        type,
+        phone,
+        customerName,
+        status,
+        orderDetails,
+        valueWard,
+        valueDistrict,
+        value
+      );
+
       fetch(`http://localhost:8080/api/orders/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -706,7 +722,7 @@ function ViewOrder() {
                           {" "}
                           <Image
                             width={90}
-                            src={item.product.images[0].name}
+                            src={item.product.images[0]?.name}
                           />{" "}
                         </td>
                         <td>{item.product.name}</td>
