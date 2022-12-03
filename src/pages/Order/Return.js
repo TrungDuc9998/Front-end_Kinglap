@@ -94,7 +94,7 @@ const Return = () => {
       .then((res) => res.json())
       .then((res) => {
         console.log(res.data);
-        setOrder(res.data);
+        setOrder(res);
       });
   };
 
