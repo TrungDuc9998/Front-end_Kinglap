@@ -245,7 +245,7 @@ function Table1() {
           quantity: item.quantity,
           status: "CHO_XAC_NHAN",
           total: item.total,
-          productId: item.productId.id,
+          productId: item.product.id,
           isCheck: null,
         });
       });
@@ -284,14 +284,14 @@ function Table1() {
 
   const updateCart = (cart, id, quantity) => {
     let tong =
-      cart.total === cart.productId.price * quantity
+      cart.total === cart.product.price * quantity
         ? cart.total
-        : cart.productId.price * quantity;
+        : cart.product.price * quantity;
     fetch(`http://localhost:8080/api/carts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        productId: cart.productId.id,
+        productId: cart.product.id,
         userId: cart.useId | 1,
         quantity: quantity !== undefined ? quantity + 1 : cart.quantity,
         total: cart.total,
@@ -405,7 +405,7 @@ function Table1() {
     if (value !== undefined) {
       let quantity = 0;
       dataCart
-        ?.filter((item) => item.productId.id === value)
+        ?.filter((item) => item.product.id === value)
         .map((cart) => {
           quantity += cart.quantity;
           updateCart(cart, cart.id, quantity);
@@ -689,6 +689,7 @@ function Table1() {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log(results);
         setDataCart(results.data.data);
         let total = 0;
         let weight = 0;
@@ -697,10 +698,10 @@ function Table1() {
         let length = 0;
         results.data.data?.forEach((item) => {
           total += item.total;
-          weight += item.productId.weight * item.quantity;
-          width += item.productId.width * item.quantity;
-          height += item.productId.height * item.quantity;
-          length += item.productId.length * item.quantity;
+          weight += item.product.weight * item.quantity;
+          width += item.product.width * item.quantity;
+          height += item.product.height * item.quantity;
+          length += item.product.length * item.quantity;
         });
         setTotalWeight(weight);
         setTotal(total);
@@ -1250,33 +1251,33 @@ function Table1() {
                         <td>
                           <Image
                             width={90}
-                            src={item.productId.images[0]?.name}
+                            src={item.product.images[0]?.name}
                           />
                         </td>
-                        <td>{item.productId.name}</td>
+                        <td>{item.product.name}</td>
                         <td>
-                          {item.productId.price.toLocaleString("it-IT", {
+                          {item.product.price.toLocaleString("it-IT", {
                             style: "currency",
                             currency: "VND",
                           })}
                         </td>
-                        <td key={item.productId.id}>
+                        <td key={item.product.id}>
                           <InputNumber
                             // disabled={isDisabled}
                             onChange={(event) =>
                               onChangeInputNumber(
                                 event,
-                                item.productId.id,
-                                item.productId.price,
+                                item.product.id,
+                                item.product.price,
                                 item.id,
                                 item.userId
                               )
                             }
                             value={quantity | item.quantity}
-                            key={item.productId.id}
+                            key={item.product.id}
                             defaultValue={1}
                             min={1}
-                            max={item.productId.quantity}
+                            max={item.product.quantity}
                           />
                         </td>
                         <td>

@@ -17,7 +17,7 @@ const toastSuccess = (message) => {
   });
 };
 
-function check() {
+function exchangeDetail() {
   const [dataExchange, setDataExchange] = useState([]);
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
@@ -253,7 +253,7 @@ function check() {
                   <td>
                     <Image
                       width={100}
-                      src={d.orderDetail.product.images[0].name}
+                      src={d.orderDetail.product?.images[0]?.name}
                     />{" "}
                   </td>
                   <td>{d.orderDetail.product.name}</td>
@@ -310,6 +310,7 @@ function check() {
                         Yêu cầu xác nhận
                       </div>
                     )}
+                    {/* {d.status} */}
                   </td>
                 </tr>
               ))}
@@ -329,4 +330,4 @@ function check() {
   );
 }
 
-export default check;
+export default exchangeDetail;

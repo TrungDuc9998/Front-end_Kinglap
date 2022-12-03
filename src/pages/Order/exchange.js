@@ -79,6 +79,7 @@ const Exchange = () => {
   const handleOk = () => {
     console.log("order Detail ID: " + item.id);
     const data = [];
+    console.log(dataCart);
     dataCart?.forEach((element) => {
       data.push({
         orderId: id,
@@ -271,6 +272,7 @@ const Exchange = () => {
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
+        console.log("order log");
         console.log(res);
         setOrder(res);
       });
@@ -282,18 +284,40 @@ const Exchange = () => {
   };
 
   const onChangeProduct = (value) => {
+    console.log("value consolog");
+    console.log(value);
     const dataPro = [];
     let productValue;
     setValueProduct(value);
+    console.log(dataProduct);
     let isUpdate = false;
     if (value !== undefined) {
       dataProduct
         .filter((item) => item.id === value)
         .map((product) => {
-          dataPro.push(product);
+          console.log("vào push");
+          dataPro.push({
+            id: product.id,
+            image: product?.images[0].name,
+            name: product?.name,
+            price: product?.price,
+            debut: product?.debut,
+          });
           productValue = product;
         });
     }
+
+    console.log("dataProduct");
+    console.log(dataPro);
+
+    // dataProduct
+    // .filter((item) => item.id === value)
+    // .map((product) => {
+    //   console.log(product);
+    //   console.log('vào push');
+    //   dataPro.push(product);
+    //   productValue = product;
+    // });
 
     if (dataCart === undefined) {
       setDataCart(dataPro);
@@ -600,7 +624,7 @@ const Exchange = () => {
                 <th>Hình ảnh</th>
                 <th>Tên sản phẩm</th>
                 <th>Giá tiền</th>
-                <th>Xuất xứ</th>
+                {/* <th>Xuất xứ</th> */}
                 <th>Năm sản xuất</th>
                 <th>Thao tác</th>
               </tr>
@@ -610,8 +634,7 @@ const Exchange = () => {
                 return (
                   <tr key={index}>
                     <td>{index}</td>
-                    <Image width={90} src={item.images[0]?.name} />{" "}
-                    <td>{item.name}</td>
+                    <Image width={90} src={item.image} /> <td>{item.name}</td>
                     <td>
                       {" "}
                       <CurrencyFormat
@@ -621,7 +644,7 @@ const Exchange = () => {
                         thousandSeparator={true}
                       />
                     </td>
-                    <td>{item.origin}</td>
+                    {/* <td>{item.origin}</td> */}
                     <td>{item.debut}</td>
                     <td>
                       <CloseCircleOutlined
