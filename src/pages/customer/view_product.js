@@ -178,49 +178,45 @@ function ViewProduct() {
                                     <tbody>
                                         <tr>
                                             <th scope="row">Màn hình</th>
-                                            <td>{product.configuration.screen}</td>
+                                            <td>{product.screen.size}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">CPU</th>
-                                            <td>{product.configuration.processor}</td>
+                                            <td>{product.processor.cpuTechnology}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">RAM</th>
-                                            <td>{product.configuration.ram}</td>
+                                            <td>{product.ram.ramCapacity}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Ổ cứng</th>
-                                            <td>{product.configuration.hard_drive}</td>
+                                            <td>{product.storage.name}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Đồ họa</th>
-                                            <td>{product.configuration.screen}</td>
+                                            <td>{product.card.model}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Hệ điều hành</th>
-                                            <td>{product.configuration.win}</td>
+                                            {/* <td>{product.configuration.win}</td> */}
                                         </tr>
                                     </tbody>
                                 </table>
                                 <a className="text-center" style={{ fontSize: '16px', textDecoration: 'none' }} onClick={showModal} > Xem chi tiết</a>
-                                <Modal title={`Chi tiết thông số kĩ thuật ` + product.name} open={isModalOpen} onOk={handleOk} onCancel={handleCancel} style={{ padding: '0' }}>
+                                <Modal title={`Chi tiết thông số kĩ thuật ` + product.name} open={isModalOpen} onOk={handleOk} onCancel={handleCancel} style={{ padding: '0 !impotant' }}>
                                     <div class="card">
                                         <div class="card-header" style={{ textAlign: 'left' }}>
                                             Thông tin hàng hóa
                                         </div>
                                         <div class="card-body row">
                                             <div className="col-6">
-                                                <li>P/N: {product.p_n}</li>
-                                                <hr></hr>
-                                                <li>Xuất xứ: {product.origin}</li>
-                                                <hr></hr>
-                                                <li>Thời gian bảo hành: {product.origin}</li>
+                                                <li>P/N: </li>
+                                                <li>Xuất xứ: </li>
+                                                <li>Thời gian bảo hành: </li>
                                             </div>
                                             <div className="col-6">
-                                                <li>Thương hiệu: {product.manufactureId}</li>
-                                                <hr></hr>
-                                                <li>Thời điểm ra mắt: {product.debut}</li>
-                                                <hr></hr>
+                                                <li>Thương hiệu: </li>
+                                                <li>Thời điểm ra mắt:{product.debut} </li>
                                                 <li>Hướng dẫn bảo quản: Để nơi khô ráo, nhẹ tay</li>
                                             </div>
                                         </div>
@@ -230,22 +226,23 @@ function ViewProduct() {
                                         <div class="card-body">
                                             <li>Kích thước: {product.width} x {product.height} x {product.length}</li>
                                             <li>Trọng lượng sản phẩm: {product.weight}kg</li>
-                                            <li>Chất liệu: thiếu chất liệu</li>
+                                            <li>Chất liệu: {product.material}</li>
                                         </div>
                                         <div class="card-header" style={{ textAlign: 'left' }}>
                                             Bộ xử lí
                                         </div>
                                         <div class="card-body row">
                                             <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
+                                                <li>Hãng CPU: {product.processor.cpuCompany}</li>
+                                                <li>Công nghệ CPU: {product.processor.cpuTechnology}</li>
+                                                <li>Tốc độ CPU: {product.processor.cpuSpeed}</li>
+                                                <li>Tốc độ tối đa CPU: {product.processor.maxSpeed}</li>
                                             </div>
                                             <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
+                                                <li>Loại CPU: {product.processor.cpuType}</li>
+                                                <li>Số nhân: {product.processor.multiplier}</li>
+                                                <li>Số luồng: {product.processor.numberOfThread}</li>
+                                                <li>Bộ nhớ đệm: {product.processor.caching}</li>
                                             </div>
 
                                         </div>
@@ -254,15 +251,15 @@ function ViewProduct() {
                                         </div>
                                         <div class="card-body row">
                                             <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
+                                                <li>Dung lượng RAM: {product.ram.ramCapacity}</li>
+                                                <li>Loại RAM: {product.ram.typeOfRam}</li>
+                                                <li>Tốc độ RAM: {product.ram.ramSpeed}</li>
+                                                <li>Số khe cắm rời: {product.ram.looseSlot}</li>
                                             </div>
                                             <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
+                                                <li>Số khe RAM còn lại: {product.ram.remainingSlot}</li>
+                                                <li>Số RAM onboard: {product.ram.onboardRam}</li>
+                                                <li>Hỗ trợ RAM tối đa: {product.ram.maxRamSupport}</li>
                                             </div>
 
                                         </div>
@@ -271,29 +268,35 @@ function ViewProduct() {
                                         </div>
                                         <div class="card-body row">
                                             <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
+                                                <li>Kích thước màn hình: {product.screen.size}</li>
+                                                <li>Công nghệ màn hình: {product.screen.screenTechnology}</li>
+                                                <li>Độ phân giải: {product.screen.resolution}</li>
+                                                <li>Tần số quét: {product.screen.scanFrequency}</li>
+                                                <li>Tấm nền: {product.screen.backgroundPanel}</li>
+
                                             </div>
                                             <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
+                                                <li>Độ sáng: {product.screen.brightness}</li>
+                                                <li>Độ phủ màu: {product.screen.colorCoverage}</li>
+                                                <li>Tỷ lệ màn hình: {product.screen.resolution}</li>
+                                                <li>Màn hình cảm ứng: {product.screen.backgroundPanel}</li>
+                                                <li>Độ tương phản: {product.screen.contrast}</li>
                                             </div>
 
                                         </div>
-                                        <div class="card-header" style={{ textAlign: 'left' }}>
+                                        {/*<div class="card-header" style={{ textAlign: 'left' }}>
                                             Đồ họa
                                         </div>
                                         <div class="card-body row">
                                             <div className="col-6">
+                                                <h2>Card onboard</h2>
                                                 <li>Hãng CPU: thiếu</li>
                                                 <li>Công nghệ CPU: thiếu</li>
                                                 <li>Tốc độ CPU: thiếu</li>
                                                 <li>Tốc độ tối đa CPU: thiếu</li>
                                             </div>
                                             <div className="col-6">
+                                                <h2>Card rời</h2>
                                                 <li>Số nhân: thiếu</li>
                                                 <li>Số luồng: thiếu</li>
                                                 <li>Bộ nhớ đệm: thiếu</li>
@@ -319,19 +322,9 @@ function ViewProduct() {
                                             Bảo mật
                                         </div>
                                         <div class="card-body row">
-                                            <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
-                                            </div>
-                                            <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
-                                            </div>
+                                            <li>{product.security}</li>
                                         </div>
-                                        <div class="card-header" style={{ textAlign: 'left' }}>
+                                             <div class="card-header" style={{ textAlign: 'left' }}>
                                             Giao tiếp & kết nối
                                         </div>
                                         <div class="card-body row">
@@ -426,7 +419,7 @@ function ViewProduct() {
                                                 <li>Số luồng: thiếu</li>
                                                 <li>Bộ nhớ đệm: thiếu</li>
                                             </div>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </Modal>
                             </div>
