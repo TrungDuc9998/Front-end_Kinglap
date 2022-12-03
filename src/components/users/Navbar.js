@@ -12,12 +12,12 @@ function Navbar() {
                                 <li className="nav-item">
                                     <Link className="nav-link active" aria-current="page" to={"/user"}><h4>Trang chủ</h4></Link>
                                 </li>
-                                <li className="nav-item">
+                                {/* <li className="nav-item">
                                     <Link className="nav-link" to={""}>Categories</Link>
                                 </li>
                                 <li className="nav-item">
                                     <Link className="nav-link" to={""}>Accessories</Link>
-                                </li>
+                                </li> */}
                             </ul>
                         </div>
                     </div>

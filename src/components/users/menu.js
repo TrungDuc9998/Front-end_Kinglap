@@ -85,9 +85,9 @@ function Menu() {
                                 <div className="header-search">
                                     <form>
                                         <select className="input-select">
-                                            <option value="0">All Categories</option>
-                                            <option value="1">Category 01</option>
-                                            <option value="1">Category 02</option>
+                                            <option value="0">Tất cả sản phẩm</option>
+                                            {/* <option value="1">Category 01</option>
+                                            <option value="1">Category 02</option> */}
                                         </select>
                                         <input className="input" placeholder="Search here" />
                                         <button className="search-btn">Search</button>
@@ -100,14 +100,14 @@ function Menu() {
                                     <div>
                                         <a style={{color:"white"}} onClick={yourOrder}>
                                             <Heart></Heart>
-                                            <span>Your Wishlist</span>
+                                            <span>Hoá đơn</span>
                                         </a>
                                     </div>
 
                                     <div className="">
                                         <a style={{color:"white"}} onClick={yourCart} aria-expanded="true">
                                             <ShoppingCart></ShoppingCart>
-                                            <span>Your Cart</span>
+                                            <span>Giỏ hàng</span>
                                         </a>
                                     </div>
                                 </div>

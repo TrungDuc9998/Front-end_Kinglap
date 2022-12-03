@@ -266,7 +266,7 @@ const ExchangeUser = () => {
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        setOrder(res.data);
+        setOrder(res);
       });
   };
 
@@ -461,7 +461,7 @@ const ExchangeUser = () => {
                   <tr key={index}>
                     <td>{item.id}</td>
                     <td>
-                      <Image width={100} src={item.product.images[0].name} />{" "}
+                      <Image width={100} src={item.product.images[0]?.name} />{" "}
                     </td>
                     <td>{item.product.name}</td>
                     <td>
