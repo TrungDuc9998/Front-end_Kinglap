@@ -87,7 +87,7 @@ const Ram = () => {
   });
   const inputRef = useRef(null);
 
-  const loadDataCategory = () => {};
+  const loadDataCategory = () => { };
 
   const columns = [
     {
@@ -189,6 +189,11 @@ const Ram = () => {
                   toastSuccess("Khoá thành công !");
                 }}
               />
+              <EditOutlined
+                style={{ marginLeft: 12, fontSize: "20px" }}
+                onClick={() => {
+                  showModalE(data);
+                }} />
             </>
           );
         } else if (data.status == "INACTIVE") {
@@ -204,30 +209,35 @@ const Ram = () => {
                   ).then(() => loadDataRam());
                   toastSuccess("Mở khóa thành công!");
                 }}
+
               />
+              <EditOutlined
+                style={{ marginLeft: 12, fontSize: "20px" }}
+                onClick={() => {
+                  showModal(data);
+                }} />
             </>
           );
         }
-        // return (
-        //   <>
-        //     <EyeOutlined
-        //       onClick={() => {
-        //         onView(record);
-        //       }}
-        //       style={{ fontSize: "20px" }}
-        //     />
-        //     <EditOutlined
-        //       style={{ marginLeft: 12, fontSize: "20px" }}
-        //       onClick={() => {
-        //         showModal(record);
-        //       }}
-        //     />
-        //     <DeleteOutlined
-        //       onClick={() => onDelete(record)}
-        //       style={{ color: "red", fontSize: "20px", marginLeft: 12 }}
-        //     />
-        //   </>
-        // );
+        return (
+          <>
+            <EyeOutlined
+              onClick={() => {
+                onView(data);
+              }}
+              style={{ fontSize: "20px" }}
+            />
+            <EditOutlined
+              style={{ marginLeft: 12, fontSize: "20px" }}
+              onClick={() => {
+                showModal(data);
+              }} />
+            <DeleteOutlined
+              onClick={() => onDelete(data)}
+              style={{ color: "red", fontSize: "20px", marginLeft: 12 }}
+            />
+          </>
+        );
       },
     },
   ];
@@ -321,6 +331,7 @@ const Ram = () => {
     console.log("search:", value);
   };
   const [open, setOpen] = useState(false);
+  const [openE, setOpenE] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
 
@@ -344,12 +355,29 @@ const Ram = () => {
     setOpen(true);
   };
 
+  const [dataEdit, setDataEdit] = useState({});
+  const showModalE = (data) => {
+    console.log("data show modal");
+    console.log("data", data);
+    setDataEdit(data);
+    setOpenE(true);
+  };
+
   const handleOk = () => {
     console.log("vào handle OK");
     setModalText("The modal will be closed after two seconds");
     // setConfirmLoading(true);
     // setTimeout(() => {
-    //   setOpen(false);
+    setOpen(false);
+    //   setConfirmLoading(false);
+    // }, 2000);
+  };
+  const handleOkE = () => {
+    console.log("vào handle OK");
+    setModalText("The modal will be closed after two seconds");
+    // setConfirmLoading(true);
+    // setTimeout(() => {
+    setOpenE(false);
     //   setConfirmLoading(false);
     // }, 2000);
   };
@@ -386,6 +414,36 @@ const Ram = () => {
         });
     }
   };
+  const handleSubmitE = (data) => {
+    console.log("old", dataEdit);
+    const edit = {
+      id: dataEdit.id,
+      categoryId: data.categoryId,
+      looseSlot: data.looseSlot,
+      maxRamSupport: data.maxRamSupport,
+      onboardRam: data.onboardRam,
+      price: data.price,
+      ramCapacity: data.ramCapacity,
+      ramSpeed: data.ramSpeed,
+      remainingSlot: data.remainingSlot,
+      status: dataEdit.status,
+      typeOfRam: data.typeOfRam,
+    }
+    console.log("new", edit);
+    fetch(`http://localhost:8080/api/staff/rams/` + edit.id, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(edit),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+        toastSuccess("Cập nhật thành công!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   const clearSearchForm = () => {
     loadDataRam();
@@ -397,7 +455,7 @@ const Ram = () => {
     console.log(value);
     setSearchStatus(value);
   };
-  const handleChange = () => {};
+  const handleChange = () => { };
 
   return (
     <div>
@@ -483,7 +541,7 @@ const Ram = () => {
           >
             <Form
               initialValues={{
-                // cpuCompany: name,
+                cpuCompany
               }}
               autoComplete="off"
               labelCol={{ span: 7 }}
@@ -626,6 +684,169 @@ const Ram = () => {
                   <div className="col-6">
                     <Button block type="danger" id="create" htmlType="submit">
                       Lưu nháp
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
+          </Modal>
+
+          {/* modal edit */}
+          <Modal
+            title="Cập nhật"
+            open={openE}
+            onOk={handleOkE}
+            confirmLoading={confirmLoading}
+            onCancel={handleCancel}
+          >
+            <Form
+              initialValues={{
+                dataEdit
+              }}
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                setIsUpdate(false);
+                handleSubmitE(values, isUpdate);
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              {/* <label>{cpuCompany}</label> */}
+              <Form.Item
+                className="mt-2"
+                name="ramCapacity"
+                label="Dung lượng RAM"
+                initialValue={dataEdit.ramCapacity}
+                rules={[
+                  {
+                    required: true,
+                    message: "Dung lượng ram không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập dung lượng RAM" ref={cpuCompany} />
+              </Form.Item>
+              <Form.Item
+                name="typeOfRam"
+                label="Loại RAM"
+                initialValue={dataEdit.typeOfRam}
+                rules={[
+                  {
+                    required: true,
+                    message: "Loại ram không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập loại ram" />
+              </Form.Item>
+              <Form.Item
+                name="ramSpeed"
+                label="Tốc độ RAM"
+                initialValue={dataEdit.ramSpeed}
+                rules={[
+                  {
+                    required: true,
+                    message: "Tốc độ RAM không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tốc độ RAM" />
+              </Form.Item>
+
+              <Form.Item
+                name="looseSlot"
+                label="Số khe cắm rời"
+                initialValue={dataEdit.looseSlot}
+                rules={[
+                  {
+                    required: true,
+                    message: "Số khe cẳm rời không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Số khe cắm rời" />
+              </Form.Item>
+              <Form.Item
+                name="remainingSlot"
+                initialValue={dataEdit.remainingSlot}
+                label="Số khe còn lại"
+                rules={[
+                  {
+                    required: true,
+                    message: "Số khe còn lại không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập số khe còn lại" />
+              </Form.Item>
+              <Form.Item
+                name="onboardRam"
+                label="Số RAM onboard"
+                initialValue={dataEdit.onboardRam}
+                rules={[
+                  {
+                    required: true,
+                    message: "Số RAM onboard được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Số RAM onboard" />
+              </Form.Item>
+              <Form.Item
+                name="maxRamSupport"
+                initialValue={dataEdit.maxRamSupport}
+                label="Hỗ trợ RAM tối đa "
+                rules={[
+                  {
+                    required: true,
+                    message: "Hỗ trợ RAM tối đa không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập hỗ trợ RAM tối đa" />
+              </Form.Item>
+              <Form.Item
+                name="price"
+                label="Giá tiền"
+                initialValue={dataEdit.price}
+                rules={[
+                  {
+                    required: true,
+                    message: "Giá tiền không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập giá tiền CPU" />
+              </Form.Item>
+              <Form.Item
+                name="categoryId"
+                initialValue={dataEdit.categoryId}
+                label="Thể loại"
+                requiredMark="optional"
+              >
+                <Select placeholder="Select your gender">
+                  <Select.Option value="1">Laptop</Select.Option>
+                  <Select.Option value="2">Ram</Select.Option>
+                </Select>
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Cập nhật
                     </Button>
                   </div>
                 </div>
