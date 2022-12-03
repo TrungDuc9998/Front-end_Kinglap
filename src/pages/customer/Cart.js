@@ -133,8 +133,9 @@ function Cart() {
                                         thousandSeparator={true}
                                     />
                                     {/* {formatCash(product.price*product.quantity+"")} */}
-                                </span> <span className="price ms-3">17.000.000</span>
-                                    <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm 30%</button>
+                                </span> 
+                                {/* <span className="price ms-3">17.000.000</span>
+                                    <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm 30%</button> */}
                                 </p>
                                 <DeleteOutlined
                                     onClick={() =>
@@ -158,9 +159,9 @@ function Cart() {
                 <div className="mt-2">
                     <a className="btn btn-primary btn-cart" onClick={handleCheckout}>Tiến hành đặt hàng</a>
                 </div>
-                <div className="mt-2">
+                {/* <div className="mt-2">
                     <button className="btn btn-outline-primary btn-cart">Chọn thêm sản phẩm</button>
-                </div>
+                </div> */}
 
             </div>
         </div>

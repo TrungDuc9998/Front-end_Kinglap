@@ -503,7 +503,7 @@ const OrderSuccess = () => {
                             {" "}
                             <Image
                               width={100}
-                              src={item.product.images[0].name}
+                              src={item.product.images[0]?.name}
                             />{" "}
                           </td>
                           <td>{item.product.name}</td>

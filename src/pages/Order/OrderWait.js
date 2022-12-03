@@ -449,7 +449,7 @@ const OrderWait = () => {
                     <tr key={index}>
                       <td>{item.id}</td>
                       <td>
-                        <Image width={100} src={item.product.images[0].name} />{" "}
+                        <Image width={100} src={item.product.images[0]?.name} />{" "}
                       </td>
                       <td>{item.product.name}</td>
                       <td>

@@ -183,7 +183,7 @@ const Product = () => {
                 className="bg-success text-center text-light"
                 style={{ width: "100px", borderRadius: "5px" }}
               >
-                Không khóa
+                Hoạt động
               </div>
             </>
           );
@@ -195,7 +195,7 @@ const Product = () => {
                 className="bg-danger text-center text-light"
                 style={{ width: "100px", borderRadius: "5px" }}
               >
-                Đã khóa
+                Không hoạt động
               </div>
             </>
           );
@@ -335,12 +335,13 @@ const Product = () => {
   const navigate = useNavigate();
 
   const search = () => {
+    console.log(searchStatus);
     tableParams.pagination.search1 = searchUsername;
     tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.current = 1;
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/users?${qs.stringify(
+      `http://localhost:8080/api/products?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`
     )
@@ -407,7 +408,7 @@ const Product = () => {
       >
         <div className="col-4 mt-3">
           <label>Từ khoá</label>
-          <Input type="text" name="searchUsername" value={searchUsername} placeholder="Nhập tên tài khoản người dùng" onChange={changeSearchUserName} />
+          <Input type="text" name="searchUsername" value={searchUsername} placeholder="Nhập tên sản phẩm" onChange={changeSearchUserName} />
         </div>
         <div className="col-4 mt-3">
           <label>Trạng thái</label>
@@ -423,8 +424,8 @@ const Product = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="0">Đã khóa</Option>
-            <Option value="1">Không khóa</Option>
+            <Option value="ACTIVE">Hoạt động</Option>
+            <Option value="INACTIVE">Không hoạt động</Option>
           </Select>
         </div>
         <div className="col-12 text-center ">
@@ -477,15 +478,15 @@ const Product = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
             onChange={handleTableChange}
           />
           <Modal
-            title="Xóa người dùng"
-            visible={isDelete}
+            title="Xóa sản phẩm"
+            open={isDelete}
             onCancel={() => {
               setDelete(false);
             }}

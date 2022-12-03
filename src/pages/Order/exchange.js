@@ -271,7 +271,8 @@ const Exchange = () => {
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        setOrder(res.data);
+        console.log(res);
+        setOrder(res);
       });
   };
 
@@ -454,11 +455,11 @@ const Exchange = () => {
                   <tr key={index}>
                     <td>{item.id}</td>
                     <td>
-                      <Image width={100} src={item.product.images[0].name} />{" "}
+                      <Image width={100} src={item.product?.images[0]?.name} />{" "}
                     </td>
-                    <td>{item.product.name}</td>
+                    <td>{item.product?.name}</td>
                     <td>
-                      {item.product.price.toLocaleString("it-IT", {
+                      {item.product?.price.toLocaleString("it-IT", {
                         style: "currency",
                         currency: "VND",
                       })}
@@ -609,7 +610,7 @@ const Exchange = () => {
                 return (
                   <tr key={index}>
                     <td>{index}</td>
-                    <Image width={90} src={item.images[0].name} />{" "}
+                    <Image width={90} src={item.images[0]?.name} />{" "}
                     <td>{item.name}</td>
                     <td>
                       {" "}

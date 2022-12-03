@@ -438,7 +438,7 @@ const User = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -446,7 +446,7 @@ const User = () => {
           />
           <Modal
             title="Cập nhật"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               setEditing(false);
             }}
@@ -499,7 +499,7 @@ const User = () => {
           </Modal>
           <Modal
             title="Xóa người dùng"
-            visible={isDelete}
+            open={isDelete}
             onCancel={() => {
               setDelete(false);
             }}
