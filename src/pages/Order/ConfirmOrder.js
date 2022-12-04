@@ -12,18 +12,13 @@ import {
 } from "antd";
 import {
   CheckCircleOutlined,
-  CloseCircleOutlined,
-  DeleteOutlined,
   EditOutlined,
-  EyeOutlined,
   MenuFoldOutlined,
-  PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
-import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Order/ConfirmOrder.css";
@@ -187,6 +182,7 @@ const OrderConfirm = () => {
             customerName: item.customerName,
             total: item.total,
             status: item.status,
+            quantity: item.quantity,
           });
         });
         setDataOrder(data);
@@ -322,7 +318,7 @@ const OrderConfirm = () => {
               onClick={() => navigate(`/admin/order/${id}/confirm`)}
               style={{ fontSize: "20px" }}
             />
-            <CheckCircleOutlined
+            {/* <CheckCircleOutlined
               style={{ marginLeft: 15, fontSize: "20px", color: "blue" }}
               onClick={() => {
                 onConfirm(record);
@@ -336,7 +332,7 @@ const OrderConfirm = () => {
                 fontSize: "20px",
                 color: "red",
               }}
-            />
+            /> */}
           </>
         );
       },
@@ -355,6 +351,7 @@ const OrderConfirm = () => {
   const [modalText, setModalText] = useState("Content of the modal");
 
   const confirmOrder = (record, IsPut) => {
+    console.log(record);
     console.log(Number(record.phone));
     const sdt = record.phone;
     console.log(record.note);
@@ -373,9 +370,9 @@ const OrderConfirm = () => {
         phone: sdt,
         orderDetails: [
           {
-            id: record.orderDetails.id,
+            id: record.id,
             productId: record.orderDetails.productId,
-            total: record.orderDetails.total,
+            total: record.total,
             quantity: record.orderDetails.quantity,
             status: IsPut === true ? "CHO_LAY_HANG" : "DA_HUY",
           },
@@ -564,14 +561,6 @@ const OrderConfirm = () => {
         }}
       >
         <div className="col-12">
-          {/* <Table
-            columns={columns}
-            // rowKey={(record) => record.id}
-            dataSource={dataOrder}
-            // pagination={tableParams.pagination}
-            // loading={loading}
-            rowSelection={rowSelection}
-          /> */}
           <Table
             rowSelection={rowSelection}
             columns={columns}

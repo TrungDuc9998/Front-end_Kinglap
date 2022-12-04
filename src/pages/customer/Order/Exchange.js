@@ -128,56 +128,48 @@ const ExchangeUser = () => {
     );
     const event = new Date(order?.updatedAt);
     const event1 = new Date("2022-11-11 18:56:26");
-    if (
-      moment(event.setDate(event.getDate() + 2)).format(
-        "DD-MM-YYYY HH:mm:ss"
-      ) <= currentDate
-    ) {
-      toastError("Bạn đã hết thời gian đổi hàng!");
-    } else {
-      if (reason != undefined) {
-        try {
-          fetch("http://localhost:8080/api/auth/returns", {
-            method: "POST",
+    if (reason != undefined) {
+      try {
+        fetch("http://localhost:8080/api/auth/returns", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: order.id,
+            reason: reason,
+            description: note,
+            isCheck: "1",
+            status: "CHUA_XU_LY",
+            returnDetailEntities: ExchangeDetail,
+          }),
+        }).then((res) => {});
+        fetch(
+          `http://localhost:8080/api/orders/${dataOrderDetail.id}/orderDetails`,
+          {
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              orderId: order.id,
-              reason: reason,
-              description: note,
-              isCheck: "1",
-              status: "CHUA_XU_LY",
-              returnDetailEntities: ExchangeDetail,
+              productId: dataOrderDetail.product.id,
+              total: dataOrderDetail.total,
+              quantity: dataOrderDetail.quantity,
+              status: dataOrderDetail.status,
+              isCheck: dataOrderDetail.id,
+              isUpdate: 1,
             }),
-          }).then((res) => {});
-          fetch(
-            `http://localhost:8080/api/orders/${dataOrderDetail.id}/orderDetails`,
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                productId: dataOrderDetail.product.id,
-                total: dataOrderDetail.total,
-                quantity: dataOrderDetail.quantity,
-                status: dataOrderDetail.status,
-                isCheck: dataOrderDetail.id,
-                isUpdate: 1,
-              }),
-            }
-          ).then((res) => loadDataOrder(id));
-          toastSuccess("Gửi yêu cầu thành công!");
-
-          loadDataProduct();
-        } catch (err) {
-          console.log(err);
-          toastError("Gửi yêu cầu thất bại!");
-        }
-      } else {
-        toastError("Bạn chưa nhập lý do");
+          }
+        ).then((res) => loadDataOrder(id));
+        toastSuccess("Gửi yêu cầu thành công!");
+        setDataCart([]);
+        loadDataProduct();
+      } catch (err) {
+        console.log(err);
+        toastError("Gửi yêu cầu thất bại!");
       }
+    } else {
+      toastError("Bạn chưa nhập lý do");
     }
-    // console.log(moment(event1.setDate(event1.getDate()+2)).format('MMMM DoYYYY, h:mm:ss a'))
   };
   const handleCancel = () => {
+    setDataCart([]);
     setIsModalOpen(false);
   };
 
@@ -276,27 +268,52 @@ const ExchangeUser = () => {
   };
 
   const onChangeProduct = (value) => {
+    loadDataProduct();
     const dataPro = [];
     let productValue;
     setValueProduct(value);
+    console.log(dataProduct);
     let isUpdate = false;
     if (value !== undefined) {
       dataProduct
         .filter((item) => item.id === value)
         .map((product) => {
-          dataPro.push(product);
+          console.log("vào push");
+          dataPro.push({
+            id: product.id,
+            image: product?.images[0].name,
+            name: product?.name,
+            price: product?.price,
+            debut: product?.debut,
+          });
           productValue = product;
         });
     }
-
     if (dataCart === undefined) {
-      setDataCart(dataPro);
+      dataPro.forEach((element, index) => {
+        if (element.price < item.product.price) {
+          dataPro.splice(index, 1);
+          toastError(
+            "Sản phẩm phải có giá tiền lớn hơn hoặc bằng sản phẩm trước đó"
+          );
+        } else {
+          setDataCart(dataPro);
+        }
+      });
     } else {
       if (dataCart.length + 1 > item.quantity) {
         toastError("Sản phẩm không được vượt quá số lượng mua ban đầu !");
       } else {
-        console.log(productValue);
-        setDataCart((t) => [...t, productValue]);
+        dataPro.forEach((element, index) => {
+          if (element.price < item.product.price) {
+            dataPro.splice(index, 1);
+            toastError(
+              "Sản phẩm phải có giá tiền lớn hơn hoặc bằng sản phẩm trước đó"
+            );
+          } else {
+            setDataCart((t) => [...t, productValue]);
+          }
+        });
       }
     }
 
@@ -308,7 +325,11 @@ const ExchangeUser = () => {
       dataCart?.forEach((item) => {
         total += item.price;
       });
-      setTotalProduct(total);
+      if (total > 0) {
+        setTotalProduct(total);
+      } else {
+        setTotalProduct(0);
+      }
     }
   };
 
@@ -357,9 +378,6 @@ const ExchangeUser = () => {
               <div className="mt-2 ms-5">
                 Số điện thoại: <b>{order?.phone}</b>{" "}
               </div>
-              <div className="ms-5 mt-2">
-                Trạnh thái: <b>Đã nhận hàng</b>{" "}
-              </div>
               <div className="mt-2">
                 <TextArea
                   onChange={(e) => setReason(e.target.value)}
@@ -375,49 +393,17 @@ const ExchangeUser = () => {
               <div className="mt-2">
                 Ngày mua: <b>{order?.updatedAt}</b>
               </div>
-              {/* <div className="mt-2">
-                  Tổng tiền trước đó:
-                  <b>
-                    <CurrencyFormat
-                      style={{ fontSize: "14px" }}
-                      value={order?.total}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </b>
-                </div> */}
               <div className="mt-2">
-                Số tiền đã trả:
+                Tổng tiền:
                 <b>
-                  <CurrencyFormat
-                    style={{ fontSize: "14px" }}
-                    value={order?.money}
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
+                  {order?.total.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
                 </b>
               </div>
               <div className="mt-2">
-                Tổng tiền tạm tính hiện tại:
-                <b>
-                  <CurrencyFormat
-                    style={{ fontSize: "14px" }}
-                    value={order?.total}
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
-                </b>
-              </div>
-              <div className="mt-2">
-                Số tiền phải trả:
-                <b>
-                  <CurrencyFormat
-                    style={{ fontSize: "14px" }}
-                    value={order?.total}
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
-                </b>
+                Trạng thái: <b>Đã nhận hàng</b>{" "}
               </div>
               <div className="mt-2">
                 <TextArea
@@ -449,7 +435,7 @@ const ExchangeUser = () => {
                 <th scope="col">Mã HDCT</th>
                 <th>Hình ảnh</th>
                 <th scope="col">Tên sản phẩm</th>
-                <th scope="col">Giá</th>
+                <th scope="col">Giá tiền</th>
                 <th scope="col">Số lượng</th>
                 <th scope="col">Tổng tiền</th>
                 <th scope="col"></th>
@@ -465,21 +451,17 @@ const ExchangeUser = () => {
                     </td>
                     <td>{item.product.name}</td>
                     <td>
-                      <CurrencyFormat
-                        style={{ fontSize: "14px" }}
-                        value={item.product.price}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
+                      {item?.product.price.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
                     </td>
                     <td>{item.quantity}</td>
                     <td>
-                      <CurrencyFormat
-                        style={{ fontSize: "14px" }}
-                        value={item.total}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
+                      {item?.total.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
                     </td>
                     <td>
                       {item.isCheck === null ? (
@@ -490,13 +472,27 @@ const ExchangeUser = () => {
                         ""
                       )}
                       {item.isCheck === 1 ? (
-                        <CheckCircleOutlined
-                          style={{ fontSize: "18px", color: "green" }}
+                        item.total > 0 ? (
+                          <Alert
+                            message="Hoá đơn chính"
+                            type="success"
+                            showIcon
+                          />
+                        ) : (
+                          <Alert
+                            message="Hoá đơn trước khi đổi"
+                            type="info"
+                            showIcon
+                          />
+                        )
+                      ) : item.isCheck != 1 && item.isCheck !== null ? (
+                        <Alert
+                          message="Hoá đơn yêu cầu đổi hàng"
+                          type="error"
+                          showIcon
                         />
-                      ) : item.isCheck === null ? (
-                        ""
                       ) : (
-                        <RetweetOutlined style={{ fontSize: "18px" }} />
+                        ""
                       )}
                     </td>
                   </tr>
@@ -524,23 +520,10 @@ const ExchangeUser = () => {
                 <p>
                   Tổng tiền trước đó:{" "}
                   <i className="text-danger">
-                    <CurrencyFormat
-                      style={{ fontSize: "14px" }}
-                      value={item?.total}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </i>
-                </p>
-                <p>
-                  Số tiền đã thanh toán:{" "}
-                  <i className="text-danger">
-                    <CurrencyFormat
-                      style={{ fontSize: "14px" }}
-                      value={item?.money}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
+                    {item?.total.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
                   </i>
                 </p>
               </div>
@@ -548,48 +531,24 @@ const ExchangeUser = () => {
                 <p>
                   Tổng tiền hiện tại:{" "}
                   <i className="text-danger">
-                    {" "}
-                    <CurrencyFormat
-                      style={{ fontSize: "14px" }}
-                      value={totalProduct}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
+                    {totalProduct > 0
+                      ? totalProduct.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })
+                      : "0 VND"}
                   </i>
                 </p>
                 <p>
-                  Số tiền khách hàng phải trả:{" "}
+                  Số tiền khách hàng phải trả thêm:{" "}
                   <i className="text-danger">
-                    <CurrencyFormat
-                      style={{ fontSize: "14px" }}
-                      value={
-                        totalProduct > item?.total
-                          ? totalProduct - item?.total
-                          : 0
-                      }
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
+                    {totalProduct > 0
+                      ? (totalProduct - item?.total).toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })
+                      : "0 VND"}
                   </i>
-                </p>
-                <p>
-                  Số tiền khách hàng nhận lại:{" "}
-                  <i className="text-danger">
-                    <CurrencyFormat
-                      style={{ fontSize: "14px" }}
-                      value={
-                        totalProduct < item?.total
-                          ? item?.total - totalProduct
-                          : 0
-                      }
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </i>
-                </p>
-                <p>
-                  {/* Trạng thái:{" "}
-                    <i className="text-danger">{item?.product.quantity}</i> */}
                 </p>
               </div>
             </div>
@@ -622,7 +581,6 @@ const ExchangeUser = () => {
                 <th>Hình ảnh</th>
                 <th>Tên sản phẩm</th>
                 <th>Giá tiền</th>
-                <th>Xuất xứ</th>
                 <th>Năm sản xuất</th>
                 <th>Thao tác</th>
               </tr>
@@ -632,18 +590,13 @@ const ExchangeUser = () => {
                 return (
                   <tr key={index}>
                     <td>{index}</td>
-                    <Image width={90} src={item.images[0].name} />{" "}
-                    <td>{item.name}</td>
+                    <Image width={90} src={item?.image} /> <td>{item.name}</td>
                     <td>
-                      {" "}
-                      <CurrencyFormat
-                        style={{ fontSize: "14px" }}
-                        value={item.price}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
+                      {item?.price.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
                     </td>
-                    <td>{item.origin}</td>
                     <td>{item.debut}</td>
                     <td>
                       <CloseCircleOutlined

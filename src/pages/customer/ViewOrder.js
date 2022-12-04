@@ -370,12 +370,12 @@ function ViewOrder() {
               >
                 Đổi hàng
               </Button>
-              <Button
+              {/* <Button
                 className="mt-2"
                 onClick={() => navigate(`/user/order/return/${data.id}`)}
               >
                 Trả hàng
-              </Button>
+              </Button> */}
             </>
           );
         } else {
