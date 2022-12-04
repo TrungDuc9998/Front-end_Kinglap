@@ -1,6 +1,5 @@
 import {
   Table,
-  Slider,
   Select,
   Input,
   Button,
@@ -10,23 +9,14 @@ import {
   Space,
 } from "antd";
 import {
-  CheckCircleOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  RightCircleOutlined,
-  EyeOutlined,
-  PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  RetweetOutlined,
   MenuFoldOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import qs from "qs";
 import axios from "axios";
-import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
-import { Link, Route, Router } from "react-router-dom";
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -55,7 +45,6 @@ const OrderSuccess = () => {
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
   const [dataOrder, setDataOrder] = useState();
-  const [put, setPut] = useState();
   const [searchStartDate, setSearchStartDate] = useState();
   const [searchEndDate, setSearchEndDate] = useState();
   const [searchName, setSearchName] = useState();
@@ -88,16 +77,13 @@ const OrderSuccess = () => {
     });
   };
 
-  const onCancel = (record) => {
-    const isPut = false;
-    Modal.error({
-      title: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
-      okText: "Yes",
-      okType: "primary",
-      onOk: () => {
-        confirmOrder(record, isPut);
-      },
-    });
+  const loadDataOrderDetail = (id) => {
+    fetch(url + "/" + id)
+      .then((res) => res.json())
+      .then((results) => {
+        console.log('dataOrderDetail');
+        console.log();
+      });
   };
 
   const search = () => {
@@ -191,6 +177,8 @@ const OrderSuccess = () => {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log("data on init");
+        console.log(results.data.data);
         setDataOrder(results.data.data);
         setLoading(false);
       });
@@ -278,6 +266,10 @@ const OrderSuccess = () => {
       width: "40%",
       dataIndex: "id",
       render: (id, record) => {
+        // axios.get(url + "/" + id).then((res) => {
+        //   console.log(res.data);
+        //   setDataOD(res.data);
+        // });
         return (
           <>
             <Button
@@ -287,6 +279,7 @@ const OrderSuccess = () => {
             >
               Hiển thị
             </Button>
+            {dataOD}
             <Button
               className="ms-2"
               danger
@@ -294,23 +287,6 @@ const OrderSuccess = () => {
             >
               Đổi hàng
             </Button>
-            <Button
-              className="ms-2"
-              type="primary"
-              onClick={() => navigate(`/admin/return/${id}`)}
-            >
-              Trả hàng
-            </Button>
-            {/* <CheckCircleOutlined
-              style={{ marginLeft: 12 }}
-              onClick={() => {
-                onConfirm(record);
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => onCancel(record)}
-              style={{ color: "red", marginLeft: 12 }}
-            /> */}
           </>
         );
       },

@@ -11,6 +11,7 @@ import {
 import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
+  MenuFoldOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -95,7 +96,6 @@ const ConfirmOrderDetail = () => {
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
-       
         setOrder(res);
       });
   };
@@ -255,6 +255,14 @@ const ConfirmOrderDetail = () => {
   return (
     <div>
       <ToastContainer></ToastContainer>
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Chi tiết đơn hàng</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{
@@ -292,7 +300,6 @@ const ConfirmOrderDetail = () => {
           </div>
         </div>
       </div>
-
       <div
         className="mt-4 row"
         style={{

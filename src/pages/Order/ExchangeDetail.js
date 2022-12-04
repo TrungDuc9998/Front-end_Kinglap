@@ -115,8 +115,24 @@ function exchangeDetail() {
   };
 
   const handleSubmit = (isPut) => {
+    const orderDetail = [];
+
+    dataExchange.forEach((element) => {
+      orderDetail.push({
+        id: element.orderDetail.id,
+        isCheck: element.orderDetail.id,
+        productId: element.productId.id,
+        quantity: element.quantity,
+        total: 0,
+      });
+    });
+
+    console.log('order detail update');
+    console.log(orderDetail);
+
     const exchangeDetails = [];
     console.log(dataExchange);
+
     dataExchange
       .filter((item) => item.select === true)
       .forEach((item) => {
@@ -142,12 +158,19 @@ function exchangeDetail() {
         returnDetailEntities: exchangeDetails,
       }),
     }).then((res) => loadDataExchangeDetail(id));
-    if(isPut === true) {
-      toastSuccess('Xác nhận yêu cầu thành công !' )
-    }else {
-      toastSuccess('Huỷ yêu cầu thành công !')
+    if (isPut === true) {
+      fetch(
+        `http://localhost:8080/api/orders/update/exchange/${data.orderId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderDetail),
+        }
+      ).then((res) => {});
+      toastSuccess("Xác nhận yêu cầu thành công !");
+    } else {
+      toastSuccess("Huỷ yêu cầu thành công !");
     }
-   
   };
 
   return (
