@@ -724,9 +724,9 @@ function Checkout() {
               </button>
             </div>
             <div className="col-6 mt-2">
-              {/* <button className="btn btn-primary form-control btn-ck ">
+              <button className="btn btn-primary form-control btn-ck ">
                 Chọn sản phẩm
-              </button> */}
+              </button>
             </div>
             <div className="col-6 mt-2">
               {/* <button className="btn btn-success form-control btn-ck">

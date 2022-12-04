@@ -223,7 +223,7 @@ function Table1() {
       const order = {
         payment: "TẠI CỬA HÀNG",
         total: total + shipping,
-        userId: userId === undefined ? 1 : userId,
+        userId: userId === undefined ? null : userId,
         address:
           valueProvince !== undefined
             ? (addressDetail === undefined ? "" : addressDetail + ",") +

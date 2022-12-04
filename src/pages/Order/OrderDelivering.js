@@ -50,6 +50,7 @@ const OrderDelivering = () => {
   const [dataOD, setDataOD] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isView, setView] = useState(false);
   const [dataOrder, setDataOrder] = useState();
   const [put, setPut] = useState();
@@ -184,7 +185,18 @@ const OrderDelivering = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        setDataOrder(results.data.data);
+        results.data.data?.forEach((item) => {
+          data.push({
+            key: item.id,
+            id: item.id,
+            payment: item.payment,
+            customerName: item.customerName,
+            total: item.total,
+            status: item.status,
+            quantity: item.quantity,
+          });
+        });
+        setDataOrder(data);
         setLoading(false);
       });
   };
@@ -235,14 +247,14 @@ const OrderDelivering = () => {
               </div>
             </>
           );
-        }else {
+        } else {
           return (
             <>
               <div
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-               Tại cửa hàng
+                Tại cửa hàng
               </div>
             </>
           );
@@ -343,13 +355,62 @@ const OrderDelivering = () => {
   };
 
   const clearSearchForm = () => {
+    dataOrder?.forEach((item, index) => {
+      data.splice(index, dataOrder.length);
+    });
+
+    if (dataOrder.length == 0) {
+      setDataOrder([]);
+      setData([]);
+      loadDataOrder();
+      setSearchName("");
+      setSelectedRowKeys([]);
+    }
+
     loadDataOrder();
     setSearchName("");
-    // setSearchStartDate();
-    // searchEndDate()
   };
-  const resetEditing = () => {
-    setEditing(false);
+  const onSelectChange = (newSelectedRowKeys) => {
+    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+
+  const confirmCheckBox = () => {
+    const isPut = true;
+    Modal.confirm({
+      icon: <CheckCircleOutlined />,
+      title: "Xác nhận đơn hàng ",
+      content: `Bạn có muốn xác nhận những đơn hàng này không?`,
+      okText: "Có",
+      cancelText: "Không",
+      okType: "primary",
+      onOk: () => {
+        handleConfirm(isPut);
+      },
+    });
+  };
+
+  const handleConfirm = (isPut) => {
+    const dataOrder = [];
+    selectedRowKeys.forEach((item) => {
+      dataOrder.push({
+        id: item,
+        status: "DA_NHAN",
+      });
+    });
+    fetch(`http://localhost:8080/api/orders/confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dataOrder),
+    }).then((res) => {
+      clearSearchForm();
+    });
+
+    console.log(dataOrder);
   };
   return (
     <div>
@@ -431,6 +492,7 @@ const OrderDelivering = () => {
       >
         <div className="col-12">
           <Table
+            rowSelection={rowSelection}
             columns={columns}
             rowKey={(record) => record.id}
             dataSource={dataOrder}
@@ -501,6 +563,15 @@ const OrderDelivering = () => {
             </table>
           </Modal>
         </div>
+        {selectedRowKeys.length > 0 ? (
+          <div className="text-center mb-4">
+            <Button type="primary" onClick={confirmCheckBox}>
+              Nhận hàng
+            </Button>
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );

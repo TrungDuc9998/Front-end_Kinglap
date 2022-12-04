@@ -98,6 +98,7 @@ const ExchangeSuccess = () => {
   };
 
   const ConfirmReturn = (data, isPut) => {
+    console.log('data confirm');
     console.log(data);
     const returnDetail = [];
     data.returnDetailEntities.forEach((element) => {
@@ -120,6 +121,20 @@ const ExchangeSuccess = () => {
         returnDetailEntities: returnDetail,
       }),
     }).then((res) => loadDataExchange());
+    // fetch(
+    //   `http://localhost:8080/api/orders/${record.orderDetail.id}/orderDetails`,
+    //   {
+    //     method: "PUT",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({
+    //       productId: record.productId.id,
+    //       total: record.orderDetail.total,
+    //       quantity: record.quantity,
+    //       status: record.orderDetail.status,
+    //       isCheck: 1,
+    //     }),
+    //   }
+    // ).then((res) => {});
     toastSuccess("Cập nhật thành công !");
   };
 
@@ -135,6 +150,7 @@ const ExchangeSuccess = () => {
         status: isPut === true ? "DA_XAC_NHAN" : "KHONG_XAC_NHAN",
       }),
     }).then((res) => {});
+
     fetch(
       `http://localhost:8080/api/orders/${record.orderDetail.id}/orderDetails`,
       {
@@ -188,7 +204,7 @@ const ExchangeSuccess = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log('result id');
+        console.log("result id");
         console.log(results);
         console.log(results.data.data);
         setDataExchange(results.data.data);

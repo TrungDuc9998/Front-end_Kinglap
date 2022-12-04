@@ -47,6 +47,7 @@ const OrderWait = () => {
   const [searchStartDate, setSearchStartDate] = useState();
   const [searchEndDate, setSearchEndDate] = useState();
   const [searchName, setSearchName] = useState();
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -92,16 +93,53 @@ const OrderWait = () => {
         });
       });
   };
-
-
-  const clearSearchForm = () => {
-    loadDataOrder();
-    setSearchName("");
-    // setSearchStartDate();
-    // searchEndDate()
+  const confirmCheckBox = () => {
+    const isPut = true;
+    Modal.confirm({
+      icon: <CheckCircleOutlined />,
+      title: "Xác nhận đơn hàng ",
+      content: `Bạn có muốn xác nhận những đơn hàng này không?`,
+      okText: "Có",
+      cancelText: "Không",
+      okType: "primary",
+      onOk: () => {
+        handleConfirm(isPut);
+      },
+    });
   };
 
-  
+  const handleConfirm = (isPut) => {
+    const dataOrder = [];
+    selectedRowKeys.forEach((item) => {
+      dataOrder.push({
+        id: item,
+        status: "DANG_GIAO",
+      });
+    });
+    fetch(`http://localhost:8080/api/orders/confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dataOrder),
+    }).then((res) => {
+      clearSearchForm();
+    });
+
+    console.log(dataOrder);
+  };
+
+  const clearSearchForm = () => {
+    dataOrder?.forEach((item, index) => {
+      data.splice(index, dataOrder.length);
+    });
+
+    if (dataOrder.length == 0) {
+      setDataOrder([]);
+      setData([]);
+      loadDataOrder();
+      setSearchName("");
+      setSelectedRowKeys([]);
+    }
+  };
 
   const handleChangeDateSearch = (val, dateStrings) => {
     if (dateStrings[0] != null) setSearchStartDate(dateStrings[0]);
@@ -175,7 +213,18 @@ const OrderWait = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        setDataOrder(results.data.data);
+        results.data.data?.forEach((item) => {
+          data.push({
+            key: item.id,
+            id: item.id,
+            payment: item.payment,
+            customerName: item.customerName,
+            total: item.total,
+            status: item.status,
+            quantity: item.quantity,
+          });
+        });
+        setDataOrder(data);
         setLoading(false);
       });
   };
@@ -226,14 +275,14 @@ const OrderWait = () => {
               </div>
             </>
           );
-        }else {
+        } else {
           return (
             <>
               <div
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-               Tại cửa hàng
+                Tại cửa hàng
               </div>
             </>
           );
@@ -268,12 +317,6 @@ const OrderWait = () => {
               style={{ marginLeft: 12, color: "red", fontSize: "23px" }}
               onClick={() => {
                 showModalData(id);
-              }}
-            />
-            <CheckCircleOutlined
-              style={{ marginLeft: 12, color: "green", fontSize: "23px" }}
-              onClick={() => {
-                onConfirm(record);
               }}
             />
           </>
@@ -318,6 +361,15 @@ const OrderWait = () => {
     }).then((res) => {
       loadDataOrder();
     });
+  };
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
   };
 
   const resetEditing = () => {
@@ -403,6 +455,7 @@ const OrderWait = () => {
       >
         <div className="col-12">
           <Table
+            rowSelection={rowSelection}
             columns={columns}
             rowKey={(record) => record.id}
             dataSource={dataOrder}
@@ -474,6 +527,15 @@ const OrderWait = () => {
             </table>
           </Modal>
         </div>
+        {selectedRowKeys.length > 0 ? (
+          <div className="text-center mb-4">
+            <Button type="primary" onClick={confirmCheckBox}>
+              Cập nhật đơn hàng
+            </Button>
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );
