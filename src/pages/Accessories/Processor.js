@@ -99,7 +99,7 @@ const Processor = () => {
     console.log({ inputRef });
   }, [cpuCompany != undefined]);
 
-  const loadDataCategory = () => { };
+  const loadDataCategory = () => {};
 
   const onDelete = (record) => {
     Modal.confirm({
@@ -411,7 +411,7 @@ const Processor = () => {
     setSearchStatus(value);
   };
 
-  const handleChange = () => { };
+  const handleChange = () => {};
 
   return (
     <div>
@@ -503,7 +503,7 @@ const Processor = () => {
           >
             <Form
               initialValues={{
-                // cpuCompany: name,
+                cpuCompany: name,
               }}
               autoComplete="off"
               labelCol={{ span: 7 }}
@@ -534,7 +534,6 @@ const Processor = () => {
               >
                 <Input placeholder="Nhập hãng CPU" ref={cpuCompany} />
               </Form.Item>
-
               <Form.Item
                 name="cpuTechnology"
                 label="Công nghệ CPU"

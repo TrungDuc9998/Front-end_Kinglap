@@ -31,6 +31,7 @@ import ExchangeUser from "../pages/customer/Order/Exchange";
 import ReturnUser from "../pages/customer/Order/Return";
 import ExchangeDetail from "../pages/Order/ExchangeDetail";
 import Table1 from "../pages/Order/Table";
+import Statistical from "../pages/statistical/Statistical";
 const publicRoutes = [
   {
     path: "/",
@@ -156,7 +157,10 @@ const publicRoutes = [
   {
     path: "/admin/order/exchange/detail/:id",
     component: ExchangeDetail,
-  },
+  },{
+    path: "/admin/statistical",
+    component: Statistical
+  }
 
 ];
 
