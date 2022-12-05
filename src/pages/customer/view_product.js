@@ -190,7 +190,7 @@ function ViewProduct() {
                                         </tr>
                                         <tr>
                                             <th scope="row">Ổ cứng</th>
-                                            <td>{product.storage.name}</td>
+                                            <td>{product.storage.storageDetail.type}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">Đồ họa</th>
@@ -198,7 +198,7 @@ function ViewProduct() {
                                         </tr>
                                         <tr>
                                             <th scope="row">Hệ điều hành</th>
-                                            {/* <td>{product.configuration.win}</td> */}
+                                            <td>{product.win}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -284,22 +284,21 @@ function ViewProduct() {
                                             </div>
 
                                         </div>
-                                        {/*<div class="card-header" style={{ textAlign: 'left' }}>
+                                        <div class="card-header" style={{ textAlign: 'left' }}>
                                             Đồ họa
                                         </div>
                                         <div class="card-body row">
                                             <div className="col-6">
-                                                <h2>Card onboard</h2>
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
+                                                <li><span style={{ fontSize: "20px", fontWeight: "600" }}>Card onboard</span></li>
+                                                <li>Hãng: {product.cardOnboard.trandemark}</li>
+                                                <li>Model: {product.cardOnboard.model}</li>
+                                                <li>Bộ nhớ: {product.cardOnboard.memory}</li>
                                             </div>
                                             <div className="col-6">
-                                                <h2>Card rời</h2>
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
+                                                <li><span style={{ fontSize: "20px", fontWeight: "600" }}>Card rời</span></li>
+                                                <li>Hãng: {product.card.trandemark}</li>
+                                                <li>Model: {product.card.model}</li>
+                                                <li>Bộ nhớ: {product.card.memory}</li>
                                             </div>
                                         </div>
                                         <div class="card-header" style={{ textAlign: 'left' }}>
@@ -307,15 +306,10 @@ function ViewProduct() {
                                         </div>
                                         <div class="card-body row">
                                             <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
-                                            </div>
-                                            <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
+                                                <li>Kiểu ổ cứng: {product.storage.storageDetail.type}</li>
+                                                <li>Số khe cắm:  {product.storage.number}</li>
+                                                <li>Loại SSD:{product.storage.storageDetail.storageType.name}</li>
+                                                <li>Dung lượng: {product.storage.storageDetail.capacity}</li>
                                             </div>
                                         </div>
                                         <div class="card-header" style={{ textAlign: 'left' }}>
@@ -324,23 +318,13 @@ function ViewProduct() {
                                         <div class="card-body row">
                                             <li>{product.security}</li>
                                         </div>
-                                             <div class="card-header" style={{ textAlign: 'left' }}>
-                                            Giao tiếp & kết nối
+                                        <div class="card-header" style={{ textAlign: 'left' }}>
+                                            Hệ điều hành
                                         </div>
                                         <div class="card-body row">
-                                            <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
-                                            </div>
-                                            <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
-                                            </div>
+                                            <li>{product.win}</li>
                                         </div>
-                                        <div class="card-header" style={{ textAlign: 'left' }}>
+                                        {/* <div class="card-header" style={{ textAlign: 'left' }}>
                                             Âm thanh
                                         </div>
                                         <div class="card-body row">
