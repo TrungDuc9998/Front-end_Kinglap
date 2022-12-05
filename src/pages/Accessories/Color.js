@@ -1,4 +1,4 @@
-import { Table, Slider, Select, Input, Button, Modal } from "antd";
+import { Table, Slider, Select, Input, Button, Modal, Form } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -6,29 +6,34 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  LockOutlined,
+  UnlockOutlined
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
+import Moment from 'react-moment';
+import toastrs from "toastr";
+import { ToastContainer, toast } from 'react-toastify';
 const { Option } = Select;
 
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
-  });
-};
+const url = 'http://localhost:8080/api/auth/colors';
 
 const getRandomuserParams = (params) => ({
-  results: params.pagination?.pageSize,
+  limit: params.pagination?.pageSize,
   page: params.pagination?.current,
   ...params,
 });
 
 const Color = () => {
-  const [data, setData] = useState();
+  const [data, setData] = useState(
+  );
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
+  const [name, setName] = useState();
+  const [isDelete, setDelete] = useState(false);
+  const [id, setId] = useState();
+  const [isUpdate, setIsUpdate] = useState(false);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -38,85 +43,145 @@ const Color = () => {
 
   const columns = [
     {
-      title: "Tên thể loại",
+      title: "Tên màu",
       dataIndex: "name",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
       width: "20%",
     },
     {
       title: "Ngày tạo",
-      dataIndex: "name",
+      dataIndex: "createdAt",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
-    },
-    {
-      title: "Người tạo",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
+      render(createdAt) {
+        return (
+          <Moment format="DD-MM-YYYY HH:mm:ss">
+            {createdAt}
+          </Moment>
+        );
+      },
+      width: "30%",
     },
     {
       title: "Ngày cập nhật",
-      dataIndex: "name",
+      dataIndex: "updatedAt",
       sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "20%",
+      render(updatedAt) {
+        return (
+          <Moment format="DD-MM-YYYY HH:mm:ss">
+            {updatedAt}
+          </Moment>
+        );
+      },
+      width: "30%",
     },
-    {
-      title: "Người cập nhật",
-      dataIndex: "name",
-      sorter: true,
-      render: (name) => `${name.first} ${name.last}`,
-      width: "15%",
-    },
-    // {
-    //   title: "Email",
-    //   dataIndex: "email",
-    // },
     {
       title: "Trạng thái",
-      dataIndex: "Trạng thái",
+      dataIndex: "status",
+      sorter: true,
       with: "30%",
-      render: (record) => {
-        return (
-          <>
-            <div
-              className="bg-success text-center text-light"
-              style={{ width: "100px", borderRadius: "5px" }}
-            >
-              Hoạt động
-            </div>
-          </>
-        );
+      render: (status) => {
+        if (status == 1) {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              >
+                Hoạt động
+              </div>
+            </>
+          );
+        }
+        else {
+          return (
+            <>
+              <div
+                className="bg-secondary text-center text-light"
+                style={{ width: "140px", borderRadius: "5px", padding: "5px" }}
+              >
+                Không hoạt động
+              </div>
+            </>
+          );
+        }
       },
     },
     {
       title: "Thao tác",
       dataIndex: "Thao tác",
       width: "30%",
-      render: (record) => {
-        return (
-          <>
-            <EyeOutlined
-              onClick={() => {
-                onView(record);
-              }}
-            />
-            <EditOutlined
-              style={{ marginLeft: 12 }}
-              onClick={() => {
-                onEdit(record);
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => onDelete(record)}
-              style={{ color: "red", marginLeft: 12 }}
-            />
-          </>
-        );
+      render: (id, data) => {
+        if (data.status == 1) {
+          return (
+            <>
+              <UnlockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/staff/color/${data.id}/inactive/`, { method: "PUT" }).then(() => fetchData());
+                  toastrs.options = {
+                    timeOut: 6000,
+                  }
+                  toast.success('Khóa thành công!', {
+                    position: "top-right",
+                    autoClose: 1000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  onEdit(data.id, data.name);
+                }}
+              />
+              <DeleteOutlined
+                onClick={() => onDelete(data.id)}
+                style={{ color: "red", marginLeft: 12 }}
+              />
+            </>
+          );
+        } else if (data.status == 0) {
+          return (
+            <>
+              <LockOutlined
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/staff/color/${data.id}/active/`, { method: "PUT" }).then(() => fetchData());
+                  toastrs.options = {
+                    timeOut: 6000
+                  }
+                  toast.success('Mở khóa thành công!', {
+                    position: "top-right",
+                    autoClose: 1000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                  });
+                }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  onEdit(data.id, data.name);
+                }}
+              />
+              <DeleteOutlined
+                onClick={() => onDelete(data.id)}
+                style={{ color: "red", marginLeft: 12 }}
+              />
+            </>
+          );
+        }
       },
     },
   ];
@@ -124,20 +189,20 @@ const Color = () => {
   const fetchData = () => {
     setLoading(true);
     fetch(
-      `https://randomuser.me/api?${qs.stringify(
+      `http://localhost:8080/api/auth/colors?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`
     )
       .then((res) => res.json())
-      .then(({ results }) => {
-        setData(results);
+      .then((results) => {
+        setData(results.data.data);
+        // console.log(results);
         setLoading(false);
         setTableParams({
           ...tableParams,
           pagination: {
             ...tableParams.pagination,
-            total: 200, // 200 is mock data, you should read it from server
-            // total: data.totalCount,
+            total: 200,
           },
         });
       });
@@ -146,6 +211,11 @@ const Color = () => {
   useEffect(() => {
     fetchData();
   }, [JSON.stringify(tableParams)]);
+
+  const onDelete = (id) => {
+    setId(id);
+    setDelete(true);
+  };
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -159,6 +229,10 @@ const Color = () => {
     console.log(`selected ${value}`);
   };
 
+  const changeName = (event) => {
+    setName(event.target.value);
+  }
+
   const onSearch = (value) => {
     console.log("search:", value);
   };
@@ -170,17 +244,40 @@ const Color = () => {
     setOpen(true);
   };
 
-  const handleOk = () => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
+  const handleOk = (values) => {
+    fetch(
+      `http://localhost:8080/api/staff/color`, {
+      method: "POST", headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: values.name, status: 1 })
+    }).then((res) => res.json())
+      .then((results) => {
+        toastrs.options = {
+          timeOut: 6000
+        }
+        toastrs.clear();
+        toast.success('Thêm mới thành công!', {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        fetchData();
+        setName("");
+        setEditing(false);
+        setOpen(false);
+      });
   };
 
-  const onEdit = (record) => {
+  const onEdit = (id, name) => {
+    setId(id);
+    console.log(id);
     setEditing(true);
+    setName(name);
+    console.log(name);
   };
 
   const onView = (record) => {
@@ -225,21 +322,21 @@ const Color = () => {
           </Select>
         </div>
         <div className="col-12 text-center ">
-        <Button
+          <Button
             className="mt-2"
             type="primary-uotline"
             // onClick={showModal}
             style={{ borderRadius: "10px" }}
           >
-          <ReloadOutlined/>Đặt lại
+            <ReloadOutlined />Đặt lại
           </Button>
-        <Button
+          <Button
             className="mx-2  mt-2"
             type="primary"
             // onClick={showModal}
             style={{ borderRadius: "10px" }}
           >
-          <SearchOutlined />Tìm kiếm
+            <SearchOutlined />Tìm kiếm
           </Button>
         </div>
       </div>
@@ -252,18 +349,58 @@ const Color = () => {
             style={{ borderRadius: "10px" }}
           >
             <PlusOutlined /> Thêm mới
+            <ToastContainer />
           </Button>
           <Modal
             title="Tạo mới"
             open={open}
-            onOk={handleOk}
+            // onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
           >
-            <div className="form group">
-              <label>Tên thể loại</label>
-              <Input placeholder="Tên thể loại" />
-            </div>
+            <Form
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                handleCancel();
+                handleOk(values);
+                console.log({ values });
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <Form.Item
+                className="mt-2"
+                name="name"
+                label="Tên màu"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tên màu không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Tên loại màu" />
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                    <Button block type="danger" id="create" htmlType="submit">
+                      Hủy
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
         </div>
       </div>
@@ -280,7 +417,7 @@ const Color = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record.login.uuid}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -293,14 +430,65 @@ const Color = () => {
               setEditing(false);
             }}
             onOk={() => {
+              fetch(
+                `http://localhost:8080/api/staff/color/${id}`,
+                { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) }).then((res) => res.json())
+                .then(() => fetchData());
               setEditing(false);
+              toastrs.options = {
+                timeOut: 6000
+              }
+              toastrs.clear();
+              toast.success('Cập nhật danh mục màu thành công!', {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
+              setName("");
             }}
           >
             <label>
               Tên thể loại
               <span className="text-danger"> *</span>
             </label>
-            <Input placeholder="Tên thể loại" />
+            <Input placeholder="Tên thể loại" name="name" value={name} onChange={changeName} />
+          </Modal>
+
+          <Modal
+            title="Xóa danh mục"
+            visible={isDelete}
+            onCancel={() => {
+              setDelete(false);
+            }}
+            onOk={() => {
+              console.log(id);
+              fetch(
+                `http://localhost:8080/api/staff/color/${id}`, { method: 'DELETE' }).then(() => fetchData());
+              setDelete(false);
+              toastrs.options = {
+                timeOut: 6000
+              }
+              toastrs.clear();
+              toast.success('Xóa danh mục thành công!', {
+                position: "top-right",
+                autoClose: 1000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
+            }}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            Bạn có chắc chắn muốn xóa màu này?
           </Modal>
 
           <Modal
