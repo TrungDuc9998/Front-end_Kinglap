@@ -1,4 +1,4 @@
-import { Table, Slider, Select, Input, Button, Modal } from "antd";
+import { Table, Slider, Select, Input, Button, Modal, Form } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -16,6 +16,7 @@ const { Option } = Select;
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.limit,
   page: params.pagination?.page,
+  //searchStorageType: params.pagination?.searchStorageType
 });
 
 const toastSuccess = (message) => {
@@ -45,16 +46,19 @@ const toastError = (message) => {
 };
 
 const Storage = () => {
+  const [formE] = Form.useForm();
   const [detail, setDetail] = useState([]);
   const [data, setData] = useState();
   const [dataDetail, setDataDetail] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
+  //const [searchStorageType, setSearchStorageType]=useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       page: 1,
       limit: 10,
+      //searchStorageType:""
     },
   });
 
@@ -202,10 +206,15 @@ const Storage = () => {
     fetchData();
     loadDataDetail();
   }, [JSON.stringify(tableParams)]);
-
+  const [storageDetail, setStorageDetail]=useState()
   const [form, setValues] = useState({
     id: "",
-    storageDetail: "",
+    storageDetailId: "",
+    total: "",
+    number: "",
+  });
+  const [formDefault, setFormDefault] = useState({
+    id: "",
     storageDetailId: "",
     total: "",
     number: "",
@@ -219,13 +228,6 @@ const Storage = () => {
     });
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
@@ -234,11 +236,17 @@ const Storage = () => {
     setOpen(true);
   };
 
-  const handleEdit = () => {
-    fetch(`http://localhost:8080/api/storages/` + form.id, {
+  const handleEdit = (value) => {
+    const formEdit={
+      id:form.id,
+      storageDetailId: storageDetail,
+      total: value.total,
+      number: value.number,
+    }
+    fetch(`http://localhost:8080/api/storages/` + formEdit.id, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(formEdit),
     }).then((res) => res.json())
       .then((results) => {
         if (results.data == null) {
@@ -246,16 +254,18 @@ const Storage = () => {
         } else {
           fetchData();
           toastSuccess("Cập nhật thành công!");
-          setOpen(false);
+          handleCancel();
         }
       });
   }
 
   const handleSelect = (e) => {
+    console.log("select",e)
     setValues({
       ...form,
       storageDetailId: e
     });
+    setStorageDetail(e)
   }
 
   const handle = (e) => {
@@ -265,7 +275,12 @@ const Storage = () => {
     });
   }
 
-  const handleOk = () => {
+  const handleOk = (value) => {
+    const form={
+      storageDetailId: value.storageDetailId,
+      total: value.total,
+      number: value.number,
+    }
     fetch(`http://localhost:8080/api/storages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -277,12 +292,16 @@ const Storage = () => {
         } else {
           toastSuccess("Thêm mới thành công!");
           setOpen(false);
+          fetchData();
+          formE.setFieldsValue(formDefault);
         }
       });
   };
 
   const onEdit = (id, data) => {
     setValues(data);
+    formE.setFieldsValue(data);
+    setStorageDetail(data.storageDetail.id);
     setEditing(true);
   };
 
@@ -293,19 +312,74 @@ const Storage = () => {
   const handleCancel = () => {
     console.log("Clicked cancel button");
     setOpen(false);
+    setEditing(false);
+    formE.setFieldsValue(formDefault);
   };
+  // const search=()=>{
+  //   setTableParams(
+  //     tableParams.pagination.current= 1,
+  //     tableParams.pagination.pageSize= 10,
+  //     //tableParams.pagination.searchStorageType=searchStorageType,
+  //   );
+  //   fetchData();
+  // }
+  // const clearSearchForm = () => {
+  //   setSearchStorageType("")
+  //   setTableParams({
+  //     ...tableParams,
+  //     pagination: {
+  //       ...tableParams.pagination.current = 1,
+  //       ...tableParams.pagination.pageSize = 10,
+  //       ...tableParams.pagination.searchStorageType = ""
+  //     }
+  //   });
+  //   fetchData();
+  // }
   return (
     <div>
-      <div
+      {/* <div
         className="row"
         style={{
           borderRadius: "20px",
-          height: "150px",
+          height: "auto",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
       >
-      </div>
+        
+            <div className="col-10 mt-3 mb-3">
+              <label>Từ khoá</label>
+              <div className="row">
+                <div className="col-4 mt-3">
+                    <Input placeholder="Nhập kiểu ổ cứng" value={searchStorageType}
+                      onChange={(e) => setSearchStorageType(e.target.value)}/>
+                </div>
+                <div className="col-8 mt-3">
+                    <Button
+                        className="mb-2 mx-2"
+                        type="primary"
+                        onClick={search}
+                        style={{ borderRadius: "10px" }}
+                    >
+                        <SearchOutlined />
+                        Tìm kiếm
+                    </Button>
+                    <Button
+                        className="mb-2"
+                        type="primary-uotline"
+                        onClick={clearSearchForm}
+                        style={{ borderRadius: "10px" }}
+                    >
+                        <ReloadOutlined />
+                        Đặt lại
+                    </Button>
+
+                    </div>
+              </div>
+              
+            </div>
+            
+      </div> */}
       <div className="row">
         <div className="col-12 mt-4">
           <Button
@@ -323,9 +397,34 @@ const Storage = () => {
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
           >
-            <div className="form group">
-              <label>Kiểu ổ cứng</label>
-              <Select
+            <Form
+              form={formE}
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                setValues(
+                  values
+                );
+                handleOk(values)
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <Form.Item
+                className="mt-2"
+                name="storageDetailId"
+                label="Kiểu ổ cứng"
+                rules={[
+                  {
+                    required: true,
+                    message: "Kiểu ổ cứng không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Select
                 showSearch
                 style={{
                   width: 300,
@@ -333,24 +432,57 @@ const Storage = () => {
                 placeholder="Search to Select"
                 optionFilterProp="children"
                 filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                name="storageDetailId"
                 onChange={(e) => handleSelect(e)}
                 options={detail.map((detail) => ({
                   label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
                   value: detail.id,
                 }))}
               />
-            </div>
-            <br></br>
-            <div className="form group">
-              <label>Tổng số khe cắm SSD/HDD</label>
-              <Input name="total" type="total" placeholder="Tổng số khe cắm SSD/HDD" onChange={(e) => handle(e)} />
-            </div>
-            <br></br>
-            <div className="form group">
-              <label>Số khe SSD/HDD còn lại</label>
-              <Input name="number" type="number" placeholder="Số khe SSD/HDD còn lại" onChange={(e) => handle(e)} />
-            </div>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="total"
+                label="Tổng số khe cắm SSD/HDD"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tổng số khe cắm SSD/HDD không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tổng số khe cắm SSD/HDD" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="number"
+                label="Số khe SSD/HDD còn lại"
+                rules={[
+                  {
+                    required: true,
+                    message: "Số khe SSD/HDD còn lại không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập số khe SSD/HDD còn lại" />
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                    <Button block type="danger" id="create" htmlType="submit">
+                      Lưu nháp
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
+           
           </Modal>
         </div>
       </div>
@@ -374,43 +506,95 @@ const Storage = () => {
           <Modal
             title="Cập nhật"
             visible={isEditing}
-            onCancel={() => {
-              setEditing(false);
-            }}
+            onCancel={handleCancel}
             onOk={() => {
               setEditing(false);
               handleEdit();
             }}
           >
-            <div className="form group">
-              <label>Kiểu ổ cứng</label>
-              <Select
-                value={form.storageDetail.id}
+            <Form
+              form={formE}
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                console.log("values",values);
+                handleEdit(
+                  values
+                );
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <Form.Item
+                className="mt-2"
+                // name="storageDetailId"
+                label="Kiểu ổ cứng"
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Kiểu ổ cứng không được để trống",
+                //   },
+                // ]}
+                // hasFeedback
+              >
+                <Select
                 showSearch
                 style={{
                   width: 300,
                 }}
+                name="storageDetailId"
+                value={storageDetail}
                 placeholder="Search to Select"
                 optionFilterProp="children"
+                
                 filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                name="storageDetailId"
                 onChange={(e) => handleSelect(e)}
                 options={detail.map((detail) => ({
                   label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
                   value: detail.id,
                 }))}
               />
-            </div>
-            <br></br>
-            <div className="form group">
-              <label>Tổng số khe cắm SSD/HDD</label>
-              <Input name="total" type="number" placeholder="Tổng số khe cắm SSD/HDD" onChange={(e) => handle(e)} value={form.total} />
-            </div>
-            <br></br>
-            <div className="form group">
-              <label>Số khe SSD/HDD còn lại</label>
-              <Input name="number" type="number" placeholder="Số khe SSD/HDD còn lại" onChange={(e) => handle(e)} value={form.number} />
-            </div>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="total"
+                label="Tổng số khe cắm SSD/HDD"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tổng số khe cắm SSD/HDD không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tổng số khe cắm SSD/HDD" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="number"
+                label="Số khe SSD/HDD còn lại"
+                rules={[
+                  {
+                    required: true,
+                    message: "Số khe SSD/HDD còn lại không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập số khe SSD/HDD còn lại" />
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Cập nhật
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
         </div>
       </div>
