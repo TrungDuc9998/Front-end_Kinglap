@@ -1,4 +1,4 @@
-import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space } from "antd";
+import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space, Form, InputNumber } from "antd";
 import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
 import {
   DeleteOutlined,
@@ -48,6 +48,7 @@ const Screen = () => {
       theme: "light",
     });
   }
+  const [formE] = Form.useForm();
   const [category, setCategory] = useState([]);
   const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
@@ -65,7 +66,7 @@ const Screen = () => {
     screenRatio:"",
     touchScreen:"",
     contrast:"",
-    price:"",
+    price:null,
     status: "ACTIVE",  
   }]
   );
@@ -82,7 +83,7 @@ const Screen = () => {
     screenRatio:"",
     touchScreen:"",
     contrast:"",
-    price:"",
+    price:null,
     status: "ACTIVE",
   }
   );
@@ -99,7 +100,7 @@ const Screen = () => {
     screenRatio:"",
     touchScreen:"",
     contrast:"",
-    price:"",
+    price:null,
     status: "ACTIVE",
   }
   );
@@ -125,21 +126,6 @@ const Screen = () => {
       searchScreenTechnology:""
     },
   });
-
-  // const loadDataCategory = () => {
-  //   setLoading(true);
-  //   fetch(
-  //     `http://localhost:8080/api/staff/category?${qs.stringify(
-  //       getRandomuserParams(tableParams)
-  //     )}`
-  //   )
-  //     .then((res) => res.json())
-  //     .then((results) => {
-  //       console.log(results.data.data);
-  //       setCategory(results.data.data);
-  //       setLoading(false);
-  //     });
-  // };
 
   const columns = [
     {
@@ -377,22 +363,7 @@ const Screen = () => {
   //LoadList
   useEffect(() => {
     getData();
-    //loadDataCategory();
   }, [JSON.stringify(tableParams)]);
-
-  //OnChange Form
-  const handle = (e) => {
-    setValues({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  }
-  const handleSelect = (e) => {
-    setValues({
-      ...form,
-      categoryId: e
-    });
-  }
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -423,19 +394,22 @@ const Screen = () => {
   };
 
   //btn Add
-  const handleAdd = (e) => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    submitAdd(e);
-    setTimeout(() => {
-      setConfirmLoading(false);
-    }, 2000);
-  };
-  function submitAdd(e) {
-    if (form.ratio < 0 || form.ratio > 100) {
-      notifyError('Tỉ lệ phải từ 0-100!');
-    } else {
-      e.preventDefault();
+  const handleAdd = (value) => {
+    const form={
+      size:value.size,
+      screenTechnology:value.screenTechnology,
+      resolution:value.resolution,
+      screenType:value.screenType,
+      scanFrequency:value.scanFrequency, 
+      backgroundPanel:value.backgroundPanel,
+      brightness:value.brightness,
+      colorCoverage:value.colorCoverage,
+      screenRatio:value.screenRatio,
+      touchScreen:value.touchScreen,
+      contrast:value.contrast,
+      price:value.price,
+      status: "ACTIVE",
+    }
       axios.post(url+"/staff/screens", form)
         .then(res => {
           notifySuccess('Thêm bản ghi thành công')
@@ -443,46 +417,50 @@ const Screen = () => {
           setOpen(false);
           getData();
           setValues(formDefault);
+          formE.setFieldsValue(formDefault);
           console.log(res.data);
         }).catch((error) => {
           notifyError('Yêu cầu nhập đủ các trường!');
           return;
         })
-    }
-
   }
   //loadFormEdit
   const showModalEdit = (data) => {
+    console.log("edit",data)
     setValues(data);
+    formE.setFieldsValue(data);
   };
 
   //btn Edit
-  const handleEdit = (e) => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    submitEdit(e);
-    setTimeout(() => {
-      setConfirmLoading(false);
-    }, 2000);
-  };
-  function submitEdit(e) {
-    if (form.ratio < 0 || form.ratio > 100) {
-      notifyError('Tỉ lệ phải từ 0-100!');
-    } else {
-      // e.preventDefault();
-      axios.put(url + "/staff/screens/" + form.id, form)
+  const handleEdit = (value)=>{
+      const dataEdit={
+        id:form.id,
+        size:value.size,
+        screenTechnology:value.screenTechnology,
+        resolution:value.resolution,
+        screenType:value.screenType,
+        scanFrequency:value.scanFrequency, 
+        backgroundPanel:value.backgroundPanel,
+        brightness:value.brightness,
+        colorCoverage:value.colorCoverage,
+        screenRatio:value.screenRatio,
+        touchScreen:value.touchScreen,
+        contrast:value.contrast,
+        price:value.price,
+        status: form.status,
+      }
+      axios.put(url + "/staff/screens/" + dataEdit.id, dataEdit)
         .then(res => {
           notifySuccess('Sửa bản ghi thành công')
           getData();
           setEditing(false);
           setValues(formDefault);
+          formE.setFieldsValue(formDefault);
           console.log(res.data);
         }).catch((error) => {
           notifyError('Yêu cầu nhập đủ các trường!');
           return;
         })
-    }
-
   }
 
 
@@ -513,6 +491,7 @@ const Screen = () => {
     setOpen(false);
     setEditing(false);
     setValues(formDefault);
+    formE.setFieldsValue(formDefault);
   };
   const search=()=>{
     setTableParams(
@@ -541,6 +520,12 @@ const Screen = () => {
     });
     getData();
   }
+  const checkPrice = (_,value) => {
+    if (value >= 0) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error('Giá phải lớn hơn hoặc bằng 0!'));
+  };
 
   return (
     <div>
@@ -554,6 +539,7 @@ const Screen = () => {
           background: "#fafafa",
         }}
       >
+        
             <div className="col-10 mt-3">
               <label>Từ khoá</label>
               <div className="row">
@@ -610,86 +596,218 @@ const Screen = () => {
           <Modal
             title="Tạo mới"
             open={open}
-            onOk={handleAdd}
+            // onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
           >
-            <div className="col-4 mt-4">
-              <label>Kích thước màn hình</label>
-              <Input placeholder="Nhập kích thước màn hình" onChange={(e) => handle(e)} type="text" name="size" value={form.size}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Công nghệ màn hình</label>
-              <Input placeholder="Nhập công nghệ màn hình" onChange={(e) => handle(e)} type="text" name="screenTechnology" value={form.screenTechnology}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ phân giải</label>
-              <Input placeholder="Nhập độ phân giải" onChange={(e) => handle(e)} type="text" name="resolution" value={form.resolution}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Loại màn hình</label>
-              <Input placeholder="Nhập loại màn hình" onChange={(e) => handle(e)} type="text" name="screenType" value={form.screenType}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tần số quét</label>
-              <Input placeholder="Nhập tần số quét" onChange={(e) => handle(e)} type="text" name="scanFrequency" value={form.scanFrequency}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tấm nền</label>
-              <Input placeholder="Nhập tấm nền" onChange={(e) => handle(e)} type="text" name="backgroundPanel" value={form.backgroundPanel}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ sáng</label>
-              <Input placeholder="Nhập độ sáng" onChange={(e) => handle(e)} type="text" name="brightness" value={form.brightness}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ phủ màu</label>
-              <Input placeholder="Nhập độ phủ màu" onChange={(e) => handle(e)} type="text" name="colorCoverage" value={form.colorCoverage}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tỷ lệ màn hình</label>
-              <Input placeholder="Nhập tỷ lệ màn hình" onChange={(e) => handle(e)} type="text" name="screenRatio" value={form.screenRatio}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Màn hình cảm ứng</label>
-              <Input placeholder="Nhập màn hình cảm ứng" onChange={(e) => handle(e)} type="text" name="touchScreen" value={form.touchScreen}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ tương phản</label>
-              <Input placeholder="Nhập độ tương phản" onChange={(e) => handle(e)} type="text" name="contrast" value={form.contrast}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Giá</label>
-              <Input placeholder="Nhập giá" 
-              type="number"
-              name="price"
-              value={form.price}
-              min={0}
-              onChange={(e) => handle(e)}
-              />
-            </div>
-            {/* <div className="col-4 mt-4">
-            <label>h
-              Thể loại
-              <span className="text-danger me-2"> * </span>
-            </label>
-            <br />
-            <Select
-              showSearch
-              style={{
-                width: 200,
+            <Form
+              form={formE}
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                handleAdd(values)
               }}
-              placeholder="Search to Select"
-              optionFilterProp="children"
-              filterOption={(input, option) => (option?.label ?? '').includes(input)}
-              name="categoryId"
-              onChange={(e) => handleSelect(e)}
-              options={category.map((cate) => ({
-                label: cate.name,
-                value: cate.id,
-              }))}
-            />
-          </div> */}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <Form.Item
+                className="mt-2"
+                name="size"
+                label="Kích thước màn hình"
+                rules={[
+                  {
+                    required: true,
+                    message: "Kích thước màn hình không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập kích thước màn hình" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="screenTechnology"
+                label="Công nghệ màn hình"
+                rules={[
+                  {
+                    required: true,
+                    message: "Công nghệ màn hình không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập công nghệ màn hình" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="screenType"
+                label="Độ phân giải"
+                rules={[
+                  {
+                    required: true,
+                    message: "Độ phân giải không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập độ phân giải" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="resolution"
+                label="Loại màn hình"
+                rules={[
+                  {
+                    required: true,
+                    message: "Loại màn hình không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập loại màn hình"/>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="scanFrequency"
+                label="Tần số quét"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tần số quét không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tần số quét" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="backgroundPanel"
+                label="Tấm nền"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tấm nền không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tấm nền" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="brightness"
+                label="Độ sáng"
+                rules={[
+                  {
+                    required: true,
+                    message: "Độ sáng không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập độ sáng"/>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="colorCoverage"
+                label="Độ phủ màu"
+                rules={[
+                  {
+                    required: true,
+                    message: "Độ phủ màu không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập độ phủ màu" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="screenRatio"
+                label="Tỷ lệ màn hình"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tỷ lệ màn hình không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tỷ lệ màn hình" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="touchScreen"
+                label="Màn hình cảm ứng"
+                rules={[
+                  {
+                    required: true,
+                    message: "Màn hình cảm ứng không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập màn hình cảm ứng" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="contrast"
+                label="Độ tương phản"
+                rules={[
+                  {
+                    required: true,
+                    message: "Độ tương phản không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập độ tương phản" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="price"
+                label="Giá"
+                rules={[
+                  {
+                    required: true,
+                    message: "Giá tiền không được để trống",
+                  },
+                  { validator: checkPrice }
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập giá"/>
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                    <Button block type="danger" id="create" htmlType="submit">
+                      Lưu nháp
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
         </div>
       </div>
@@ -706,7 +824,6 @@ const Screen = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            //rowKey={(record) => console.log('record',record)}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -716,65 +833,219 @@ const Screen = () => {
             title="Cập nhật"
             visible={isEditing}
             onCancel={handleCancel}
-            onOk={(e) => {
-              handleEdit(e);
-              setEditing(false);
-            }}
+            // onOk={(e) => {
+            //   handleEdit(e);
+            // }}
           >
-            <div className="col-4 mt-4">
-              <label>Kích thước màn hình</label>
-              <Input placeholder="Nhập kích thước màn hình" onChange={(e) => handle(e)} type="text" name="size" value={form.size}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Công nghệ màn hình</label>
-              <Input placeholder="Nhập công nghệ màn hình" onChange={(e) => handle(e)} type="text" name="screenTechnology" value={form.screenTechnology}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ phân giải</label>
-              <Input placeholder="Nhập độ phân giải" onChange={(e) => handle(e)} type="text" name="resolution" value={form.resolution}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Loại màn hình</label>
-              <Input placeholder="Nhập loại màn hình" onChange={(e) => handle(e)} type="text" name="screenType" value={form.screenType}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tần số quét</label>
-              <Input placeholder="Nhập tần số quét" onChange={(e) => handle(e)} type="text" name="scanFrequency" value={form.scanFrequency}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tấm nền</label>
-              <Input placeholder="Nhập tấm nền" onChange={(e) => handle(e)} type="text" name="backgroundPanel" value={form.backgroundPanel}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ sáng</label>
-              <Input placeholder="Nhập độ sáng" onChange={(e) => handle(e)} type="text" name="brightness" value={form.brightness}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ phủ màu</label>
-              <Input placeholder="Nhập độ phủ màu" onChange={(e) => handle(e)} type="text" name="colorCoverage" value={form.colorCoverage}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tỷ lệ màn hình</label>
-              <Input placeholder="Nhập tỷ lệ màn hình" onChange={(e) => handle(e)} type="text" name="screenRatio" value={form.screenRatio}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Màn hình cảm ứng</label>
-              <Input placeholder="Nhập màn hình cảm ứng" onChange={(e) => handle(e)} type="text" name="touchScreen" value={form.touchScreen}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ tương phản</label>
-              <Input placeholder="Nhập độ tương phản" onChange={(e) => handle(e)} type="text" name="contrast" value={form.contrast}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Giá</label>
-              <Input placeholder="Nhập giá" 
-              type="number"
-              name="price"
-              value={form.price}
-              min={0}
-              onChange={(e) => handle(e)}
-              />
-            </div>
+            <Form
+              form={formE}
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                console.log("editV",values)
+                handleEdit(values);
+              }}
+              // onFinishFailed={(error) => {
+              //   console.log({ error });
+              // }}
+            >
+              <Form.Item
+                className="mt-2"
+                name="size"
+                label="Kích thước màn hình"
+                rules={[
+                  {
+                    required: true,
+                    message: "Kích thước màn hình không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập kích thước màn hình" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="screenTechnology"
+                label="Công nghệ màn hình"
+                rules={[
+                  {
+                    required: true,
+                    message: "Công nghệ màn hình không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập công nghệ màn hình"/>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="screenType"
+                label="Độ phân giải"
+                rules={[
+                  {
+                    required: true,
+                    message: "Độ phân giải không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập độ phân giải" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="resolution"
+                label="Loại màn hình"
+                rules={[
+                  {
+                    required: true,
+                    message: "Loại màn hình không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập loại màn hình"/>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="scanFrequency"
+                label="Tần số quét"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tần số quét không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tần số quét" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="backgroundPanel"
+                label="Tấm nền"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tấm nền không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tấm nền"/>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="brightness"
+                label="Độ sáng"
+                rules={[
+                  {
+                    required: true,
+                    message: "Độ sáng không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập độ sáng"/>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="colorCoverage"
+                label="Độ phủ màu"
+                rules={[
+                  {
+                    required: true,
+                    message: "Độ phủ màu không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập độ phủ màu" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="screenRatio"
+                label="Tỷ lệ màn hình"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tỷ lệ màn hình không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tỷ lệ màn hình" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="touchScreen"
+                label="Màn hình cảm ứng"
+                rules={[
+                  {
+                    required: true,
+                    message: "Màn hình cảm ứng không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập màn hình cảm ứng"/>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="contrast"
+                label="Độ tương phản"
+                rules={[
+                  {
+                    required: true,
+                    message: "Độ tương phản không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập độ tương phản" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="price"
+                label="Giá tiền"
+                initialValue={data.price}
+                rules={[
+                  {
+                    required: true,
+                    message: "Giá tiền không được để trống",
+                  },
+                  { validator: checkPrice }
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập giá"/>
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Cập nhật
+                    </Button>
+                  </div>
+                  {/* <div className="col-6">
+                    <Button block type="danger" id="create" htmlType="submit">
+                      Lưu nháp
+                    </Button>
+                  </div> */}
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
         </div>
       </div>
