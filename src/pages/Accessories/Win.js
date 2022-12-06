@@ -57,24 +57,26 @@ const Screen = () => {
   const [formDefault, setValuesDefault] = useState({
     id:"",
     name:"",
+    version:"",
     status: "ACTIVE",
   }
   );
   const [form, setValues] = useState({
     id:"",
     name:"",
+    version:"",
     status: "ACTIVE",
   }
   );
 
   const [searchName, setSearchName] = useState();
-  const [searchSize, setSearchSize] = useState();
-  const [searchScreenTechnology, setSearchScreenTechnology] = useState();
+  const [searchVersion, setSearchVersion] = useState();
   //loadParam getList
   const getRandomuserParams = (params) => ({
     limit: params.pagination?.pageSize,
     page: params.pagination?.current,
     searchName: params.pagination?.searchName,
+    searchVersion: params.pagination?.searchVersion,
   });
   //phân trang Table
   const [tableParams, setTableParams] = useState({
@@ -82,13 +84,20 @@ const Screen = () => {
       current: 1,
       pageSize: 10,
       searchName:"",
+      searchVersion:""
     },
   });
 
   const columns = [
     {
-      title: "Name",
+      title: "Tên hệ điều hành",
       dataIndex: "name",
+      sorter: true,
+      width: "20%",
+    },
+    {
+      title: "Version",
+      dataIndex: "version",
       sorter: true,
       width: "20%",
     },
@@ -313,6 +322,7 @@ const Screen = () => {
   const handleAdd = (value) => {
     const form={
         name:value.name,
+        version:value.version,
         status:"ACTIVE"
     }
       axios.post(url+"/staff/wins", form)
@@ -343,6 +353,7 @@ const Screen = () => {
       const dataEdit={
         id:form.id,
         name:value.name,
+        version:value.version,
         status: form.status,
       }
       axios.put(url + "/staff/wins/" + dataEdit.id, dataEdit)
@@ -393,6 +404,7 @@ const Screen = () => {
       tableParams.pagination.current= 1,
       tableParams.pagination.pageSize= 10,
       tableParams.pagination.searchName=searchName,
+      tableParams.pagination.searchVersion=searchVersion,
     );
     getData();
   }
@@ -405,6 +417,7 @@ const Screen = () => {
         ...tableParams.pagination.current = 1,
         ...tableParams.pagination.pageSize = 10,
         ...tableParams.pagination.searchName = "",
+        ...tableParams.pagination.searchVersion = "",
       }
     });
     getData();
@@ -431,7 +444,11 @@ const Screen = () => {
                     <Input placeholder="Nhập tên hệ điều hành" value={searchName}
                       onChange={(e) => setSearchName(e.target.value)}/>
                 </div>
-                <div className="col-8 mt-3">
+                <div className="col-4 mt-3">
+                    <Input placeholder="Nhập version" value={searchVersion}
+                      onChange={(e) => setSearchVersion(e.target.value)}/>
+                </div>
+                <div className="col-4 mt-3">
                     <Button
                         className="mb-2 mx-2"
                         type="primary"
@@ -501,6 +518,21 @@ const Screen = () => {
               >
                 <Input placeholder="Nhập tên hệ điều hành"/>
               </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="version"
+                label="Version"
+                rules={[
+                  {
+                    required: true,
+                    message: "Version không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập version" />
+              </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
@@ -568,6 +600,21 @@ const Screen = () => {
                 hasFeedback
               >
                 <Input placeholder="Nhập tên hệ điều hành" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="version"
+                label="Version"
+                rules={[
+                  {
+                    required: true,
+                    message: "Version không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập version" />
               </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
