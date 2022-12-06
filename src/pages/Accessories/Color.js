@@ -1,4 +1,5 @@
-import { Table, Slider, Select, Input, Button, Modal, Form } from "antd";
+import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space, Form, InputNumber } from "antd";
+import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -11,33 +12,74 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import Moment from 'react-moment';
+// import Product from "../Product/index";
+import moment from "moment";
+import axios from "axios";
+import 'toastr/build/toastr.min.css';
 import toastrs from "toastr";
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Moment from 'react-moment';
+const url = 'http://localhost:8080/api';
 const { Option } = Select;
 
-const url = 'http://localhost:8080/api/auth/colors';
-
-const getRandomuserParams = (params) => ({
-  limit: params.pagination?.pageSize,
-  page: params.pagination?.current,
-  ...params,
-});
-
 const Color = () => {
-  const [data, setData] = useState(
-  );
+  const notifySuccess = (message) => {
+    toast.success(message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
+  const notifyError = (message) => {
+    toast.error(message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  }
+  const [formE] = Form.useForm();
+  const [category, setCategory] = useState([]);
+  const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
-  const [isView, setView] = useState(false);
-  const [name, setName] = useState();
-  const [isDelete, setDelete] = useState(false);
-  const [id, setId] = useState();
-  const [isUpdate, setIsUpdate] = useState(false);
+  const [data, setData] = useState();
+  const [formDefault, setValuesDefault] = useState({
+    id: "",
+    name: "",
+  }
+  );
+  const [form, setValues] = useState({
+    id: "",
+    name: "",
+  }
+  );
+
+  const [searchName, setSearchName] = useState();
+  const [searchSize, setSearchSize] = useState();
+  const [searchScreenTechnology, setSearchScreenTechnology] = useState();
+  //loadParam getList
+  const getRandomuserParams = (params) => ({
+    limit: params.pagination?.pageSize,
+    page: params.pagination?.current,
+    searchName: params.pagination?.searchName,
+  });
+  //phân trang Table
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
+      searchName: "",
     },
   });
 
@@ -51,171 +93,75 @@ const Color = () => {
     {
       title: "Ngày tạo",
       dataIndex: "createdAt",
-      sorter: true,
       render(createdAt) {
         return (
-          <Moment format="DD-MM-YYYY HH:mm:ss">
+          <Moment format="DD-MM-YYYY">
             {createdAt}
           </Moment>
         );
       },
-      width: "30%",
+      width: "20%",
     },
     {
       title: "Ngày cập nhật",
       dataIndex: "updatedAt",
-      sorter: true,
       render(updatedAt) {
         return (
-          <Moment format="DD-MM-YYYY HH:mm:ss">
+          <Moment format="DD-MM-YYYY">
             {updatedAt}
           </Moment>
         );
       },
-      width: "30%",
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      sorter: true,
-      with: "30%",
-      render: (status) => {
-        if (status == 1) {
-          return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
-              >
-                Hoạt động
-              </div>
-            </>
-          );
-        }
-        else {
-          return (
-            <>
-              <div
-                className="bg-secondary text-center text-light"
-                style={{ width: "140px", borderRadius: "5px", padding: "5px" }}
-              >
-                Không hoạt động
-              </div>
-            </>
-          );
-        }
-      },
+      width: "20%",
     },
     {
       title: "Thao tác",
-      dataIndex: "Thao tác",
-      width: "30%",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "20%",
       render: (id, data) => {
-        if (data.status == 1) {
-          return (
-            <>
-              <UnlockOutlined
-                onClick={() => {
-                  setLoading(true);
-                  fetch(
-                    `http://localhost:8080/api/staff/color/${data.id}/inactive/`, { method: "PUT" }).then(() => fetchData());
-                  toastrs.options = {
-                    timeOut: 6000,
-                  }
-                  toast.success('Khóa thành công!', {
-                    position: "top-right",
-                    autoClose: 1000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                  });
-                }}
-              />
-              <EditOutlined
-                style={{ marginLeft: 12 }}
-                onClick={() => {
-                  onEdit(data.id, data.name);
-                }}
-              />
-              <DeleteOutlined
-                onClick={() => onDelete(data.id)}
-                style={{ color: "red", marginLeft: 12 }}
-              />
-            </>
-          );
-        } else if (data.status == 0) {
-          return (
-            <>
-              <LockOutlined
-                onClick={() => {
-                  setLoading(true);
-                  fetch(
-                    `http://localhost:8080/api/staff/color/${data.id}/active/`, { method: "PUT" }).then(() => fetchData());
-                  toastrs.options = {
-                    timeOut: 6000
-                  }
-                  toast.success('Mở khóa thành công!', {
-                    position: "top-right",
-                    autoClose: 1000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                  });
-                }}
-              />
-              <EditOutlined
-                style={{ marginLeft: 12 }}
-                onClick={() => {
-                  onEdit(data.id, data.name);
-                }}
-              />
-              <DeleteOutlined
-                onClick={() => onDelete(data.id)}
-                style={{ color: "red", marginLeft: 12 }}
-              />
-            </>
-          );
-        }
+        return (
+          <>
+            <EditOutlined
+              style={{ marginLeft: 12 }}
+              onClick={() => {
+                onEdit(data);
+              }}
+            />
+            <DeleteOutlined
+              onClick={() => onDelete(data.id)}
+              style={{ color: "red", marginLeft: 12 }}
+            />
+          </>
+        );
       },
     },
   ];
 
-  const fetchData = () => {
+  //APILoadList
+  const getData = () => {
     setLoading(true);
-    fetch(
-      `http://localhost:8080/api/auth/colors?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
+    axios.get(url + `/auth/colors?${qs.stringify(
+      getRandomuserParams(tableParams)
+    )}`)
       .then((results) => {
-        setData(results.data.data);
-        // console.log(results);
+        setData(results.data.data.data);
+        setTotal(results.data.data.total);
         setLoading(false);
         setTableParams({
           ...tableParams,
           pagination: {
             ...tableParams.pagination,
-            total: 200,
-          },
+            total: totalSet,
+          }
         });
       });
   };
 
+  //LoadList
   useEffect(() => {
-    fetchData();
+    getData();
   }, [JSON.stringify(tableParams)]);
-
-  const onDelete = (id) => {
-    setId(id);
-    setDelete(true);
-  };
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -229,10 +175,6 @@ const Color = () => {
     console.log(`selected ${value}`);
   };
 
-  const changeName = (event) => {
-    setName(event.target.value);
-  }
-
   const onSearch = (value) => {
     console.log("search:", value);
   };
@@ -244,101 +186,159 @@ const Color = () => {
     setOpen(true);
   };
 
-  const handleOk = (values) => {
-    fetch(
-      `http://localhost:8080/api/staff/color`, {
-      method: "POST", headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: values.name, status: 1 })
-    }).then((res) => res.json())
-      .then((results) => {
-        toastrs.options = {
-          timeOut: 6000
-        }
-        toastrs.clear();
-        toast.success('Thêm mới thành công!', {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-        fetchData();
-        setName("");
-        setEditing(false);
-        setOpen(false);
-      });
-  };
-
-  const onEdit = (id, name) => {
-    setId(id);
-    console.log(id);
+  const onEdit = (data) => {
+    showModalEdit(data);
     setEditing(true);
-    setName(name);
-    console.log(name);
   };
 
-  const onView = (record) => {
-    setView(true);
+  //btn Add
+  const handleAdd = (value) => {
+    const form = {
+      name: value.name,
+      status: "ACTIVE"
+    }
+    axios.post(url + "/staff/color", form)
+      .then(res => {
+        notifySuccess('Thêm bản ghi thành công')
+        // setAdd(false);
+        setOpen(false);
+        getData();
+        setValues(formDefault);
+        formE.setFieldsValue(formDefault);
+        console.log(res.data);
+      }).catch((error) => {
+        notifyError('Yêu cầu nhập đủ các trường!');
+        return;
+      })
+
+  }
+  //loadFormEdit
+  const showModalEdit = (data) => {
+    console.log("edit", data)
+    setValues(data);
+    formE.setFieldsValue(data);
+  };
+
+  //btn Edit
+  const handleEdit = (value) => {
+    // e.preventDefault();
+    const dataEdit = {
+      id: form.id,
+      name: value.name,
+      status: form.status,
+    }
+    axios.put(url + "/staff/color/" + dataEdit.id, dataEdit)
+      .then(res => {
+        notifySuccess('Sửa bản ghi thành công')
+        getData();
+        setEditing(false);
+        setValues(formDefault);
+        formE.setFieldsValue(formDefault);
+        console.log(res.data);
+      }).catch((error) => {
+        notifyError('Yêu cầu nhập đủ các trường!');
+        return;
+      })
+  }
+
+
+  //Delete
+  const onDelete = (id) => {
+    Modal.confirm({
+      title: "Xoá giảm giá",
+      content: "Bạn có muốn xoá bản ghi này không?",
+      onOk() {
+        axios.delete(url + "/staff/color/" + id)
+          .then(res => {
+            notifySuccess('Xóa bản ghi thành công!')
+            getData();
+            console.log(res.data);
+          }).catch((errorMessage) => {
+            notifyError('Xóa bản ghi không thành công!');
+            return;
+          })
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
   };
 
   const handleCancel = () => {
     console.log("Clicked cancel button");
     setOpen(false);
+    setEditing(false);
+    setValues(formDefault);
+    formE.setFieldsValue(formDefault);
   };
+  const search = () => {
+    setTableParams(
+      tableParams.pagination.current = 1,
+      tableParams.pagination.pageSize = 10,
+      tableParams.pagination.searchName = searchName,
+    );
+    getData();
+  }
+
+  const clearSearchForm = () => {
+    setSearchName("")
+    setTableParams({
+      ...tableParams,
+      pagination: {
+        ...tableParams.pagination.current = 1,
+        ...tableParams.pagination.pageSize = 10,
+        ...tableParams.pagination.searchName = "",
+      }
+    });
+    getData();
+  }
+
+
   return (
     <div>
+      <ToastContainer />
       <div
         className="row"
         style={{
           borderRadius: "20px",
-          height: "150px",
+          height: "auto",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Tên thể loại</label>
-          <Input placeholder="Nhập tên thể loại" />
+
+        <div className="col-10 mt-3 mb-3">
+          <label>Từ khoá</label>
+          <div className="row">
+            <div className="col-4 mt-3">
+              <Input placeholder="Nhập tên màu" value={searchName}
+                onChange={(e) => setSearchName(e.target.value)} />
+            </div>
+            <div className="col-8 mt-3">
+              <Button
+                className="mb-2 mx-2"
+                type="primary"
+                onClick={search}
+                style={{ borderRadius: "10px" }}
+              >
+                <SearchOutlined />
+                Tìm kiếm
+              </Button>
+              <Button
+                className="mb-2"
+                type="primary-uotline"
+                onClick={clearSearchForm}
+                style={{ borderRadius: "10px" }}
+              >
+                <ReloadOutlined />
+                Đặt lại
+              </Button>
+
+            </div>
+          </div>
+
         </div>
-        <div className="col-4 mt-4">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
-            onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="jack">Hoạt động</Option>
-            <Option value="lucy">Không hoạt động</Option>
-          </Select>
-        </div>
-        <div className="col-12 text-center ">
-          <Button
-            className="mt-2"
-            type="primary-uotline"
-            // onClick={showModal}
-            style={{ borderRadius: "10px" }}
-          >
-            <ReloadOutlined />Đặt lại
-          </Button>
-          <Button
-            className="mx-2  mt-2"
-            type="primary"
-            // onClick={showModal}
-            style={{ borderRadius: "10px" }}
-          >
-            <SearchOutlined />Tìm kiếm
-          </Button>
-        </div>
+
       </div>
       <div className="row">
         <div className="col-12 mt-4">
@@ -349,23 +349,21 @@ const Color = () => {
             style={{ borderRadius: "10px" }}
           >
             <PlusOutlined /> Thêm mới
-            <ToastContainer />
           </Button>
           <Modal
             title="Tạo mới"
             open={open}
-            // onOk={handleOk}
+            onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
           >
             <Form
+              form={formE}
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 10 }}
               onFinish={(values) => {
-                handleCancel();
-                handleOk(values);
-                console.log({ values });
+                handleAdd(values)
               }}
               onFinishFailed={(error) => {
                 console.log({ error });
@@ -384,18 +382,13 @@ const Color = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Tên loại màu" />
+                <Input placeholder="Nhập tên màu" />
               </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
                     <Button block type="primary" id="create" htmlType="submit">
                       Tạo mới
-                    </Button>
-                  </div>
-                  <div className="col-6">
-                    <Button block type="danger" id="create" htmlType="submit">
-                      Hủy
                     </Button>
                   </div>
                 </div>
@@ -417,7 +410,6 @@ const Color = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -426,87 +418,50 @@ const Color = () => {
           <Modal
             title="Cập nhật"
             visible={isEditing}
-            onCancel={() => {
-              setEditing(false);
-            }}
-            onOk={() => {
-              fetch(
-                `http://localhost:8080/api/staff/color/${id}`,
-                { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) }).then((res) => res.json())
-                .then(() => fetchData());
-              setEditing(false);
-              toastrs.options = {
-                timeOut: 6000
-              }
-              toastrs.clear();
-              toast.success('Cập nhật danh mục màu thành công!', {
-                position: "top-right",
-                autoClose: 1000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-              });
-              setName("");
+            onCancel={handleCancel}
+            onOk={(e) => {
+              handleEdit(e);
             }}
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" name="name" value={name} onChange={changeName} />
-          </Modal>
+            <Form
+              form={formE}
+              //autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                console.log("editV", values)
+                handleEdit(values);
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
 
-          <Modal
-            title="Xóa danh mục"
-            visible={isDelete}
-            onCancel={() => {
-              setDelete(false);
-            }}
-            onOk={() => {
-              console.log(id);
-              fetch(
-                `http://localhost:8080/api/staff/color/${id}`, { method: 'DELETE' }).then(() => fetchData());
-              setDelete(false);
-              toastrs.options = {
-                timeOut: 6000
-              }
-              toastrs.clear();
-              toast.success('Xóa danh mục thành công!', {
-                position: "top-right",
-                autoClose: 1000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-              });
-            }}
-            okText="Xóa"
-            cancelText="Hủy"
-          >
-            Bạn có chắc chắn muốn xóa màu này?
-          </Modal>
-
-          <Modal
-            // style={{borderRadius:"10px"}}
-            title="Hiển thị"
-            visible={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
-            }}
-          >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+              <Form.Item
+                className="mt-2"
+                name="name"
+                label="Tên màu"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tên màu không được để trống",
+                  },
+                  { whitespace: true },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập tên màu" />
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Cập nhật
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
         </div>
       </div>
