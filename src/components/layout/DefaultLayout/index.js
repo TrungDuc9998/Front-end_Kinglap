@@ -49,7 +49,7 @@ const items = [
     getItem("Yêu cầu đổi hàng", "/admin/order/exchange"),
     getItem("Yêu cầu trả hàng", "/admin/return/confirm"),
   ]),
-  getItem("Thống kê", "/statistical", <FileOutlined />),
+  getItem("Thống kê", "/admin/statistical", <FileOutlined />),
 ];
 
 const DefaultLayout = ({ children }) => {
