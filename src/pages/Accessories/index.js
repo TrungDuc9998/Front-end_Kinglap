@@ -9,6 +9,7 @@ import Screen from './Screen';
 import Ram from './Ram';
 import Color from './Color';
 import Card from './Card';
+import Win from './Win';
 
 const { TabPane } = Tabs;
 
@@ -41,8 +42,9 @@ function Accessories() {
           <TabPane tab="Màu" key="7">
             <Color />
           </TabPane>
-          {/* <TabPane tab="Chi tiết màu" key="8">
-          </TabPane> */}
+          <TabPane tab="Hệ điều hành" key="8">
+            <Win/>
+          </TabPane>
           <TabPane tab="Card" key="9">
             <Card></Card>
           </TabPane>

@@ -9,7 +9,7 @@ import {
     ReloadOutlined,
     SearchOutlined,
 } from "@ant-design/icons";
-import { Table, Slider, Select, Input, Button, Modal } from "antd";
+import { Table, Slider, Select, Input, Button, Modal, Form } from "antd";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -19,39 +19,30 @@ function Card() {
         {
             title: "Hãng",
             dataIndex: "trandemark",
-            sorter: true,
-            width: "20%",
+            width: "22%",
         },
         {
             title: "Model",
             dataIndex: "model",
-            sorter: true,
-            width: "20%",
+            width: "22%",
         },
         {
             title: "Bộ nhớ",
             dataIndex: "memory",
-            sorter: true,
-            width: "20%",
+            width: "22%",
         },
         {
-            title: "Giá",
+            title: "Giá tiền (VNĐ)",
             dataIndex: "price",
-            sorter: true,
-            width: "20%",
+            width: "22%",
         },
         {
             title: "Thao tác",
             dataIndex: "Thao tác",
-            width: "30%",
+            width: "12%",
             render: (record, card) => {
                 return (
                     <>
-                        <EyeOutlined
-                            onClick={() => {
-                                onView(card);
-                            }}
-                        />
                         <EditOutlined
                             style={{ marginLeft: 12 }}
                             onClick={() => {
@@ -73,8 +64,8 @@ function Card() {
     const onChange = (value) => {
         console.log(`selected ${value}`);
     };
-
-
+    const [formEdit] = Form.useForm();
+    const [isUpdate, setIsUpdate] = useState(false);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [modalText, setModalText] = useState("Content of the modal");
@@ -113,9 +104,71 @@ function Card() {
         setView(true);
     };
 
+    const toastSuccess = (message) => {
+        toast.success(message, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    };
+
     const handleCancel = () => {
         console.log("Clicked cancel button");
         setOpen(false);
+    };
+
+    const handleSubmit = (data) => {
+        if (isUpdate === false) {
+            data.status = "ACTIVE";
+            console.log(data);
+            fetch("http://localhost:8080/api/card", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            })
+                .then((response) => getData())
+                .then((data) => {
+                    console.log("Success:", data);
+                    toastSuccess("Thêm mới thành công !");
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
+            setOpen(false);
+        }
+    };
+
+    const handleSubmitUpdate = (data, form) => {
+        const edit = {
+            id: dataEdit.id,
+            memory: data.memory,
+            model: data.model,
+            trandemark: data.trandemark,
+            price: data.price,
+        }
+        if (isUpdate === false) {
+            data.status = "ACTIVE";
+            console.log(data);
+            fetch(`http://localhost:8080/api/card/` + edit.id, {
+                method: "PUT",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(edit)
+            })
+                .then((response) => getData())
+                .then((data) => {
+                    console.log("Success:", data);
+                    toastSuccess("Cập nhật thành công!");
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
+            setEditing(false);
+        }
     };
 
     const search = () => {
@@ -152,10 +205,11 @@ function Card() {
         trandemark: params.pagination?.trandemarkSearch,
         memory: params.pagination?.memorySearch,
     });
+    
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
-            pageSize: 5,
+            pageSize: 10,
             memory: '',
             trandemark: ''
         },
@@ -191,14 +245,14 @@ function Card() {
         price: '',
         model: ''
     }
-    const onEdit = (card) => {
-        setMemoryE(card.memory);
-        setTrandemarkE(card.trandemark);
-        setModelE(card.model);
-        setPriceE(card.price)
-        setCardId(card.id)
+
+    const [dataEdit, setDataEdit] = useState({});
+    const onEdit = (data) => {
         setEditing(true);
+        setDataEdit(data);
+        formEdit.setFieldsValue(data);
     };
+
     const Update = () => {
         cardEdit.trandemark = trandemarkE;
         cardEdit.memory = memoryE;
@@ -273,6 +327,7 @@ function Card() {
     }
 
 
+
     const notifySuccess = (message) => {
         toast.success(message, {
             position: "top-right",
@@ -312,18 +367,19 @@ function Card() {
                 className="row"
                 style={{
                     borderRadius: "20px",
-                    height: "150px",
+                    height: "120px",
                     border: "1px solid #d9d9d9",
                     background: "#fafafa",
+                    alignItems: "center"
                 }}
             >
-                <div className="col-4 mt-5">
+                <div className="col-4">
                     <Input placeholder="Hãng" value={trandemarkSearch} onChange={onChangeInputTrandemarkSearch} />
                 </div>
-                <div className="col-4 mt-5">
+                <div className="col-4">
                     <Input placeholder="Bộ nhớ" value={memorySearch} onChange={onChangeInputMemorySearch} />
                 </div>
-                <div className="col-4 mt-5">
+                <div className="col-4">
                     <Button
                         type="primary-uotline"
                         // onClick={showModal}
@@ -358,25 +414,83 @@ function Card() {
                         confirmLoading={confirmLoading}
                         onCancel={handleCancel}
                     >
-                        <div className="form group row p-2">
-                            <div className="col-6">
-                                <label>Hãng</label>
-                                <Input placeholder="Hãng"
-                                    value={trandemark}
-                                    onChange={onChangeInputTrandemark} />
-                                <label>Model</label>
-                                <Input placeholder="Model"
-                                    value={model}
-                                    onChange={onChangeInputModel} />
-                            </div>
-                            <div className="col-6">
-                                <label>Bộ nhớ</label>
-                                <Input placeholder="Bộ nhớ" value={memory} onChange={onChangeInputMemory} />
-                                <label>Giá</label>
-                                <Input placeholder="Giá" value={price} onChange={onChangeInputPrice} />
-                            </div>
-
-                        </div>
+                        <Form
+                            initialValues={{
+                            }}
+                            autoComplete="off"
+                            labelCol={{ span: 7 }}
+                            wrapperCol={{ span: 10 }}
+                            onFinish={(values) => {
+                                setIsUpdate(false);
+                                handleSubmit(values, isUpdate);
+                                console.log({ values });
+                            }}
+                            onFinishFailed={(error) => {
+                                console.log({ error });
+                            }}
+                        >
+                            <Form.Item
+                                name="trandemark"
+                                label="Hãng"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Tên hãng không được để trống",
+                                    },
+                                ]}
+                                hasFeedback
+                            >
+                                <Input placeholder="Hãng ..." />
+                            </Form.Item>
+                            <Form.Item
+                                name="model"
+                                label="Model"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Model không được để trống",
+                                    },
+                                ]}
+                                hasFeedback
+                            >
+                                <Input placeholder="Model ..." />
+                            </Form.Item>
+                            <Form.Item
+                                name="memory"
+                                label="Bộ nhớ"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Bộ nhớ không được để trống",
+                                    },
+                                ]}
+                                hasFeedback
+                            >
+                                <Input placeholder="Bộ nhớ ..." />
+                            </Form.Item>
+                            <Form.Item
+                                name="price"
+                                label="Giá tiền"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Giá tiền không được để trống",
+                                    },
+                                ]}
+                                hasFeedback
+                            >
+                                <Input placeholder="Giá tiền ..." />
+                            </Form.Item>
+                            <Form.Item className="text-center">
+                                <div className="row">
+                                    <div className="col-6">
+                                        <Button block type="primary" id="create" htmlType="submit">
+                                            Tạo mới
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Form.Item>
+                        </Form>
                     </Modal>
                 </div>
             </div>
@@ -410,30 +524,85 @@ function Card() {
                             setEditing(false);
                         }}
                     >
-                        <div className="form group row p-2">
-                            <div className="col-6">
-                                <label>Hãng</label>
-                                <Input placeholder="Hãng"
-                                    value={trandemarkE}
-                                    onChange={onChangeInputTrandemarkE}
-                                />
-                                <label>Model</label>
-                                <Input placeholder="Model"
-                                    value={modelE}
-                                    onChange={onChangeInputModelE}
-                                />
-                            </div>
-                            <div className="col-6">
-                                <label>Bộ nhớ</label>
-                                <Input placeholder="Bộ nhớ" value={memoryE}
-                                    onChange={onChangeInputMemoryE}
-                                />
-                                <label>Giá</label>
-                                <Input placeholder="Giá" value={priceE}
-                                    onChange={onChangeInputPriceE}
-                                />
-                            </div>
-                        </div>
+                        <Form
+                            form={formEdit}
+                            autoComplete="off"
+                            labelCol={{ span: 7 }}
+                            wrapperCol={{ span: 10 }}
+                            onFinish={(values) => {
+                                setIsUpdate(false);
+                                handleSubmitUpdate(values, isUpdate);
+                                console.log({ values });
+                            }}
+                            onFinishFailed={(error) => {
+                                console.log({ error });
+                            }}>
+                            <Form.Item
+                                name="trandemark"
+                                label="Hãng"
+                                initialValue={dataEdit.trandemark}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Tên hãng không được để trống",
+                                    },
+                                ]}
+                                hasFeedback
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="model"
+                                label="Model"
+                                initialValue={dataEdit.model}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Model không được để trống",
+                                    },
+                                ]}
+                                hasFeedback
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="memory"
+                                label="Bộ nhớ"
+                                initialValue={dataEdit.memory}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Bộ nhớ không được để trống",
+                                    },
+                                ]}
+                                hasFeedback
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="price"
+                                label="Giá tiền"
+                                initialValue={dataEdit.price}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Giá tiền không được để trống",
+                                    },
+                                ]}
+                                hasFeedback
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item className="text-center">
+                                <div className="row">
+                                    <div className="col-6">
+                                        <Button block type="primary" id="create" htmlType="submit">
+                                            Cập nhật
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Form.Item>
+                        </Form>
                     </Modal>
 
                     <Modal
