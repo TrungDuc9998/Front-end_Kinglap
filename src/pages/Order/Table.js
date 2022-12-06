@@ -409,7 +409,6 @@ function Table1() {
         .map((cart) => {
           quantity += cart.quantity;
           updateCart(cart, cart.id, quantity);
-          console.log(quantity);
           isUpdate = true;
         });
       let priceProduct;
