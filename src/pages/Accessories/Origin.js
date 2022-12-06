@@ -39,12 +39,11 @@ const toastSuccess = (message) => {
 
 const Origin = () => {
   const [data, setData] = useState();
+  const [formEdit] = Form.useForm();
   const [isUpdate, setIsUpdate] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
-  const [isView, setView] = useState(false);
   const [id, setId] = useState();
-  const [name, setName] = useState();
   const [isDelete, setDelete] = useState(false);
   const [searchName, setSearchName] = useState();
   const [searchStatus, setSearchStatus] = useState();
@@ -62,13 +61,11 @@ const Origin = () => {
     {
       title: "ID",
       dataIndex: "id",
-      sorter: true,
       width: "10%",
     },
     {
       title: "Tên nước sản xuất",
       dataIndex: "name",
-      sorter: true,
       width: "25%",
     },
     {
@@ -98,7 +95,6 @@ const Origin = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
-      sorter: true,
       render: (status) => {
         if (status === "DRAFT") {
           return (
@@ -149,12 +145,12 @@ const Origin = () => {
             <>
               <DeleteOutlined
                 onClick={() => onDelete(data.id)}
-                style={{ color: "red", marginLeft: 12 }}
+                style={{ color: "red" }}
               />
               <EditOutlined
                 style={{ marginLeft: 12 }}
                 onClick={() => {
-                  onEdit(data.id, data.name);
+                  onEdit(data);
                 }}
               />
             </>
@@ -164,7 +160,6 @@ const Origin = () => {
           return (
             <>
               <UnlockOutlined
-                style={{ fontSize: "20px" }}
                 onClick={() => {
                   setLoading(true);
                   fetch(
@@ -177,7 +172,7 @@ const Origin = () => {
               <EditOutlined
                 style={{ marginLeft: 12 }}
                 onClick={() => {
-                  onEdit(data.id, data.name);
+                  onEdit(data);
                 }}
               />
             </>
@@ -186,7 +181,6 @@ const Origin = () => {
           return (
             <>
               <LockOutlined
-                style={{ fontSize: "20px" }}
                 onClick={() => {
                   setLoading(true);
                   fetch(
@@ -194,6 +188,12 @@ const Origin = () => {
                     { method: "PUT" }
                   ).then(() => fetchData());
                   toastSuccess("Mở khóa thành công!");
+                }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  onEdit(data);
                 }}
               />
             </>
@@ -205,7 +205,6 @@ const Origin = () => {
 
   const fetchData = () => {
     setLoading(true);
-    setSearchName("");
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -227,17 +226,19 @@ const Origin = () => {
 
   useEffect(() => {
     fetchData();
-  }, [JSON.stringify(tableParams)]);
+  }, []);
 
   const onDelete = (id) => {
+    console.log(id);
     setId(id);
     setDelete(true);
   };
 
-  const onEdit = (id, name) => {
-    setId(id);
+  const [dataEdit, setDataEdit] = useState({});
+  const onEdit = (data) => {
     setEditing(true);
-    setName(name);
+    setDataEdit(data);
+    formEdit.setFieldsValue(data);
   };
 
   const handleTableChange = (pagination) => {
@@ -294,24 +295,18 @@ const Origin = () => {
     console.log("search:", value);
   };
 
-  const changeName = (event) => {
-    setName(event.target.value);
-  };
-
   const changeSearchName = (event) => {
     setSearchName(event.target.value);
   };
 
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
 
   const showModal = () => {
     setOpen(true);
   };
 
   const handleOk = () => {
-    setModalText("The modal will be closed after two seconds");
     setOpen(false);
     fetchData();
   };
@@ -332,24 +327,34 @@ const Origin = () => {
         .then((response) => fetchData())
         .then((data) => {
           console.log("Success:", data);
-          toastSuccess("Thêm mới thành công !");
+          toastSuccess("Thêm mới thành công!");
         })
         .catch((error) => {
           console.error("Error:", error);
         });
-        setOpen(false);
+      setOpen(false);
     }
   };
 
   const handleSubmitUpdate = (data) => {
+    console.log("old", dataEdit);
+    const edit = {
+      id: dataEdit.id,
+      name: data.name,
+      status: dataEdit.status
+    }
     if (isUpdate === false) {
       data.status = "ACTIVE";
       console.log(data);
-      fetch(`http://localhost:8080/api/admin/origin/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) }).then((res) => res.json())
+      fetch(`http://localhost:8080/api/admin/origin/` + edit.id, {
+        method: "PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(edit)
+      })
         .then((response) => fetchData())
         .then((data) => {
           console.log("Success:", data);
-          toastSuccess("Cập nhat thành công !");
+          toastSuccess("Cập nhật thành công!");
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -370,6 +375,7 @@ const Origin = () => {
 
   return (
     <div>
+      <ToastContainer></ToastContainer>
       <div
         className="row"
         style={{
@@ -385,7 +391,7 @@ const Origin = () => {
             placeholder="Nhập tên nước muốn tìm"
             name="searchName"
             value={searchName}
-            onChange={changeSearchName}
+            onChange={(e) => setSearchName(e.target.value)}
           />
         </div>
         <div className="col-4 mt-4">
@@ -520,8 +526,7 @@ const Origin = () => {
             }}
           >
             <Form
-              initialValues={{
-              }}
+              form={formEdit}
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 10 }}
@@ -534,7 +539,9 @@ const Origin = () => {
                 console.log({ error });
               }}>
               <Form.Item
+                name="name"
                 label="Tên nước"
+                initialValue={dataEdit.name}
                 rules={[
                   {
                     required: true,
@@ -543,7 +550,7 @@ const Origin = () => {
                 ]}
                 hasFeedback
               >
-                <Input name="name" value={name} onChange={changeName} />
+                <Input />
               </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">

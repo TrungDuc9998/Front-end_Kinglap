@@ -67,6 +67,7 @@ const toastSuccess = (message) => {
 
 const Ram = () => {
   const [isUpdate, setIsUpdate] = useState(false);
+  const [category, setCategory] = useState([]);
   const [data, setData] = useState();
   const [rams, setRams] = useState();
   const [processor, setProcessor] = useState();
@@ -77,6 +78,7 @@ const Ram = () => {
   const [cpuTechnology, setCpuTechnology] = useState();
   const [cpuCompany, setCpuCompany] = useState("2");
   const [searchStatus, setSearchStatus] = useState();
+  const [formEdit] = Form.useForm();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -87,47 +89,58 @@ const Ram = () => {
   });
   const inputRef = useRef(null);
 
-  const loadDataCategory = () => { };
-
   const columns = [
     {
-      title: "Dung lượng ram",
-      dataIndex: "ramCapacity",
-      sorter: true,
-
-      width: "20%",
+      title: "Loại Ram",
+      dataIndex: "typeOfRam",
+      width: "7.5%",
     },
     {
-      title: "Loại ram",
-      dataIndex: "typeOfRam",
-      sorter: true,
-
-      width: "20%",
+      title: "Dung lượng Ram",
+      dataIndex: "ramCapacity",
+      width: "11%",
     },
     {
       title: "Tốc độ ram",
       dataIndex: "ramSpeed",
-      sorter: true,
-
-      width: "15%",
+      width: "8%",
     },
     {
       title: "Hỗ trợ RAM tối đa",
       dataIndex: "maxRamSupport",
-      sorter: true,
-      width: "20%",
+      width: "11.5%",
+    },
+    {
+      title: "Số Ram onboard",
+      dataIndex: "onboardRam",
+      width: "10.7%",
+    },
+    {
+      title: "Số khe cắm rời",
+      dataIndex: "looseSlot",
+      width: "10%",
+    },
+    {
+      title: "Số khe RAM còn lại",
+      dataIndex: "remainingSlot",
+      width: "12.5%",
+    },
+    {
+      title: "Giá tiền (VNĐ)",
+      dataIndex: "price",
+      width: "10%",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      with: "30%",
+      width: "12%",
       render: (status) => {
         if (status === "DRAFT") {
           return (
             <>
               <div
                 className="bg-danger text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+                style={{ width: "100%", borderRadius: "5px", padding: "5px" }}
               >
                 Nháp
               </div>
@@ -139,7 +152,7 @@ const Ram = () => {
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+                style={{ width: "100%", borderRadius: "5px", padding: "5px" }}
               >
                 Hoạt động
               </div>
@@ -150,7 +163,7 @@ const Ram = () => {
             <>
               <div
                 className="bg-secondary text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+                style={{ width: "100%", borderRadius: "5px", padding: "5px" }}
               >
                 Không hoạt động
               </div>
@@ -163,7 +176,7 @@ const Ram = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "10%",
+      width: "11%",
       render: (id, data) => {
         if (data.status === "DRAFT") {
           return (
@@ -179,7 +192,6 @@ const Ram = () => {
           return (
             <>
               <UnlockOutlined
-                style={{ fontSize: "20px" }}
                 onClick={() => {
                   setLoading(true);
                   fetch(
@@ -190,7 +202,7 @@ const Ram = () => {
                 }}
               />
               <EditOutlined
-                style={{ marginLeft: 12, fontSize: "20px" }}
+                style={{ marginLeft: 12 }}
                 onClick={() => {
                   showModalE(data);
                 }} />
@@ -200,7 +212,6 @@ const Ram = () => {
           return (
             <>
               <LockOutlined
-                style={{ fontSize: "20px" }}
                 onClick={() => {
                   setLoading(true);
                   fetch(
@@ -212,9 +223,9 @@ const Ram = () => {
 
               />
               <EditOutlined
-                style={{ marginLeft: 12, fontSize: "20px" }}
+                style={{ marginLeft: 12 }}
                 onClick={() => {
-                  showModal(data);
+                  showModalE(data);
                 }} />
             </>
           );
@@ -225,12 +236,11 @@ const Ram = () => {
               onClick={() => {
                 onView(data);
               }}
-              style={{ fontSize: "20px" }}
             />
             <EditOutlined
-              style={{ marginLeft: 12, fontSize: "20px" }}
+              style={{ marginLeft: 12 }}
               onClick={() => {
-                showModal(data);
+                showModalE(data);
               }} />
             <DeleteOutlined
               onClick={() => onDelete(data)}
@@ -272,10 +282,6 @@ const Ram = () => {
     }
     console.log({ inputRef });
   }, [cpuCompany != undefined]);
-
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
 
   const handleTableChange = (pagination) => {
     tableParams.pagination = pagination;
@@ -336,54 +342,20 @@ const Ram = () => {
   const [modalText, setModalText] = useState("Content of the modal");
 
   const showModal = (data) => {
-    console.log(cpuCompany);
-    console.log("data show modal");
-    console.log(data);
-    // if (typeof data === "number") {
-    //   setProcessor("");
-    //   fetch(`http://localhost:8080/api/auth/processors/${data}`)
-    //     .then((res) => res.json())
-    //     .then((results) => {
-    //       console.log(results.data);
-    //       setProcessor(results.data);
-    //       console.log(processor);
-    //       setCpuCompany(results.data?.cpuCompany);
-    //       loadDataProcessor();
-    //       setLoading(false);
-    //     });
-    // }
     setOpen(true);
   };
 
   const [dataEdit, setDataEdit] = useState({});
   const showModalE = (data) => {
-    console.log("data show modal");
-    console.log("data", data);
     setDataEdit(data);
     setOpenE(true);
+    formEdit.setFieldsValue(data);
   };
 
   const handleOk = () => {
     console.log("vào handle OK");
     setModalText("The modal will be closed after two seconds");
-    // setConfirmLoading(true);
-    // setTimeout(() => {
     setOpen(false);
-    //   setConfirmLoading(false);
-    // }, 2000);
-  };
-  const handleOkE = () => {
-    console.log("vào handle OK");
-    setModalText("The modal will be closed after two seconds");
-    // setConfirmLoading(true);
-    // setTimeout(() => {
-    setOpenE(false);
-    //   setConfirmLoading(false);
-    // }, 2000);
-  };
-
-  const onEdit = (record) => {
-    setEditing(true);
   };
 
   const onView = (record) => {
@@ -392,6 +364,7 @@ const Ram = () => {
 
   const handleCancel = () => {
     console.log("Clicked cancel button");
+    setOpenE(false);
     setOpen(false);
   };
 
@@ -404,7 +377,7 @@ const Ram = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-        .then((response) => response.json())
+        .then((response) => loadDataRam())
         .then((data) => {
           console.log("Success:", data);
           toastSuccess("Thêm mới thành công !");
@@ -412,10 +385,10 @@ const Ram = () => {
         .catch((error) => {
           console.error("Error:", error);
         });
+      setOpen(false);
     }
   };
   const handleSubmitE = (data) => {
-    console.log("old", dataEdit);
     const edit = {
       id: dataEdit.id,
       categoryId: data.categoryId,
@@ -429,13 +402,12 @@ const Ram = () => {
       status: dataEdit.status,
       typeOfRam: data.typeOfRam,
     }
-    console.log("new", edit);
     fetch(`http://localhost:8080/api/staff/rams/` + edit.id, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(edit),
     })
-      .then((response) => response.json())
+      .then((response) => loadDataRam())
       .then((data) => {
         console.log("Success:", data);
         toastSuccess("Cập nhật thành công!");
@@ -443,6 +415,7 @@ const Ram = () => {
       .catch((error) => {
         console.error("Error:", error);
       });
+    setOpenE(false);
   };
 
   const clearSearchForm = () => {
@@ -455,7 +428,6 @@ const Ram = () => {
     console.log(value);
     setSearchStatus(value);
   };
-  const handleChange = () => { };
 
   return (
     <div>
@@ -555,7 +527,6 @@ const Ram = () => {
                 console.log({ error });
               }}
             >
-              <label>{cpuCompany}</label>
               <Form.Item
                 className="mt-2"
                 name="ramCapacity"
@@ -663,16 +634,6 @@ const Ram = () => {
                 hasFeedback
               >
                 <Input placeholder="Nhập giá tiền CPU" />
-              </Form.Item>
-              <Form.Item
-                name="categoryId"
-                label="Thể loại"
-                requiredMark="optional"
-              >
-                <Select placeholder="Select your gender">
-                  <Select.Option value="1">Laptop</Select.Option>
-                  <Select.Option value="2">Ram</Select.Option>
-                </Select>
               </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
@@ -695,14 +656,16 @@ const Ram = () => {
           <Modal
             title="Cập nhật"
             open={openE}
-            onOk={handleOkE}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
           >
             <Form
-              initialValues={{
-                dataEdit
-              }}
+              form={formEdit}
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 10 }}
@@ -714,7 +677,6 @@ const Ram = () => {
                 console.log({ error });
               }}
             >
-              {/* <label>{cpuCompany}</label> */}
               <Form.Item
                 className="mt-2"
                 name="ramCapacity"
@@ -730,7 +692,7 @@ const Ram = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập dung lượng RAM" ref={cpuCompany} />
+                <Input ref={cpuCompany} />
               </Form.Item>
               <Form.Item
                 name="typeOfRam"
@@ -744,7 +706,7 @@ const Ram = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập loại ram" />
+                <Input />
               </Form.Item>
               <Form.Item
                 name="ramSpeed"
@@ -758,7 +720,7 @@ const Ram = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập tốc độ RAM" />
+                <Input />
               </Form.Item>
 
               <Form.Item
@@ -773,7 +735,7 @@ const Ram = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Số khe cắm rời" />
+                <Input />
               </Form.Item>
               <Form.Item
                 name="remainingSlot"
@@ -787,7 +749,7 @@ const Ram = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập số khe còn lại" />
+                <Input />
               </Form.Item>
               <Form.Item
                 name="onboardRam"
@@ -801,7 +763,7 @@ const Ram = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Số RAM onboard" />
+                <Input />
               </Form.Item>
               <Form.Item
                 name="maxRamSupport"
@@ -815,7 +777,7 @@ const Ram = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập hỗ trợ RAM tối đa" />
+                <Input />
               </Form.Item>
               <Form.Item
                 name="price"
@@ -829,18 +791,7 @@ const Ram = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập giá tiền CPU" />
-              </Form.Item>
-              <Form.Item
-                name="categoryId"
-                initialValue={dataEdit.categoryId}
-                label="Thể loại"
-                requiredMark="optional"
-              >
-                <Select placeholder="Select your gender">
-                  <Select.Option value="1">Laptop</Select.Option>
-                  <Select.Option value="2">Ram</Select.Option>
-                </Select>
+                <Input />
               </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
@@ -881,24 +832,6 @@ const Ram = () => {
             }}
             onOk={() => {
               setEditing(false);
-            }}
-          >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
-          </Modal>
-
-          <Modal
-            // style={{borderRadius:"10px"}}
-            title="Hiển thị"
-            open={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
             }}
           >
             <label>

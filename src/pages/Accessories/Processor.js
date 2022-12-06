@@ -56,6 +56,7 @@ const Processor = () => {
   const [isEditing, setEditing] = useState(false);
   const [searchName, setSearchName] = useState();
   const [isView, setView] = useState(false);
+  const [formEdit] = Form.useForm();
   const [cpuTechnology, setCpuTechnology] = useState();
   const [cpuCompany, setCpuCompany] = useState("2");
   const [tableParams, setTableParams] = useState({
@@ -137,41 +138,59 @@ const Processor = () => {
     {
       title: "Hãng CPU",
       dataIndex: "cpuCompany",
-      sorter: true,
-
-      width: "20%",
+      width: "10%",
     },
     {
       title: "Công nghệ CPU",
       dataIndex: "cpuTechnology",
-      sorter: true,
-
-      width: "20%",
+      width: "12%",
     },
     {
       title: "Loại CPU",
       dataIndex: "cpuType",
-      sorter: true,
-
-      width: "15%",
+      width: "8%",
     },
     {
       title: "Tốc độ CPU",
       dataIndex: "cpuSpeed",
-      sorter: true,
-      width: "20%",
+      width: "9%",
+    },
+    {
+      title: "Tốc độ tối đa",
+      dataIndex: "maxSpeed",
+      width: "9%",
+    },
+    {
+      title: "Số nhân",
+      dataIndex: "multiplier",
+      width: "7%",
+    },
+    {
+      title: "Số luồng",
+      dataIndex: "numberOfThread",
+      width: "7%",
+    },
+    {
+      title: "Bộ nhớ đệm",
+      dataIndex: "caching",
+      width: "8.5%",
+    },
+    {
+      title: "Giá tiền(VNĐ)",
+      dataIndex: "price",
+      width: "10%",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      with: "30%",
+      width: "12%",
       render: (status) => {
         if (status === "ACTIVE") {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "150px", padding: "5px", borderRadius: "5px" }}
+                style={{ width: "100%", padding: "5px", borderRadius: "5px" }}
               >
                 Hoạt động
               </div>
@@ -182,7 +201,7 @@ const Processor = () => {
             <>
               <div
                 className="bg-secondary text-center text-light"
-                style={{ width: "150px", padding: "5px", borderRadius: "5px" }}
+                style={{ width: "100%", padding: "5px", borderRadius: "5px" }}
               >
                 Không hoạt động
               </div>
@@ -193,7 +212,7 @@ const Processor = () => {
             <>
               <div
                 className="bg-danger text-center text-light"
-                style={{ width: "150px", padding: "5px", borderRadius: "5px" }}
+                style={{ width: "100%", padding: "5px", borderRadius: "5px" }}
               >
                 Nháp
               </div>
@@ -213,7 +232,13 @@ const Processor = () => {
             <>
               <DeleteOutlined
                 onClick={() => onDelete(data)}
-                style={{ color: "red", fontSize: "20px" }}
+                style={{ color: "red" }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  onEdit(data);
+                }}
               />
             </>
           );
@@ -222,7 +247,7 @@ const Processor = () => {
           return (
             <>
               <UnlockOutlined
-                style={{ fontSize: "20px" }}
+                style={{}}
                 onClick={() => {
                   setLoading(true);
                   fetch(
@@ -232,13 +257,19 @@ const Processor = () => {
                   toastSuccess("Khoá thành công !");
                 }}
               />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  onEdit(data);
+                }}
+              />
             </>
           );
         } else if (data.status == "INACTIVE") {
           return (
             <>
               <LockOutlined
-                style={{ fontSize: "20px" }}
+                style={{}}
                 onClick={() => {
                   setLoading(true);
                   fetch(
@@ -248,29 +279,15 @@ const Processor = () => {
                   toastSuccess("Mở khóa thành công!");
                 }}
               />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  onEdit(data);
+                }}
+              />
             </>
           );
         }
-        // return (
-        //   <>
-        //     <EyeOutlined
-        //       onClick={() => {
-        //         onView(record);
-        //       }}
-        //       style={{ fontSize: "20px" }}
-        //     />
-        //     <EditOutlined
-        //       style={{ marginLeft: 12, fontSize: "20px" }}
-        //       onClick={() => {
-        //         showModal(record);
-        //       }}
-        //     />
-        //     <DeleteOutlined
-        //       onClick={() => onDelete(record)}
-        //       style={{ color: "red", fontSize: "20px", marginLeft: 12 }}
-        //     />
-        //   </>
-        // );
       },
     },
   ];
@@ -319,46 +336,23 @@ const Processor = () => {
   const [modalText, setModalText] = useState("Content of the modal");
 
   const showModal = (data) => {
-    console.log(cpuCompany);
-    console.log("data show modal");
-    console.log(data);
-    // if (typeof data === "number") {
-    //   setProcessor("");
-    //   fetch(`http://localhost:8080/api/auth/processors/${data}`)
-    //     .then((res) => res.json())
-    //     .then((results) => {
-    //       console.log(results.data);
-    //       setProcessor(results.data);
-    //       console.log(processor);
-    //       setCpuCompany(results.data?.cpuCompany);
-    //       // loadDataProcessor();
-    //       setLoading(false);
-    //     });
-    // }
     setOpen(true);
   };
 
   const handleOk = () => {
-    console.log("vào handle OK");
-    setModalText("The modal will be closed after two seconds");
-    // setConfirmLoading(true);
-    // setTimeout(() => {
-    //   setOpen(false);
-    //   setConfirmLoading(false);
-    // }, 2000);
-  };
 
-  const onEdit = (record) => {
-    setEditing(true);
-  };
-
-  const onView = (record) => {
-    setView(true);
   };
 
   const handleCancel = () => {
     console.log("Clicked cancel button");
     setOpen(false);
+  };
+
+  const [dataEdit, setDataEdit] = useState({});
+  const onEdit = (data) => {
+    setDataEdit(data);
+    setEditing(true);
+    formEdit.setFieldsValue(data);
   };
 
   const handleSubmit = (data) => {
@@ -370,7 +364,7 @@ const Processor = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-        .then((response) => response.json())
+        .then((response) => loadDataProcessor())
         .then((data) => {
           console.log("Success:", data);
           toastSuccess("Thêm mới thành công !");
@@ -378,6 +372,40 @@ const Processor = () => {
         .catch((error) => {
           console.error("Error:", error);
         });
+    }
+  };
+
+  const handleSubmitUpdate = (data) => {
+    const edit = {
+      id: dataEdit.id,
+      cpuCompany: data.cpuCompany,
+      cpuTechnology: data.cpuTechnology,
+      cpuType: data.cpuType,
+      cpuSpeed: data.cpuSpeed,
+      maxSpeed: data.maxSpeed,
+      multiplier: data.multiplier,
+      numberOfThread: data.numberOfThread,
+      caching: data.caching,
+      price: data.price,
+      status: dataEdit.status
+    }
+    if (isUpdate === false) {
+      data.status = "ACTIVE";
+      console.log(data.status);
+      fetch('http://localhost:8080/api/staff/processors/' + edit.id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(edit),
+      })
+        .then((response) => loadDataProcessor())
+        .then((data) => {
+          console.log("Success:", data);
+          toastSuccess("Cập nhật thành công!");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      setEditing(false);
     }
   };
 
@@ -517,7 +545,6 @@ const Processor = () => {
                 console.log({ error });
               }}
             >
-              <label>{cpuCompany}</label>
               <Form.Item
                 className="mt-2"
                 name="cpuCompany"
@@ -640,17 +667,6 @@ const Processor = () => {
               >
                 <Input placeholder="Nhập bộ nhớ đệm CPU" />
               </Form.Item>
-
-              <Form.Item
-                name="categoryId"
-                label="Thể loại"
-                requiredMark="optional"
-              >
-                <Select placeholder="Select your gender">
-                  <Select.Option value="1">Laptop</Select.Option>
-                  <Select.Option value="2">Ram</Select.Option>
-                </Select>
-              </Form.Item>
               <Form.Item className="text-center">
                 <Button block type="primary" htmlType="submit" id="create">
                   Tạo mới
@@ -684,15 +700,162 @@ const Processor = () => {
             onCancel={() => {
               setEditing(false);
             }}
-            onOk={() => {
-              setEditing(false);
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
             }}
           >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
+            <Form
+              form={formEdit}
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                setIsUpdate(false);
+                handleSubmitUpdate(values, isUpdate);
+                console.log({ values });
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <Form.Item
+                className="mt-2"
+                name="cpuCompany"
+                label="Hãng CPU"
+                initialValue={dataEdit.cpuCompany}
+                rules={[
+                  {
+                    required: true,
+                    message: "Hãng CPU không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="cpuTechnology"
+                label="Công nghệ CPU"
+                initialValue={dataEdit.cpuTechnology}
+                rules={[
+                  {
+                    required: true,
+                    message: "Công nghệ CPU không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                name="cpuType"
+                label="Loại CPU"
+                initialValue={dataEdit.cpuType}
+                rules={[
+                  {
+                    required: true,
+                    message: "Loại CPU không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="cpuSpeed"
+                label="Tốc độ CPU"
+                initialValue={dataEdit.cpuSpeed}
+                rules={[
+                  {
+                    required: true,
+                    message: "Tốc độ CPU không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="maxSpeed"
+                label="Tốc độ tối đa CPU"
+                initialValue={dataEdit.maxSpeed}
+                rules={[
+                  {
+                    required: true,
+                    message: "Tốc độ tối đa không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="multiplier"
+                label="Số nhân"
+                initialValue={dataEdit.multiplier}
+                rules={[
+                  {
+                    required: true,
+                    message: "Số nhân CPU không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="numberOfThread"
+                label="Số luồng CPU"
+                initialValue={dataEdit.numberOfThread}
+                rules={[
+                  {
+                    required: true,
+                    message: "Số luồng CPU không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="caching"
+                label="Bộ nhớ đệm"
+                initialValue={dataEdit.caching}
+                rules={[
+                  {
+                    required: true,
+                    message: "Bộ nhớ đẹm CPU không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="price"
+                label="Giá tiền"
+                initialValue={dataEdit.price}
+                rules={[
+                  {
+                    required: true,
+                    message: "Giá tiền không được để trống",
+                  },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item className="text-center">
+                <Button block type="primary" htmlType="submit" id="create">
+                  Cập nhật
+                </Button>
+              </Form.Item>
+            </Form>
           </Modal>
 
           <Modal
