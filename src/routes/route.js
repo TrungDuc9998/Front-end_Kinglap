@@ -31,6 +31,7 @@ import ExchangeUser from "../pages/customer/Order/Exchange";
 import ReturnUser from "../pages/customer/Order/Return";
 import ExchangeDetail from "../pages/Order/ExchangeDetail";
 import Table1 from "../pages/Order/Table";
+import Statistical from "../pages/statistical/Statistical";
 import Compare from "../pages/customer/compareProduct/Compare";
 import Statistical from "../pages/statistical/Statistical";
 const publicRoutes = [
@@ -161,7 +162,7 @@ const publicRoutes = [
   },{
     path: "/admin/statistical",
     component: Statistical
-  }
+  },
   {
     path: "/user/compare/:id",
     component: Compare
