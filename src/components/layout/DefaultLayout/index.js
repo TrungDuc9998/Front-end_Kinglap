@@ -1,6 +1,6 @@
 import "../../../App.css";
 import "antd/dist/antd.css";
-import logo from '../../../asset/images/logo_kinglap.png';
+import logo from "../../../asset/images/logo_kinglap.png";
 
 import {
   DesktopOutlined,
@@ -8,12 +8,12 @@ import {
   PieChartOutlined,
   TeamOutlined,
   UserOutlined,
-  UserSwitchOutlined
+  UserSwitchOutlined,
 } from "@ant-design/icons";
 import { Breadcrumb, Layout, Menu } from "antd";
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Header1 } from './Header'
+import { Header1 } from "./Header";
 const { Header, Content, Footer, Sider } = Layout;
 function getItem(label, key, icon, children) {
   return {
@@ -54,27 +54,34 @@ const items = [
 
 const DefaultLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const [userName,setUserName] = useState();
+  const [userName, setUserName] = useState();
   const navigate = useNavigate();
 
-  useEffect(()=> {
-    if(localStorage.getItem("username") != undefined){
+  useEffect(() => {
+    if (localStorage.getItem("username") != undefined) {
       setUserName(localStorage.getItem("username"));
     }
-  },[]);
+  }, []);
   return (
     <Layout
-      style={{
-        minHeight: "100vh",
-      }}
     >
       <Sider
+        style={{
+          overflow: "auto",
+          height: "100vh",
+          // position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+        }}
         collapsible
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
       >
         <div className="logo">
-          <Link to={'/'}><img style={{ width: '100%' }} src={logo} /></Link>
+          <Link to={"/"}>
+            <img style={{ width: "100%" }} src={logo} />
+          </Link>
         </div>
         <Menu
           theme="dark"
@@ -91,11 +98,22 @@ const DefaultLayout = ({ children }) => {
           className="site-layout-background"
           style={{
             padding: 0,
-            textAlign: "center"
-          }}>
+            textAlign: "center",
+          }}
+        >
           <div className="d-flex justify-content-end me-5">
-            <Link to={'login'} className="acc"><UserSwitchOutlined className="me-2 ic text-light" style={{ fontSize: '22px' }} />
-            <i className="text-light"> {userName!= undefined? 'Xin chào, '+userName : "Đăng nhập"} </i></Link>
+            <Link to={"login"} className="acc">
+              <UserSwitchOutlined
+                className="me-2 ic text-light"
+                style={{ fontSize: "22px" }}
+              />
+              <i className="text-light">
+                {" "}
+                {userName != undefined
+                  ? "Xin chào, " + userName
+                  : "Đăng nhập"}{" "}
+              </i>
+            </Link>
           </div>
         </Header>
         <Content
@@ -129,7 +147,7 @@ const DefaultLayout = ({ children }) => {
           Ant Design ©2022 Created by Ant UED
         </Footer> */}
       </Layout>
-    </Layout >
+    </Layout>
   );
 };
 
