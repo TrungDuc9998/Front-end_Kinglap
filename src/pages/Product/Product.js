@@ -6,7 +6,7 @@ import {
   SearchOutlined,
   UnlockOutlined
 } from "@ant-design/icons";
-import { Button, Input, Modal, Select, Table, Image, List,Avatar } from "antd";
+import { Button, Input, Modal, Select, Table, Image, List, Avatar, DatePicker } from "antd";
 import VirtualList from 'rc-virtual-list';
 import qs from "qs";
 import React, { useEffect, useState } from "react";
@@ -22,8 +22,10 @@ const { Option } = Select;
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchUsername: params.pagination?.search1,
+  searchProductKey: params.pagination?.search1,
   searchStatus: params.pagination?.search2,
+  searchPrice: params.pagination?.search3,
+  searchImei: params.pagination?.search4,
 });
 
 const Product = () => {
@@ -38,6 +40,8 @@ const Product = () => {
       pageSize: 10,
       search1: '',
       search2: '',
+      search3: '',
+      search4: '',
     },
   });
   const notifySuccess = (message) => {
@@ -97,7 +101,7 @@ const Product = () => {
     //                         <Image src={item.name}>
     //                         </Image>
     //                         {/* <Avatar shape="square" size={200} src={item.name} /> */}
-                            
+
     //                     </Image.PreviewGroup>
     //                 }
     //               />
@@ -109,27 +113,28 @@ const Product = () => {
     // }, 
     {
       title: "Tên sản phẩm",
-      dataIndex: "name",
-      width: "20%",
+      width: "30%",
+      render: (data) => `${data.name} (${data.category.name}, ${data.manufacture.name})`
     },
     {
       title: "Imei",
       dataIndex: "imei",
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Xuất xứ",
       dataIndex: "origin",
-      width: "20%",
+      width: "10%",
+      render: (origin) => `${origin.name}`
     },
     {
       title: "Giá tiền",
       dataIndex: "price",
-      width: "20%",
-      render: (price) => 
+      width: "10%",
+      render: (price) =>
         <>
           <CurrencyFormat
-            style={{fontSize:"14px"}}
+            style={{ fontSize: "14px" }}
             value={price}
             displayType={"text"}
             thousandSeparator={true}
@@ -174,7 +179,7 @@ const Product = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
-      with: "25%",
+      width: "5%",
       render: (status) => {
         if (status == 'ACTIVE') {
           return (
@@ -247,7 +252,7 @@ const Product = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "20%",
+      width: "15%",
       render: (id, data) => {
         return (
           <>
@@ -256,8 +261,8 @@ const Product = () => {
               onClick={() => {
                 //onEdit(data.id, data.username, data.status);
                 navigate('/admin/product/edit')
-                console.log("data",data);
-                localStorage.setItem("productEdit",JSON.stringify(data));
+                console.log("data", data);
+                localStorage.setItem("productEdit", JSON.stringify(data));
                 // <CreateProduct/>
               }}
             />
@@ -299,8 +304,10 @@ const Product = () => {
 
   const handleTableChange = (pagination) => {
     tableParams.pagination = pagination;
-    tableParams.pagination.search1 = searchUsername;
+    tableParams.pagination.search1 = searchProductKey;
     tableParams.pagination.search2 = searchStatus;
+    tableParams.pagination.search3 = searchPrice;
+    tableParams.pagination.search4 = searchImei;
     setLoading(true);
     fetch(
       `http://localhost:8080/api/products?${qs.stringify(
@@ -325,8 +332,10 @@ const Product = () => {
   const onSearch = (value) => {
     console.log("search:", value);
   };
-  const [searchUsername, setSearchUsername] = useState();
+  const [searchProductKey, setSearchProductKey] = useState();
   const [searchStatus, setSearchStatus] = useState();
+  const [searchPrice, setSearchPrice] = useState();
+  const [searchImei, setSearchImei] = useState();
   const [username, setUsername] = useState();
   const [status, setStatus] = useState();
   const [open, setOpen] = useState(false);
@@ -335,9 +344,10 @@ const Product = () => {
   const navigate = useNavigate();
 
   const search = () => {
-    console.log(searchStatus);
-    tableParams.pagination.search1 = searchUsername;
+    tableParams.pagination.search1 = searchProductKey;
     tableParams.pagination.search2 = searchStatus;
+    tableParams.pagination.search3 = searchPrice;
+    tableParams.pagination.search4 = searchImei;
     tableParams.pagination.current = 1;
     setLoading(true);
     fetch(
@@ -360,22 +370,30 @@ const Product = () => {
   }
 
   const clearSearchForm = () => {
-    setSearchUsername("");
+    searchProductKey("");
     searchStatus("");
+    searchImei("");
+    searchPrice("");
   }
 
   const showModal = () => {
     setOpen(true);
   };
 
-  const changeSearchUserName = (event) => {
-    setSearchUsername(event.target.value);
+  const changeSearchProductKey = (event) => {
+    setSearchProductKey(event.target.value);
   };
-
-
 
   const changeSearchStatus = (value) => {
     setSearchStatus(value);
+  };
+
+  const changeSearchPrice = (value) => {
+    setSearchPrice(value);
+  };
+
+  const changeSearchImei = (value) => {
+    setSearchImei(value.target.value);
   };
 
   const onEdit = (id, username, status) => {
@@ -406,51 +424,79 @@ const Product = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-3">
-          <label>Từ khoá</label>
-          <Input type="text" name="searchUsername" value={searchUsername} placeholder="Nhập tên sản phẩm" onChange={changeSearchUserName} />
-        </div>
-        <div className="col-4 mt-3">
-          <label>Trạng thái</label>
-          <br />
-          <Select allowClear={true}
-            style={{ width: "400px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
-            onChange={changeSearchStatus}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Option value="ACTIVE">Hoạt động</Option>
-            <Option value="INACTIVE">Không hoạt động</Option>
-          </Select>
-        </div>
-        <div className="col-12 text-center ">
-          <Button
-            className="mt-2"
-            type="primary-uotline"
-            onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
-          >
-            <ReloadOutlined />
-            Đặt lại
-          </Button>
-          <Button
-            className="mx-2  mt-2"
-            type="primary"
-            onClick={search}
-            style={{ borderRadius: "10px" }}
-          >
-            <SearchOutlined />
-            Tìm kiếm
-          </Button>
+        <div className="row">
+          <div className="col-3 mt-1">
+            <label>Tìm kiếm theo từ khóa</label>
+            <Input type="text" name="searchProductKey" value={searchProductKey} placeholder="Nhập từ khóa" onChange={changeSearchProductKey} />
+          </div>
+          <div className="col-3 mt-1">
+            <label>Imei</label>
+            <br />
+            <Input type="text" name="searchImei" value={searchImei} placeholder="Nhập imei" onChange={changeSearchImei} />
+          </div>
+          <div className="col-3 mt-1">
+            <label>Trạng thái</label>
+            <br />
+            <Select allowClear={true}
+              style={{ width: "400px", borderRadius: "5px" }}
+              showSearch
+              placeholder="Chọn trạng thái"
+              optionFilterProp="children"
+              onChange={changeSearchStatus}
+              onSearch={onSearch}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              <Option value="ACTIVE">Hoạt động</Option>
+              <Option value="INACTIVE">Không hoạt động</Option>
+            </Select>
+          </div>
+          <div className="col-3 mt-1">
+            <label>Mức giá</label>
+            <br />
+            <Select allowClear={true}
+              style={{ width: "400px", borderRadius: "5px" }}
+              showSearch
+              placeholder="Chọn mức giá"
+              optionFilterProp="children"
+              onChange={changeSearchPrice}
+              onSearch={onSearch}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              <Option value="10000000">Dưới 10 triệu</Option>
+              <Option value="20000000">Dưới 20 triệu</Option>
+              <Option value="30000000">Dưới 30 triệu</Option>
+              <Option value="40000000">Dưới 40 triệu</Option>
+              <Option value="50000000">Dưới 50 triệu</Option>
+            </Select>
+          </div>
+          <div className="col-12 text-center ">
+            <Button
+              className="mt-2"
+              type="primary-uotline"
+              onClick={clearSearchForm}
+              style={{ borderRadius: "10px" }}
+            >
+              <ReloadOutlined />
+              Đặt lại
+            </Button>
+            <Button
+              className="mx-2  mt-2"
+              type="primary"
+              onClick={search}
+              style={{ borderRadius: "10px" }}
+            >
+              <SearchOutlined />
+              Tìm kiếm
+            </Button>
+          </div>
         </div>
       </div>
       <div className="row">
-        <div className="col-12 mt-4">
+        <div className="col-12 mt-2">
           <Button
             className="offset-11 "
             type="primary"
@@ -462,7 +508,7 @@ const Product = () => {
             <PlusOutlined />
             Thêm mới
           </Button>
-          
+
         </div>
       </div>
 
