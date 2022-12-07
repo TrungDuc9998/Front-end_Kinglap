@@ -3,11 +3,11 @@ import product1 from "../../asset/images/products/product01.png";
 import product2 from "../../asset/images/products/product02.png";
 import product3 from "../../asset/images/products/product03.png";
 import "./css/view.css";
-
+import { PlusCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { Tabs, Input, Modal } from "antd";
+import { Tabs, Input, Modal, Tooltip, Button } from "antd";
 import Context from "../../store/Context";
 import {
   addToCart,
@@ -206,6 +206,16 @@ function ViewProduct() {
                   <del className="product-old-price ms-3">₫ 3000</del>
                 </h3>
                 <span className="product-available">In Stock</span>
+                <Link to={"/user/compare/" + product.id}>
+                  <Tooltip title="So sánh sản phẩm">
+                    <Button className="ms-5"
+                      type="primary"
+                      shape="circle"
+                      icon={<PlusCircleOutlined />}
+                    />{" "}
+                    So sánh
+                  </Tooltip>
+                </Link>
               </div>
               <p>Số lượng còn lại: {product.quantity - quantity}</p>
               <Input
@@ -235,15 +245,13 @@ function ViewProduct() {
                     Mua ngay
                   </button>
                 </Link>
-                <Link to={"/user/compare/" + product.id }>
-                  <button className="btn-add-to-cart ms-2">So sánh</button>
-                </Link>
+                
               </div>
               <div>
                 <p style={{ fontSize: "20px", fontWeight: "600" }}>
                   Thông số kĩ thuật
                 </p>
-                <table class="table table-bordered table-hover table-striped">
+                <table className="table table-bordered table-hover table-striped">
                   <tbody>
                     <tr>
                       <th scope="row">Màn hình</th>
@@ -279,6 +287,7 @@ function ViewProduct() {
                   {" "}
                   Xem chi tiết
                 </a>
+
                 <Modal
                   title={`Chi tiết thông số kĩ thuật ` + product.name}
                   open={isModalOpen}
@@ -286,11 +295,11 @@ function ViewProduct() {
                   onCancel={handleCancel}
                   style={{ padding: "0 !impotant" }}
                 >
-                  <div class="card">
-                    <div class="card-header" style={{ textAlign: "left" }}>
+                  <div className="card">
+                    <div className="card-header" style={{ textAlign: "left" }}>
                       Thông tin hàng hóa
                     </div>
-                    <div class="card-body row">
+                    <div className="card-body row">
                       <div className="col-6">
                         <li>P/N: </li>
                         <li>Xuất xứ: </li>
@@ -302,10 +311,10 @@ function ViewProduct() {
                         <li>Hướng dẫn bảo quản: Để nơi khô ráo, nhẹ tay</li>
                       </div>
                     </div>
-                    <div class="card-header" style={{ textAlign: "left" }}>
+                    <div className="card-header" style={{ textAlign: "left" }}>
                       Thiết kế trọng lượng
                     </div>
-                    <div class="card-body">
+                    <div className="card-body">
                       <li>
                         Kích thước: {product.width} x {product.height} x{" "}
                         {product.length}
@@ -313,10 +322,10 @@ function ViewProduct() {
                       <li>Trọng lượng sản phẩm: {product.weight}kg</li>
                       <li>Chất liệu: {product.material}</li>
                     </div>
-                    <div class="card-header" style={{ textAlign: "left" }}>
+                    <div className="card-header" style={{ textAlign: "left" }}>
                       Bộ xử lí
                     </div>
-                    <div class="card-body row">
+                    <div className="card-body row">
                       <div className="col-6">
                         <li>Hãng CPU: {product.processor.cpuCompany}</li>
                         <li>
@@ -332,10 +341,10 @@ function ViewProduct() {
                         <li>Bộ nhớ đệm: {product.processor.caching}</li>
                       </div>
                     </div>
-                    <div class="card-header" style={{ textAlign: "left" }}>
+                    <div className="card-header" style={{ textAlign: "left" }}>
                       RAM
                     </div>
-                    <div class="card-body row">
+                    <div className="card-body row">
                       <div className="col-6">
                         <li>Dung lượng RAM: {product.ram.ramCapacity}</li>
                         <li>Loại RAM: {product.ram.typeOfRam}</li>
@@ -348,10 +357,10 @@ function ViewProduct() {
                         <li>Hỗ trợ RAM tối đa: {product.ram.maxRamSupport}</li>
                       </div>
                     </div>
-                    <div class="card-header" style={{ textAlign: "left" }}>
+                    <div className="card-header" style={{ textAlign: "left" }}>
                       Màn Hình
                     </div>
-                    <div class="card-body row">
+                    <div className="card-body row">
                       <div className="col-6">
                         <li>Kích thước màn hình: {product.screen.size}</li>
                         <li>
@@ -371,10 +380,10 @@ function ViewProduct() {
                         <li>Độ tương phản: {product.screen.contrast}</li>
                       </div>
                     </div>
-                    <div class="card-header" style={{ textAlign: "left" }}>
+                    <div className="card-header" style={{ textAlign: "left" }}>
                       Đồ họa
                     </div>
-                    <div class="card-body row">
+                    <div className="card-body row">
                       <div className="col-6">
                         <li>
                           <span style={{ fontSize: "20px", fontWeight: "600" }}>
@@ -396,10 +405,10 @@ function ViewProduct() {
                         <li>Bộ nhớ: {product.card.memory}</li>
                       </div>
                     </div>
-                    <div class="card-header" style={{ textAlign: "left" }}>
+                    <div className="card-header" style={{ textAlign: "left" }}>
                       Lưu trữ
                     </div>
-                    <div class="card-body row">
+                    <div className="card-body row">
                       <div className="col-6">
                         <li>
                           Kiểu ổ cứng: {product.storage.storageDetail.type}
@@ -414,16 +423,16 @@ function ViewProduct() {
                         </li>
                       </div>
                     </div>
-                    <div class="card-header" style={{ textAlign: "left" }}>
+                    <div className="card-header" style={{ textAlign: "left" }}>
                       Bảo mật
                     </div>
-                    <div class="card-body row">
+                    <div className="card-body row">
                       <li>{product.security}</li>
                     </div>
-                    <div class="card-header" style={{ textAlign: "left" }}>
+                    <div className="card-header" style={{ textAlign: "left" }}>
                       Hệ điều hành
                     </div>
-                    <div class="card-body row">
+                    <div className="card-body row">
                       <li>{product.win}</li>
                     </div>
                     {/* <div class="card-header" style={{ textAlign: 'left' }}>

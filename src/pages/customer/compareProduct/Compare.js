@@ -1,9 +1,15 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useState } from "react";
 import { Select, Image, Card, Collapse } from "antd";
 import qs from "qs";
 import { useParams } from "react-router-dom";
 const { Panel } = Collapse;
+import Context from "../../../store/Context";
+import {
+  addToCart,
+  setCheckoutCart,
+  viewProduct,
+} from "../../../store/Actions";
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
@@ -18,6 +24,7 @@ function Compare() {
   const [data, setData] = useState([]);
   const [pro1, setPro1] = useState();
   const [pro2, setPro2] = useState();
+  const [state, dispatch] = useContext(Context);
   const [dataProduct, setDataProduct] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -30,9 +37,21 @@ function Compare() {
 
   useEffect(() => {
     loadDataProduct();
-    loadDataProductById();
+    loadDataProductById(id);
     console.log(def);
   }, [def]);
+
+  const handelCLickProduct = (product) => {
+    console.log("handleClickProduct:", product);
+    if(product === undefined) {
+      console.log("handleClickProduct:", dataProduct);
+      dispatch(viewProduct(dataProduct));
+      console.log("state", state);
+    }else {
+      dispatch(viewProduct(product));
+      console.log("state", state);
+    }
+  };
 
   const onChangeProduct = (value) => {
     data.forEach((element) => {
@@ -40,7 +59,6 @@ function Compare() {
         setPro1(element);
       }
     });
-    console.log(value);
   };
 
   const onSearchProduct = (searchItem) => {
@@ -76,7 +94,7 @@ function Compare() {
   };
 
   const loadDataProductById = (id) => {
-    fetch("http://localhost:8080/api/products/22")
+    fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
       .then((results) => {
         console.log(results);
@@ -95,7 +113,7 @@ function Compare() {
             ? pro2?.name != undefined
               ? pro1?.name + " VS " + pro2?.name
               : pro1?.name + " VS ..."
-            : ""}
+            : (pro2 === undefined ? (dataProduct?.name + " VS ..."): (dataProduct?.name + "VS" + pro2?.name ))}
         </h4>
         <hr />
       </div>
@@ -130,7 +148,16 @@ function Compare() {
               : ""}
           </Select>
           <div className="text-center" style={{ width: "70%", height: "60%" }}>
-            <Image className="mt-5" width={350} src={pro1?.images[0].name} />
+            {pro1 === undefined ? (
+              <Image
+                className="mt-5"
+                width={350}
+                src={dataProduct?.images[0].name}
+              />
+            ) : (
+              <Image className="mt-5" width={350} src={pro1?.images[0].name} />
+            )}
+
             <div className="mt-3 fw-bold mb-3">
               {pro1?.price != undefined ? (
                 <div>
@@ -143,17 +170,33 @@ function Compare() {
                       })}
                     </i>
                   </h5>
+                  <h3
+                    className="product-name"
+                    style={{ fontSize: "16px", textDecoration: "none" }}
+                    onClick={() => handelCLickProduct(pro1)}
+                  >
+                    <a href="/user/product" className="text-primary">Xem chi tiết</a>
+                  </h3>
+                </div>
+              ) : (
+                <div>
+                  <h5 className="fw-bold">
+                    Giá tiền:
+                    <i className="text-danger">
+                      {dataProduct?.price.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </i>
+                  </h5>
                   <a
                     className="text-center mb-5"
                     style={{ fontSize: "16px", textDecoration: "none" }}
-                    //   onClick={showModal}
+                    onClick={() => handelCLickProduct(pro1)}
                   >
-                    {" "}
-                    Xem chi tiết
+                    <a href="/user/product"> Xem chi tiết</a>
                   </a>
                 </div>
-              ) : (
-                ""
               )}
             </div>
           </div>
@@ -199,14 +242,13 @@ function Compare() {
                       })}
                     </i>
                   </h5>
-                  <a
-                    className="text-center mb-5"
+                  <h3
+                    className="product-name"
                     style={{ fontSize: "16px", textDecoration: "none" }}
-                    //   onClick={showModal}
+                    onClick={() => handelCLickProduct(pro2)}
                   >
-                    {" "}
-                    Xem chi tiết
-                  </a>
+                    <a href="/user/product" className="text-primary">Xem chi tiết</a>
+                  </h3>
                 </div>
               ) : (
                 ""
@@ -222,16 +264,28 @@ function Compare() {
               <div className="row">
                 <div className="col-12 col-sm-6 ps-5">
                   <p>
-                    Xuất xứ: <i className="text-danger">{pro1?.origin.name}</i>{" "}
+                    Xuất xứ:{" "}
+                    <i className="text-danger">
+                      {pro1 === undefined
+                        ? dataProduct?.origin.name
+                        : pro1?.origin.name}
+                    </i>{" "}
                   </p>
                   <p>Thời gian bảo hành: </p>
                   <p>
                     Thương hiệu:{" "}
-                    <i className="text-danger">{pro1?.manufacture.name}</i>{" "}
+                    <i className="text-danger">
+                      {pro1 === undefined
+                        ? dataProduct?.manufacture.name
+                        : pro1?.manufacture.name}
+                    </i>{" "}
                   </p>
                   <p>
                     Thời điểm ra mắt:{" "}
-                    <i className="text-danger">{pro1?.debut}</i>{" "}
+                    <i className="text-danger">
+                      {" "}
+                      {pro1 === undefined ? dataProduct?.debut : pro1?.debut}
+                    </i>{" "}
                   </p>
                 </div>
                 <div className="col-12 col-sm-6 ps-5">
@@ -263,16 +317,37 @@ function Compare() {
                           " x " +
                           pro1?.length
                         : ""}
+
+                      {pro1 != undefined
+                        ? pro1?.width != undefined
+                          ? pro1?.width +
+                            " x " +
+                            pro1?.height +
+                            " x " +
+                            pro1?.length
+                          : ""
+                        : dataProduct?.width +
+                          " x " +
+                          dataProduct?.height +
+                          " x " +
+                          dataProduct?.length}
                     </i>
                   </p>
                   <p>
                     Trọng lượng sản phẩm:
                     <i className="text-danger">
-                      {pro1?.weight != undefined ? pro1.weight + " kg" : ""}
+                      {pro1 != undefined
+                        ? pro1.weight + " kg"
+                        : dataProduct?.weight + " kg"}
                     </i>
                   </p>
                   <p>
-                    Chất liệu:<i className="text-danger">{pro1?.material}</i>{" "}
+                    Chất liệu:
+                    <i className="text-danger">
+                      {pro1 != undefined
+                        ? pro1.material
+                        : dataProduct?.material}
+                    </i>
                   </p>
                 </div>
                 <div className="col-12 col-sm-6 ps-5">
@@ -306,49 +381,65 @@ function Compare() {
                   <p>
                     Hãng CPU:
                     <i className="text-danger">
-                      {pro1?.processor.cpuCompany}
+                      {pro1 != undefined
+                        ? pro1?.processor.cpuCompany
+                        : dataProduct?.processor.cpuCompany}
                     </i>{" "}
                   </p>
                   <p>
                     Công nghệ CPU:
                     <i className="text-danger">
-                      {pro1?.processor.cpuTechnology}
+                      {pro1 != undefined
+                        ? pro1?.processor.cpuTechnology
+                        : dataProduct?.processor.cpuTechnology}
                     </i>{" "}
                   </p>
                   <p>
                     Tốc độ CPU:
                     <i className="text-danger">
-                      {pro1?.processor.cpuSpeed}
+                      {pro1 != undefined
+                        ? pro1?.processor.cpuSpeed
+                        : dataProduct?.processor.cpuSpeed}
                     </i>{" "}
                   </p>
                   <p>
                     Tốc độ tối đa CPU:
                     <i className="text-danger">
-                      {pro1?.processor.maxSpeed}
+                      {pro1 != undefined
+                        ? pro1?.processor.maxSpeed
+                        : dataProduct?.processor.maxSpeed}
                     </i>{" "}
                   </p>
                   <p>
                     Loại CPU:
                     <i className="text-danger">
-                      {pro1?.processor.cpuType}
+                      {pro1 != undefined
+                        ? pro1?.processor.cpuType
+                        : dataProduct?.processor.cpuType}
                     </i>{" "}
                   </p>
                   <p>
                     Số nhân:
                     <i className="text-danger">
-                      {pro1?.processor.multiplier}
+                      {pro1 != undefined
+                        ? pro1?.processor.multiplier
+                        : dataProduct?.processor.multiplier}
                     </i>{" "}
                   </p>
                   <p>
                     Số luồng:
                     <i className="text-danger">
-                      {pro1?.processor.numberOfThread}
+                      {pro1 != undefined
+                        ? pro1?.processor.numberOfThread
+                        : dataProduct?.processor.numberOfThread}
                     </i>{" "}
                   </p>
                   <p>
                     Bộ nhớ đệm:
                     <i className="text-danger">
-                      {pro1?.processor.caching}
+                      {pro1 != undefined
+                        ? pro1?.processor.caching
+                        : dataProduct?.processor.caching}
                     </i>{" "}
                   </p>
                 </div>
@@ -409,34 +500,58 @@ function Compare() {
                 <div className="col-12 col-sm-6 ps-5">
                   <p>
                     Dung lượng RAM:
-                    <i className="text-danger">{pro1?.ram.ramCapacity}</i>{" "}
+                    <i className="text-danger">
+                      {pro1 != undefined
+                        ? pro1?.ram.ramCapacity
+                        : dataProduct?.ram.ramCapacity}
+                    </i>{" "}
                   </p>
                   <p>
                     Loại RAM:
-                    <i className="text-danger">{pro1?.ram.typeOfRam}</i>{" "}
+                    <i className="text-danger">
+                      {pro1 != undefined
+                        ? pro1?.ram.ramCapacity
+                        : dataProduct?.ram.ramCapacity}
+                    </i>{" "}
                   </p>
                   <p>
                     Tốc độ RAM:
-                    <i className="text-danger">{pro1?.ram.ramSpeed}</i>{" "}
+                    <i className="text-danger">
+                      {pro1 != undefined
+                        ? pro1?.ram.ramSpeed
+                        : dataProduct?.ram.ramSpeed}
+                    </i>{" "}
                   </p>
                   <p>
                     Số khe cắm rời:
-                    <i className="text-danger">{pro1?.ram.looseSlot}</i>{" "}
+                    <i className="text-danger">
+                      {pro1 != undefined
+                        ? pro1?.ram.looseSlot
+                        : dataProduct?.ram.looseSlot}
+                    </i>{" "}
                   </p>
                   <p>
                     Số khe cắm còn lại:
                     <i className="text-danger">
-                      {pro1?.ram.remainingSlot}
+                      {pro1 != undefined
+                        ? pro1?.ram.remainingSlot
+                        : dataProduct?.ram.remainingSlot}
                     </i>{" "}
                   </p>
                   <p>
                     Số RAM onboard:
-                    <i className="text-danger">{pro1?.ram.onboardRam}</i>{" "}
+                    <i className="text-danger">
+                      {pro1 != undefined
+                        ? pro1?.ram.onboardRam
+                        : dataProduct?.ram.onboardRam}
+                    </i>{" "}
                   </p>
                   <p>
                     Hỗ trợ RAM tối đa:
                     <i className="text-danger">
-                      {pro1?.ram.maxRamSupport}
+                      {pro1 != undefined
+                        ? pro1?.ram.maxRamSupport
+                        : dataProduct?.ram.maxRamSupport}
                     </i>{" "}
                   </p>
                 </div>
@@ -481,60 +596,83 @@ function Compare() {
                 <div className="col-12 col-sm-6 ps-5">
                   <p>
                     Kích thước màn hình:
-                    <i className="text-danger">{pro1?.screen.size}</i>{" "}
+                    <i className="text-danger">
+                      {pro1 != undefined
+                        ? pro1?.screen.size
+                        : dataProduct?.screen.size}
+                      {pro1?.screen.size}
+                    </i>{" "}
                   </p>
                   <p>
                     Công nghệ màn hình:
                     <i className="text-danger">
-                      {pro1?.screen.screenTechnology}
+                      {pro1 != undefined
+                        ? pro1?.screen.screenTechnology
+                        : dataProduct?.screen.screenTechnology}
+                    </i>{" "}
+                  </p>
+                  <p>
+                    Loại màn hình:
+                    <i className="text-danger">
+                      {pro1 != undefined
+                        ? pro1?.screen.screenType
+                        : dataProduct?.screen.screenType}
                     </i>{" "}
                   </p>
                   <p>
                     Độ phân giải:
                     <i className="text-danger">
-                      {pro1?.screen.resolution}
+                      {pro1 != undefined
+                        ? pro1?.screen.resolution
+                        : dataProduct?.screen.resolution}
                     </i>{" "}
                   </p>
                   <p>
                     Tần số quét:
                     <i className="text-danger">
-                      {pro1?.screen.scanFrequency}
+                      {pro1 != undefined
+                        ? pro1?.screen.scanFrequency
+                        : dataProduct?.screen.scanFrequency}
                     </i>{" "}
                   </p>
                   <p>
                     Tấm nền:
                     <i className="text-danger">
-                      {pro1?.screen.backgroundPanel}
+                      {pro1 != undefined
+                        ? pro1?.screen.backgroundPanel
+                        : dataProduct?.screen.backgroundPanel}
                     </i>{" "}
                   </p>
                   <p>
                     Độ sáng:
                     <i className="text-danger">
-                      {pro1?.screen.brightness}
+                      {pro1 != undefined
+                        ? pro1?.screen.brightness
+                        : dataProduct?.screen.brightness}
                     </i>{" "}
                   </p>
                   <p>
                     Độ phủ màu:
                     <i className="text-danger">
-                      {pro1?.screen.colorCoverage}
+                      {pro1 != undefined
+                        ? pro1?.screen.colorCoverage
+                        : dataProduct?.screen.colorCoverage}
                     </i>{" "}
                   </p>
                   <p>
                     Tỷ lệ màn hình:
                     <i className="text-danger">
-                      {pro1?.screen.resolution}
+                      {pro1 != undefined
+                        ? pro1?.screen.screenRatio
+                        : dataProduct?.screen.screenRatio}
                     </i>{" "}
                   </p>
                   <p>
                     Màn hình cảm ứng:
                     <i className="text-danger">
-                      {pro1?.screen.resolution}
-                    </i>{" "}
-                  </p>
-                  <p>
-                    Độ tương phản:
-                    <i className="text-danger">
-                      {pro1?.screen.resolution}
+                      {pro1 != undefined
+                        ? pro1?.screen.touchScreen
+                        : dataProduct?.screen.touchScreen}
                     </i>{" "}
                   </p>
                 </div>
@@ -547,6 +685,12 @@ function Compare() {
                     Công nghệ màn hình:
                     <i className="text-danger">
                       {pro2?.screen.screenTechnology}
+                    </i>{" "}
+                  </p>
+                  <p>
+                    Loại màn hình:
+                    <i className="text-danger">
+                      {pro2?.screen.screenType}
                     </i>{" "}
                   </p>
                   <p>
@@ -591,12 +735,6 @@ function Compare() {
                       {pro2?.screen.resolution}
                     </i>{" "}
                   </p>
-                  <p>
-                    Độ tương phản:
-                    <i className="text-danger">
-                      {pro2?.screen.resolution}
-                    </i>{" "}
-                  </p>
                 </div>
               </div>
             </Panel>
@@ -613,19 +751,25 @@ function Compare() {
                       <p>
                         Hãng:
                         <i className="text-danger">
-                          {pro1?.cardOnboard.trandemark}
+                          {pro1 != undefined
+                            ? pro1?.cardOnboard.trandemark
+                            : dataProduct?.cardOnboard.trandemark}
                         </i>{" "}
                       </p>
                       <p>
                         Model:
                         <i className="text-danger">
-                          {pro1?.cardOnboard.model}
+                          {pro1 != undefined
+                            ? pro1?.cardOnboard.model
+                            : dataProduct?.cardOnboard.model}
                         </i>{" "}
                       </p>
                       <p>
                         Bộ nhớ:
                         <i className="text-danger">
-                          {pro1?.cardOnboard.memory}
+                          {pro1 != undefined
+                            ? pro1?.cardOnboard.memory
+                            : dataProduct?.cardOnboard.memory}
                         </i>{" "}
                       </p>
                     </div>
@@ -638,16 +782,26 @@ function Compare() {
                       <p>
                         Hãng:
                         <i className="text-danger">
-                          {pro1?.card.trandemark}
+                          {pro1 != undefined
+                            ? pro1?.card.memory
+                            : dataProduct?.card.memory}
                         </i>{" "}
                       </p>
                       <p>
                         Model:
-                        <i className="text-danger">{pro1?.card.model}</i>{" "}
+                        <i className="text-danger">
+                          {pro1 != undefined
+                            ? pro1?.card.model
+                            : dataProduct?.card.model}
+                        </i>{" "}
                       </p>
                       <p>
                         Bộ nhớ:
-                        <i className="text-danger">{pro1?.card.memory}</i>{" "}
+                        <i className="text-danger">
+                          {pro1 != undefined
+                            ? pro1?.card.memory
+                            : dataProduct?.card.memory}
+                        </i>{" "}
                       </p>
                     </div>
                   </div>
@@ -710,23 +864,33 @@ function Compare() {
                   <p>
                     kiểu ổ cứng:
                     <i className="text-danger">
-                      {pro1?.storage.storageDetail.type}
+                      {pro1 != undefined
+                        ? pro1?.storage.storageDetail.type
+                        : dataProduct?.storage.storageDetail.type}
                     </i>{" "}
                   </p>
                   <p>
                     Số khe cắm:
-                    <i className="text-danger">{pro1?.storage.number}</i>{" "}
+                    <i className="text-danger">
+                      {pro1 != undefined
+                        ? pro1?.storage.number
+                        : dataProduct?.storage.number}
+                    </i>{" "}
                   </p>
                   <p>
                     Loại SSD:
                     <i className="text-danger">
-                      {pro1?.storage.storageDetail.storageType.name}
+                      {pro1 != undefined
+                        ? pro1?.storage.storageDetail.storageType.name
+                        : dataProduct?.storage.storageDetail.storageType.name}
                     </i>{" "}
                   </p>
                   <p>
                     Dung lượng:
                     <i className="text-danger">
-                      {pro1?.storage.storageDetail.capacity}
+                      {pro1 != undefined
+                        ? pro1?.storage.storageDetail.capacity
+                        : dataProduct?.storage.storageDetail.capacity}
                     </i>{" "}
                   </p>
                 </div>
@@ -760,7 +924,12 @@ function Compare() {
               <div className="row">
                 <div className="col-12 col-sm-6 ps-5">
                   <p>
-                    <i className="text-danger">* {pro1?.security}</i>{" "}
+                    <i className="text-danger">
+                      *{" "}
+                      {pro1?.security != undefined
+                        ? pro1?.security
+                        : dataProduct?.security}
+                    </i>{" "}
                   </p>
                 </div>
                 <div className="col-12 col-sm-6 ps-5">
