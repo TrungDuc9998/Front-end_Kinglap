@@ -13,8 +13,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
 import qs from "qs";
 import "./product.css";
-const { TextArea } = Input;
 import moment from "moment";
+
+const { TextArea } = Input;
 
 const dateFormat = "YYYY/MM/DD";
 //phụ kiện
