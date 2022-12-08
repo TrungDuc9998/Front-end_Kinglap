@@ -5,12 +5,78 @@ import product from "../../asset/images/products/product01.png";
 import "./css/checkout.css";
 import StoreContext from "../../store/Context";
 import { useNavigate } from "react-router-dom";
-import { Input } from "antd";
-
+import { Image, Input, Select } from "antd";
+import qs from 'qs';
+import axios from "axios";
+import { Option } from "antd/lib/mentions";
+import { addToCart, addToCartByView, setCheckoutCart } from "../../store/Actions";
+import { CHECK_OUT_CART } from "../../store/constants";
 function Checkout() {
+  const onSearchProduct = (searchItem) => {
+    getData();
+  };
+  const [valueProduct, setValueProduct] = useState("");
+  const onChangeProduct = (value) => {
+    console.log(value)
+    const a = products.filter((item) =>
+      value == item.id)[0];
+    a.quantity = 1;
+    carts.push(a);
+  };
+  // const clickOptions = (pro) => {
+  //   console.log("click", pro);
+  //   const ca = [...state.cartCheckout, pro];
+  //   console.log("new", pro);
+  // }
+
+  const url = 'http://localhost:8080/api/products';
+  const [totalSet, setTotalSet] = useState(10);
+  const [products, setData] = useState([{
+    id: "",
+    name: "",
+    price: null,
+    quantity: null,
+    active: 1,
+    imei: null,
+    weight: null,
+    size: null,
+    debut: null,
+    categoryId: null,
+    images: null
+  }]
+  );
+  const getRandomuserParams = (params) => ({
+    limit: params.pagination?.pageSize,
+    page: params.pagination?.current,
+  });
+  const [tableParams, setTableParams] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 8
+    },
+  });
+  //APILoadList
+  const getData = () => {
+    axios.get(url + `?${qs.stringify(
+      getRandomuserParams(tableParams)
+    )}`)
+      .then((results) => {
+        setData(results.data.data.data);
+        setTotal(results.data.data.total);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: totalSet,
+          }
+        });
+      });
+  };
+
+
   const navigate = useNavigate();
   const [state, dispath] = useContext(StoreContext);
-  const carts = state.cartCheckout;
+  const [carts, setCarts] = useState(state.cartCheckout);
   const [valueDistrict, setValueDistrict] = useState("");
   const [array, setArray] = useState([{}]);
   const [district, setDistrict] = useState([{}]);
@@ -509,7 +575,7 @@ function Checkout() {
                   <div className="col-12" style={{ paddingLeft: "20px" }}>
                     <p style={{ fontWeight: "600" }}>Địa chỉ giao hàng</p>
                     <form className="form-info">
-                    
+
                       <div className="search-inner">
                         <label>Tỉnh/Thành phố</label>
                         <input
@@ -521,7 +587,7 @@ function Checkout() {
                           onClick={() => onSearchProvince(value)}
                         />
                       </div>
-                      <div className="dropdown" style={{width: "350px", marginLeft: "160px", marginTop: "-4px"}}>
+                      <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
                         {array
                           .filter((item) => {
                             const searchTerm = value.toString().toLowerCase();
@@ -564,7 +630,7 @@ function Checkout() {
                           onKeyDown={_handleKeyDown}
                         />
                       </div>
-                      <div className="dropdown" style={{width: "350px", marginLeft: "160px", marginTop: "-4px"}}>
+                      <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
                         {district
                           .filter((item) => {
                             const searchTerm = valueDistrict
@@ -609,7 +675,7 @@ function Checkout() {
                           onClick={() => onSearchWard(valueWard)}
                         />
                       </div>
-                      <div className="dropdown" style={{width: "350px", marginLeft: "160px", marginTop: "-4px"}}>
+                      <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
                         {Ward.filter((item) => {
                           const searchTerm = valueWard.toString().toLowerCase();
                           const fullName =
@@ -723,16 +789,48 @@ function Checkout() {
                 Đặt hàng
               </button>
             </div>
-            <div className="col-6 mt-2">
-              <button className="btn btn-primary form-control btn-ck ">
-                Chọn sản phẩm
+            <div className="col-12 mt-2">
+              <button className="btn btn-primary form-control btn-ck "
+                data-bs-toggle="collapse"
+                href="#multiCollapseExample1"
+                role="button" aria-expanded="false"
+                aria-controls="multiCollapseExample1"
+              >
+                Thêm sản phẩm
               </button>
+              <div class="collapse multi-collapse" id="multiCollapseExample1">
+                <div class="card card-body border border-0">
+                  <Select className=""
+                    showSearch
+                    placeholder="Tên sản phẩm"
+                    optionFilterProp="children"
+                    onChange={onChangeProduct}
+                    onClick={onSearchProduct}
+                    filterOption={(input, option) =>
+                      option.children.toLowerCase().includes(input.toLowerCase())
+                    }
+
+                  >
+                    {products != undefined
+                      ? products.map((item, index) => (
+                        <Option key={index} value={item.id}>
+                          {/* <Image width={90} className="me-s" src={item.images[0].name} /> */}
+                          {item.name}
+                        </Option>
+                      ))
+                      : ""}
+
+                  </Select>
+                </div>
+              </div>
+
+
             </div>
-            <div className="col-6 mt-2">
-              {/* <button className="btn btn-success form-control btn-ck">
+            {/* <div className="col-6 mt-2">
+              <button className="btn btn-success form-control btn-ck">
                 Tải file excel
-              </button> */}
-            </div>
+              </button>
+            </div> */}
           </div>
         </div>
       </div>
