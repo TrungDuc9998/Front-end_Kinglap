@@ -396,6 +396,7 @@ const Storage = () => {
             onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            width={750}
           >
             <Form
               form={formE}

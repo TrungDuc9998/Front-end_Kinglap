@@ -49,7 +49,7 @@ const OrderDelivering = () => {
   const [data, setData] = useState([]);
   const [dataOD, setDataOD] = useState();
   const [loading, setLoading] = useState(false);
-  const [isEditing, setEditing] = useState(false);
+  const [orderHistory, setOrderHistory] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isView, setView] = useState(false);
   const [dataOrder, setDataOrder] = useState();
@@ -73,6 +73,105 @@ const OrderDelivering = () => {
     loadDataOrder();
   }, [dataOrder != undefined]);
 
+
+  const columnOrderHistory = [
+    {
+      title: "Mã hoá đơn",
+      dataIndex: "orderId",
+      width: "20%",
+      render(orderId) {
+        return <>{orderId.id}</>;
+      },
+    },
+    {
+      title: "Thời gian",
+      dataIndex: "createdAt",
+      width: "25%",
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
+
+      width: "20%",
+      render(total) {
+        return (
+          <>
+            {total?.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+    },
+    {
+      title: "Trạng thái đơn hàng",
+      dataIndex: "status",
+      width: "30%",
+      render: (status) => {
+        if (status === "CHO_XAC_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ xác nhận
+              </div>
+            </>
+          );
+        }
+        if (status === "CHO_LAY_HANG") {
+          return (
+            <>
+              <div
+                className="bg-warning text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ lấy hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DANG_GIAO") {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đang giao hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã nhận hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_HUY") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã huỷ hàng
+              </div>
+            </>
+          );
+        }
+      },
+    },
+  ];
   const onchangeSearch = (val, dateStrings) => {
     setSearchStartDate(dateStrings[0]);
     setSearchEndDate(dateStrings[1]);
@@ -173,7 +272,20 @@ const OrderDelivering = () => {
     axios.get(url + "/" + id).then((res) => {
       setDataOD(res.data);
     });
+    loadDataOrderHistoryById(id);
     setView(true);
+  };
+
+  const loadDataOrderHistoryById = (id) => {
+    console.log("id hoá đơn log ra", id);
+    // setLoading(true);
+    fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("data order history");
+        console.log(res);
+        setOrderHistory(res);
+      });
   };
 
   const loadDataOrder = () => {
@@ -522,6 +634,7 @@ const OrderDelivering = () => {
             onOk={() => {
               setView(false);
             }}
+            width={800}
           >
             <table className="table">
               <thead>
@@ -561,6 +674,13 @@ const OrderDelivering = () => {
                 })}
               </tbody>
             </table>
+            <h6 className="text-danger ms-1">Lịch sử đơn hàng</h6>
+            <Table
+              columns={columnOrderHistory}
+              rowKey={(record) => record.id}
+              dataSource={orderHistory}
+              pagination={{ position: ["none", "none"] }}
+            />
           </Modal>
         </div>
         {selectedRowKeys.length > 0 ? (

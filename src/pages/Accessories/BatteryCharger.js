@@ -588,6 +588,7 @@ const BatteryCharger = () => {
             onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            width={650}
           >
             <Form
               initialValues={{

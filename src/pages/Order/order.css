@@ -64,7 +64,7 @@
 }
 
 .ant-modal-content {
-    width: 800px;
+    max-width: 900px;
 }
 
 .ant-modal-body > button {

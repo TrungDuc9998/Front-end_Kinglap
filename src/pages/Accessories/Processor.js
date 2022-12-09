@@ -524,6 +524,7 @@ const Processor = () => {
                 display: "none",
               },
             }}
+            width={700}
             open={open}
             onOk={handleOk}
             confirmLoading={confirmLoading}

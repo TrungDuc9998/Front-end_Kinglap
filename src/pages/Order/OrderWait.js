@@ -11,18 +11,14 @@ import {
 } from "antd";
 import {
   CheckCircleOutlined,
-  DeleteOutlined,
-  EditOutlined,
   EyeOutlined,
   MenuFoldOutlined,
-  PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -47,6 +43,7 @@ const OrderWait = () => {
   const [searchStartDate, setSearchStartDate] = useState();
   const [searchEndDate, setSearchEndDate] = useState();
   const [searchName, setSearchName] = useState();
+  const [orderHistory, setOrderHistory] = useState();
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -62,8 +59,106 @@ const OrderWait = () => {
 
   useEffect(() => {
     loadDataOrder();
-    console.log(dataOrder);
   }, [dataOrder != undefined]);
+
+  const columnOrderHistory = [
+    {
+      title: "Mã hoá đơn",
+      dataIndex: "orderId",
+      width: "20%",
+      render(orderId) {
+        return <>{orderId.id}</>;
+      },
+    },
+    {
+      title: "Thời gian",
+      dataIndex: "createdAt",
+      width: "25%",
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
+
+      width: "20%",
+      render(total) {
+        return (
+          <>
+            {total?.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+    },
+    {
+      title: "Trạng thái đơn hàng",
+      dataIndex: "status",
+      width: "25%",
+      render: (status) => {
+        if (status === "CHO_XAC_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ xác nhận
+              </div>
+            </>
+          );
+        }
+        if (status === "CHO_LAY_HANG") {
+          return (
+            <>
+              <div
+                className="bg-warning text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ lấy hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DANG_GIAO") {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đang giao hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã nhận hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_HUY") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã huỷ hàng
+              </div>
+            </>
+          );
+        }
+      },
+    },
+  ];
 
   const search = () => {
     if (searchStartDate != undefined && searchEndDate != undefined) {
@@ -197,11 +292,25 @@ const OrderWait = () => {
   };
 
   const showModalData = (id) => {
+    console.log("id show modal: ", id);
     axios.get(url + "/" + id).then((res) => {
       console.log(res.data);
       setDataOD(res.data);
     });
+    loadDataOrderHistoryById(id);
     setView(true);
+  };
+
+  const loadDataOrderHistoryById = (id) => {
+    console.log("id hoá đơn log ra", id);
+    // setLoading(true);
+    fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("data order history");
+        console.log(res);
+        setOrderHistory(res);
+      });
   };
 
   const loadDataOrder = () => {
@@ -290,20 +399,70 @@ const OrderWait = () => {
       },
     },
     {
-      title: "Trạng thái",
+      title: "Trạng thái đơn hàng",
       dataIndex: "status",
-      with: "45%",
+      width: "13%",
       render: (status) => {
-        return (
-          <>
-            <div
-              className="bg-warning text-center text-dark"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-              Chờ lấy hàng
-            </div>
-          </>
-        );
+        if (status === "CHO_XAC_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ xác nhận
+              </div>
+            </>
+          );
+        }
+        if (status === "CHO_LAY_HANG") {
+          return (
+            <>
+              <div
+                className="bg-warning text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ lấy hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DANG_GIAO") {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đang giao hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã nhận hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_HUY") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã huỷ hàng
+              </div>
+            </>
+          );
+        }
       },
     },
     {
@@ -484,7 +643,9 @@ const OrderWait = () => {
             onOk={() => {
               setView(false);
             }}
+            width= {800}
           >
+            {/* <h6>Mã hoá đơn {orderHistory[0]?.id} </h6> */}
             <table className="table">
               <thead>
                 <tr>
@@ -525,6 +686,13 @@ const OrderWait = () => {
                 })}
               </tbody>
             </table>
+            <h6 className="text-danger mt-5">Lịch sử đơn hàng</h6>
+            <Table
+              columns={columnOrderHistory}
+              rowKey={(record) => record.id}
+              dataSource={orderHistory}
+              pagination={{ position: ["none", "none"] }}
+            />
           </Modal>
         </div>
         {selectedRowKeys.length > 0 ? (

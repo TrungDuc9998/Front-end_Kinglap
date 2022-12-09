@@ -28,11 +28,7 @@ const ConfirmOrderDetail = () => {
   const [reason, setReason] = useState();
   const [note, setNote] = useState();
   const [valueInputNumber, setValueInputNumber] = useState();
-  const [loading, setLoading] = useState(false);
-  const [isEditing, setEditing] = useState(false);
-  const [isView, setView] = useState(false);
-  const [dataOrder, setDataOrder] = useState();
-  const [put, setPut] = useState();
+  const [orderHistory, setOrderHistory] = useState();
   const [dataOD, setDataOD] = useState();
   const [todos, setTodos] = useState([]);
   const [quantity, setQuantity] = useState();
@@ -65,6 +61,7 @@ const ConfirmOrderDetail = () => {
 
   useEffect(() => {
     loadDataOrder(id);
+    loadDataOrderHistoryById(id);
   }, [order != undefined]);
 
   const showModalData = (id) => {
@@ -74,6 +71,105 @@ const ConfirmOrderDetail = () => {
     });
     setView(true);
   };
+
+  const columns = [
+    {
+      title: "Mã lịch sử",
+      dataIndex: "id",
+      width: "20%",
+    },
+    {
+      title: "Mã hoá đơn",
+      dataIndex: "orderId",
+      width: "20%",
+      render(orderId) {
+        return <>{orderId.id}</>;
+      },
+    },
+    {
+      title: "Thời gian",
+      dataIndex: "createdAt",
+      width: "20%",
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
+
+      width: "20%",
+      render(total) {
+        return <>{total?.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND"})}</>;
+      },
+    },
+    {
+      title: "Trạng thái đơn hàng",
+      dataIndex: "status",
+      width: "13%",
+      render: (status) => {
+        if (status === "CHO_XAC_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ xác nhận
+              </div>
+            </>
+          );
+        }
+        if (status === "CHO_LAY_HANG") {
+          return (
+            <>
+              <div
+                className="bg-warning text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ lấy hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DANG_GIAO") {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đang giao hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã nhận hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_HUY") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã huỷ hàng
+              </div>
+            </>
+          );
+        }
+      },
+    },
+  ];
 
   const onConfirm = (record) => {
     const isPut = true;
@@ -91,12 +187,22 @@ const ConfirmOrderDetail = () => {
   };
 
   const loadDataOrder = (id) => {
-    console.log(id);
-    setLoading(true);
+    // setLoading(true);
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
         setOrder(res);
+      });
+  };
+
+  const loadDataOrderHistoryById = (id) => {
+    // setLoading(true);
+    fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("data order history");
+        console.log(res);
+        setOrderHistory(res);
       });
   };
 
@@ -249,9 +355,6 @@ const ConfirmOrderDetail = () => {
     loadDataOrder(order.id);
   };
 
-  const resetEditing = () => {
-    setEditing(false);
-  };
   return (
     <div>
       <ToastContainer></ToastContainer>
@@ -366,6 +469,13 @@ const ConfirmOrderDetail = () => {
               })}
             </tbody>
           </table>
+          <h6 className="text-danger mt-5 ms-2">Lịch sử đơn hàng</h6>
+          <Table
+            columns={columns}
+            rowKey={(record) => record.id}
+            dataSource={orderHistory}
+            pagination={{ position: ['none', 'none'] }}
+          />
         </div>
         <div className="col-12 text-center mb-3 mt-2">
           <Button onClick={confirm}>Cập nhật đơn hàng</Button>
