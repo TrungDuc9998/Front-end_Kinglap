@@ -360,7 +360,7 @@ const Order = () => {
 
   const showModalOrder = (id) => {
     axios.get(url + "/get/" + id).then((res) => {
-      setDataO(res.data.data);
+      setDataO(res.data);
     });
     axios.get(url + "/" + id).then((res) => {
       setDataOD(res.data);
@@ -897,6 +897,7 @@ const Order = () => {
             onCancel={() => {
               setOrder(false);
             }}
+            width={700}
           >
             <div>
               <div className="order" ref={componentRef}>

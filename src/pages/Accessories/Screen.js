@@ -599,6 +599,7 @@ const Screen = () => {
             // onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            width={700}
           >
             <Form
               form={formE}

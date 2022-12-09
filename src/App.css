@@ -91,7 +91,7 @@ body {
 }
 
 .ant-modal {
-  width: 100% !important;
+  width: auto ;
 }
 
 .ant-modal-content {

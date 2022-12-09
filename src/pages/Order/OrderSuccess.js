@@ -48,6 +48,7 @@ const OrderSuccess = () => {
   const [searchStartDate, setSearchStartDate] = useState();
   const [searchEndDate, setSearchEndDate] = useState();
   const [searchName, setSearchName] = useState();
+  const [orderHistory, setOrderHistory] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -116,11 +117,24 @@ const OrderSuccess = () => {
   };
 
   const showModalData = (id) => {
+    console.log('id hoá đơn:', id);
     axios.get(url + "/" + id).then((res) => {
       console.log(res.data);
       setDataOD(res.data);
     });
+    loadDataOrderHistoryById(id)
     setView(true);
+  };
+  const loadDataOrderHistoryById = (id) => {
+    console.log("id hoá đơn log ra", id);
+    // setLoading(true);
+    fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("data order history");
+        console.log(res);
+        setOrderHistory(res);
+      });
   };
 
   const onchangeSearch = (val, dateStrings) => {
@@ -183,6 +197,104 @@ const OrderSuccess = () => {
         setLoading(false);
       });
   };
+  const columnOrderHistory = [
+    {
+      title: "Mã hoá đơn",
+      dataIndex: "orderId",
+      width: "20%",
+      render(orderId) {
+        return <>{orderId.id}</>;
+      },
+    },
+    {
+      title: "Thời gian",
+      dataIndex: "createdAt",
+      width: "25%",
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
+
+      width: "20%",
+      render(total) {
+        return (
+          <>
+            {total?.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+    },
+    {
+      title: "Trạng thái đơn hàng",
+      dataIndex: "status",
+      width: "25%",
+      render: (status) => {
+        if (status === "CHO_XAC_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ xác nhận
+              </div>
+            </>
+          );
+        }
+        if (status === "CHO_LAY_HANG") {
+          return (
+            <>
+              <div
+                className="bg-warning text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ lấy hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DANG_GIAO") {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đang giao hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã nhận hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_HUY") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã huỷ hàng
+              </div>
+            </>
+          );
+        }
+      },
+    },
+  ];
 
   const columns = [
     {
@@ -279,7 +391,7 @@ const OrderSuccess = () => {
             >
               Hiển thị
             </Button>
-            {dataOD}
+            {/* {dataOD} */}
             <Button
               className="ms-2"
               danger
@@ -431,18 +543,21 @@ const OrderSuccess = () => {
             onOk={() => {
               setEditing(true);
             }}
+            
           >
             Bạn có muốn xác nhận đơn hàng không ?
           </Modal>
           <Modal
             title="Chi tiết đơn hàng"
             open={isView}
+            style={{width: "200px  !important"}}
             onCancel={() => {
               setView(false);
             }}
             onOk={() => {
               setView(false);
             }}
+            width={950}
           >
             <div className="row">
               <div className="col-12">
@@ -503,7 +618,15 @@ const OrderSuccess = () => {
                 </table>
               </div>
             </div>
+            <h6 className="text-danger ms-1 mt-2">Lịch sử đơn hàng</h6>
+            <Table
+              columns={columnOrderHistory}
+              rowKey={(record) => record.id}
+              dataSource={orderHistory}
+              pagination={{ position: ["none", "none"] }}
+            />
           </Modal>
+          
         </div>
       </div>
     </div>

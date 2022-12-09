@@ -510,6 +510,7 @@ const Ram = () => {
             onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            width={650}
           >
             <Form
               initialValues={{

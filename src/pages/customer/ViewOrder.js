@@ -1,12 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import product8 from "../../asset/images/products/product08.png";
 import qs from "qs";
 import { Modal, Table, Tabs, InputNumber, Image, Button } from "antd";
 import {
   DeleteOutlined,
   EyeOutlined,
-  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -53,6 +51,7 @@ function ViewOrder() {
   const [dataOrder, setDataOrder] = useState();
   const [orderId, setOrderId] = useState();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [orderHistory,setOrderHistory] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -159,6 +158,105 @@ function ViewOrder() {
     getData();
     // loadDataOrder();
   }, [JSON.stringify(tableParams)]);
+
+  const columnOrderHistory = [
+    {
+      title: "Mã hoá đơn",
+      dataIndex: "orderId",
+      width: "20%",
+      render(orderId) {
+        return <>{orderId.id}</>;
+      },
+    },
+    {
+      title: "Thời gian",
+      dataIndex: "createdAt",
+      width: "25%",
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
+
+      width: "20%",
+      render(total) {
+        return (
+          <>
+            {total?.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+    },
+    {
+      title: "Trạng thái đơn hàng",
+      dataIndex: "status",
+      width: "13%",
+      render: (status) => {
+        if (status === "CHO_XAC_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ xác nhận
+              </div>
+            </>
+          );
+        }
+        if (status === "CHO_LAY_HANG") {
+          return (
+            <>
+              <div
+                className="bg-warning text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ lấy hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DANG_GIAO") {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đang giao hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã nhận hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_HUY") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã huỷ hàng
+              </div>
+            </>
+          );
+        }
+      },
+    },
+  ];
 
   const columns = [
     {
@@ -417,8 +515,19 @@ function ViewOrder() {
 
     console.log(orderId);
     setView(true);
-    console.log("show modal");
+    loadDataOrderHistoryById(id);
     loadDataOrder(id);
+  };
+  const loadDataOrderHistoryById = (id) => {
+    console.log("id hoá đơn log ra", id);
+    // setLoading(true);
+    fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("data order history");
+        console.log(res);
+        setOrderHistory(res);
+      });
   };
 
   const load = () => {
@@ -695,6 +804,7 @@ function ViewOrder() {
               onCancel={() => {
                 setView(false);
               }}
+              width={850}
               onOk={() => {
                 // setView(false);
                 // loadDataOrder();
@@ -765,6 +875,13 @@ function ViewOrder() {
                   })}
                 </tbody>
               </table>
+              <h6 className="text-danger ms-1 mt-2">Lịch sử đơn hàng</h6>
+              <Table
+                columns={columnOrderHistory}
+                rowKey={(record) => record.id}
+                dataSource={orderHistory}
+                pagination={{ position: ["none", "none"] }}
+              />
             </Modal>
           </div>
         </div>

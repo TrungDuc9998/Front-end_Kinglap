@@ -1,10 +1,22 @@
-import { Select, Input, Button, InputNumber, Space, Image } from "antd";
+import {
+  Select,
+  Input,
+  Button,
+  InputNumber,
+  Space,
+  Image,
+  AutoComplete,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import qs from "qs";
 import "../Order/table.css";
 import { Table, Modal } from "antd";
-import { DeleteOutlined, MenuFoldOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  MenuFoldOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import CurrencyFormat from "react-currency-format";
 const { Option } = Select;
@@ -250,7 +262,7 @@ function Table1() {
         });
       });
       console.log(shipping);
-      
+
       try {
         fetch("http://localhost:8080/api/orders", {
           method: "POST",
@@ -258,7 +270,7 @@ function Table1() {
           body: JSON.stringify({
             payment: order.payment,
             userId: order.userId | null,
-            total: (Number(order.total) + Number(shipping)),
+            total: Number(order.total) + Number(shipping),
             address: order.address,
             note: "",
             customerName:
@@ -283,10 +295,10 @@ function Table1() {
   };
 
   const updateCart = (cart, id, quantity) => {
+    console.log("cart-update");
+    console.log(cart);
     let tong =
-      cart.total === cart.product.price * quantity
-        ? cart.total
-        : cart.product.price * quantity;
+      cart.total === cart.price * quantity ? cart.total : cart.price * quantity;
     fetch(`http://localhost:8080/api/carts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -303,16 +315,32 @@ function Table1() {
     });
   };
 
+  const getDataProductById = (productId, cart, id) => {
+    fetch(`http://localhost:8080/api/products/${productId}?`)
+      .then((res) => res.json())
+      .then((results) => {
+        console.log("data product get by id");
+        console.log(results);
+        cart.price = results.price;
+        updateCart(cart, id);
+      });
+  };
+
   const onChangeInputNumber = (value, productId, price, id, useId) => {
-    console.log("value quantity:" + value);
+    console.log("productId:" + productId);
     setValueQuantity(value);
+    let priceProduct = 0;
+    console.log(data);
+
+    console.log("product price:", priceProduct);
     const cart = {
       total: value * price,
       useId: useId,
       quantity: value,
       productId: productId,
     };
-    updateCart(cart, id);
+    getDataProductById(productId, cart, id);
+    // updateCart(cart, id);
   };
 
   const SubmitCartData = (value, price, quantity) => {
@@ -364,6 +392,8 @@ function Table1() {
     if (value != null) {
       setIsDisabled(false);
     }
+    console.log("value district onchange");
+    console.log(value);
     setDistrictId(value);
     loadDataWard(value);
   };
@@ -397,35 +427,6 @@ function Table1() {
 
   const onSearchPhoneNumber = (value) => {
     console.log("search product: " + value);
-  };
-
-  const onChangeProduct = (value) => {
-    setValueProduct(value);
-    let isUpdate = false;
-    if (value !== undefined) {
-      let quantity = 0;
-      dataCart
-        ?.filter((item) => item.product.id === value)
-        .map((cart) => {
-          quantity += cart.quantity;
-          updateCart(cart, cart.id, quantity);
-          isUpdate = true;
-        });
-      let priceProduct;
-      data
-        ?.filter((item) => item.id === value)
-        .map((product) => (priceProduct = product.price));
-      if (isUpdate === false) {
-        SubmitCartData(value, priceProduct, quantity);
-      }
-      let total = 0;
-      dataCart?.forEach((item) => (total += item.total));
-      setTotal(total);
-    }
-  };
-
-  const onSearchProduct = (searchItem) => {
-    console.log("value product click" + valueProduct);
   };
 
   const onChangeClient = (event) => {
@@ -466,6 +467,7 @@ function Table1() {
   };
 
   const loadDataDistrict = (value) => {
+    console.log('provent id,', value);
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
       {
@@ -487,7 +489,29 @@ function Table1() {
         throw Error(response.status);
       })
       .then((result) => {
-        setDistrict(result.data);
+        let dataDis = [];
+
+        if(value === 201) {
+          result.data.splice(0,1);
+          result.data.splice(0,1);
+          dataDis = result.data;
+          setDistrict(dataDis);
+        }if(value === 202){
+          result.data.splice(1,1);
+          result.data.splice(1,1);
+          result.data.splice(2,1);
+          dataDis = result.data;
+          setDistrict(dataDis);
+        }if(value === 268) {
+         result.data.splice(0,1);
+          dataDis = result.data;
+          setDistrict(dataDis);
+          console.log(dataDis);
+         
+        }
+        else {
+          setDistrict(result.data);
+        }
       })
       .catch((error) => {
         console.log("err", error);
@@ -594,6 +618,9 @@ function Table1() {
   const url = "http://localhost:8080/api/orders";
 
   const SubmitShipping = (value) => {
+    console.log("submit shipping");
+    console.log("serviceId:", serviceId);
+    console.log("total,", total);
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
       {
@@ -601,15 +628,16 @@ function Table1() {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          service_id: serviceId,
+          // service_id: serviceId,
+          shop_id: 3379752,
           token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
         },
         body: JSON.stringify({
           service_id: serviceId,
-          insurance_value: 500000,
+          insurance_value: total,
           coupon: null,
           from_district_id: 3440,
-          to_district_id: 1875,
+          to_district_id: districtId,
           height: Math.round(totalHeight * 0.1),
           length: Math.round(totalLength * 0.1),
           weight: Math.round(totalWeight * 1000),
@@ -643,8 +671,7 @@ function Table1() {
   }, [(total != undefined) | (ProvinceID != 1)]);
 
   const loadDataUseLogin = () => {
-
-    console.log('load data login');
+    console.log("load data login");
     const id = localStorage.getItem("id");
     fetch(
       `http://localhost:8080/api/users/find/${id}?${qs.stringify(
@@ -688,6 +715,7 @@ function Table1() {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log("data cart");
         console.log(results);
         setDataCart(results.data.data);
         let total = 0;
@@ -702,6 +730,8 @@ function Table1() {
           height += item.product.height * item.quantity;
           length += item.product.length * item.quantity;
         });
+        console.log("----------- total set dữ liệu ----------");
+        console.log(total);
         setTotalWeight(weight);
         setTotal(total);
         setTotalLength(length);
@@ -718,30 +748,7 @@ function Table1() {
       });
   };
 
-  const handleTableChange = (pagination) => {
-    tableParams.pagination = pagination;
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/carts?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setDataCart(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
-  };
-
   const loadDataProduct = () => {
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/products?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -749,14 +756,15 @@ function Table1() {
     )
       .then((res) => res.json())
       .then((results) => {
-        setData(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
+        console.log(results);
+        const dataResult = [];
+        results.data.data.forEach((item) => {
+          dataResult.push(
+            renderItem(item.id, item.name, item?.images[0].name, item.price)
+          );
+          console.log("data Result");
+          console.log(dataResult);
+          setData(dataResult);
         });
       });
   };
@@ -770,7 +778,7 @@ function Table1() {
     console.log("value user: " + event.target.value);
   };
   const onSearchAndFillUser = (item) => {
-    console.log('giá trị log');
+    console.log("giá trị log");
     console.log(item);
     if (item != null) {
       setFullNameClient(item.fullName);
@@ -781,6 +789,93 @@ function Table1() {
     setAddRessForm(item.address);
     setUserId(item.userId);
   };
+
+  const renderItem = (id, title, count, price) => ({
+    value: id,
+    label: (
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <span>
+          <Image width={85} src={count} />
+        </span>
+        {title}
+      </div>
+    ),
+    price: price,
+  });
+
+  const onSelectAuto = (value) => {
+    console.log("data on select auto", data);
+    setValueProduct(value);
+    let isUpdate = false;
+    if (value !== undefined) {
+      let quantity = 0;
+      dataCart
+        ?.filter((item) => item.product.id === value)
+        .map((cart) => {
+          quantity += cart.quantity;
+          updateCart(cart, cart.id, quantity);
+          isUpdate = true;
+        });
+      let priceProduct;
+
+      getDataProductById(value);
+
+      data
+        ?.filter((item) => item.value === value)
+        .map((product) => {
+          console.log("vào trong lấy giá");
+          priceProduct = product.price;
+        });
+      if (isUpdate === false) {
+        SubmitCartData(value, priceProduct, quantity);
+      }
+      let total = 0;
+      dataCart?.forEach((item) => (total += item.total));
+      console.log("---------------- tổng tiền on select");
+      console.log(total);
+      setTotal(total);
+    }
+  };
+
+  const [options, setOptions] = useState([]);
+  const handleSearch = (value) => {
+    setData(value ? searchResult(value) : []);
+  };
+
+  const searchResult = (query) =>
+    new Array(data)
+      .join(".")
+      .split(".")
+      .map((_, idx) => {
+        const category = `${query}`;
+        return {
+          value: category,
+          label: (
+            <div
+              style={{
+                display: "flex",
+                // justifyContent: 'space-between',
+              }}
+            >
+              <span>
+                {query}
+                <a
+                  href={`http://localhost:8080/api/products?q=${query}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {category}
+                </a>
+              </span>
+              {/* <span>{getRandomInt(200, 100)} results</span> */}
+            </div>
+          ),
+        };
+      });
 
   return (
     <div>
@@ -800,33 +895,24 @@ function Table1() {
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
-      > 
+      >
         <div className="btn-search col-12 mt-3 mb-4 d-flex float-end">
           <div className="timk col-4 ">
             <div className="search-container">
               <div className="search-inner mb-2">
-                <Select
-                  showSearch
-                  placeholder="Tên sản phẩm"
-                  optionFilterProp="children"
+                <AutoComplete
                   style={{
                     width: 700,
                   }}
-                  onChange={onChangeProduct}
-                  onClick={onSearchProduct}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
+                  options={data}
+                  onSelect={onSelectAuto}
+                  placeholder="Chọn sản phẩm"
+                  filterOption={(inputValue, option) =>
+                    option.label.props.children[1]
+                      .toUpperCase()
+                      .indexOf(inputValue.toUpperCase()) !== -1
                   }
-                >
-                  {data != undefined
-                    ? data.map((item, index) => (
-                        <Option key={index} value={item.id}>
-                          {item.name}{" "}
-                          {/* <Image width={90} src={item.images[0].name}/>{" "} */}
-                        </Option>
-                      ))
-                    : ""}
-                </Select>
+                />
               </div>
             </div>
           </div>
@@ -1279,12 +1365,12 @@ function Table1() {
                             max={item.product.quantity}
                           />
                         </td>
-                        <td>
+                        {/* <td>
                           {item.total.toLocaleString("it-IT", {
                             style: "currency",
                             currency: "VND",
                           })}
-                        </td>
+                        </td> */}
                         <td>
                           <DeleteOutlined
                             onClick={() => onDelete(item.id)}

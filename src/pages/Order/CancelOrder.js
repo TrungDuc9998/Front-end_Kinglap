@@ -1,18 +1,15 @@
 import {
   Table,
-  Slider,
   Select,
   Input,
   Button,
   Modal,
   DatePicker,
-  Radio,
   Space,
+  Image,
 } from "antd";
 import {
   DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
   EyeOutlined,
@@ -40,6 +37,7 @@ const CancelOrder = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
+  const [orderHistory, setOrderHistory] = useState();
   const [dataOrder, setDataOrder] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -71,7 +69,19 @@ const CancelOrder = () => {
       console.log(res.data);
       setDataOD(res.data);
     });
+    loadDataOrderHistoryById(id);
     setView(true);
+  };
+  const loadDataOrderHistoryById = (id) => {
+    console.log("id hoá đơn log ra", id);
+    // setLoading(true);
+    fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("data order history");
+        console.log(res);
+        setOrderHistory(res);
+      });
   };
 
   const deleteOrder = (record) => {
@@ -217,6 +227,55 @@ const CancelOrder = () => {
   const resetEditing = () => {
     setEditing(false);
   };
+
+  const columnOrderHistory = [
+    {
+      title: "Mã hoá đơn",
+      dataIndex: "orderId",
+      width: "20%",
+      render(orderId) {
+        return <>{orderId.id}</>;
+      },
+    },
+    {
+      title: "Thời gian",
+      dataIndex: "createdAt",
+      width: "25%",
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
+
+      width: "20%",
+      render(total) {
+        return (
+          <>
+            {total?.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      with: "45%",
+      render: (status) => {
+        return (
+          <>
+            <div
+              className="bg-success text-center text-light"
+              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+            >
+              Đã nhận hàng
+            </div>
+          </>
+        );
+      },
+    },
+  ];
   return (
     <div>
       <div className="row">
@@ -314,11 +373,13 @@ const CancelOrder = () => {
             onOk={() => {
               setView(false);
             }}
+            width={850}
           >
             <table className="table">
               <thead>
                 <tr>
                   <th scope="col">Mã HDCT</th>
+                  <th>Hình ảnh</th>
                   <th scope="col">Tên sản phẩm</th>
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
@@ -330,29 +391,35 @@ const CancelOrder = () => {
                   return (
                     <tr key={index}>
                       <td>{item.id}</td>
+                      <td>
+                        <Image width={100} src={item.product.images[0]?.name} />{" "}
+                      </td>
                       <td>{item.product.name}</td>
                       <td>
-                        <CurrencyFormat
-                          style={{ fontSize: "14px" }}
-                          value={item.product.price}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
+                        {item.product.price.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
                       </td>
                       <td>{item.quantity}</td>
                       <td>
-                        <CurrencyFormat
-                          style={{ fontSize: "14px" }}
-                          value={item.total}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
+                        {item.total.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
+            <h6 className="mt-5 ms-1 text-danger">Lịch sử đơn hàng</h6>
+            <Table
+              columns={columnOrderHistory}
+              rowKey={(record) => record.id}
+              dataSource={orderHistory}
+              pagination={{ position: ["none", "none"] }}
+            />
           </Modal>
         </div>
       </div>
