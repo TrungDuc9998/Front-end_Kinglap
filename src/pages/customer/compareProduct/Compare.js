@@ -127,7 +127,7 @@ function Compare() {
             style={{
               width: "70%",
             }}
-            defaultValue={def}
+            value={pro1?.name == undefined ? dataProduct?.name : pro1?.name }
             // options={data}
             onChange={onChangeProduct}
             onClick={onSearchProduct}
@@ -203,6 +203,7 @@ function Compare() {
         </div>
         <div className="col-12 col-sm-6 ps-5">
           <Select
+           
             allowClear
             showSearch
             placeholder="Tên sản phẩm"

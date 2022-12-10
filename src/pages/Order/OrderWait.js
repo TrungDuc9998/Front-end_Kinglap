@@ -640,6 +640,12 @@ const OrderWait = () => {
             onCancel={() => {
               setView(false);
             }}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+           cancelText={"Đóng"}
             onOk={() => {
               setView(false);
             }}

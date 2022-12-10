@@ -1,12 +1,10 @@
-import { Table, Slider, Select, Input, Button, Modal, Form } from "antd";
+import { Table, Select, Input, Button, Modal, Form } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
-  EyeOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  CheckCircleOutlined,
   UnlockOutlined,
   LockOutlined
 } from "@ant-design/icons";
@@ -15,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import toastrs from "toastr";
 import { ToastContainer, toast } from "react-toastify";
 import Moment from 'react-moment';
+import "./Origin.css"
 const { Option } = Select;
 
 const getRandomuserParams = (params) => ({
@@ -451,7 +450,12 @@ const Origin = () => {
             onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
-            footer={null}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+           cancelText={"Đóng"}
           >
             <Form
               initialValues={{
@@ -484,7 +488,7 @@ const Origin = () => {
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                    <Button block type="primary" className="create" htmlType="submit">
                       Tạo mới
                     </Button>
                   </div>
@@ -515,7 +519,7 @@ const Origin = () => {
           />
           <Modal
             title="Cập nhật"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               setEditing(false);
             }}
@@ -524,6 +528,7 @@ const Origin = () => {
                 display: "none",
               },
             }}
+           cancelText={"Đóng"}
           >
             <Form
               form={formEdit}
@@ -555,7 +560,7 @@ const Origin = () => {
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                    <Button block type="primary" className="create" htmlType="submit">
                       Cập nhật
                     </Button>
                   </div>

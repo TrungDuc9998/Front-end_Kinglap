@@ -64,13 +64,11 @@ const ExchangeSuccess = () => {
     pagination: {
       current: 1,
       pageSize: 10,
-      check: 1,
     },
   });
 
   useEffect(() => {
     loadDataExchange();
-    // getProduct();
   }, []);
 
   const loadDataOrder = (data) => {
@@ -98,7 +96,7 @@ const ExchangeSuccess = () => {
   };
 
   const ConfirmReturn = (data, isPut) => {
-    console.log('data confirm');
+    console.log("data confirm");
     console.log(data);
     const returnDetail = [];
     data.returnDetailEntities.forEach((element) => {
@@ -109,32 +107,19 @@ const ExchangeSuccess = () => {
         status: isPut == true ? "DA_XAC_NHAN" : "KHONG_XAC_NHAN",
       });
     });
-    fetch(`http://localhost:8080/api/returns/${data.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        orderId: data.orderId,
-        reason: data.reason,
-        description: data.description,
-        isCheck: 1,
-        status: isPut === true ? "DA_XU_LY" : "KHONG_XU_LY",
-        returnDetailEntities: returnDetail,
-      }),
-    }).then((res) => loadDataExchange());
-    // fetch(
-    //   `http://localhost:8080/api/orders/${record.orderDetail.id}/orderDetails`,
-    //   {
-    //     method: "PUT",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({
-    //       productId: record.productId.id,
-    //       total: record.orderDetail.total,
-    //       quantity: record.quantity,
-    //       status: record.orderDetail.status,
-    //       isCheck: 1,
-    //     }),
-    //   }
-    // ).then((res) => {}); 
+    // fetch(`http://localhost:8080/api/returns/${data.id}`, {
+    //   method: "PUT",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({
+    //     orderId: data.orderId,
+    //     reason: data.reason,
+    //     description: data.description,
+    //     isCheck: 1,
+    //     status: isPut === true ? "DA_XU_LY" : "KHONG_XU_LY",
+    //     returnDetailEntities: returnDetail,
+    //   }),
+    // }).then((res) => loadDataExchange());
+
     toastSuccess("Cập nhật thành công !");
   };
 
@@ -229,7 +214,13 @@ const ExchangeSuccess = () => {
       title: "Lý do",
       dataIndex: "reason",
       sorter: true,
-      width: "30%",
+      width: "25%",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "description",
+      sorter: true,
+      width: "25%",
     },
     {
       title: "Trạng thái",
@@ -279,30 +270,10 @@ const ExchangeSuccess = () => {
       render: (id, record) => {
         return (
           <>
-            {record.status === "DA_XU_LY" || record.status === "KHONG_XU_LY" ? (
-              <EyeOutlined
-                style={{ fontSize: "20px" }}
-                onClick={() => navigate(`/admin/order/exchange/detail/${id}`)}
-              />
-            ) : (
-              <>
-                <EyeOutlined
-                  style={{ fontSize: "20px" }}
-                  onClick={() => navigate(`/admin/order/exchange/detail/${id}`)}
-                />
-                <CheckCircleOutlined
-                  className="ms-3"
-                  style={{ fontSize: "20px" }}
-                  onClick={() => {
-                    onConfirm(record);
-                  }}
-                />
-                <CloseCircleOutlined
-                  onClick={() => onCancel(record)}
-                  style={{ color: "red", marginLeft: 12, fontSize: "20px" }}
-                />
-              </>
-            )}
+            <EyeOutlined
+              style={{ fontSize: "20px" }}
+              onClick={() => navigate(`/admin/order/exchange/detail/${id}`)}
+            />
           </>
         );
       },

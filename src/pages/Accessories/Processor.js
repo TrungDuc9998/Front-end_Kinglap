@@ -67,7 +67,12 @@ const Processor = () => {
       search2: "",
     },
   });
+  const [form] = Form.useForm();
   const inputRef = useRef(null);
+
+  const onReset = () => {
+    form.resetFields();
+  };
 
   const loadDataProcessor = () => {
     setSearchName("");
@@ -174,11 +179,6 @@ const Processor = () => {
       title: "Bộ nhớ đệm",
       dataIndex: "caching",
       width: "8.5%",
-    },
-    {
-      title: "Giá tiền(VNĐ)",
-      dataIndex: "price",
-      width: "10%",
     },
     {
       title: "Trạng thái",
@@ -339,9 +339,7 @@ const Processor = () => {
     setOpen(true);
   };
 
-  const handleOk = () => {
-
-  };
+  const handleOk = () => {};
 
   const handleCancel = () => {
     console.log("Clicked cancel button");
@@ -368,6 +366,8 @@ const Processor = () => {
         .then((data) => {
           console.log("Success:", data);
           toastSuccess("Thêm mới thành công !");
+          setOpen(false);
+          onReset();
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -386,13 +386,12 @@ const Processor = () => {
       multiplier: data.multiplier,
       numberOfThread: data.numberOfThread,
       caching: data.caching,
-      price: data.price,
-      status: dataEdit.status
-    }
+      status: dataEdit.status,
+    };
     if (isUpdate === false) {
       data.status = "ACTIVE";
       console.log(data.status);
-      fetch('http://localhost:8080/api/staff/processors/' + edit.id, {
+      fetch("http://localhost:8080/api/staff/processors/" + edit.id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(edit),
@@ -524,6 +523,7 @@ const Processor = () => {
                 display: "none",
               },
             }}
+            cancelText={"Đóng"}
             width={700}
             open={open}
             onOk={handleOk}
@@ -531,6 +531,7 @@ const Processor = () => {
             onCancel={handleCancel}
           >
             <Form
+              form={form}
               initialValues={{
                 cpuCompany: name,
               }}
@@ -642,19 +643,6 @@ const Processor = () => {
                 <Input placeholder="Nhập số luồng CPU" />
               </Form.Item>
               <Form.Item
-                name="price"
-                label="Giá tiền"
-                rules={[
-                  {
-                    required: true,
-                    message: "Giá tiền không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input placeholder="Nhập giá tiền CPU" />
-              </Form.Item>
-              <Form.Item
                 name="caching"
                 label="Bộ nhớ đệm"
                 rules={[
@@ -705,6 +693,7 @@ const Processor = () => {
                 display: "none",
               },
             }}
+            width={700}
           >
             <Form
               form={formEdit}
@@ -830,20 +819,6 @@ const Processor = () => {
                   {
                     required: true,
                     message: "Bộ nhớ đẹm CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="price"
-                label="Giá tiền"
-                initialValue={dataEdit.price}
-                rules={[
-                  {
-                    required: true,
-                    message: "Giá tiền không được để trống",
                   },
                 ]}
                 hasFeedback

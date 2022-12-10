@@ -278,7 +278,6 @@ const OrderDelivering = () => {
 
   const loadDataOrderHistoryById = (id) => {
     console.log("id hoá đơn log ra", id);
-    // setLoading(true);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
@@ -628,6 +627,12 @@ const OrderDelivering = () => {
             id="a"
             title="Chi tiết đơn hàng"
             open={isView}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+           cancelText={"Đóng"}
             onCancel={() => {
               setView(false);
             }}

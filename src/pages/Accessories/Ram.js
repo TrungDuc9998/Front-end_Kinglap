@@ -1,8 +1,5 @@
 import {
   Table,
-  DatePicker,
-  Checkbox,
-  Slider,
   Select,
   Input,
   Button,
@@ -27,7 +24,6 @@ import { ToastContainer, toast } from "react-toastify";
 const { Option } = Select;
 
 const onDelete = (record) => {
-  console.log(record);
   const isPut = true;
   Modal.confirm({
     icon: <CheckCircleOutlined />,
@@ -66,6 +62,7 @@ const toastSuccess = (message) => {
 };
 
 const Ram = () => {
+  const [form] = Form.useForm();
   const [isUpdate, setIsUpdate] = useState(false);
   const [category, setCategory] = useState([]);
   const [data, setData] = useState();
@@ -89,6 +86,9 @@ const Ram = () => {
   });
   const inputRef = useRef(null);
 
+  const onReset = () => {
+    form.resetFields();
+  };
   const columns = [
     {
       title: "Loại Ram",
@@ -124,11 +124,6 @@ const Ram = () => {
       title: "Số khe RAM còn lại",
       dataIndex: "remainingSlot",
       width: "12.5%",
-    },
-    {
-      title: "Giá tiền (VNĐ)",
-      dataIndex: "price",
-      width: "10%",
     },
     {
       title: "Trạng thái",
@@ -381,6 +376,7 @@ const Ram = () => {
         .then((data) => {
           console.log("Success:", data);
           toastSuccess("Thêm mới thành công !");
+          onReset();
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -395,7 +391,6 @@ const Ram = () => {
       looseSlot: data.looseSlot,
       maxRamSupport: data.maxRamSupport,
       onboardRam: data.onboardRam,
-      price: data.price,
       ramCapacity: data.ramCapacity,
       ramSpeed: data.ramSpeed,
       remainingSlot: data.remainingSlot,
@@ -508,6 +503,12 @@ const Ram = () => {
             title="Tạo mới"
             open={open}
             onOk={handleOk}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+            cancelText={"Đóng"}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
             width={650}
@@ -516,6 +517,7 @@ const Ram = () => {
               initialValues={{
                 cpuCompany
               }}
+              form={form}
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 10 }}
@@ -623,19 +625,6 @@ const Ram = () => {
               >
                 <Input placeholder="Nhập hỗ trợ RAM tối đa" />
               </Form.Item>
-              <Form.Item
-                name="price"
-                label="Giá tiền"
-                rules={[
-                  {
-                    required: true,
-                    message: "Giá tiền không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input placeholder="Nhập giá tiền CPU" />
-              </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
@@ -644,9 +633,9 @@ const Ram = () => {
                     </Button>
                   </div>
                   <div className="col-6">
-                    <Button block type="danger" id="create" htmlType="submit">
+                    {/* <Button block type="danger" id="create" htmlType="submit">
                       Lưu nháp
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               </Form.Item>
@@ -774,20 +763,6 @@ const Ram = () => {
                   {
                     required: true,
                     message: "Hỗ trợ RAM tối đa không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="price"
-                label="Giá tiền"
-                initialValue={dataEdit.price}
-                rules={[
-                  {
-                    required: true,
-                    message: "Giá tiền không được để trống",
                   },
                 ]}
                 hasFeedback

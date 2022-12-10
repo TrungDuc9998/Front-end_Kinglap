@@ -114,7 +114,7 @@ const Product = () => {
     {
       title: "Tên sản phẩm",
       width: "30%",
-      render: (data) => `${data.name} (${data.category.name}, ${data.manufacture.name})`
+      render: (data) => `${data.name} ( ${data.manufacture.name})`
     },
     {
       title: "Imei",

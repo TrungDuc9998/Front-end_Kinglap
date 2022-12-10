@@ -17,17 +17,23 @@ import moment from "moment";
 
 const { TextArea } = Input;
 
-const dateFormat = "YYYY/MM/DD";
-//phụ kiện
-const children = [];
-const handleChange = (value) => {
-  console.log(`selected ${value}`);
-};
-
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
 });
+
+const toastError = (message) => {
+  toast.error(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
 
 const toastSuccess = (message) => {
   toast.success(message, {
@@ -43,45 +49,16 @@ const toastSuccess = (message) => {
 };
 
 function CreateProduct() {
-  //css Image
-  const contentStyle = {
-    margin: 0,
-    height: "160px",
-    color: "#fff",
-    lineHeight: "160px",
-    textAlign: "center",
-    background: "#364d79",
-  };
-  const [screenSize, setScreenSize] = useState("11.6 inch");
-  const [resolution, setResolution] = useState("HD (1366 x 768)");
-  const [frequency, setFrequency] = useState("60 Hz");
-  const [loading, setLoading] = useState(false);
+  
   const [name, setName] = useState();
-  const [p_n, setPN] = useState();
   const [price, setPrice] = useState();
   const [quantity, setQuantity] = useState();
-  const [size, setSize] = useState();
-  const [weight, setWeight] = useState();
   const [length, setLength] = useState();
-  const [height, setHeight] = useState();
   const [width, setWidth] = useState();
-  const [debut, setDebut] = useState(getDate);
-  const [origin, setOrigin] = useState();
   const [imei, setImei] = useState();
-  const [security, setSecurity] = useState();
-  const [hard_drive, setHardDrive] = useState("120GB SSD");
-  const [screen, setScreen] = useState();
-  const [win, setWin] = useState("Window");
-  const [slot, setSlot] = useState();
-  const [optical, setOptical] = useState();
-  const [processor, SetProcessor] = useState();
   const [battery, setBattery] = useState();
-  const [capacity, setCapacity] = useState("VGA ADM");
-  const [ram, setRam] = useState("4GB");
   const [category, setCategory] = useState([]);
-  const [categoryId, setCategoryId] = useState(1);
   const [manufacture, setManufacture] = useState([]);
-  const [manufactureId, setManufactureId] = useState(1);
   const [dataOrigin, setDataOrigin] = useState();
   const [processors, setProcessors] = useState([]);
   const [dataScreen, setDataScreen] = useState([]);
@@ -90,6 +67,7 @@ function CreateProduct() {
   const [dataStorage, setDataStorage] = useState([]);
   const [dataAccessory, setDataAccessory] = useState([]);
   const [dataColor, setDataColor] = useState([]);
+  const [dataWin, setDataWin] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -139,7 +117,20 @@ function CreateProduct() {
     loadDataAccessor();
     loadDataStorage();
     loadDataColor();
+    loadDataWin();
   }, [images]);
+
+  const loadDataWin = () => {
+    fetch(
+      `http://localhost:8080/api/auth/wins?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataWin(results.data.data);
+      });
+  };
 
   const loadDataColor = () => {
     fetch(
@@ -150,14 +141,6 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setDataColor(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
       });
   };
 
@@ -170,7 +153,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setBattery(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -190,7 +173,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setDataAccessory(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -210,7 +193,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setDataCard(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -222,7 +205,6 @@ function CreateProduct() {
   };
 
   const loadDataRam = () => {
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/auth/rams?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -231,7 +213,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setDataRam(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -243,7 +225,6 @@ function CreateProduct() {
   };
 
   const loadDataOrigin = () => {
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -252,7 +233,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setDataOrigin(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -264,7 +245,6 @@ function CreateProduct() {
   };
 
   const loadDataScreen = () => {
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/auth/screens?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -273,7 +253,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setDataScreen(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -282,11 +262,6 @@ function CreateProduct() {
           },
         });
       });
-  };
-
-  const handleClickRemove = (url) => {
-    const urlImg = imageUrls.filter((i) => i !== url);
-    console.log("urlImg", urlImg)(setImageUrls(urlImg));
   };
 
   function getDate() {
@@ -304,29 +279,6 @@ function CreateProduct() {
     return date;
   }
 
-  const handleChangeDate = (date, dateString) => {
-    console.log(date, dateString);
-  };
-
-  //Calendar
-  const setDates = (val, dateStrings) => {
-    console.log(dateStrings);
-    if (dateStrings != null) setDebut(dateStrings);
-  };
-
-  const notify = () => {
-    toast.success("Thêm sản phẩm thành công !", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
-
   const getRandomMuserParams = (params) => ({
     limit: params.pagination?.pageSize,
     page: params.pagination?.current,
@@ -335,7 +287,6 @@ function CreateProduct() {
   });
 
   const loadDataStorage = () => {
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/storage_details?${qs.stringify(
         getRandomMuserParams(tableParams)
@@ -344,7 +295,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setDataStorage(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -356,7 +307,6 @@ function CreateProduct() {
   };
 
   const loadDataProcess = () => {
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/auth/processors?${qs.stringify(
         getRandomMuserParams(tableParams)
@@ -365,7 +315,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setProcessors(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -376,16 +326,7 @@ function CreateProduct() {
       });
   };
 
-  const normFile = (e) => {
-    console.log("Upload event:", e);
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList;
-  };
-
   const loadDataManufacture = () => {
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
@@ -394,7 +335,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setManufacture(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -406,7 +347,6 @@ function CreateProduct() {
   };
 
   const loadDataCategory = () => {
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
@@ -415,7 +355,7 @@ function CreateProduct() {
       .then((res) => res.json())
       .then((results) => {
         setCategory(results.data.data);
-        setLoading(false);
+
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -431,99 +371,14 @@ function CreateProduct() {
     loadDataManufacture();
   }, []);
 
-  const handleClick = (e) => {
-    e.preventDefault();
-    const product = {
-      name,
-      quantity,
-      price,
-      imei,
-      weight,
-      size,
-      debut,
-      p_n,
-      origin,
-      categoryId,
-      manufactureId,
-      length,
-      width,
-      height,
-      images,
-      configuration: {
-        processor,
-        ram,
-        slot,
-        battery,
-        security,
-        screen,
-        screenSize,
-        resolution,
-        frequency,
-        optical,
-        hard_drive,
-        win,
-        capacity,
-      },
-    };
-    console.log(product);
-    fetch("http://localhost:8080/api/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: product.name,
-        quantity: product.quantity,
-        price: product.price,
-        imei: product.imei,
-        weight: product.weight,
-        size: product.size,
-        debut: product.debut,
-        p_n: product.p_n,
-        origin: product.origin,
-        categoryId: product.categoryId,
-        manufactureId: product.manufactureId,
-        length: product.length,
-        width: product.width,
-        height: product.height,
-        images: imageUrls.map((item) => ({
-          name: item,
-          product: null,
-          return_id: null,
-          exchange_id: null,
-        })),
-        configuration: {
-          processor: product.configuration.processor,
-          ram: product.configuration.ram,
-          slot: product.configuration.slot,
-          battery: product.configuration.battery,
-          security: product.configuration.security,
-          screen:
-            product.configuration.screenSize +
-            " " +
-            product.configuration.resolution +
-            " " +
-            product.configuration.frequency,
-          optical: product.configuration.optical,
-          hard_drive: product.configuration.hard_drive,
-          win: product.configuration.win,
-          capacity: product.configuration.capacity,
-        },
-      }),
-    }).then((res) => {
-      res.json();
-      notify();
-    });
-  };
-
   const onReset = () => {
     form.resetFields();
   };
 
   const handleSubmit = (data) => {
     console.log(data);
-    // if (isUpdate === false) {
     data.status = "ACTIVE";
     data.debut = moment(data.debut).format("yyyy");
-
     const quantity = Number(data.quantity);
     console.log(quantity);
     data.images = imageUrls.map((item) => ({
@@ -554,12 +409,13 @@ function CreateProduct() {
       colorId: data.colorId,
       batteryId: data.batteryId,
       ramId: data.ramId,
-      win: data.win,
+      winId: data.win,
       material: data.material,
       cardOnboard: data.cardOnboard,
       accessoryId: data.accessoryId,
       security: data.security,
       description: data.description,
+      storageId: data.storageId,
     };
 
     console.log(product);
@@ -570,11 +426,13 @@ function CreateProduct() {
       body: JSON.stringify(product),
     })
       .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-        onReset();
-        toastSuccess("Thêm mới thành công !");
-        // toastSuccess("Thêm mới thành công !");
+      .then((results) => {
+        if (results.status === 200) {
+          onReset();
+          toastSuccess("Thêm mới thành công !");
+        } else {
+          toastError("Thêm mới sản phẩm thất bại !");
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -667,7 +525,7 @@ function CreateProduct() {
                   },
                 ]}
               >
-                <Select placeholder="Chọn thể loại">
+                <Select mode="multiple" placeholder="Chọn thể loại">
                   {category.map((cate) => (
                     <Select.Option value={cate.id}>{cate.name}</Select.Option>
                   ))}
@@ -994,9 +852,11 @@ function CreateProduct() {
                 ]}
               >
                 <Select placeholder="Chọn hệ điều hành">
-                  <Select.Option value="Linux">Linux</Select.Option>
-                  <Select.Option value="Window">Window</Select.Option>
-                  <Select.Option value="MacOS">MacOS</Select.Option>
+                  {dataWin?.map((item) => (
+                    <Select.Option value={item.id}>
+                      {item.name + " - " + item.version}
+                    </Select.Option>
+                  ))}
                 </Select>
               </Form.Item>
             </div>
@@ -1171,49 +1031,8 @@ function CreateProduct() {
             </Button>
           </Form.Item>
         </Form>
-        <div className="img">
-          {/* <Carousel autoplay>
-            {imageUrls
-              ? imageUrls.map((url, index) => {
-                  return (
-                    <div style={contentStyle}>
-                      <Image.PreviewGroup>
-                        <Image src={url}></Image>
-                     
-                        <div className="">
-                          <button
-                            className=""
-                            onClick={() => handleClickRemove(url)}
-                          >
-                            <DeleteOutlined size={18}></DeleteOutlined> Remove
-                            image
-                          </button>
-                        </div>
-                      </Image.PreviewGroup>
-                    </div>
-                  );
-                })
-              : ""}
-          </Carousel> */}
-          {/* {imageUrls?imageUrls.map((url) => {
-        return <img src={url} />;
-      }):""} */}
-        </div>
-
-        <div className="row">
-          {/* <div className="col-12 mb-3">
-            <Button
-              className="mt-2"
-              type="primary"
-              onClick={handleClick}
-              style={{ borderRadius: "10px" }}
-            >
-              {" "}
-              <PlusCircleFilled /> Thêm
-            </Button>
-            <ToastContainer />
-          </div> */}
-        </div>
+        <div className="img"></div>
+        <div className="row"></div>
         <div className="row"></div>
       </div>
     </div>
