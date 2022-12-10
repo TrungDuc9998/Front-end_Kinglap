@@ -59,7 +59,7 @@ const BatteryCharger = () => {
     batteryType: "",
     battery: "",
     charger: "",
-    price: null,
+   
     categoryId: null,
     active: "ACTIVE",
   }]
@@ -69,7 +69,7 @@ const BatteryCharger = () => {
     batteryType: "",
     battery: "",
     charger: "",
-    price: null,
+  
     categoryId: null,
     active: "ACTIVE",
   }
@@ -79,7 +79,6 @@ const BatteryCharger = () => {
     batteryType: "",
     battery: "",
     charger: "",
-    price: null,
     categoryId: null,
     active: "ACTIVE",
   }
@@ -135,12 +134,6 @@ const BatteryCharger = () => {
       title: "Nguồn cấp",
       dataIndex: "charger",
       width: "20%",
-    },
-    {
-      title: "Giá (VNĐ)",
-      dataIndex: "price",
-      render: (price) => `${price}`,
-      width: "15%",
     },
     {
       title: "Trạng thái",
@@ -408,7 +401,6 @@ const BatteryCharger = () => {
       battery: data.battery,
       batteryType: data.batteryType,
       charger: data.charger,
-      price: data.price,
       status: data.status
     }
     if (isUpdate === false) {
@@ -585,7 +577,12 @@ const BatteryCharger = () => {
           <Modal
             title="Tạo mới"
             open={open}
-            onOk={handleAdd}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+           cancelText={"Đóng"}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
             width={650}
@@ -619,7 +616,7 @@ const BatteryCharger = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập loại pin ..." />
+                <Input placeholder="Nhập loại pin" />
               </Form.Item>
               <Form.Item
                 className="mt-2"
@@ -635,7 +632,7 @@ const BatteryCharger = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập dung lượng pin ..." />
+                <Input placeholder="Nhập dung lượng pin" />
               </Form.Item>
               <Form.Item
                 className="mt-2"
@@ -651,23 +648,7 @@ const BatteryCharger = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập power supply ..." />
-              </Form.Item>
-              <Form.Item
-                className="mt-2"
-                name="price"
-                label="Giá tiền"
-                rules={[
-                  {
-                    required: true,
-                    message: "Giá tiền không được để trống",
-                  },
-                  { whitespace: true },
-                  { min: 3 },
-                ]}
-                hasFeedback
-              >
-                <Input type="number" placeholder="Nhập giá tiền ..." />
+                <Input placeholder="Nhập power supply" />
               </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
@@ -771,20 +752,6 @@ const BatteryCharger = () => {
                   },
                   { whitespace: true },
                   { min: 3 },
-                ]}
-                hasFeedback
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="price"
-                label="Giá tiền"
-                initialValue={dataEdit.price}
-                rules={[
-                  {
-                    required: true,
-                    message: "Giá tiền không được để trống",
-                  },
                 ]}
                 hasFeedback
               >

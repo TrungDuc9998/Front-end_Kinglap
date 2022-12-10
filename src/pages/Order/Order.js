@@ -10,8 +10,6 @@ import {
   Space,
 } from "antd";
 import {
-  DeleteOutlined,
-  EditOutlined,
   EyeOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -53,7 +51,7 @@ const Order = () => {
   const [dateOrder, setDateOrder] = useState(getDateTime);
   const [searchStatus, setSearchStatus] = useState();
   const [searchName, setSearchName] = useState();
-  const [dataUser, setDataUser] = useState();
+  const [orderHistory, setOrderHistory] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
@@ -355,7 +353,19 @@ const Order = () => {
       console.log(res.data);
       setDataOD(res.data);
     });
+    loadDataOrderHistoryById(id);
     setView(true);
+  };
+
+  const loadDataOrderHistoryById = (id) => {
+    console.log("id hoá đơn log ra", id);
+    fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("data order history");
+        console.log(res);
+        setOrderHistory(res);
+      });
   };
 
   const showModalOrder = (id) => {
@@ -565,6 +575,105 @@ const Order = () => {
     },
   ];
 
+  const columnOrderHistory = [
+    {
+      title: "Mã hoá đơn",
+      dataIndex: "orderId",
+      width: "20%",
+      render(orderId) {
+        return <>{orderId.id}</>;
+      },
+    },
+    {
+      title: "Thời gian",
+      dataIndex: "createdAt",
+      width: "25%",
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
+
+      width: "20%",
+      render(total) {
+        return (
+          <>
+            {total?.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+    },
+    {
+      title: "Trạng thái đơn hàng",
+      dataIndex: "status",
+      width: "30%",
+      render: (status) => {
+        if (status === "CHO_XAC_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ xác nhận
+              </div>
+            </>
+          );
+        }
+        if (status === "CHO_LAY_HANG") {
+          return (
+            <>
+              <div
+                className="bg-warning text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chờ lấy hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DANG_GIAO") {
+          return (
+            <>
+              <div
+                className="bg-primary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đang giao hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_NHAN") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã nhận hàng
+              </div>
+            </>
+          );
+        }
+        if (status === "DA_HUY") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Đã huỷ hàng
+              </div>
+            </>
+          );
+        }
+      },
+    },
+  ];
+
   const handleTableChange = (pagination, filters, sorter) => {
     tableParams.pagination = pagination;
     tableParams.pagination.search1 = searchName;
@@ -743,10 +852,6 @@ const Order = () => {
               format={"yyyy-MM-DD HH:mm:ss"}
               onChange={onchangeSearch}
               onCalendarChange={handleChangeDateSearch}
-              // value={[
-              //   moment(searchStartDate, "yyyy-MM-DD HH:mm:ss"),
-              //   moment(searchEndDate, "yyyy-MM-DD HH:mm:ss"),
-              // ]}
               type="datetime"
             />
           </Space>
@@ -842,9 +947,16 @@ const Order = () => {
             onCancel={() => {
               setView(false);
             }}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+           cancelText={"Đóng"}
             onOk={() => {
               setView(false);
             }}
+            width={850}
           >
             <table className="table">
               <thead>
@@ -888,6 +1000,13 @@ const Order = () => {
                 })}
               </tbody>
             </table>
+            <h6 className="text-danger ms-1">Lịch sử đơn hàng</h6>
+            <Table
+              columns={columnOrderHistory}
+              rowKey={(record) => record.id}
+              dataSource={orderHistory}
+              pagination={{ position: ["none", "none"] }}
+            />
           </Modal>
 
           <Modal

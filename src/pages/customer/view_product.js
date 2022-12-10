@@ -294,6 +294,7 @@ function ViewProduct() {
                   onOk={handleOk}
                   onCancel={handleCancel}
                   style={{ padding: "0 !impotant" }}
+                  width={800}
                 >
                   <div className="card">
                     <div className="card-header" style={{ textAlign: "left" }}>

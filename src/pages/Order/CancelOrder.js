@@ -366,6 +366,12 @@ const CancelOrder = () => {
 
           <Modal
             title="Chi tiết đơn hàng"
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+           cancelText={"Đóng"}
             open={isView}
             onCancel={() => {
               setView(false);

@@ -3,9 +3,15 @@ import "antd/dist/antd.css";
 import logo from "../../../asset/images/logo_kinglap.png";
 
 import {
+  AppstoreOutlined,
+  BarChartOutlined,
   DesktopOutlined,
+  FileDoneOutlined,
   FileOutlined,
+  OrderedListOutlined,
   PieChartOutlined,
+  ReloadOutlined,
+  StockOutlined,
   TeamOutlined,
   UserOutlined,
   UserSwitchOutlined,
@@ -24,16 +30,16 @@ function getItem(label, key, icon, children) {
   };
 }
 const items = [
-  getItem("Trang chủ", "/", <PieChartOutlined />),
-  getItem("Quản lý dịch vụ", "/admin/discount", <PieChartOutlined />),
-  getItem("Quản lý sản phẩm", "sub1", <UserOutlined />, [
+  getItem("Trang chủ", "/admin/statistical", <PieChartOutlined />),
+  getItem("Quản lý dịch vụ", "/admin/discount", <FileDoneOutlined />),
+  getItem("Quản lý sản phẩm", "sub1",<AppstoreOutlined />, [
     getItem("Quản lý thể loại", "/admin/category"),
     getItem("Danh sách sản phẩm", "/admin/product"),
     getItem("Tạo sản phẩm", "/admin/product/create"),
-    getItem("Sửa sản phẩm", "/admin/product/edit"),
     getItem("Quản lý linh kiện", "/admin/accessories"),
+    getItem("Sản phẩm tồn kho", "/admin/product/inventory"),
   ]),
-  getItem("Quản đơn hàng", "sub2", <UserOutlined />, [
+  getItem("Quản đơn hàng", "sub2", <OrderedListOutlined />, [
     getItem("Quản lý đơn đặt hàng", "/admin/order"),
     getItem("Xác nhận đơn hàng", "/admin/order/confirm"),
     getItem("Đơn hàng chờ lấy hàng", "/admin/order/wait"),
@@ -46,11 +52,9 @@ const items = [
     getItem("Quản lý nhân viên", "/admin/staff"),
     getItem("Quản lý vai trò", "/admin/setting/role"),
   ]),
-  getItem("Yêu cầu hỗ trợ", "sub4", <UserOutlined />, [
+  getItem("Yêu cầu hỗ trợ", "sub4", <ReloadOutlined />, [
     getItem("Yêu cầu đổi hàng", "/admin/order/exchange"),
-    getItem("Yêu cầu trả hàng", "/admin/return/confirm"),
   ]),
-  getItem("Thống kê", "/admin/statistical", <FileOutlined />),
 ];
 
 const DefaultLayout = ({ children }) => {
@@ -69,7 +73,7 @@ const DefaultLayout = ({ children }) => {
       <Sider
         style={{
           overflow: "auto",
-          height: "100vh",
+          height: "94vh",
           // position: "fixed",
           left: 0,
           top: 0,

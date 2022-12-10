@@ -1,4 +1,4 @@
-import { Select, Input, Button, Modal, Alert, Image } from "antd";
+import { Select, Input, Button, Modal, Alert, Image, Checkbox } from "antd";
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
@@ -36,6 +36,7 @@ const Exchange = () => {
   const [dataOD, setDataOD] = useState();
   const [valueProduct, setValueProduct] = useState("");
   const [currentDate, setCurrentDate] = useState();
+  const [checked, setChecked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -82,6 +83,7 @@ const Exchange = () => {
   };
 
   const handleSubmitReturn = (data, dataOrderDetail) => {
+    console.log("checked:", checked);
     const ExchangeDetail = [];
     data?.forEach((element) => {
       ExchangeDetail.push({
@@ -112,7 +114,7 @@ const Exchange = () => {
             orderId: order.id,
             reason: reason,
             description: note,
-            isCheck: "1",
+            isCheck: checked === true ? "3" : "1",
             status: "CHUA_XU_LY",
             returnDetailEntities: ExchangeDetail,
           }),
@@ -133,14 +135,19 @@ const Exchange = () => {
           }
         ).then((res) => loadDataOrder(id));
         toastSuccess("Gửi yêu cầu thành công!");
-        setReason("da gửi yêu cầu xong");
-        setDataCart([]);
+        setIsModalOpen(false);
+        setLoading(false);
       } catch (err) {
         toastError("Gửi yêu cầu thất bại!");
       }
     } else {
       toastError("Bạn chưa nhập lý do đổi hàng !");
     }
+
+    setChecked(false);
+    setDataCart([]);
+    loadDataOrder(id);
+    console.log('đi qua chỗ này');
   };
   const handleCancel = () => {
     setDataCart([]);
@@ -176,7 +183,7 @@ const Exchange = () => {
   useEffect(() => {
     loadDataOrder(id);
     loadDataProduct();
-  }, []);
+  }, [checked]);
 
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
@@ -362,16 +369,6 @@ const Exchange = () => {
               <div className="mt-2 ms-5 text-success">
                 Số điện thoại: <b>{order?.phone}</b>{" "}
               </div>
-              <div className="mt-2">
-                <TextArea
-                  onChange={(e) => setReason(e.target.value)}
-                  className="ms-2 ms-5"
-                  style={{ width: "80%" }}
-                  placeholder="Lý do đổi hàng"
-                  rows={3}
-                  cols={2}
-                />
-              </div>
             </div>
             <div className="col-6 mt-4 mb-5">
               <div className="mt-2 text-success">
@@ -390,16 +387,7 @@ const Exchange = () => {
               <div className="mt-2 text-success">
                 Trạng thái: <b>Đã nhận hàng</b>{" "}
               </div>
-              <div className="mt-2">
-                <TextArea
-                  onChange={(e) => setNote(e.target.value)}
-                  className="ms-2"
-                  style={{ width: "80%" }}
-                  placeholder="Ghi chú"
-                  rows={3}
-                  cols={2}
-                />
-              </div>
+              <div className=""></div>
             </div>
           </div>
         </div>
@@ -450,7 +438,7 @@ const Exchange = () => {
                     </td>
 
                     <td>
-                      {item.isCheck === null ? (
+                      {(item.isCheck === null) ? (
                         <Button onClick={() => showModal(item)}>
                           Chọn sản phẩm
                         </Button>
@@ -492,6 +480,9 @@ const Exchange = () => {
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
+          width={800}
+          cancelText={"Đóng"}
+          okText={"Gửi yêu cầu"}
         >
           <div className="search-inner mb-2">
             <div className="row">
@@ -512,6 +503,16 @@ const Exchange = () => {
                     })}
                   </i>
                 </p>
+                <div className="mt-4">
+                  <TextArea
+                    onChange={(e) => setReason(e.target.value)}
+                    className="mb-2"
+                    style={{ width: "80%" }}
+                    placeholder="Lý do đổi hàng"
+                    rows={3}
+                    cols={2}
+                  />
+                </div>
               </div>
               <div className="col-5">
                 <p>
@@ -536,6 +537,22 @@ const Exchange = () => {
                       : "0 VND"}
                   </i>
                 </p>
+                <p className="text-danger fw-bold mt-2">
+                  Vui lòng tích chọn nếu sản phẩm lỗi
+                </p>
+                <Checkbox onChange={(e) => setChecked(e.target.checked)}>
+                  Sản phẩm lỗi
+                </Checkbox>
+                <div className="mt-2">
+                  <TextArea
+                    onChange={(e) => setNote(e.target.value)}
+                    className="ms-2"
+                    style={{ width: "100%" }}
+                    placeholder="Ghi chú"
+                    rows={3}
+                    cols={4}
+                  />
+                </div>
               </div>
             </div>
             <Select

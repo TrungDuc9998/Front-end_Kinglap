@@ -551,6 +551,12 @@ const OrderSuccess = () => {
             title="Chi tiết đơn hàng"
             open={isView}
             style={{width: "200px  !important"}}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+           cancelText={"Đóng"}
             onCancel={() => {
               setView(false);
             }}

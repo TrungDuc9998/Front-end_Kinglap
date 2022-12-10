@@ -32,11 +32,6 @@ function Card() {
             width: "22%",
         },
         {
-            title: "Giá tiền (VNĐ)",
-            dataIndex: "price",
-            width: "22%",
-        },
-        {
             title: "Thao tác",
             dataIndex: "Thao tác",
             width: "12%",
@@ -77,7 +72,6 @@ function Card() {
         const form = {
             trandemark: trandemark,
             memory: memory,
-            price: price,
             model: model
         }
         console.log(form)
@@ -149,7 +143,6 @@ function Card() {
             memory: data.memory,
             model: data.model,
             trandemark: data.trandemark,
-            price: data.price,
         }
         if (isUpdate === false) {
             data.status = "ACTIVE";
@@ -242,7 +235,6 @@ function Card() {
         id: '',
         trandemark: '',
         memory: '',
-        price: '',
         model: ''
     }
 
@@ -256,7 +248,6 @@ function Card() {
     const Update = () => {
         cardEdit.trandemark = trandemarkE;
         cardEdit.memory = memoryE;
-        cardEdit.price = priceE;
         cardEdit.model = modelE;
         cardEdit.id = cardId;
         fetch(`http://localhost:8080/api/card/` + cardEdit.id, {
@@ -344,7 +335,6 @@ function Card() {
         id: '',
         trandemark: "",
         memory: '',
-        price: '',
         model: ''
     })
     const showModalCancel = (card) => {
@@ -468,19 +458,6 @@ function Card() {
                             >
                                 <Input placeholder="Bộ nhớ ..." />
                             </Form.Item>
-                            <Form.Item
-                                name="price"
-                                label="Giá tiền"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Giá tiền không được để trống",
-                                    },
-                                ]}
-                                hasFeedback
-                            >
-                                <Input placeholder="Giá tiền ..." />
-                            </Form.Item>
                             <Form.Item className="text-center">
                                 <div className="row">
                                     <div className="col-6">
@@ -573,20 +550,6 @@ function Card() {
                                     {
                                         required: true,
                                         message: "Bộ nhớ không được để trống",
-                                    },
-                                ]}
-                                hasFeedback
-                            >
-                                <Input />
-                            </Form.Item>
-                            <Form.Item
-                                name="price"
-                                label="Giá tiền"
-                                initialValue={dataEdit.price}
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Giá tiền không được để trống",
                                     },
                                 ]}
                                 hasFeedback
