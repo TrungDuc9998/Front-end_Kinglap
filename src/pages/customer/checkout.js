@@ -606,62 +606,49 @@ function Checkout() {
                 <div className="row ck-content">
                   <div className="col-12" style={{ paddingLeft: "20px" }}>
                     <p style={{ fontWeight: "600" }}>Địa chỉ giao hàng</p>
-                    
-                    <div>
-                      <div className="search-container mb-2">
-                        <div className="search-inner">
-                          <label>Tỉnh/ Thành Phố</label>
-                          <Select
-                            defaultValue={information[0].address.split(",")[0]}
-                            disabled={disableCountry}
-                            showSearch
-                            placeholder="Tỉnh/thành phố"
-                            optionFilterProp="children"
-                            style={{
-                              width: 380,
-                              marginLeft: "36px",
-                            }}
-                            onChange={onChange}
-                            onClick={onSearch}
-                            filterOption={(input, option) =>
-                              option.children.toLowerCase().includes(input.toLowerCase())
-                            }
-                          >
-                            {array.map((item) => (
-                              <Option key={item.ProvinceID} value={item.ProvinceID}>
-                                {item.ProvinceName}
-                              </Option>
-                            ))}
-                          </Select>
-                        </div></div>
-                      <div className="search-container mb-2">
-                        <div className="search-inner">
-                          <label>Tên quận huyện</label>
-                          <Select
-                            defaultValue={information[0].address.split(",")[1]}
-                            showSearch
-                            disabled={disableCountry}
-                            placeholder="Quận/huyện"
-                            optionFilterProp="children"
-                            style={{
-                              width: 380,
-                              marginLeft: "38px",
-                            }}
-                            onChange={onChangeDistricts}
-                            onClick={onSearchDistricts}
-                            filterOption={(input, option) =>
-                              option.children
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                          >
-                            {district.map((item) => (
-                              <Option key={item.DistrictID} value={item.DistrictID}>
-                                {item.DistrictName}
-                              </Option>
-                            ))}
-                          </Select>
-                        </div>
+                    <form className="form-info">
+
+                      <div className="search-inner">
+                        <label>Tỉnh/Thành phố</label>
+                        <input
+                          type={"text"}
+                          className="form-control radio-ip"
+                          placeholder="Tên tỉnh thành"
+                          value={value}
+                          onChange={onChangeProvince}
+                          onClick={() => onSearchProvince(value)}
+                        />
+                      </div>
+                      <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
+                        {array
+                          .filter((item) => {
+                            const searchTerm = value.toString().toLowerCase();
+                            const fullName =
+                              item.ProvinceName !== undefined
+                                ? item.ProvinceName.toLowerCase()
+                                : "";
+                            return (
+                              searchTerm &&
+                              fullName.startsWith(searchTerm) &&
+                              fullName !== searchTerm
+                            );
+                          })
+                          .slice(0, 5)
+                          .map((item) => (
+                            <div
+                              style={{ with: "10%" }}
+                              onClick={() =>
+                                onSearchProvince(
+                                  item.ProvinceName,
+                                  item.ProvinceID
+                                )
+                              }
+                              className="dropdown-row"
+                              key={item.ProvinceName}
+                            >
+                              {item.ProvinceName}
+                            </div>
+                          ))}
                       </div>
                       <div className="search-container mb-2">
                         <div className="search-inner">
@@ -692,21 +679,88 @@ function Checkout() {
                           </Select>
                         </div>
                       </div>
-                    </div>
-                    <div>
-                      <label>Địa chỉ</label>
-                      <input
-                        defaultValue={information[0].address.split(",")[3]}
-                        style={{
-                          width: 380,
-                          marginLeft: "97px",
-                          borderRadius: "2px",
-                        }}
-                        type={"text"}
-                        placeholder="Nhập số nhà/Tên đường"
-                        onChange={changeAddress}
-                      ></input>
-                    </div>
+                      <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
+                        {district
+                          .filter((item) => {
+                            const searchTerm = valueDistrict
+                              .toString()
+                              .toLowerCase();
+                            const fullName =
+                              item.DistrictName !== undefined
+                                ? item.DistrictName.toLowerCase()
+                                : "";
+
+                            return (
+                              searchTerm &&
+                              fullName.startsWith(searchTerm) &&
+                              fullName !== searchTerm
+                            );
+                          })
+                          .slice(0, 5)
+                          .map((item) => (
+                            <div
+                              onClick={() =>
+                                onSearchDistrict(
+                                  item.DistrictName,
+                                  item.DistrictID
+                                )
+                              }
+                              className="dropdown-row"
+                              key={item.DistrictID}
+                            >
+                              {item.DistrictName}
+                            </div>
+                          ))}
+                      </div>
+                      <div className="search-inner">
+                        <label>Tên phường xã</label>
+                        <input
+                          type={"text"}
+                          className="form-control radio-ip"
+                          placeholder="Tên phường xã"
+                          value={valueWard}
+                          disabled={isDisabled}
+                          onChange={onChangeWard}
+                          onClick={() => onSearchWard(valueWard)}
+                        />
+                      </div>
+                      <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
+                        {Ward.filter((item) => {
+                          const searchTerm = valueWard.toString().toLowerCase();
+                          const fullName =
+                            item.WardName !== undefined
+                              ? item.WardName.toLowerCase()
+                              : "";
+
+                          return (
+                            searchTerm &&
+                            fullName.startsWith(searchTerm) &&
+                            fullName !== searchTerm
+                          );
+                        })
+                          .slice(0, 5)
+                          .map((item) => (
+                            <div
+                              onClick={() =>
+                                onSearchWard(item.WardName, item.WardCode)
+                              }
+                              className="dropdown-row"
+                              key={item.WardName}
+                            >
+                              {item.WardName}
+                            </div>
+                          ))}
+                      </div>
+                      <div>
+                        <label>Địa chỉ</label>
+                        <input
+                          type={"text"}
+                          className="form-control radio-ip"
+                          placeholder="Nhập số nhà/Tên đường"
+                          onChange={changeAddress}
+                        ></input>
+                      </div>
+                    </form>
                   </div>
                 </div>
               </div>
