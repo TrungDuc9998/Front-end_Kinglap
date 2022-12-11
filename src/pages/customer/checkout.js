@@ -1,17 +1,12 @@
 import { Input, Select } from "antd";
 import { Option } from "antd/lib/mentions";
+import axios from "axios";
+import qs from 'qs';
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StoreContext from "../../store/Context";
-import { useNavigate } from "react-router-dom";
-import { Image, Input, Select } from "antd";
-import qs from 'qs';
-import axios from "axios";
-import { Option } from "antd/lib/mentions";
-import { addToCart, addToCartByView, setCheckoutCart } from "../../store/Actions";
-import { CHECK_OUT_CART } from "../../store/constants";
 function Checkout() {
   const onSearchProduct = (searchItem) => {
     getData();
