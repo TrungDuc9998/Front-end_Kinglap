@@ -1,13 +1,11 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import product8 from "../../asset/images/products/product08.png";
-import qs from "qs";
-import { Modal, Table, Tabs, InputNumber, Image, Button } from "antd";
 import {
   DeleteOutlined,
-  EyeOutlined,
-  CheckCircleOutlined,
+  EyeOutlined
 } from "@ant-design/icons";
+import { Button, Image, InputNumber, Modal, Table, Tabs } from "antd";
+import axios from "axios";
+import qs from "qs";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -127,12 +125,12 @@ function ViewOrder() {
             type == 0
               ? "TẠI CỬA HÀNG"
               : address +
-                ", " +
-                valueWard +
-                ", " +
-                valueDistrict +
-                ", " +
-                value,
+              ", " +
+              valueWard +
+              ", " +
+              valueDistrict +
+              ", " +
+              value,
           phone: phone,
           customerName: customerName,
           // email: email,
@@ -152,6 +150,8 @@ function ViewOrder() {
         localStorage.removeItem("valueDistrict");
         localStorage.removeItem("value");
       });
+      toastSuccess("Đặt hàng thành công!");
+      localStorage.removeItem("carts");
     }
   };
 
@@ -206,6 +206,7 @@ function ViewOrder() {
         if (payment === "VN_PAY") {
           return (
             <>
+              <ToastContainer></ToastContainer>
               <div
                 className="bg-success text-center text-light"
                 style={{ width: "80%", borderRadius: "5px", padding: "4px" }}
