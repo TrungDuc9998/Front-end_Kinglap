@@ -5,12 +5,17 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StoreContext from "../../store/Context";
-import "./css/checkout.css";
-
+import { useNavigate } from "react-router-dom";
+import { Image, Input, Select } from "antd";
+import qs from 'qs';
+import axios from "axios";
+import { Option } from "antd/lib/mentions";
+import { addToCart, addToCartByView, setCheckoutCart } from "../../store/Actions";
+import { CHECK_OUT_CART } from "../../store/constants";
 function Checkout() {
   const navigate = useNavigate();
   const [state, dispath] = useContext(StoreContext);
-  const carts = state.cart;
+  const [carts, setCarts] = useState(state.cartCheckout);
   const [valueDistrict, setValueDistrict] = useState("");
   const [array, setArray] = useState([{}]);
   const [district, setDistrict] = useState([{}]);
@@ -601,7 +606,7 @@ function Checkout() {
                 <div className="row ck-content">
                   <div className="col-12" style={{ paddingLeft: "20px" }}>
                     <p style={{ fontWeight: "600" }}>Địa chỉ giao hàng</p>
-
+                    
                     <div>
                       <div className="search-container mb-2">
                         <div className="search-inner">
@@ -781,8 +786,13 @@ function Checkout() {
               </button>
             </div>
             <div className="col-12 mt-2">
-              <button className="btn btn-primary form-control btn-ck" onClick={toOtherProduct}>
-                Chọn sản phẩm
+            <button className="btn btn-primary form-control btn-ck "
+                data-bs-toggle="collapse"
+                href="#multiCollapseExample1"
+                role="button" aria-expanded="false"
+                aria-controls="multiCollapseExample1"
+              >
+                Thêm sản phẩm
               </button>
             </div>
             <div className="col-6 mt-2">
