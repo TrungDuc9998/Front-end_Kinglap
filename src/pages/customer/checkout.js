@@ -786,7 +786,7 @@ function Checkout() {
               </button>
             </div>
             <div className="col-12 mt-2">
-            <button className="btn btn-primary form-control btn-ck "
+              <button className="btn btn-primary form-control btn-ck "
                 data-bs-toggle="collapse"
                 href="#multiCollapseExample1"
                 role="button" aria-expanded="false"
