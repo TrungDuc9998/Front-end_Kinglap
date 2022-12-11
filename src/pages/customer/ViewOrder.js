@@ -1,7 +1,3 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import qs from "qs";
-import { Modal, Table, Tabs, InputNumber, Image, Button } from "antd";
 import {
   DeleteOutlined,
   EyeOutlined,
