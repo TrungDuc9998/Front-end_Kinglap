@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useContext } from "react";
+import { Input, Select } from "antd";
+import { Option } from "antd/lib/mentions";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import product from "../../asset/images/products/product01.png";
-import "./css/checkout.css";
 import StoreContext from "../../store/Context";
 import { useNavigate } from "react-router-dom";
 import { Image, Input, Select } from "antd";
@@ -101,13 +102,21 @@ function Checkout() {
   const [totalLength, setTotalLength] = useState();
   const [totalWeight, setTotalWeight] = useState();
   const [totalWith, setTotalWidth] = useState();
+  const [disableCountry, setDisableCountry] = useState(false);
+  const [valueProvince, setValueProvince] = useState();
+  const [wardCode, setWardCode] = useState(1);
 
   const createOrder = () => {
-    if (
-      localStorage.getItem("token") == null ||
-      localStorage.getItem("token") == ""
-    ) {
-      navigate("/login");
+    if (name === "" || name == null) {
+      toastError("Vui lòng nhập đầy đủ họ tên!");
+    } else if (phone === "" || phone == null) {
+      toastError("Vui lòng nhập đầy đủ số điện thoại!");
+    } else if (type === "" || type == null) {
+      toastError("Vui lòng chọn hình thức lấy hàng!");
+    } else if (type == "1" && (ProvinceID === "" || ProvinceID == null || districtId === "" || districtId == null || wardCode === "" || wardCode == null || address === "" || address == null)) {
+      toastError("Vui lòng nhập đầy đủ địa chỉ giao hàng!");
+    } else if (payment === "" || payment == null) {
+      toastError("Vui lòng chọn hình thức thanh toán!");
     } else {
       if (payment === "DAT_COC") {
         localStorage.setItem(
@@ -149,6 +158,7 @@ function Checkout() {
         );
         localStorage.setItem("payment", payment);
         localStorage.setItem("address", address);
+        localStorage.setItem("type", type);
         localStorage.setItem("phone", phone);
         localStorage.setItem("customerName", name);
         localStorage.setItem("status", status);
@@ -163,9 +173,9 @@ function Checkout() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            vnp_OrderInfo: "Thanh toán qua VnPay cho khách hàng " + name,
+            vnp_OrderInfo: "Đặt cọc qua VnPay cho khách hàng " + name,
             orderType: "other",
-            amount: parseInt(getTotal(carts)) + parseInt(shipping),
+            amount: (parseInt(getTotal(carts)) + parseInt(shipping)),
             bankCode: "NCB",
             language: "vn",
           }),
@@ -208,8 +218,10 @@ function Checkout() {
   };
 
   useEffect(() => {
+    //informations = information[0].address.split(",");
+    setName(information[0].fullName)
+    setPhone(information[0].phoneNumber)
     localStorage.getItem("")
-    loadDataProvince();
     setTotal(getTotal(carts));
     loadInfo(carts);
   }, []);
@@ -230,8 +242,29 @@ function Checkout() {
     }
   };
 
+  const onChangeDistricts = (value) => {
+    if (value != null) {
+      setIsDisabled(false);
+    }
+    setDistrictId(value);
+    loadDataWard(value);
+  };
+
+  const onSearchDistricts = (value) => {
+    if (value.target.innerText !== "") {
+      setValueDistrict(value.target.innerText);
+      loadDataWard();
+    }
+  };
+
   const changeType = (event) => {
+    console.log(event.target.value)
     setType(event.target.value);
+    if (event.target.value == 1) {
+      loadDataProvince();
+    } else {
+      setShipping(0)
+    }
   };
 
   const changeAddress = (event) => {
@@ -239,10 +272,12 @@ function Checkout() {
   };
 
   const changeName = (event) => {
+    console.log(event.target.value)
     setName(event.target.value);
   };
 
   const changePhone = (event) => {
+    console.log(event.target.value)
     setPhone(event.target.value);
   };
 
@@ -282,6 +317,7 @@ function Checkout() {
     loadDataDistrict(value);
   };
 
+
   const onSearchDistrict = (searchTerm, value) => {
     setValueDistrict(searchTerm);
     setDistrictId(value);
@@ -290,8 +326,20 @@ function Checkout() {
     }
   };
 
-  const SubmitShipping = (value) => {
+  const SubmitShipping = (value, serviceId) => {
+    let cartList = carts;
+    let weight = 0;
+    let width = 0;
+    let height = 0;
+    let length = 0;
+    for (let i = 0; i < cartList.length; i++) {
+      weight += cartList[i].weight * cartList[i].quantity;
+      width += cartList[i].width * cartList[i].quantity;
+      height += cartList[i].height * cartList[i].quantity;
+      length += cartList[i].length * cartList[i].quantity;
+    }
     if (value != null) {
+      console.log(serviceId);
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
         {
@@ -308,18 +356,34 @@ function Checkout() {
             coupon: null,
             from_district_id: 3440,
             to_district_id: 1875,
-            height: Math.round(totalHeight * 0.1),
-            length: Math.round(totalLength * 0.1),
-            weight: Math.round(totalWeight * 1000),
-            width: Math.round(totalLength * 0.1),
+            height: Math.round(height * 0.1),
+            length: Math.round(length * 0.1),
+            weight: Math.round(weight * 1000),
+            width: Math.round(width * 0.1),
             to_ward_code: value,
           }),
         }
       )
         .then((response) => response.json())
         .then((data) => {
+          console.log(data.data)
           setShipping(data.data.total);
         });
+    }
+  };
+
+  const onChangeWards = (value) => {
+    if (value === "") {
+      setIsDisabled(true);
+    }
+    setWardCode(value);
+    SubmitShipping(value);
+  };
+
+  const onSearchWards = (value) => {
+    if (value.target.innerText !== "") {
+      setValueWard(value.target.innerText);
+      SubmitShipping();
     }
   };
 
@@ -347,12 +411,8 @@ function Checkout() {
             console.log("không có dữ liệu giao hàng phù hợp");
             setIsDisabled(true);
           } else {
-            console.log("Success service:", data.data);
-            console.log("data service id: " + data.data[0].service_id);
             const checkValue = data.data[0].service_id;
             setServiceId(checkValue);
-            console.log("check Value: " + checkValue);
-            console.log("service id sau khi set: " + serviceId);
             fetch(
               "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward",
               {
@@ -374,6 +434,11 @@ function Checkout() {
                 } else {
                   console.log("Success ward:", data.data);
                   setWard(data.data);
+                  data.data.forEach((element) => {
+                    if (element.WardName === information[0].address.split(",")[2]) {
+                      SubmitShipping(element.WardCode, checkValue)
+                    }
+                  })
                 }
               });
           }
@@ -402,14 +467,22 @@ function Checkout() {
       .then((result) => {
         console.log(result.data);
         setArray(result.data);
+        result.data.forEach(element => {
+          if (element.ProvinceName === information[0].address.split(",")[0]) {
+            loadDataDistrict(element.ProvinceID);
+          }
+        });
       })
       .catch((error) => {
         console.log("err", error);
       });
   };
 
+  const toOtherProduct = () => {
+    navigate('/user')
+  }
+
   const loadDataDistrict = (value) => {
-    console.log("load Province Id: " + value);
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
       {
@@ -432,6 +505,11 @@ function Checkout() {
       })
       .then((result) => {
         setDistrict(result.data);
+        result.data.forEach((element) => {
+          if (element.DistrictName === information[0].address.split(",")[1]) {
+            loadDataWard(element.DistrictID)
+          }
+        })
       });
   };
 
@@ -446,6 +524,18 @@ function Checkout() {
       progress: undefined,
       theme: "light",
     });
+  };
+
+  const onChange = (value) => {
+    setProvinceID(value);
+    loadDataDistrict(value);
+  };
+
+  const onSearch = (value) => {
+    if (value.target.innerText !== "") {
+      setValueProvince(value.target.innerText);
+      loadDataDistrict();
+    }
   };
 
   const toastError = (message) => {
@@ -485,11 +575,13 @@ function Checkout() {
     let price = 0;
     let total = 0;
     for (let i = 0; i < cartList.length; i++) {
-      price += cartList[i].price;
+      price = price + (cartList[i].price * cartList[i].quantity);
       total += cartList[i].total;
     }
     return price;
   };
+
+  const information = JSON.parse(localStorage.getItem("information"));
 
   const showCarts = (carts) => {
     let cartList = carts;
@@ -497,8 +589,8 @@ function Checkout() {
       // for(i=0;i<cartList.length;i++){
       const listItems = cartList.map((cart) => (
         <div className="row d-flex">
-          <div className="col-3 img">
-            <img alt="Ảnh sản phẩm" src={product} className="img-content"></img>
+          <div className="col-3 img mt-2">
+            <img alt="Ảnh sản phẩm" src={cart.images[0].name} className="img-content"></img>
           </div>
           <div className="col-5 mt-5 d-block ">
             <div>
@@ -508,7 +600,7 @@ function Checkout() {
             </div>
           </div>
           <div className="col-4 mt-5">
-            <p className="text-name">{formatCash(cart.price + "")} VNĐ</p>
+            <p className="text-name">{formatCash(cart.price * cart.quantity + "")} VNĐ</p>
           </div>
         </div>
       ));
@@ -531,6 +623,7 @@ function Checkout() {
                   className="form-control radio-ip"
                   placeholder="Họ tên"
                   onChange={changeName}
+                  defaultValue={information[0]?.fullName}
                 ></input>
               </div>
               <div>
@@ -540,6 +633,7 @@ function Checkout() {
                   className="form-control radio-ip"
                   placeholder="Số điện thoại"
                   onChange={changePhone}
+                  defaultValue={information[0]?.phoneNumber}
                 ></input>
               </div>
             </form>
@@ -571,7 +665,7 @@ function Checkout() {
           <div>
             {type === "1" ? (
               <div>
-                <div className="ck-content">
+                <div className="row ck-content">
                   <div className="col-12" style={{ paddingLeft: "20px" }}>
                     <p style={{ fontWeight: "600" }}>Địa chỉ giao hàng</p>
                     <form className="form-info">
@@ -618,17 +712,34 @@ function Checkout() {
                             </div>
                           ))}
                       </div>
-                      <div className="search-inner">
-                        <label>Tên quận huyện</label>
-                        <input
-                          type={"text"}
-                          className="form-control radio-ip"
-                          placeholder="Tên quận huyện"
-                          value={valueDistrict}
-                          onChange={onChangeDistrict}
-                          onClick={() => onSearchDistrict(valueDistrict)}
-                          onKeyDown={_handleKeyDown}
-                        />
+                      <div className="search-container mb-2">
+                        <div className="search-inner">
+                          <label>Tên phường xã</label>
+                          <Select
+                            defaultValue={information[0].address.split(",")[2]}
+                            showSearch
+                            placeholder="Phường/xã"
+                            optionFilterProp="children"
+                            style={{
+                              width: 380,
+                              marginLeft: "43px",
+                            }}
+                            onChange={onChangeWards}
+                            onClick={onSearchWards}
+                            disabled={disableCountry}
+                            filterOption={(input, option) =>
+                              option.children
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                          >
+                            {Ward.map((item) => (
+                              <Option key={item.WardCode} value={item.WardCode}>
+                                {item.WardName}
+                              </Option>
+                            ))}
+                          </Select>
+                        </div>
                       </div>
                       <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
                         {district
@@ -720,7 +831,7 @@ function Checkout() {
             )}
           </div>
         </div>
-        <div className="col-12 col-md-5">
+        <div className="col-12 col-md-5 mt-1">
           <p style={{ fontWeight: "600" }}>3. Đơn hàng</p>
           <div className="content-right ">
             <div className="row d-flex">
@@ -745,6 +856,7 @@ function Checkout() {
                 placeholder="0"
                 disabled
               />
+              <img style={{ width: "200px", height: "150px", marginLeft: "130px" }} src="https://inkythuatso.com/uploads/images/2021/12/thiet-ke-khong-ten-04-13-29-21.jpg"></img>
               {/* <span className="input-group-text">VNĐ</span>
                             </div> */}
             </div>

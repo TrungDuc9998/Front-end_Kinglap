@@ -84,7 +84,7 @@ const DefaultLayout = ({ children }) => {
         onCollapse={(value) => setCollapsed(value)}
       >
         <div className="logo">
-          <Link to={"/"}>
+          <Link to={"/user"}>
             <img style={{ width: "100%" }} src={logo} />
           </Link>
         </div>
