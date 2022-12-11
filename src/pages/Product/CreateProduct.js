@@ -2,11 +2,12 @@ import {
   PlusCircleFilled,
   DeleteOutlined,
   InboxOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { storage } from "../../image/firebase/firebase";
 import { v4 } from "uuid";
-import { Button, Input, Select, DatePicker, Space, Image, Form } from "antd";
+import { Button, Input, Select, DatePicker, Space, Image, Form, Upload } from "antd";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,6 +16,7 @@ import qs from "qs";
 import "./product.css";
 const { TextArea } = Input;
 import moment from "moment";
+import { remove } from "toastr";
 
 const dateFormat = "YYYY/MM/DD";
 //phụ kiện
@@ -41,7 +43,31 @@ const toastSuccess = (message) => {
   });
 };
 
+
 function CreateProduct() {
+  const set = new Set();
+  const props = {
+    name: 'file',
+    multiple: true,
+    headers: {
+      authorization: 'authorization-text',
+    },
+    onChange(info) {
+      // console.log(info.fileList.length);
+      if (info.file.status == 'error') {
+        info.file.status = 'done';
+      }
+      if (info.file.status == 'removed') {
+        console.log(info);
+        console.log("removed");
+      }
+      if (info.file.status === 'done') {
+        info.fileList.forEach(item => {
+          set.add(item.originFileObj);
+        });
+      }
+    },
+  };
   //css Image
   const contentStyle = {
     margin: 0,
@@ -97,37 +123,50 @@ function CreateProduct() {
       search2: "",
     },
   });
-  const [imageUpload, setImageUpload] = useState(null);
+  const [imageUpload, setImageUpload] = useState([]);
   const [imageUrls, setImageUrls] = useState([]);
   const [images, setImages] = useState([]);
   const imagesListRef = ref(storage, "images/"); //all url
-  const uploadFile = () => {
-    if (imageUpload == null) return;
-    const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
-    // console.log("imageRef",imageRef)//_service: {…}, _location: {…}
-    uploadBytes(imageRef, imageUpload).then((snapshot) => {
+  const uploadFile = (image) => {
+    if (image == null) return;
+    const imageRef = ref(storage, `images/${image.name + v4()}`);
+    uploadBytes(imageRef, image).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
         setImages((prev) => [...prev, url]);
-        console.log("snapshot.ref", snapshot.ref); //_service: {…}, _location: {…}
+        console.log("url", url);
+        // console.log("snapshot.ref", snapshot.ref); //_service: {…}, _location: {…}
         setImageUrls((prev) => [...prev, url]); //set url ->all url
+        jav.push(url);
       });
-      toastSuccess("upload ảnh thành công !");
+      setImageUpload((prev) => [...prev, image]);
+      // toastSuccess("upload ảnh thành công !");
     });
   };
+  const jav = [];
 
   const [form] = Form.useForm();
+  function LayHinhAnh(arr) {
+    var formArr = arr.sort()
+    var newArr = []
+    for (let i = 0; i < formArr.length - 1; i++) {
+      if (formArr[i] !== formArr[i + 1]) {
+        newArr.push(formArr[i])
+      }
+    }
+    return newArr;
+  }
 
-  //xử lý sau khi uploadfile
+  //xử lý sau khi ư
   useEffect(() => {
-    listAll(imageUpload).then((response) => {
-      // console.log("imagesListRef",imagesListRef)
-      response.items.forEach((item) => {
-        getDownloadURL(item).then((url) => {
-          setImageUrls((prev) => [...prev, url]);
-          setImages((prev) => [...prev, url]);
-        });
-      });
-    });
+    // listAll(imageUpload).then((response) => {
+    //   // console.log("imagesListRef",imagesListRef)
+    //   response.items.forEach((item) => {
+    //     getDownloadURL(item).then((url) => {
+    //       setImageUrls((prev) => [...prev, url]);
+    //       setImages((prev) => [...prev, url]);
+    //     });
+    //   });
+    // });
     loadDataOrigin();
     loadDataProcess();
     loadDataScreen();
@@ -519,6 +558,10 @@ function CreateProduct() {
 
   const handleSubmit = (data) => {
     console.log(data);
+    set.forEach(item => {
+      uploadFile(item);
+    })
+    data.images = imageUrls;
     // if (isUpdate === false) {
     data.status = "ACTIVE";
     data.debut = moment(data.debut).format("yyyy");
@@ -1138,20 +1181,38 @@ function CreateProduct() {
             <div className="col-7">
               <div className="row mt-5">
                 <div className="col-6">
-                  <input
+                  {/* <input
                     className="form-control"
                     type="file"
                     onChange={(event) => {
                       setImageUpload(event.target.files[0]);
                     }}
-                  />
+                  /> */}
+                  <Space
+                    direction="vertical"
+                    style={{
+                      width: '100%',
+                    }}
+                    size="large"
+                  >
+                    <Upload {...props}
+                      // action="gs://fir-react-storage-96f9d.appspot.com/images"
+                      listType="picture"
+                      maxCount={5}
+                    // onChange={changeaaaa}
+
+                    >
+                      <Button icon={<UploadOutlined />}> Chọn hình ảnh  (Tối đa: 5)</Button>
+                    </Upload>
+                  </Space>
+
                 </div>
-                <div className="col-4">
-                  <Button onClick={uploadFile} className="mt-1">
+                {/* <div className="col-4">
+                  <Button onClick={ư} className="mt-1">
                     {" "}
                     Upload Image
                   </Button>
-                </div>
+                </div> */}
               </div>
             </div>
             <div></div>
@@ -1214,8 +1275,8 @@ function CreateProduct() {
           </div> */}
         </div>
         <div className="row"></div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
 export default CreateProduct;
