@@ -1,4 +1,4 @@
-import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space } from "antd";
+import { Table, Form, Select, Input, Button, Modal, DatePicker, Radio, Space } from "antd";
 import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
 import {
   DeleteOutlined,
@@ -48,16 +48,18 @@ const BatteryCharger = () => {
       theme: "light",
     });
   }
+  const [formEdit] = Form.useForm();
   const [category, setCategory] = useState([]);
   const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
+  const [isUpdate, setIsUpdate] = useState(false);
   const [data, setData] = useState([{
     id: "",
     batteryType: "",
     battery: "",
     charger: "",
-    price: null,
+
     categoryId: null,
     active: "ACTIVE",
   }]
@@ -67,7 +69,7 @@ const BatteryCharger = () => {
     batteryType: "",
     battery: "",
     charger: "",
-    price: null,
+
     categoryId: null,
     active: "ACTIVE",
   }
@@ -77,7 +79,6 @@ const BatteryCharger = () => {
     batteryType: "",
     battery: "",
     charger: "",
-    price: null,
     categoryId: null,
     active: "ACTIVE",
   }
@@ -99,71 +100,52 @@ const BatteryCharger = () => {
     pagination: {
       current: 1,
       pageSize: 10,
-      searchBatteryType:"",
-      searchBattery:"",
-      searchCharger:""
+      searchBatteryType: "",
+      searchBattery: "",
+      searchCharger: ""
     },
   });
 
-  const loadDataCategory = () => {
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/category?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        console.log(results.data.data);
-        setCategory(results.data.data);
-        setLoading(false);
-      });
+  const toastSuccess = (message) => {
+    toast.success(message, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
   };
 
   const columns = [
     {
       title: "Loại pin",
       dataIndex: "batteryType",
-      sorter: true,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Dung lượng pin",
       dataIndex: "battery",
-      sorter: true,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Nguồn cấp",
       dataIndex: "charger",
-      sorter: true,
-      width: "20%",
-    },
-    {
-      title: "Giá",
-      dataIndex: "price",
-      sorter: true,
-      render: (price) => `${price}`,
-      width: "20%",
-    },
-    {
-      title: "Danh mục",
-      dataIndex: "categoryId",
-      sorter: true,
-      render: (categoryId) => `${categoryId}`,
       width: "20%",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      with: "30%",
+      width: "15%",
       render: (status) => {
         if (status == 'ACTIVE') {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "100%", borderRadius: "5px", padding: "5px" }}
               >
                 Hoạt động
               </div>
@@ -175,7 +157,7 @@ const BatteryCharger = () => {
             <>
               <div
                 className="bg-danger text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "100%", borderRadius: "5px", padding: "5px" }}
               >
                 Không hoạt động
               </div>
@@ -188,7 +170,7 @@ const BatteryCharger = () => {
       title: "Kích hoạt",
       dataIndex: "id",
       dataIndex: "data",
-      width: "5%",
+      width: "9%",
       render: (id, data) => {
         if (data.status == "ACTIVE") {
           return (
@@ -316,8 +298,7 @@ const BatteryCharger = () => {
   //LoadList
   useEffect(() => {
     getData();
-    loadDataCategory();
-  }, [JSON.stringify(tableParams)]);
+  }, []);
 
   //OnChange Form
   const handle = (e) => {
@@ -356,9 +337,11 @@ const BatteryCharger = () => {
     setOpen(true);
   };
 
+  const [dataEdit, setDataEdit] = useState({});
   const onEdit = (data) => {
-    showModalEdit(data);
+    setDataEdit(data);
     setEditing(true);
+    formEdit.setFieldsValue(data);
   };
 
   //btn Add
@@ -370,12 +353,13 @@ const BatteryCharger = () => {
       setConfirmLoading(false);
     }, 2000);
   };
+
   function submitAdd(e) {
     if (form.ratio < 0 || form.ratio > 100) {
       notifyError('Tỉ lệ phải từ 0-100!');
     } else {
       e.preventDefault();
-      axios.post(url+"/staff/batteryCharger", form)
+      axios.post(url + "/staff/batteryCharger", form)
         .then(res => {
           notifySuccess('Thêm bản ghi thành công')
           // setAdd(false);
@@ -388,8 +372,56 @@ const BatteryCharger = () => {
           return;
         })
     }
-
   }
+
+  const handleSubmit = (data) => {
+    if (isUpdate === false) {
+      data.status = "ACTIVE";
+      console.log(data);
+      fetch("http://localhost:8080/api/staff/batteryCharger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+        .then((response) => getData())
+        .then((data) => {
+          console.log("Success:", data);
+          toastSuccess("Thêm mới thành công !");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      setOpen(false);
+    }
+  };
+
+  const handleSubmitUpdate = (data) => {
+    const edit = {
+      id: dataEdit.id,
+      battery: data.battery,
+      batteryType: data.batteryType,
+      charger: data.charger,
+      status: data.status
+    }
+    if (isUpdate === false) {
+      data.status = "ACTIVE";
+      console.log(data.status);
+      fetch('http://localhost:8080/api/admin/batteryCharger/' + edit.id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(edit),
+      })
+        .then((response) => getData())
+        .then((data) => {
+          console.log("Success:", data);
+          toastSuccess("Cập nhật thành công!");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      setEditing(false);
+    }
+  };
   //loadFormEdit
   const showModalEdit = (data) => {
     setValues(data);
@@ -453,13 +485,13 @@ const BatteryCharger = () => {
     setEditing(false);
     setValues(formDefault);
   };
-  const search=()=>{
+  const search = () => {
     setTableParams(
-      tableParams.pagination.current= 1,
-      tableParams.pagination.pageSize= 10,
-      tableParams.pagination.searchBatteryType=searchBatteryType,
-      tableParams.pagination.searchBattery=searchBattery,
-      tableParams.pagination.searchCharger=searchCharger
+      tableParams.pagination.current = 1,
+      tableParams.pagination.pageSize = 10,
+      tableParams.pagination.searchBatteryType = searchBatteryType,
+      tableParams.pagination.searchBattery = searchBattery,
+      tableParams.pagination.searchCharger = searchCharger
     );
     getData();
   }
@@ -475,7 +507,7 @@ const BatteryCharger = () => {
         ...tableParams.pagination.pageSize = 10,
         ...tableParams.pagination.searchBattery = "",
         ...tableParams.pagination.searchBatteryType = "",
-        ...tableParams.pagination.searchCharger=""
+        ...tableParams.pagination.searchCharger = ""
       }
     });
     getData();
@@ -493,48 +525,44 @@ const BatteryCharger = () => {
           background: "#fafafa",
         }}
       >
-            <div className="col-4 mt-3">
-              <label>Từ khoá</label>
-              <div className="row">
-                <div className="col-4 mt-4">
-                  <label>Loại pin</label>
-                    <Input placeholder="Nhập loại pin" value={searchBatteryType}
-                      onChange={(e) => setSearchBatteryType(e.target.value)}/>
-                  </div>
-                  <div className="col-4 mt-4">
-                    <label>Dung lượng pin</label>
-                    <Input placeholder="Nhập dung lượng pin"  value={searchBattery}
-                      onChange={(e) => setSearchBattery(e.target.value)}/>
-                  </div>
-                  <div className="col-4 mt-4">
-                    <label>Power supply</label>
-                    <Input placeholder="Nhập power supply"  value={searchCharger}
-                      onChange={(e) => setSearchCharger(e.target.value)}/>
-                  </div>
-              </div>
-              
-            </div>
-            <div className="col-12 text-center ">
-              <Button
-                className="mx-2  mt-2"
-                type="primary"
-                onClick={search}
-                style={{ borderRadius: "10px" }}
-              >
-                <SearchOutlined />
-                Tìm kiếm
-              </Button>
-              <Button
-                className="mt-2"
-                type="primary-uotline"
-                onClick={clearSearchForm}
-                style={{ borderRadius: "10px" }}
-              >
-                <ReloadOutlined />
-                Đặt lại
-              </Button>
+        <div className="row">
+          <div className="col-4 mt-4">
+            <label>Loại pin</label>
+            <Input placeholder="Nhập loại pin" value={searchBatteryType}
+              onChange={(e) => setSearchBatteryType(e.target.value)} />
+          </div>
+          <div className="col-4 mt-4">
+            <label>Dung lượng pin</label>
+            <Input placeholder="Nhập dung lượng pin" value={searchBattery}
+              onChange={(e) => setSearchBattery(e.target.value)} />
+          </div>
+          <div className="col-4 mt-4">
+            <label>Power supply</label>
+            <Input placeholder="Nhập power supply" value={searchCharger}
+              onChange={(e) => setSearchCharger(e.target.value)} />
+          </div>
+        </div>
+        <div className="col-12 mt-3 mb-2 text-center ">
+          <Button
+            className="mx-2  mt-2"
+            type="primary"
+            onClick={search}
+            style={{ borderRadius: "10px" }}
+          >
+            <SearchOutlined />
+            Tìm kiếm
+          </Button>
+          <Button
+            className="mt-2"
+            type="primary-uotline"
+            onClick={clearSearchForm}
+            style={{ borderRadius: "10px" }}
+          >
+            <ReloadOutlined />
+            Đặt lại
+          </Button>
 
-            </div>
+        </div>
       </div>
       <div className="row">
         <div className="col-12 mt-4">
@@ -549,57 +577,89 @@ const BatteryCharger = () => {
           <Modal
             title="Tạo mới"
             open={open}
-            onOk={handleAdd}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+            cancelText={"Đóng"}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            width={650}
           >
-            <div className="col-4 mt-4">
-              <label>Loại pin</label>
-              <Input placeholder="Nhập loại pin" onChange={(e) => handle(e)} type="text" name="batteryType" value={form.batteryType}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Dung lượng pin</label>
-              <Input placeholder="Nhập dung lượng pin" onChange={(e) => handle(e)} type="text" name="battery" value={form.battery}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Power supply</label>
-              <Input placeholder="Nhập power supply" onChange={(e) => handle(e)} type="text" name="charger" value={form.charger}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Giá</label>
-              <Input placeholder="Nhập giá" 
-              type="number"
-              name="price"
-              value={form.price}
-              min={0}
-              onChange={(e) => handle(e)}
-              />
-            </div>
-            <div className="col-4 mt-4">
-            <label>
-              Thể loại
-              <span className="text-danger me-2"> * </span>
-            </label>
-            <br />
-            <Select
-              showSearch
-              style={{
-                width: 200,
+            <Form
+              initialValues={{
               }}
-              placeholder="Search to Select"
-              optionFilterProp="children"
-              filterOption={(input, option) => (option?.label ?? '').includes(input)}
-              // filterSort={(optionA, optionB) =>
-              //   (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-              // }
-              name="categoryId"
-              onChange={(e) => handleSelect(e)}
-              options={category.map((cate) => ({
-                label: cate.name,
-                value: cate.id,
-              }))}
-            />
-          </div>
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                setIsUpdate(false);
+                handleSubmit(values, isUpdate);
+                console.log({ values });
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <Form.Item
+                className="mt-2"
+                name="batteryType"
+                label="Loại pin"
+                rules={[
+                  {
+                    required: true,
+                    message: "Loại pin không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập loại pin" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="battery"
+                label="Dung lượng pin"
+                rules={[
+                  {
+                    required: true,
+                    message: "Dung lượng pin không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập dung lượng pin" />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="charger"
+                label="Power supply"
+                rules={[
+                  {
+                    required: true,
+                    message: "Power supply không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input placeholder="Nhập power supply" />
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Tạo mới
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
         </div>
       </div>
@@ -626,58 +686,88 @@ const BatteryCharger = () => {
             title="Cập nhật"
             visible={isEditing}
             onCancel={handleCancel}
-            onOk={(e) => {
-              handleEdit(e);
-              setEditing(false);
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
             }}
           >
-            <div className="col-4 mt-4">
-              <label>Loại pin</label>
-              <Input placeholder="Nhập loại pin" onChange={(e) => handle(e)} type="text" name="batteryType" value={form.batteryType}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Dung lượng pin</label>
-              <Input placeholder="Nhập dung lượng pin" onChange={(e) => handle(e)} type="text" name="battery" value={form.battery}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Power supply</label>
-              <Input placeholder="Nhập power supply" onChange={(e) => handle(e)} type="text" name="charger" value={form.charger}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Giá</label>
-              <Input placeholder="Nhập giá" 
-              name="price"
-              value={form.price}
-              onChange={(e) => handle(e)}
-              />
-            </div>
-            <div className="col-4 mt-4">
-            <label>
-              Thể loại
-              <span className="text-danger me-2"> * </span>
-            </label>
-            <br />
-            <Select
-              showSearch
-              style={{
-                width: 200,
+            <Form
+              form={formEdit}
+              autoComplete="off"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 10 }}
+              onFinish={(values) => {
+                setIsUpdate(false);
+                handleSubmitUpdate(values, isUpdate);
+                console.log({ values });
               }}
-              placeholder="Search to Select"
-              optionFilterProp="children"
-              filterOption={(input, option) => (option?.label ?? '').includes(input)}
-              // filterSort={(optionA, optionB) =>
-              //   (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
-              // }
-              value={form.categoryId}
-              name="categoryId"
-              onChange={(e) => handleSelect(e)}
-              options={category.map((cate) => ({
-                label: cate.name,
-                value: cate.id,
-              }))}
-            />
-          </div>
-          
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <Form.Item
+                className="mt-2"
+                name="batteryType"
+                label="Loại pin"
+                initialValue={dataEdit.batteryType}
+                rules={[
+                  {
+                    required: true,
+                    message: "Loại pin không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="battery"
+                label="Dung lượng pin"
+                initialValue={dataEdit.battery}
+                rules={[
+                  {
+                    required: true,
+                    message: "Dung lượng pin không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                name="charger"
+                label="Power supply"
+                initialValue={dataEdit.charger}
+                rules={[
+                  {
+                    required: true,
+                    message: "Power supply không được để trống",
+                  },
+                  { whitespace: true },
+                  { min: 3 },
+                ]}
+                hasFeedback
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Cập nhật
+                    </Button>
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
+
           </Modal>
         </div>
       </div>

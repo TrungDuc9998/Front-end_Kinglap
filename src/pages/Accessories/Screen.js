@@ -1,5 +1,17 @@
-import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space } from "antd";
-import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
+import {
+  Table,
+  Slider,
+  Select,
+  Input,
+  Button,
+  Modal,
+  DatePicker,
+  Radio,
+  Space,
+  Form,
+  InputNumber,
+} from "antd";
+import { DatePickerProps, RangePickerProps } from "antd/es/date-picker";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -8,19 +20,19 @@ import {
   ReloadOutlined,
   SearchOutlined,
   LockOutlined,
-  UnlockOutlined
+  UnlockOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 // import Product from "../Product/index";
 import moment from "moment";
 import axios from "axios";
-import 'toastr/build/toastr.min.css';
+import "toastr/build/toastr.min.css";
 import toastrs from "toastr";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Moment from 'react-moment';
-const url = 'http://localhost:8080/api';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Moment from "react-moment";
+const url = "http://localhost:8080/api";
 const { Option } = Select;
 
 const Screen = () => {
@@ -35,7 +47,7 @@ const Screen = () => {
       progress: undefined,
       theme: "light",
     });
-  }
+  };
   const notifyError = (message) => {
     toast.error(message, {
       position: "top-right",
@@ -47,62 +59,59 @@ const Screen = () => {
       progress: undefined,
       theme: "light",
     });
-  }
+  };
+  const [formE] = Form.useForm();
   const [category, setCategory] = useState([]);
   const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
-  const [data, setData] = useState([{
-    id:"",
-    size:"",
-    screenTechnology:"",
-    resolution:"",
-    screenType:"",
-    scanFrequency:"", 
-    backgroundPanel:"",
-    brightness:"",
-    colorCoverage:"",
-    screenRatio:"",
-    touchScreen:"",
-    contrast:"",
-    price:"",
-    status: "ACTIVE",  
-  }]
-  );
+  const [data, setData] = useState([
+    {
+      id: "",
+      size: "",
+      screenTechnology: "",
+      resolution: "",
+      screenType: "",
+      scanFrequency: "",
+      backgroundPanel: "",
+      brightness: "",
+      colorCoverage: "",
+      screenRatio: "",
+      touchScreen: "",
+      contrast: "",
+      status: "ACTIVE",
+    },
+  ]);
   const [formDefault, setValuesDefault] = useState({
-    id:"",
-    size:"",
-    screenTechnology:"",
-    resolution:"",
-    screenType:"",
-    scanFrequency:"", 
-    backgroundPanel:"",
-    brightness:"",
-    colorCoverage:"",
-    screenRatio:"",
-    touchScreen:"",
-    contrast:"",
-    price:"",
+    id: "",
+    size: "",
+    screenTechnology: "",
+    resolution: "",
+    screenType: "",
+    scanFrequency: "",
+    backgroundPanel: "",
+    brightness: "",
+    colorCoverage: "",
+    screenRatio: "",
+    touchScreen: "",
+    contrast: "",
     status: "ACTIVE",
-  }
-  );
+  });
   const [form, setValues] = useState({
-    id:"",
-    size:"",
-    screenTechnology:"",
-    resolution:"",
-    screenType:"",
-    scanFrequency:"", 
-    backgroundPanel:"",
-    brightness:"",
-    colorCoverage:"",
-    screenRatio:"",
-    touchScreen:"",
-    contrast:"",
-    price:"",
+    id: "",
+    size: "",
+    screenTechnology: "",
+    resolution: "",
+    screenType: "",
+    scanFrequency: "",
+    backgroundPanel: "",
+    brightness: "",
+    colorCoverage: "",
+    screenRatio: "",
+    touchScreen: "",
+    contrast: "",
     status: "ACTIVE",
-  }
-  );
+  });
 
   const [searchScreenType, setSearchScreenType] = useState();
   const [searchSize, setSearchSize] = useState();
@@ -120,36 +129,21 @@ const Screen = () => {
     pagination: {
       current: 1,
       pageSize: 10,
-      searchScreenType:"",
-      searchSize:"",
-      searchScreenTechnology:""
+      searchScreenType: "",
+      searchSize: "",
+      searchScreenTechnology: "",
     },
   });
 
-  // const loadDataCategory = () => {
-  //   setLoading(true);
-  //   fetch(
-  //     `http://localhost:8080/api/staff/category?${qs.stringify(
-  //       getRandomuserParams(tableParams)
-  //     )}`
-  //   )
-  //     .then((res) => res.json())
-  //     .then((results) => {
-  //       console.log(results.data.data);
-  //       setCategory(results.data.data);
-  //       setLoading(false);
-  //     });
-  // };
-
   const columns = [
     {
-      title: "Kích thước màn hình",
+      title: "Kích thước",
       dataIndex: "size",
       sorter: true,
-      width: "20%",
+      width: "10%",
     },
     {
-      title: "Công nghệ màn hình",
+      title: "Công nghệ",
       dataIndex: "screenTechnology",
       sorter: true,
       width: "20%",
@@ -158,85 +152,79 @@ const Screen = () => {
       title: "Độ phân giải",
       dataIndex: "resolution",
       sorter: true,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Loại màn hình",
       dataIndex: "screenType",
       sorter: true,
-      width: "20%",
+      width: "15%",
     },
+    // {
+    //   title: "Tần số quét",
+    //   dataIndex: "scanFrequency",
+    //   sorter: true,
+    //   width: "20%",
+    // },
+    // {
+    //   title: "Tấm nền",
+    //   dataIndex: "backgroundPanel",
+    //   sorter: true,
+    //   width: "20%",
+    // },
+    // {
+    //   title: "Độ sáng",
+    //   dataIndex: "brightness",
+    //   sorter: true,
+    //   width: "20%",
+    // },
+    // {
+    //   title: "Độ phủ màu",
+    //   dataIndex: "colorCoverage",
+    //   sorter: true,
+    //   width: "20%",
+    // },
     {
-      title: "Tần số quét",
-      dataIndex: "scanFrequency",
-      sorter: true,
-      width: "20%",
-    },
-    {
-      title: "Tấm nền",
-      dataIndex: "backgroundPanel",
-      sorter: true,
-      width: "20%",
-    },
-    {
-      title: "Độ sáng",
-      dataIndex: "brightness",
-      sorter: true,
-      width: "20%",
-    },
-    {
-      title: "Độ phủ màu",
-      dataIndex: "colorCoverage",
-      sorter: true,
-      width: "20%",
-    },
-    {
-      title: "Tỷ lệ màn hình",
+      title: "Tỷ lệ",
       dataIndex: "screenRatio",
       sorter: true,
-      width: "20%",
+      width: "10%",
     },
-    {
-      title: "Màn hình cảm ứng",
-      dataIndex: "touchScreen",
-      sorter: true,
-      width: "20%",
-    },
-    {
-      title: "Độ tương phản",
-      dataIndex: "contrast",
-      sorter: true,
-      width: "20%",
-    },
-    {
-      title: "Giá",
-      dataIndex: "price",
-      sorter: true,
-      width: "20%",
-    },
+    // {
+    //   title: "Màn hình cảm ứng",
+    //   dataIndex: "touchScreen",
+    //   sorter: true,
+    //   width: "20%",
+    // },
+    // {
+    //   title: "Độ tương phản",
+    //   dataIndex: "contrast",
+    //   sorter: true,
+    //   width: "20%",
+    // },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      with: "30%",
+      with: "40%",
       render: (status) => {
-        if (status == 'ACTIVE') {
+        if (status == "ACTIVE") {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "100px", borderRadius: "5px" , }}
               >
                 Hoạt động
               </div>
             </>
           );
         }
-        if (status == 'INACTIVE') {
+        if (status == "INACTIVE") {
           return (
             <>
               <div
                 className="bg-danger text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "100px", borderRadius: "5px",padding:"5px" }}
               >
                 Không hoạt động
               </div>
@@ -249,7 +237,7 @@ const Screen = () => {
       title: "Kích hoạt",
       dataIndex: "id",
       dataIndex: "data",
-      width: "5%",
+      width: "7%",
       render: (id, data) => {
         if (data.status == "ACTIVE") {
           return (
@@ -258,11 +246,13 @@ const Screen = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/admin/screens/close/${data.id}`, { method: "PUT" }).then(() => getData());
+                    `http://localhost:8080/api/admin/screens/close/${data.id}`,
+                    { method: "PUT" }
+                  ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
-                  }
-                  toast.success('Khóa thành công!', {
+                  };
+                  toast.success("Khóa thành công!", {
                     position: "top-right",
                     autoClose: 1000,
                     hideProgressBar: false,
@@ -283,11 +273,13 @@ const Screen = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/admin/screens/open/${data.id}`, { method: "PUT" }).then(() => getData());
+                    `http://localhost:8080/api/admin/screens/open/${data.id}`,
+                    { method: "PUT" }
+                  ).then(() => getData());
                   toastrs.options = {
-                    timeOut: 6000
-                  }
-                  toast.success('Mở khóa thành công!', {
+                    timeOut: 6000,
+                  };
+                  toast.success("Mở khóa thành công!", {
                     position: "top-right",
                     autoClose: 1000,
                     hideProgressBar: false,
@@ -301,19 +293,20 @@ const Screen = () => {
               />
             </>
           );
-        }
-        else if (data.status == "DRAFT") {
+        } else if (data.status == "DRAFT") {
           return (
             <>
               <UnlockOutlined
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/admin/screens/open/${data.id}`, { method: "PUT" }).then(() => getData());
+                    `http://localhost:8080/api/admin/screens/open/${data.id}`,
+                    { method: "PUT" }
+                  ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
-                  }
-                  toast.success('Khóa thành công!', {
+                  };
+                  toast.success("Khóa thành công!", {
                     position: "top-right",
                     autoClose: 1000,
                     hideProgressBar: false,
@@ -334,8 +327,8 @@ const Screen = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "20%",
-      render: (id,data) => {
+      width: "10%",
+      render: (id, data) => {
         return (
           <>
             <EditOutlined
@@ -357,9 +350,10 @@ const Screen = () => {
   //APILoadList
   const getData = () => {
     setLoading(true);
-    axios.get(url + `/auth/screens?${qs.stringify(
-      getRandomuserParams(tableParams)
-    )}`)
+    axios
+      .get(
+        url + `/auth/screens?${qs.stringify(getRandomuserParams(tableParams))}`
+      )
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -369,7 +363,7 @@ const Screen = () => {
           pagination: {
             ...tableParams.pagination,
             total: totalSet,
-          }
+          },
         });
       });
   };
@@ -377,22 +371,7 @@ const Screen = () => {
   //LoadList
   useEffect(() => {
     getData();
-    //loadDataCategory();
   }, [JSON.stringify(tableParams)]);
-
-  //OnChange Form
-  const handle = (e) => {
-    setValues({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  }
-  const handleSelect = (e) => {
-    setValues({
-      ...form,
-      categoryId: e
-    });
-  }
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -423,68 +402,76 @@ const Screen = () => {
   };
 
   //btn Add
-  const handleAdd = (e) => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    submitAdd(e);
-    setTimeout(() => {
-      setConfirmLoading(false);
-    }, 2000);
+  const handleAdd = (value) => {
+    const form = {
+      size: value.size,
+      screenTechnology: value.screenTechnology,
+      resolution: value.resolution,
+      screenType: value.screenType,
+      scanFrequency: value.scanFrequency,
+      backgroundPanel: value.backgroundPanel,
+      brightness: value.brightness,
+      colorCoverage: value.colorCoverage,
+      screenRatio: value.screenRatio,
+      touchScreen: value.touchScreen,
+      contrast: value.contrast,
+      status: "ACTIVE",
+    };
+    axios
+      .post(url + "/staff/screens", form)
+      .then((res) => {
+        notifySuccess("Thêm bản ghi thành công");
+        // setAdd(false);
+        setOpen(false);
+        getData();
+        setValues(formDefault);
+        formE.setFieldsValue(formDefault);
+        console.log(res.data);
+      })
+      .catch((error) => {
+        notifyError("Yêu cầu nhập đủ các trường!");
+        return;
+      });
   };
-  function submitAdd(e) {
-    if (form.ratio < 0 || form.ratio > 100) {
-      notifyError('Tỉ lệ phải từ 0-100!');
-    } else {
-      e.preventDefault();
-      axios.post(url+"/staff/screens", form)
-        .then(res => {
-          notifySuccess('Thêm bản ghi thành công')
-          // setAdd(false);
-          setOpen(false);
-          getData();
-          setValues(formDefault);
-          console.log(res.data);
-        }).catch((error) => {
-          notifyError('Yêu cầu nhập đủ các trường!');
-          return;
-        })
-    }
-
-  }
   //loadFormEdit
   const showModalEdit = (data) => {
+    console.log("edit", data);
     setValues(data);
+    formE.setFieldsValue(data);
   };
 
   //btn Edit
-  const handleEdit = (e) => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    submitEdit(e);
-    setTimeout(() => {
-      setConfirmLoading(false);
-    }, 2000);
+  const handleEdit = (value) => {
+    const dataEdit = {
+      id: form.id,
+      size: value.size,
+      screenTechnology: value.screenTechnology,
+      resolution: value.resolution,
+      screenType: value.screenType,
+      scanFrequency: value.scanFrequency,
+      backgroundPanel: value.backgroundPanel,
+      brightness: value.brightness,
+      colorCoverage: value.colorCoverage,
+      screenRatio: value.screenRatio,
+      touchScreen: value.touchScreen,
+      contrast: value.contrast,
+      status: form.status,
+    };
+    axios
+      .put(url + "/staff/screens/" + dataEdit.id, dataEdit)
+      .then((res) => {
+        notifySuccess("Sửa bản ghi thành công");
+        getData();
+        setEditing(false);
+        setValues(formDefault);
+        formE.setFieldsValue(formDefault);
+        console.log(res.data);
+      })
+      .catch((error) => {
+        notifyError("Yêu cầu nhập đủ các trường!");
+        return;
+      });
   };
-  function submitEdit(e) {
-    if (form.ratio < 0 || form.ratio > 100) {
-      notifyError('Tỉ lệ phải từ 0-100!');
-    } else {
-      // e.preventDefault();
-      axios.put(url + "/staff/screens/" + form.id, form)
-        .then(res => {
-          notifySuccess('Sửa bản ghi thành công')
-          getData();
-          setEditing(false);
-          setValues(formDefault);
-          console.log(res.data);
-        }).catch((error) => {
-          notifyError('Yêu cầu nhập đủ các trường!');
-          return;
-        })
-    }
-
-  }
-
 
   //Delete
   const onDelete = (id) => {
@@ -492,18 +479,20 @@ const Screen = () => {
       title: "Xoá giảm giá",
       content: "Bạn có muốn xoá bản ghi này không?",
       onOk() {
-        axios.delete(url + "/admin/screens/" + id)
-          .then(res => {
-            notifySuccess('Xóa bản ghi thành công!')
+        axios
+          .delete(url + "/admin/screens/" + id)
+          .then((res) => {
+            notifySuccess("Xóa bản ghi thành công!");
             getData();
             console.log(res.data);
-          }).catch((errorMessage) => {
-            notifyError('Xóa bản ghi không thành công!');
-            return;
           })
+          .catch((errorMessage) => {
+            notifyError("Xóa bản ghi không thành công!");
+            return;
+          });
       },
       onCancel() {
-        console.log('Cancel');
+        console.log("Cancel");
       },
     });
   };
@@ -513,34 +502,41 @@ const Screen = () => {
     setOpen(false);
     setEditing(false);
     setValues(formDefault);
+    formE.setFieldsValue(formDefault);
   };
-  const search=()=>{
+  const search = () => {
     setTableParams(
-      tableParams.pagination.current= 1,
-      tableParams.pagination.pageSize= 10,
-      tableParams.pagination.searchScreenType=searchScreenType,
-      tableParams.pagination.searchSize=searchSize,
-      tableParams.pagination.searchScreenTechnology=searchScreenTechnology
+      (tableParams.pagination.current = 1),
+      (tableParams.pagination.pageSize = 10),
+      (tableParams.pagination.searchScreenType = searchScreenType),
+      (tableParams.pagination.searchSize = searchSize),
+      (tableParams.pagination.searchScreenTechnology = searchScreenTechnology)
     );
     getData();
-  }
+  };
 
   const clearSearchForm = () => {
-    setSearchSize("")
-    setSearchScreenType("")
-    setSearchScreenTechnology("")
+    setSearchSize("");
+    setSearchScreenType("");
+    setSearchScreenTechnology("");
     setTableParams({
       ...tableParams,
       pagination: {
-        ...tableParams.pagination.current = 1,
-        ...tableParams.pagination.pageSize = 10,
-        ...tableParams.pagination.searchSize = "",
-        ...tableParams.pagination.searchScreenType = "",
-        ...tableParams.pagination.searchScreenTechnology=""
-      }
+        ...(tableParams.pagination.current = 1),
+        ...(tableParams.pagination.pageSize = 10),
+        ...(tableParams.pagination.searchSize = ""),
+        ...(tableParams.pagination.searchScreenType = ""),
+        ...(tableParams.pagination.searchScreenTechnology = ""),
+      },
     });
     getData();
-  }
+  };
+  const checkPrice = (_, value) => {
+    if (value >= 0) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error("Giá phải lớn hơn hoặc bằng 0!"));
+  };
 
   return (
     <div>
@@ -554,48 +550,55 @@ const Screen = () => {
           background: "#fafafa",
         }}
       >
-            <div className="col-10 mt-3">
-              <label>Từ khoá</label>
-              <div className="row">
-                <div className="col-4 mt-4">
-                  <label>Loại màn hình</label>
-                    <Input placeholder="Nhập loại màn hình" value={searchScreenType}
-                      onChange={(e) => setSearchScreenType(e.target.value)}/>
-                  </div>
-                  <div className="col-4 mt-4">
-                    <label>Kích thước màn hình</label>
-                    <Input placeholder="Nhập thước màn hình"  value={searchSize}
-                      onChange={(e) => setSearchSize(e.target.value)}/>
-                  </div>
-                  <div className="col-4 mt-4">
-                    <label>Công nghệ màn hình</label>
-                    <Input placeholder="Nhập công nghệ màn hình"  value={searchScreenTechnology}
-                      onChange={(e) => setSearchScreenTechnology(e.target.value)}/>
-                  </div>
-              </div>
-              
+        <div className="col-10 mt-3">
+          <label>Từ khoá</label>
+          <div className="row">
+            <div className="col-4 mt-4">
+              <label>Loại màn hình</label>
+              <Input
+                placeholder="Nhập loại màn hình"
+                value={searchScreenType}
+                onChange={(e) => setSearchScreenType(e.target.value)}
+              />
             </div>
-            <div className="col-12 text-center ">
-              <Button
-                className="mx-2  mt-2"
-                type="primary"
-                onClick={search}
-                style={{ borderRadius: "10px" }}
-              >
-                <SearchOutlined />
-                Tìm kiếm
-              </Button>
-              <Button
-                className="mt-2"
-                type="primary-uotline"
-                onClick={clearSearchForm}
-                style={{ borderRadius: "10px" }}
-              >
-                <ReloadOutlined />
-                Đặt lại
-              </Button>
-
+            <div className="col-4 mt-4">
+              <label>Kích thước màn hình</label>
+              <Input
+                placeholder="Nhập thước màn hình"
+                value={searchSize}
+                onChange={(e) => setSearchSize(e.target.value)}
+              />
             </div>
+            <div className="col-4 mt-4">
+              <label>Công nghệ màn hình</label>
+              <Input
+                placeholder="Nhập công nghệ màn hình"
+                value={searchScreenTechnology}
+                onChange={(e) => setSearchScreenTechnology(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="col-12 mb-4 text-center ">
+          <Button
+            className="mx-2  mt-2 "
+            type="primary"
+            onClick={search}
+            style={{ borderRadius: "10px" }}
+          >
+            <SearchOutlined />
+            Tìm kiếm
+          </Button>
+          <Button
+            className="mt-2"
+            type="primary-uotline"
+            onClick={clearSearchForm}
+            style={{ borderRadius: "10px" }}
+          >
+            <ReloadOutlined />
+            Đặt lại
+          </Button>
+        </div>
       </div>
       <div className="row">
         <div className="col-12 mt-4">
@@ -610,86 +613,210 @@ const Screen = () => {
           <Modal
             title="Tạo mới"
             open={open}
-            onOk={handleAdd}
+            // onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            width={900}
           >
-            <div className="col-4 mt-4">
-              <label>Kích thước màn hình</label>
-              <Input placeholder="Nhập kích thước màn hình" onChange={(e) => handle(e)} type="text" name="size" value={form.size}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Công nghệ màn hình</label>
-              <Input placeholder="Nhập công nghệ màn hình" onChange={(e) => handle(e)} type="text" name="screenTechnology" value={form.screenTechnology}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ phân giải</label>
-              <Input placeholder="Nhập độ phân giải" onChange={(e) => handle(e)} type="text" name="resolution" value={form.resolution}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Loại màn hình</label>
-              <Input placeholder="Nhập loại màn hình" onChange={(e) => handle(e)} type="text" name="screenType" value={form.screenType}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tần số quét</label>
-              <Input placeholder="Nhập tần số quét" onChange={(e) => handle(e)} type="text" name="scanFrequency" value={form.scanFrequency}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tấm nền</label>
-              <Input placeholder="Nhập tấm nền" onChange={(e) => handle(e)} type="text" name="backgroundPanel" value={form.backgroundPanel}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ sáng</label>
-              <Input placeholder="Nhập độ sáng" onChange={(e) => handle(e)} type="text" name="brightness" value={form.brightness}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ phủ màu</label>
-              <Input placeholder="Nhập độ phủ màu" onChange={(e) => handle(e)} type="text" name="colorCoverage" value={form.colorCoverage}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tỷ lệ màn hình</label>
-              <Input placeholder="Nhập tỷ lệ màn hình" onChange={(e) => handle(e)} type="text" name="screenRatio" value={form.screenRatio}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Màn hình cảm ứng</label>
-              <Input placeholder="Nhập màn hình cảm ứng" onChange={(e) => handle(e)} type="text" name="touchScreen" value={form.touchScreen}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ tương phản</label>
-              <Input placeholder="Nhập độ tương phản" onChange={(e) => handle(e)} type="text" name="contrast" value={form.contrast}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Giá</label>
-              <Input placeholder="Nhập giá" 
-              type="number"
-              name="price"
-              value={form.price}
-              min={0}
-              onChange={(e) => handle(e)}
-              />
-            </div>
-            {/* <div className="col-4 mt-4">
-            <label>h
-              Thể loại
-              <span className="text-danger me-2"> * </span>
-            </label>
-            <br />
-            <Select
-              showSearch
-              style={{
-                width: 200,
+            <Form
+              form={formE}
+              autoComplete="off"
+              layout="vertical"
+              onFinish={(values) => {
+                handleAdd(values);
               }}
-              placeholder="Search to Select"
-              optionFilterProp="children"
-              filterOption={(input, option) => (option?.label ?? '').includes(input)}
-              name="categoryId"
-              onChange={(e) => handleSelect(e)}
-              options={category.map((cate) => ({
-                label: cate.name,
-                value: cate.id,
-              }))}
-            />
-          </div> */}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <div className="row">
+                <div className="col-6">
+                  <Form.Item
+                    className="mt-2"
+                    name="size"
+                    label="Kích thước màn hình"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Kích thước màn hình không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập kích thước màn hình" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="screenTechnology"
+                    label="Công nghệ màn hình"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Công nghệ màn hình không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập công nghệ màn hình" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="screenType"
+                    label="Độ phân giải"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Độ phân giải không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập độ phân giải" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="resolution"
+                    label="Loại màn hình"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Loại màn hình không được để trống",
+                      },
+                      { whitespace: true },
+                      { min: 3 },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập loại màn hình" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="scanFrequency"
+                    label="Tần số quét"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tần số quét không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập tần số quét" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="contrast"
+                    label="Độ tương phản"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Độ tương phản không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập độ tương phản" />
+                  </Form.Item>
+                </div>
+                <div className="col-6">
+                  <Form.Item
+                    className="mt-2"
+                    name="backgroundPanel"
+                    label="Tấm nền"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tấm nền không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập tấm nền" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="brightness"
+                    label="Độ sáng"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Độ sáng không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập độ sáng" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="colorCoverage"
+                    label="Độ phủ màu"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Độ phủ màu không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập độ phủ màu" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="screenRatio"
+                    label="Tỷ lệ màn hình"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tỷ lệ màn hình không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập tỷ lệ màn hình" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="touchScreen"
+                    label="Màn hình cảm ứng"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Màn hình cảm ứng không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập màn hình cảm ứng" />
+                  </Form.Item>
+                </div>
+              </div>
+
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                    {/* <Button block type="danger" id="create" htmlType="submit">
+                      Lưu nháp
+                    </Button> */}
+                  </div>
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
         </div>
       </div>
@@ -706,7 +833,6 @@ const Screen = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            //rowKey={(record) => console.log('record',record)}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -714,67 +840,215 @@ const Screen = () => {
           />
           <Modal
             title="Cập nhật"
-            visible={isEditing}
+            open={isEditing}
+            width={900}
             onCancel={handleCancel}
-            onOk={(e) => {
-              handleEdit(e);
-              setEditing(false);
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
             }}
+           cancelText={"Đóng"}
           >
-            <div className="col-4 mt-4">
-              <label>Kích thước màn hình</label>
-              <Input placeholder="Nhập kích thước màn hình" onChange={(e) => handle(e)} type="text" name="size" value={form.size}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Công nghệ màn hình</label>
-              <Input placeholder="Nhập công nghệ màn hình" onChange={(e) => handle(e)} type="text" name="screenTechnology" value={form.screenTechnology}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ phân giải</label>
-              <Input placeholder="Nhập độ phân giải" onChange={(e) => handle(e)} type="text" name="resolution" value={form.resolution}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Loại màn hình</label>
-              <Input placeholder="Nhập loại màn hình" onChange={(e) => handle(e)} type="text" name="screenType" value={form.screenType}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tần số quét</label>
-              <Input placeholder="Nhập tần số quét" onChange={(e) => handle(e)} type="text" name="scanFrequency" value={form.scanFrequency}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tấm nền</label>
-              <Input placeholder="Nhập tấm nền" onChange={(e) => handle(e)} type="text" name="backgroundPanel" value={form.backgroundPanel}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ sáng</label>
-              <Input placeholder="Nhập độ sáng" onChange={(e) => handle(e)} type="text" name="brightness" value={form.brightness}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ phủ màu</label>
-              <Input placeholder="Nhập độ phủ màu" onChange={(e) => handle(e)} type="text" name="colorCoverage" value={form.colorCoverage}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Tỷ lệ màn hình</label>
-              <Input placeholder="Nhập tỷ lệ màn hình" onChange={(e) => handle(e)} type="text" name="screenRatio" value={form.screenRatio}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Màn hình cảm ứng</label>
-              <Input placeholder="Nhập màn hình cảm ứng" onChange={(e) => handle(e)} type="text" name="touchScreen" value={form.touchScreen}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Độ tương phản</label>
-              <Input placeholder="Nhập độ tương phản" onChange={(e) => handle(e)} type="text" name="contrast" value={form.contrast}/>
-            </div>
-            <div className="col-4 mt-4">
-              <label>Giá</label>
-              <Input placeholder="Nhập giá" 
-              type="number"
-              name="price"
-              value={form.price}
-              min={0}
-              onChange={(e) => handle(e)}
-              />
-            </div>
+            <Form
+              form={formE}
+              autoComplete="off"
+              layout="vertical"
+              onFinish={(values) => {
+                console.log("editV", values);
+                handleEdit(values);
+              }}
+              onFinishFailed={(error) => {
+                console.log({ error });
+              }}
+            >
+              <div className="row">
+                <div className="col-6">
+                  <Form.Item
+                    className="mt-2"
+                    name="size"
+                    label="Kích thước màn hình"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Kích thước màn hình không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập kích thước màn hình" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="screenTechnology"
+                    label="Công nghệ màn hình"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Công nghệ màn hình không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập công nghệ màn hình" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="screenType"
+                    label="Độ phân giải"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Độ phân giải không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập độ phân giải" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="resolution"
+                    label="Loại màn hình"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Loại màn hình không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập loại màn hình" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="touchScreen"
+                    label="Màn hình cảm ứng"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Màn hình cảm ứng không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập màn hình cảm ứng" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="contrast"
+                    label="Độ tương phản"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Độ tương phản không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập độ tương phản" />
+                  </Form.Item>
+                </div>
+                <div className="col-6">
+                  <Form.Item
+                    className="mt-2"
+                    name="scanFrequency"
+                    label="Tần số quét"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tần số quét không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập tần số quét" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="backgroundPanel"
+                    label="Tấm nền"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tấm nền không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập tấm nền" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="brightness"
+                    label="Độ sáng"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Độ sáng không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập độ sáng" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="colorCoverage"
+                    label="Độ phủ màu"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Độ phủ màu không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập độ phủ màu" />
+                  </Form.Item>
+                  <Form.Item
+                    className="mt-2"
+                    name="screenRatio"
+                    label="Tỷ lệ màn hình"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tỷ lệ màn hình không được để trống",
+                      },
+                      { whitespace: true },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập tỷ lệ màn hình" />
+                  </Form.Item>
+                </div>
+              </div>
+
+              <Form.Item className="text-center">
+                <div className="row">
+                  <div className="col-6">
+                    <Button block type="primary" id="create" htmlType="submit">
+                      Cập nhật
+                    </Button>
+                  </div>
+                  {/* <div className="col-6">
+                    <Button block type="danger" id="create" htmlType="submit">
+                      Lưu nháp
+                    </Button>
+                  </div> */}
+                </div>
+              </Form.Item>
+            </Form>
           </Modal>
         </div>
       </div>

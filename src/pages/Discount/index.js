@@ -1,4 +1,4 @@
-import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space } from "antd";
+import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space, Statistic } from "antd";
 import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
 import {
   DeleteOutlined,
@@ -25,13 +25,14 @@ const url = 'http://localhost:8080/api/discount';
 const urlStaff = 'http://localhost:8080/api/staff/discount';
 const urlAdmin = 'http://localhost:8080/api/admin/discount';
 const url_Pro = 'http://localhost:8080/api/products';
+const { Countdown } = Statistic;
 
 export function compareTime(endDate) {
   const now = new Date();
   if (new Date(endDate) > now) {
-    return 1
+    return "ACTIVE"
   }
-  return 0
+  return "INACTIVE"
 }
 
 const Discount = () => {
@@ -41,7 +42,7 @@ const Discount = () => {
     ratio: null,
     startDate: getDateTime(),
     endDate: getDateTime(),
-    active: 1,
+    status: "ACTIVE",
   }]
   );
   const [formDefault, setValuesDefault] = useState({
@@ -50,7 +51,7 @@ const Discount = () => {
     ratio: null,
     startDate: getDateTime(),
     endDate: getDateTime(),
-    active: 1,
+    status: "ACTIVE",
   }
   );
   const [form, setValues] = useState({
@@ -59,7 +60,7 @@ const Discount = () => {
     ratio: null,
     startDate: getDateTime(),
     endDate: getDateTime(),
-    active: 1,
+    status: "ACTIVE",
   }
   );
   const [totalSet, setTotal] = useState(10);
@@ -71,9 +72,14 @@ const Discount = () => {
   const [searchStartDate, setSearchStartDate] = useState(getDateTime());
   const [searchEndDate, setSearchEndDate] = useState(getDateTime());
   const [modalText, setModalText] = useState("Content of the modal");
-  const [dataProduct, setDataProduct] = useState();
+  const [dataProduct, setDataProduct] = useState([]);
+  //const [dataProduct2, setDataProduct2] = useState([]);//hiển thị modal
   const [dataDiscount, setDataDiscount] = useState();
   const [checked, setChecked] = useState([]);
+  const [trueProDiscount, setTrueProDiscount] = useState(false);//dk interval
+  const onFinishTime = () => {
+    console.log('finished!');
+  };
 
   const notifySuccess = (message) => {
     toast.success(message, {
@@ -143,25 +149,109 @@ const Discount = () => {
     },
   });
 
+  const [dateTimer, setDateTimer] = useState([]);
   // Call API product 
-  const handAPIProduct = () => {
-    axios.get(url_Pro + "/all").then((res) => {
-      console.log(res.data);
-      setDataProduct(res.data);
+  const loadProduct = () => {
+    axios.get(url_Pro + "/allProDiscount").then((res) => {
+      setDataProduct(res.data.data);
+      // var listTime=[];
+      // dataDiscount.forEach((discount)=>{
+      //   //if(pro.discount!==null){
+      //     if(new Date(discount.endDate).getTime()>=new Date().getTime()){
+      //       var totalTime=(new Date(discount.endDate).getTime()- new Date().getTime())/(1000)
+      //       console.log("totalTime",Math.ceil(totalTime))
+      //       if(listTime.includes(Math.ceil(totalTime))==false){
+      //         listTime.push(Math.ceil(totalTime));
+      //       }
+      //     }
+      //   //}
+      //   if(listTime!=[]){
+      //     console.log("giây",listTime);
+      //     setDateTimer(listTime);
+      //     setTrueProDiscount(true);
+      //   }
+      // })
     });
+  }
+  if (trueProDiscount) {
+    if (dateTimer != []) {
+      var listProDiscount = [];
+      setTrueProDiscount(false);
+      loadProduct();
+      console.log("dataProduct", dataProduct);
+      dataProduct.forEach((pro) => {
+        if (pro.discount !== null) {
+          console.log("for noDiscount");
+          listProDiscount.push(pro);
+        }
+      })
+      console.log("listProDiscount1", listProDiscount)
+      dateTimer.forEach((time) => {
+        console.log("listProDiscount2", dataProduct)
+        //clearInterval(myTimer);
+        var myTimer = setInterval(() => {
+          time--;
+          console.log("time", time);
+          if (time == 0) {
+            //clearInterval(myTimer);
+            console.log("dataProduct3", dataProduct)
+            if (dataProduct !== []) {
+              if (listProDiscount != []) {
+                console.log("api noDiscount", dataProduct);
+                //setTrueProDiscount(false);
+                //clearInterval(myTimer);
+                dataProduct.forEach((pro) => {
+                  if (pro.discount != null) {
+                    console.log("pro.discount!=null");
+                    if (new Date(pro.discount.endDate).getTime() <= new Date().getTime()) {
+                      console.log("trong api noDiscount", pro);
+                      axios.put(url_Pro + "/noDiscountProduct/" + pro.discount?.id + "/" + pro.id).then((res) => {
+                        console.log("shownoDiscount", res.data.data);
+                        listProDiscount = listProDiscount.filter(p => p.id !== pro.id);
+                        setTrueProDiscount(false);
+                        time--;
+                        clearInterval(myTimer);
+                        var listProductNoDiscount = dataProduct.filter(p => p.id !== res.data.data.id);
+                        setDataProduct(listProductNoDiscount);
+                        getData();
+                      });
+                    }
+                  }
+                })
+                //setTrueProDiscount(false);
+                getData();
+              } else {
+                getData();
+              }
+            } else {
+              clearInterval(myTimer);
+              setTrueProDiscount(false);
+              getData();
+            }
+          }
+        }, 1000);
+      })
+    }
+  }
+
+  // Call API product & view
+  const handAPIProduct = () => {
     setView(true);
   }
 
-  // Call API Product
+
+  // Get 1 discount
   const showDataProduct = (id) => {
     console.log(id);
-
-    axios.get(url + "/" + id).then((res) => {
-      console.log(">>>>>>>>>", res.data);
-      setDataDiscount(res.data);
+    axios.get(urlStaff + "/" + id).then((res) => {
+      console.log("showDataProduct", res.data.data);
+      setDataDiscount(res.data.data);
     });
-    handAPIProduct()
+    handAPIProduct();
   }
+  const [currentCount, setCount] = useState(1);
+  const timer = () => setCount(currentCount + 1);
+
 
   const columns = [
     {
@@ -205,13 +295,24 @@ const Discount = () => {
       width: "10%",
     },
     {
+      title: "Time",
+      sorter: true,
+      dataIndex: "endDate",
+      render(endDate) {
+        return (
+          <Countdown value={(new Date(endDate)) - Date.now()} onFinish={onFinishTime} />
+        );
+      },
+      width: "10%",
+    },
+    {
       title: "Trạng thái",
-      dataIndex: "active",
-      with: "35%",
-      render: (active) => {
+      dataIndex: "status",
+      with: "25%",
+      render: (status) => {
         return (
           <>
-            {active == 1 && (
+            {status == "ACTIVE" && (
               <div
                 className="bg-success text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
@@ -219,7 +320,7 @@ const Discount = () => {
                 Hoạt động
               </div>
             )}
-            {active == 0 && (
+            {status == "INACTIVE" && (
               <div
                 className="bg-secondary text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
@@ -227,7 +328,7 @@ const Discount = () => {
                 Không hoạt động
               </div>
             )}
-            {active == 2 && (
+            {status == "DRAFT" && (
               <div
                 className="bg-danger text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
@@ -244,13 +345,13 @@ const Discount = () => {
       dataIndex: "id",
       width: "15%",
       render: (id, data) => {
-        if (data.active == 2) {
+        if (data.status == "DRAFT") {
           return (
             <>
               <UnlockOutlined
                 className="mt-2"
                 type="dashed"
-                onClick={() => activeItem(id, data)}
+                onClick={() => changeStatusItem(id, data)}
                 style={{ borderRadius: "10px" }}
               />
               <EditOutlined
@@ -265,13 +366,13 @@ const Discount = () => {
               />
             </>
           );
-        } else if (data.active == 1 || data.active == 0) {
+        } else if (data.status == "ACTIVE" || data.status == "INACTIVE") {
           return (
             <>
               <UnlockOutlined
                 className="mt-2"
                 type="dashed"
-                onClick={() => activeItem(id, data)}
+                onClick={() => changeStatusItem(id, data)}
                 style={{ borderRadius: "10px" }}
               />
               <EditOutlined
@@ -290,7 +391,7 @@ const Discount = () => {
       dataIndex: "id",
       width: "10%",
       render: (id, data) => {
-        if (data.active == 1) {
+        if (data.status == "ACTIVE") {
           return (
             <Button type="danger" style={{ borderRadius: "7px" }} onClick={() => { showDataProduct(id) }}>Áp dụng</Button>
           )
@@ -308,7 +409,7 @@ const Discount = () => {
       // .then((res) => res.json())
       .then((results) => {
         results.data.data.data.forEach((x) => {
-          x.active = x.active === 2 ? x.active : compareTime(x.endDate)
+          x.status = x.status === "DRAFT" ? x.status : compareTime(x.endDate)
         })
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -320,13 +421,42 @@ const Discount = () => {
             total: totalSet,
           }
         });
+        var listTime = [];
+        results.data.data.data.forEach((discount) => {
+          if (new Date(discount.endDate).getTime() >= new Date().getTime()) {
+            var totalTime = (new Date(discount.endDate).getTime() - new Date().getTime()) / (1000)
+            console.log("totalTime", Math.ceil(totalTime))
+            if (listTime.includes(Math.ceil(totalTime)) == false) {
+              listTime.push(Math.ceil(totalTime));
+            }
+          }
+        })
+        axios.get(url_Pro + "/allProDiscount").then((res) => {
+          if (res.data.data != null) {
+            if (listTime != []) {
+              setDataProduct(res.data.data);
+              console.log("giây", listTime);
+              setDateTimer(listTime);
+              setTrueProDiscount(true);
+            }
+          }
+
+        })
       });
   };
 
   //LoadList
   useEffect(() => {
     getData();
+    // loadProduct();
   }, [JSON.stringify(tableParams)]);
+  useEffect(() => {
+    // axios.get(url_Pro + "/allProDiscount").then((res) => {
+    //   setDataProduct2(res.data.data);
+    //   //setTrueProDiscount(true);
+    // });
+    //loadProduct();
+  }, []);
 
 
   const handleTableChange = (pagination, filters, sorter) => {
@@ -415,6 +545,7 @@ const Discount = () => {
           setEditing(false);
           setValues(formDefault);
           console.log(res.data);
+          loadProduct();
         }).catch((error) => {
           notifyError('Yêu cầu nhập đủ các trường!');
           return;
@@ -453,13 +584,13 @@ const Discount = () => {
       [e.target.name]: e.target.value
     });
   }
-  //onChange Active
+  //onChange status
   const handleChange = (e) => {
     setValues({
       ...form,
-      active: e
+      status: e
     });
-    console.log("active", e);
+    console.log("status", e);
   };
 
   const handleChangeDate = (val, dateStrings) => {
@@ -514,7 +645,7 @@ const Discount = () => {
     axios.get(url + `?${qs.stringify(
       getRandomuserParams(tableParams)
     )}`)
-      // .then((res) => res.json())
+      // .then((res) => res.json()) 
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -528,26 +659,49 @@ const Discount = () => {
         });
       });
   }
+  //check all
+  const [isCheckedAll, setIsCheckedAll] = useState(true);
+  function handleCheckAll(check) {
+    if (isCheckedAll) {
+      console.log("checkedAll")
+      const checkboxes = document.querySelectorAll('input[name="ck"]');
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = true;
+      });
+      setIsCheckedAll(false);
+    } else {
+      console.log("not checkedAll")
+      const checkboxes = document.querySelectorAll('input[name="ck"]');
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = false;
+      })
+      setIsCheckedAll(true);
+    }
+  }
 
   // Call API DiscountProduct
   const handDiscountProduct = () => {
-    const checkbox1 = document.querySelectorAll('input[name="checkbox');
+    const checkbox1 = document.querySelectorAll('input[name="ck"]');
     checkbox1.forEach((checkbox) => {
       if (checkbox.checked == true) {
-        checked.push(checkbox.value);
+        dataProduct.forEach((item) => (item.id == checkbox.value) ? checked.push(item.id) : "");
       }
       setChecked(checked);
     })
     console.log(checked);
-
-    axios.put(url_Pro + "/discountProduct/" + dataDiscount.data.id,
+    // giam gia san pham
+    axios.put(url_Pro + "/discountProduct/" + dataDiscount.id,
       checked
     ).then((res) => {
-      console.log(">>>>>>>>>DiscountProduct", res.data);
-      setDataDiscount(res.data);
-      handAPIProduct();
-      handleCancel()
+      console.log("DataDiscount", res.data.data);
+      const checkboxes = document.querySelectorAll('input[name="ck"]');
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = false;
+      })
+      handleCancel();
+      getData();
     });
+
   }
 
   const clearSearchForm = () => {
@@ -564,20 +718,20 @@ const Discount = () => {
     });
     getData();
   }
-  const activeItem = (id, data) => {
+  const changeStatusItem = (id, data) => {
     Modal.confirm({
       title: "Chuyển trạng thái",
       content: "Bạn có muốn chuyển trạng thái",
       onOk() {
-        handleConfirmActive(id, data)
+        handleConfirmChangeStatus(id, data)
       },
       onCancel() {
         console.log('Cancel');
       },
     })
   }
-  const handleConfirmActive = (id, data) => {
-    if (data.active == 0 || data.active == 2) {
+  const handleConfirmChangeStatus = (id, data) => {
+    if (data.status == 0 || data.status == 2) {
       axios.put(urlAdmin + "/active/" + id)
         .then(res => {
           notifySuccess('Chuyển trạng thái hoạt động thành công!')
@@ -585,7 +739,7 @@ const Discount = () => {
           console.log(res.data);
         }
         )
-    } else if (data.active == 1) {
+    } else if (data.status == 1) {
       axios.put(urlAdmin + "/inactive/" + id)
         .then(res => {
           notifySuccess('Chuyển trạng thái không hoạt động thành công!')
@@ -676,7 +830,10 @@ const Discount = () => {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th scope="col">#</th>
+                      <th scope="col"><input type={"checkbox"}
+                        id="checkall"
+                        // checked={isCheckedAll[product]}
+                        onChange={() => handleCheckAll(checked)} /></th>
                       <th scope="col">Tên sản phẩm</th>
                       <th scope="col">Giá tiền</th>
                       <th scope="col">Số lượng</th>
@@ -684,11 +841,11 @@ const Discount = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {dataProduct?.map((item, index) => {
-                      // console.log("ratio", id);
+                    {dataProduct ? dataProduct.map(item => {
+                      // console.log("item", item);
                       return (
-                        <tr key={index}>
-                          <td><input type={"checkbox"} name="checkbox" value={item.id} ></input></td>
+                        <tr key={item.id}>
+                          <td>{item.discount ? "" : <input type={"checkbox"} name="ck" value={item.id} ></input>}</td>
                           <td>{item.name}</td>
                           <td>{item.price}</td>
                           <td>{item.quantity}</td>
@@ -696,7 +853,7 @@ const Discount = () => {
                           {/* <td>{item.price - (item.price * item.discount)}</td> */}
                         </tr>
                       );
-                    })}
+                    }) : ""}
                   </tbody>
                 </table>
               </div>
