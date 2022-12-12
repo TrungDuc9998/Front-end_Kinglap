@@ -731,7 +731,7 @@ const Discount = () => {
     })
   }
   const handleConfirmChangeStatus = (id, data) => {
-    if (data.status == 0 || data.status == 2) {
+    if (data.status == "INACTIVE" || data.status == "DRAFT") {
       axios.put(urlAdmin + "/active/" + id)
         .then(res => {
           notifySuccess('Chuyển trạng thái hoạt động thành công!')
@@ -739,7 +739,7 @@ const Discount = () => {
           console.log(res.data);
         }
         )
-    } else if (data.status == 1) {
+    } else if (data.status == "ACTIVE") {
       axios.put(urlAdmin + "/inactive/" + id)
         .then(res => {
           notifySuccess('Chuyển trạng thái không hoạt động thành công!')
@@ -764,10 +764,10 @@ const Discount = () => {
             }}
           >
 
-            <div className="col-4 mt-3">
+            {/* <div className="col-4 mt-3">
               <label>Từ khoá</label>
               <Input type="text" name="searchName" value={data.name} placeholder="Nhập tên tài khoản người dùng" onChange={onchangeSearch} />
-            </div>
+            </div> */}
 
             <div className="col-4 mt-3 ">
               <label>Thời gian</label>
