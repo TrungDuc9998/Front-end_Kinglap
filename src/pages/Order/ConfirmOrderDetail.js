@@ -64,14 +64,6 @@ const ConfirmOrderDetail = () => {
     loadDataOrderHistoryById(id);
   }, [order != undefined]);
 
-  const showModalData = (id) => {
-    axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
-      setDataOD(res.data);
-    });
-    setView(true);
-  };
-
   const columns = [
     {
       title: "Mã lịch sử",
@@ -97,9 +89,14 @@ const ConfirmOrderDetail = () => {
 
       width: "20%",
       render(total) {
-        return <>{total?.toLocaleString("it-IT", {
-          style: "currency",
-          currency: "VND"})}</>;
+        return (
+          <>
+            {total?.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
       },
     },
     {
@@ -171,23 +168,7 @@ const ConfirmOrderDetail = () => {
     },
   ];
 
-  const onConfirm = (record) => {
-    const isPut = true;
-
-    Modal.confirm({
-      title: "Yêu cầu trả hàng hoàn tiền",
-      icon: <CheckCircleOutlined />,
-      content: `Bạn có muốn xác nhận yêu cầu trả hàng hoàn tiền đơn hàng ${record.orderId.id}  không?`,
-      okText: "Có",
-      cancelText: "Không",
-      onOk: () => {
-        handleSubmitReturn(record);
-      },
-    });
-  };
-
   const loadDataOrder = (id) => {
-    // setLoading(true);
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
@@ -196,7 +177,6 @@ const ConfirmOrderDetail = () => {
   };
 
   const loadDataOrderHistoryById = (id) => {
-    // setLoading(true);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
@@ -241,52 +221,6 @@ const ConfirmOrderDetail = () => {
     });
   };
 
-  const handleSubmitReturn = (item) => {
-    console.log(item);
-
-    if (reason != undefined) {
-      try {
-        fetch("http://localhost:8080/api/auth/returns", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId: order.id,
-            reason: reason,
-            description: note,
-            status: "YEU_CAU",
-            isCheck: 2,
-            returnDetailEntities: [
-              {
-                productId: item.product.id,
-                quantity: valueInputNumber != undefined ? valueInputNumber : 1,
-              },
-            ],
-          }),
-        }).then((res) => {});
-
-        fetch(`http://localhost:8080/api/orders/${item.id}/orderDetails`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: item.product.id,
-            total: item.total,
-            quantity: item.quantity,
-            status: item.status,
-            isCheck: 2,
-          }),
-        }).then((res) => {});
-        toastSuccess("Gửi yêu cầu thành công!");
-        loadDataOrder(id);
-        // location.reload();
-      } catch (err) {
-        console.log(err);
-        toastError("Gửi yêu cầu thất bại!");
-      }
-    } else {
-      toastError("Bạn chưa nhập lý do");
-    }
-  };
-
   const confirm = () => {
     Modal.confirm({
       title: "Cập nhật đơn hàng",
@@ -301,7 +235,6 @@ const ConfirmOrderDetail = () => {
   };
 
   const onChange = (value, id, proId, price) => {
-    console.log("changed", value, id, proId, price);
     const set = new Set();
     const orderDetail = {
       id: id,
@@ -346,12 +279,8 @@ const ConfirmOrderDetail = () => {
     });
     order.orderDetails[i].total = Number(value * price);
     order.orderDetails[i].quantity = value;
-    console.log(order.orderDetails[i].total);
-    console.log(order.orderDetails[i].quantity);
     setOrder(order);
-    console.log(order);
     setTodos(todos);
-    console.log("orderID: ", order.id);
     loadDataOrder(order.id);
   };
 
@@ -474,7 +403,7 @@ const ConfirmOrderDetail = () => {
             columns={columns}
             rowKey={(record) => record.id}
             dataSource={orderHistory}
-            pagination={{ position: ['none', 'none'] }}
+            pagination={{ position: ["none", "none"] }}
           />
         </div>
         <div className="col-12 text-center mb-3 mt-2">

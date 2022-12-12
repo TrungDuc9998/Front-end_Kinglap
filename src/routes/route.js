@@ -34,6 +34,8 @@ import Table1 from "../pages/Order/Table";
 import Statistical from "../pages/statistical/Statistical";
 import Compare from "../pages/customer/compareProduct/Compare";
 import Inventory from "../pages/Product/Inventory";
+import Test from "../pages/Home/qr";
+import Policy from "../pages/Home/Policy/policy";
 const publicRoutes = [
   {
     path: "/",
@@ -170,7 +172,16 @@ const publicRoutes = [
   {
     path: "/admin/product/inventory",
     component: Inventory
+  },
+  {
+    path: "/admin/test",
+    component: Test
+  },
+  {
+    path: "/policy",
+    component: Policy
   }
+
 
 ];
 
