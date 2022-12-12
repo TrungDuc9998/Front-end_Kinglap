@@ -154,32 +154,15 @@ const Discount = () => {
    const loadProduct = () => {
     axios.get(url_Pro + "/allProDiscount").then((res) => {
       setDataProduct(res.data.data);
-      // var listTime=[];
-      // dataDiscount.forEach((discount)=>{
-      //   //if(pro.discount!==null){
-      //     if(new Date(discount.endDate).getTime()>=new Date().getTime()){
-      //       var totalTime=(new Date(discount.endDate).getTime()- new Date().getTime())/(1000)
-      //       console.log("totalTime",Math.ceil(totalTime))
-      //       if(listTime.includes(Math.ceil(totalTime))==false){
-      //         listTime.push(Math.ceil(totalTime));
-      //       }
-      //     }
-      //   //}
-      //   if(listTime!=[]){
-      //     console.log("giây",listTime);
-      //     setDateTimer(listTime);
-      //     setTrueProDiscount(true);
-      //   }
-      // })
     });
   }
   if(trueProDiscount){
       if(dateTimer!=[]){
         var listProDiscount=[];
           setTrueProDiscount(false);
-          loadProduct();
+          //loadProduct();
           console.log("dataProduct",dataProduct);
-          dataProduct.forEach((pro)=>{
+          dataProduct?.forEach((pro)=>{
               if(pro.discount!==null){
                 console.log("for noDiscount");
                 listProDiscount.push(pro);
@@ -235,19 +218,20 @@ const Discount = () => {
   }
   
   // Call API product & view
-  const handAPIProduct = () => {
-    setView(true);
-  }
+  // const handAPIProduct = () => {
+  //   setView(true);
+  // }
   
 
-  // Get 1 discount
+  // Get product by discount
   const showDataProduct = (id) => {
     console.log(id);
     axios.get(urlStaff + "/" + id).then((res) => {
       console.log("showDataProduct", res.data.data);
       setDataDiscount(res.data.data);
     });
-    handAPIProduct();
+    // handAPIProduct();
+    setView(true);
   }
   const [currentCount, setCount] = useState(1);
   const timer = () => setCount(currentCount + 1);
@@ -408,40 +392,40 @@ const Discount = () => {
     )}`)
       // .then((res) => res.json())
       .then((results) => {
-        results.data.data.data.forEach((x) => {
-          x.status = x.status === "DRAFT" ? x.status : compareTime(x.endDate)
-        })
-        setData(results.data.data.data);
-        setTotal(results.data.data.total);
-        setLoading(false);
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: totalSet,
-          }
-        });
-        var listTime=[];
-        results.data.data.data.forEach((discount)=>{
-          if(new Date(discount.endDate).getTime()>=new Date().getTime()){
-            var totalTime=(new Date(discount.endDate).getTime()- new Date().getTime())/(1000)
-            console.log("totalTime",Math.ceil(totalTime))
-            if(listTime.includes(Math.ceil(totalTime))==false){
-              listTime.push(Math.ceil(totalTime));
+        if(results.data.data.data!=null){
+          results.data.data.data.forEach((x) => {
+            x.status = x.status === "DRAFT" ? x.status : compareTime(x.endDate)
+          })
+          setData(results.data.data.data);
+          setTotal(results.data.data.total);
+          setLoading(false);
+          setTableParams({
+            ...tableParams,
+            pagination: {
+              ...tableParams.pagination,
+              total: totalSet,
             }
-          }
-      })
-      axios.get(url_Pro + "/allProDiscount").then((res) => {
-        if(res.data.data!=null){
-          if(listTime!=[]){
-          setDataProduct(res.data.data);
-          console.log("giây",listTime);
-          setDateTimer(listTime);
-          setTrueProDiscount(true);
-          }
+          });
+          var listTime=[];
+          results.data.data.data.forEach((discount)=>{
+            if(new Date(discount.endDate).getTime()>=new Date().getTime()){
+              var totalTime=(new Date(discount.endDate).getTime()- new Date().getTime())/(1000)
+              console.log("totalTime",Math.ceil(totalTime))
+              if(listTime.includes(Math.ceil(totalTime))==false){
+                listTime.push(Math.ceil(totalTime));
+              }
+            }
+        })
+        axios.get(url_Pro + "/allProDiscount").then((res) => {
+            if(listTime!=[]){
+            setDataProduct(res.data.data);
+            console.log("giây",listTime);
+            setDateTimer(listTime);
+            setTrueProDiscount(true);
+            }
+           })
         }
         
-        })
       });
   };
 
@@ -450,13 +434,6 @@ const Discount = () => {
     getData();
     // loadProduct();
   }, [JSON.stringify(tableParams)]);
-  useEffect(() => {
-    // axios.get(url_Pro + "/allProDiscount").then((res) => {
-    //   setDataProduct2(res.data.data);
-    //   //setTrueProDiscount(true);
-    // });
-    //loadProduct();
-  }, []);
 
 
   const handleTableChange = (pagination, filters, sorter) => {
@@ -699,7 +676,10 @@ const Discount = () => {
               checkbox.checked = false;
           })
       handleCancel();
-      getData();
+      if(res.data.data){
+        loadProduct();
+        getData();
+      }
     });
 
   }
