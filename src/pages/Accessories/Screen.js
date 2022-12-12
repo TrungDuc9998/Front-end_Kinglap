@@ -212,7 +212,7 @@ const Screen = () => {
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" , }}
+                style={{ width: "100px", borderRadius: "5px", }}
               >
                 Hoạt động
               </div>
@@ -224,7 +224,7 @@ const Screen = () => {
             <>
               <div
                 className="bg-danger text-center text-light"
-                style={{ width: "100px", borderRadius: "5px",padding:"5px" }}
+                style={{ width: "100px", borderRadius: "5px", padding: "5px" }}
               >
                 Không hoạt động
               </div>
@@ -848,7 +848,7 @@ const Screen = () => {
                 display: "none",
               },
             }}
-           cancelText={"Đóng"}
+            cancelText={"Đóng"}
           >
             <Form
               form={formE}
