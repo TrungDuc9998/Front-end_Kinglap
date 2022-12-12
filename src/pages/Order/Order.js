@@ -1,6 +1,5 @@
 import {
   Table,
-  Slider,
   Select,
   Input,
   Button,
@@ -18,15 +17,19 @@ import {
 } from "@ant-design/icons";
 import "../Order/order.css";
 import Moment from "react-moment";
-import moment from "moment";
 import qs from "qs";
 import axios from "axios";
 import toastrs from "toastr";
+import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
+import { storage } from "../../image/firebase/firebase";
+import { v4 } from "uuid";
 import { ToastContainer, toast } from "react-toastify";
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactToPrint from "react-to-print";
-import QRCode from "react-qr-code";
+import QRCode from "qrcode";
+import { async } from "@firebase/util";
+
 const { Option } = Select;
 const url = "http://localhost:8080/api/orders";
 const url_pro = "http://localhost:8080/api/products";
@@ -43,6 +46,7 @@ const getRandomuserParams = (params) => ({
 const { RangePicker } = DatePicker;
 
 const Order = () => {
+  const id = "ok";
   const [data, setData] = useState([]);
   const [dataSuccess, setDataSuccess] = useState([]);
   const [dataDelivering, setDataDelivering] = useState([]);
@@ -51,6 +55,9 @@ const Order = () => {
   const [dateOrder, setDateOrder] = useState(getDateTime);
   const [searchStatus, setSearchStatus] = useState();
   const [searchName, setSearchName] = useState();
+  const [imageUrls, setImageUrls] = useState([]);
+  const [imageUpload, setImageUpload] = useState(null);
+  const [images, setImages] = useState([]);
   const [orderHistory, setOrderHistory] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -62,6 +69,9 @@ const Order = () => {
   const [dataPending, setDataPedning] = useState([]);
   const [searchStartDate, setSearchStartDate] = useState();
   const [searchEndDate, setSearchEndDate] = useState();
+  const [checkId, setCheckId] = useState();
+  const [qrImageUrl, setQRImageUrl] = useState();
+  const imagesListRef = ref(storage, "images/"); //all url
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -126,6 +136,12 @@ const Order = () => {
     },
   });
   const [idCancel, setIDCancel] = useState();
+
+  const qrCodeData = [
+    { id: 1234, value: "TEST1" },
+    { id: 1235, value: "TEST2" },
+  ];
+  const qrCodeIds = qrCodeData.map((data) => data.id);
 
   const loadDataOrderWait = () => {
     setLoading(true);
@@ -264,7 +280,7 @@ const Order = () => {
     loadDataOrderDelivering();
     loadDataOrderCancel();
     loadDataOrderWait();
-  }, []);
+  }, [checkId != undefined, dataO != undefined]);
 
   const search = () => {
     console.log(searchDate);
@@ -353,6 +369,18 @@ const Order = () => {
       console.log(res.data);
       setDataOD(res.data);
     });
+    console.log("tên khách hàng trong modal: ", dataO?.name);
+    // createQRCode();
+    setCheckId(
+      `SỐ ĐIỆN THOẠI: 0338861522` +
+        `\nEMAIL: ptung539@gmail.com` +
+        `\nĐỊA CHỈ: Lạng Giang - Bắc Giang` +
+        `\nNGÂN HÀNG: NCB - Số tài khoản: 899983869999` +
+        `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A` +
+        `\nHOÁ ĐƠN MUA HÀNG` +
+        `\nMÃ HOÁ ĐƠN: ${id}` +
+        `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A`
+    );
     loadDataOrderHistoryById(id);
     setView(true);
   };
@@ -369,8 +397,10 @@ const Order = () => {
   };
 
   const showModalOrder = (id) => {
+    let dataOrder = "";
     axios.get(url + "/get/" + id).then((res) => {
       setDataO(res.data);
+      createQRCode(res.data);
     });
     axios.get(url + "/" + id).then((res) => {
       setDataOD(res.data);
@@ -711,6 +741,50 @@ const Order = () => {
   const onSearch = (value) => {
     console.log("search:", value);
   };
+
+  const handleUploadFile = () => {
+    console.log("vào handle uploadFile");
+    const check = "1";
+    const imageRef = ref(storage, `images/${check + v4()}`);
+    // console.log("imageRef",imageRef)//_service: {…}, _location: {…}
+    uploadBytes(imageRef, check).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        setImages((prev) => [...prev, url]);
+        console.log("snapshot.ref", snapshot.ref); //_service: {…}, _location: {…}
+        setImageUrls((prev) => [...prev, url]); //set url ->all url
+      });
+      // toastSuccess("upload ảnh thành công !");
+    });
+  };
+
+  async function createQRCode(data) {
+    const b =
+      `\nMÃ HOÁ ĐƠN: ${data?.id}` +
+      `\nNGÀY MUA HÀNG: ${data?.createdAt}` +
+      `\nTÊN KHÁCH HÀNG: ${data?.customerName}` +
+      `\nĐỊA CHỈ: ${data?.address}` +
+      `\nSỐ ĐIỆN THOẠI: ${data?.phone}` +
+      data?.orderDetails.map((item) => {
+        return (
+          `\nTên sản phẩm: ${item?.product.name}` +
+          ` - Số lượng: ${item.quantity}` +
+          ` - Đơn giá: ${item.product.price.toLocaleString("it-IT", {
+            style: "currency",
+            currency: "VND",
+          })}` +
+          ` - Tổng tiền: ${item.total.toLocaleString("it-IT", {
+            style: "currency",
+            currency: "VND",
+          })}`
+        );
+      }) +
+      `\nĐÃ ĐẶT CỌC: ${data?.money}` +
+      `\nĐÃ THANH TOÁN: ${data?.total}` +
+      `\nTRẠNG THÁI ĐƠN HÀNG: ${data?.status}`;
+    const response = await QRCode.toDataURL(b);
+    setQRImageUrl(response);
+  }
+
   const navigate = useNavigate();
   const [keyOrder, setKey] = useState("/order/create");
   return (
@@ -875,6 +949,7 @@ const Order = () => {
             <SearchOutlined />
             Tìm kiếm
           </Button>
+          
         </div>
       </div>
       <div className="row">
@@ -952,7 +1027,7 @@ const Order = () => {
                 display: "none",
               },
             }}
-           cancelText={"Đóng"}
+            cancelText={"Đóng"}
             onOk={() => {
               setView(false);
             }}
@@ -1020,17 +1095,14 @@ const Order = () => {
           >
             <div>
               <div className="order" ref={componentRef}>
-                <div className="qrcode bg-primary">
-                  <QRCode
-                    size={256}
-                    style={{ height: "100px", width: "100px" }}
-                    value={
-                      "https://kinglap.000webhostapp.com/order/Order" +
-                      dataO?.id +
-                      ".pdf"
-                    }
-                    viewBox={`0 0 256 256`}
-                  />
+                <div className="qrcode ">
+                  {qrImageUrl && (
+                    <div className="mt-4">
+                      <a href={qrImageUrl} download={`HoaDon`+ dataO?.id +'.png'}>
+                        <img src={qrImageUrl} style={{width: "140px", height:"140px"}} alt="QR CODE" />
+                      </a>
+                    </div>
+                  )}
                 </div>
                 <div className="title">
                   <p className="fs-6">Số điện thoại: 0338861522</p>
@@ -1108,16 +1180,6 @@ const Order = () => {
                       })}
                     </i>
                   </p>
-                  {/* <p className="fw-bold">
-                    Đã thanh toán :{" "}
-                    <i className="text-danger fw-bold">
-                      {" "}
-                      {dataO?.money.toLocaleString("it-IT", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
-                    </i>
-                  </p> */}
                   <p className="fw-bold">
                     Tổng số tiền phải thanh toán:{" "}
                     <i className="text-danger">
@@ -1132,26 +1194,20 @@ const Order = () => {
                     <i className="text-danger">
                       {dataO?.money === 0 ? "Đã thanh toán" : "Đã đặt cọc"}
                     </i>
-                    {/* <i className="text-danger">
-                      {dataO
-                        ? dataO.status == "CHO_XAC_NHAN"
-                          ? " Chờ xác nhận"
-                          : dataO.status == "CHO_LAY_HANG"
-                          ? " Chờ lấy hàng"
-                          : dataO.status == "DANG_GIAO"
-                          ? " Đang giao"
-                          : dataO.status == "DA_NHAN"
-                          ? " Đã nhận"
-                          : " Đã hủy"
-                        : ""}
-                    </i> */}
                   </p>
                 </div>
               </div>
               <ReactToPrint
                 className="text-center"
                 trigger={() => {
-                  return <button>Xuất hóa đơn</button>;
+                  return (
+                    <Button
+                      onClick={handleUploadFile}
+                      className="text-center print"
+                    >
+                      Xuất hóa đơn
+                    </Button>
+                  );
                 }}
                 content={() => componentRef.current}
                 documentTitle={"Order" + dataO?.id}

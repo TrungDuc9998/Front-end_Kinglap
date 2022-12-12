@@ -756,14 +756,11 @@ function Table1() {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         const dataResult = [];
         results.data.data.forEach((item) => {
           dataResult.push(
             renderItem(item.id, item.name, item?.images[0].name, item.price)
           );
-          console.log("data Result");
-          console.log(dataResult);
           setData(dataResult);
         });
       });
@@ -771,15 +768,14 @@ function Table1() {
 
   const onSearchUser = (searchItem) => {
     setValueUser(searchItem);
-    console.log("user item: " + searchItem);
+   
   };
   const onChangeUser = (event) => {
     setValueUser(event.target.value);
-    console.log("value user: " + event.target.value);
+
   };
   const onSearchAndFillUser = (item) => {
-    console.log("giá trị log");
-    console.log(item);
+ 
     if (item != null) {
       setFullNameClient(item.fullName);
     }
@@ -821,13 +817,11 @@ function Table1() {
           isUpdate = true;
         });
       let priceProduct;
-
       getDataProductById(value);
-
       data
         ?.filter((item) => item.value === value)
         .map((product) => {
-          console.log("vào trong lấy giá");
+        
           priceProduct = product.price;
         });
       if (isUpdate === false) {
@@ -835,8 +829,6 @@ function Table1() {
       }
       let total = 0;
       dataCart?.forEach((item) => (total += item.total));
-      console.log("---------------- tổng tiền on select");
-      console.log(total);
       setTotal(total);
     }
   };
@@ -871,7 +863,6 @@ function Table1() {
                   {category}
                 </a>
               </span>
-              {/* <span>{getRandomInt(200, 100)} results</span> */}
             </div>
           ),
         };
