@@ -105,7 +105,7 @@ const Processor = () => {
     console.log({ inputRef });
   }, [cpuCompany != undefined]);
 
-  const loadDataCategory = () => {};
+  const loadDataCategory = () => { };
 
   const onDelete = (record) => {
     Modal.confirm({
@@ -339,7 +339,7 @@ const Processor = () => {
     setOpen(true);
   };
 
-  const handleOk = () => {};
+  const handleOk = () => { };
 
   const handleCancel = () => {
     console.log("Clicked cancel button");
@@ -438,7 +438,7 @@ const Processor = () => {
     setSearchStatus(value);
   };
 
-  const handleChange = () => {};
+  const handleChange = () => { };
 
   return (
     <div>
@@ -533,7 +533,7 @@ const Processor = () => {
             <Form
               form={form}
               initialValues={{
-                cpuCompany: name,
+                // cpuCompany: name,
               }}
               autoComplete="off"
               labelCol={{ span: 7 }}
