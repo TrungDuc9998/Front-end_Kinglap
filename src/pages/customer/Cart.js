@@ -131,11 +131,16 @@ function Cart() {
                                         value={product.price * product.quantity}
                                         displayType={"text"}
                                         thousandSeparator={true}
-                                    />
+                                    /> VNĐ
                                     {/* {formatCash(product.price*product.quantity+"")} */}
                                 </span> 
-                                {/* <span className="price ms-3">17.000.000</span>
-                                    <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm 30%</button> */}
+                                {product.discount?<span className="price ms-3"><CurrencyFormat
+                                        style={{ fontSize: "14px" }}
+                                        value={product.price/((100- product.discount.ratio) / 100)} 
+                                        displayType={"text"}
+                                        thousandSeparator={true}
+                                        /> VNĐ</span>:""}
+                                    {product.discount?<button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm {product.discount.ratio}%</button>:""}
                                 </p>
                                 <DeleteOutlined
                                     onClick={() =>
