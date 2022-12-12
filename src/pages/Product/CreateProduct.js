@@ -81,10 +81,6 @@ function CreateProduct() {
   const [images, setImages] = useState([]);
   const imagesListRef = ref(storage, "images/"); //all url
   const uploadFile = () => {
-
-    console.log('image upload');
-    console.log(imageUpload);
-
     if (imageUpload == null) return;
     const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
     // console.log("imageRef",imageRef)//_service: {…}, _location: {…}

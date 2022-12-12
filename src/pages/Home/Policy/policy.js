@@ -1,4 +1,3 @@
-import Img from "../Policy/image/istockphoto-483731108-170667a.jpg";
 function Policy() {
   const url =
     "https://firebasestorage.googleapis.com/v0/b/fir-react-storage-96f9d.appspot.com/o/images%2F091d4f1bebc76ea61eec0b9d8af26e5f.jpg?alt=media&token=05f39496-dedf-4661-b8a9-e0ad07c6fc78";
