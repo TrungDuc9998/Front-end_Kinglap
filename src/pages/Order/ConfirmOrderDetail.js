@@ -33,19 +33,6 @@ const ConfirmOrderDetail = () => {
   const [todos, setTodos] = useState([]);
   const [quantity, setQuantity] = useState();
 
-  const toastSuccess = (message) => {
-    toast.success(message, {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
-
   const toastError = (message) => {
     toast.error(message, {
       position: "top-right",
@@ -180,8 +167,6 @@ const ConfirmOrderDetail = () => {
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data order history");
-        console.log(res);
         setOrderHistory(res);
       });
   };

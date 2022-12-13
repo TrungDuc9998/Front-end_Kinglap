@@ -1,5 +1,4 @@
 import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space, Form, InputNumber } from "antd";
-import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -296,7 +295,6 @@ const Color = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div
         className="row"
         style={{
@@ -409,6 +407,7 @@ const Color = () => {
       >
         <div className="col-12">
           <Table
+           rowKey={(record) => record.id}
             columns={columns}
             dataSource={data}
             pagination={tableParams.pagination}
@@ -417,7 +416,7 @@ const Color = () => {
           />
           <Modal
             title="Cập nhật"
-            visible={isEditing}
+            open={isEditing}
             onCancel={handleCancel}
             onOk={(e) => {
               handleEdit(e);

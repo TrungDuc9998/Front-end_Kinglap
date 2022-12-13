@@ -255,7 +255,7 @@ function ViewProduct() {
                   <tbody>
                     <tr>
                       <th scope="row">Màn hình</th>
-                      <td>{product.screen.size}</td>
+                      <td>{product?.screen?.size}</td>
                     </tr>
                     <tr>
                       <th scope="row">CPU</th>

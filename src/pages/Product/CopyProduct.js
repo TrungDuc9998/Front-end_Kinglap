@@ -1,11 +1,11 @@
-import { MenuFoldOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Form, Input, Select } from "antd";
+import { MenuFoldOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, DatePicker, Form, Input, Select, Upload, Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import qs from "qs";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 } from "uuid";
@@ -16,29 +16,19 @@ const getRandomuserParams = (params) => ({
   page: params.pagination?.current,
 });
 
-function EditProduct() {
-  const navigate = useNavigate();
-  const [imageUpload, setImageUpload] = useState(null);
+function CopyProduct() {
+  const [dataProduct, setDataProduct] = useState([]);
+  const [imageUpload, setImageUpload] = useState([]);
   const [imageUrls, setImageUrls] = useState([]);
   const [images, setImages] = useState([]);
   const [name, setName] = useState();
   const [price, setPrice] = useState();
   const [quantity, setQuantity] = useState();
-  const [size, setSize] = useState();
   const [length, setLength] = useState();
-  const [height, setHeight] = useState();
   const [width, setWidth] = useState();
-  const [debut, setDebut] = useState(getDate);
-  const [description, setDescription] = useState();
-  const [origin, setOrigin] = useState();
   const [imei, setImei] = useState();
   const [win, setWin] = useState();
-  const [slot, setSlot] = useState();
-  const [optical, setOptical] = useState();
-  const [processor, SetProcessor] = useState();
   const [battery, setBattery] = useState();
-  const [capacity, setCapacity] = useState("VGA ADM");
-  const [ram, setRam] = useState("4GB");
   const [dataOrigin, setDataOrigin] = useState();
   const [processors, setProcessors] = useState([]);
   const [dataScreen, setDataScreen] = useState([]);
@@ -47,68 +37,50 @@ function EditProduct() {
   const [dataStorage, setDataStorage] = useState([]);
   const [dataAccessory, setDataAccessory] = useState([]);
   const [dataColor, setDataColor] = useState([]);
+  const set = new Set();
+  const props = {
+    name: "file",
+    multiple: true,
+    headers: {
+      authorization: "authorization-text",
+    },
+    onChange(info) {
+      if (info.file.status == "error") {
+        info.file.status = "done";
+      }
+      if (info.file.status == "removed") {
+        console.log("removed");
+      }
+      if (info.file.status === "done") {
+        info.fileList.forEach((item) => {
+          set.add(item.originFileObj);
+        });
+      }
+    },
+  };
 
   const [clearForm] = Form.useForm();
 
   const onReset = () => {
-    clearForm.resetFields();
     clearForm.setFieldValue();
   };
 
-  const imagesListRef = ref(storage, "images/"); //all url
-  const uploadFile = () => {
-    if (imageUpload == null) return;
-    const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
-    console.log("imageUpload", imageUpload); //File { name:,...}
-    console.log("imageRef", imageRef); //_service: {…}, _location: {…}
-    uploadBytes(imageRef, imageUpload).then((snapshot) => {
+  const uploadFile = (image) => {
+    if (image == null) return;
+    const imageRef = ref(storage, `images/${image.name + v4()}`);
+    uploadBytes(imageRef, image).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
-        console.log("url", url);
         setImages((prev) => [...prev, url]);
-        console.log("snapshot.ref", snapshot.ref); //_service: {…}, _location: {…}
         setImageUrls((prev) => [...prev, url]); //set url ->all url
       });
-      console.log("imageUrls", imageUrls);
-      const img1 = imageRef.fullPath; //images/name.jpg69813eb7-a589-45bf-88b3-edd21ce0dac2
-      console.log("images", img1);
-      alert("upload image success");
+      setImageUpload((prev) => [...prev, image]);
     });
   };
-
-  //xử lú sau khi uploadfile
-  useEffect(() => {
-    listAll(imageUpload).then((response) => {
-      console.log("imagesListRef", imagesListRef);
-      response.items.forEach((item) => {
-        console.log("item", item);
-        getDownloadURL(item).then((url) => {
-          setImageUrls((prev) => [...prev, url]);
-          setImages((prev) => [...prev, url]);
-        });
-      });
-    });
-    loadDataWin();
-    imageUrls.forEach((image) => console.log(image));
-  }, [images]);
-
-  const loadDataWin = () => {
-    fetch(
-      `http://localhost:8080/api/auth/wins?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setWin(results.data.data);
-      });
-  };
-
 
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
   const [manufacture, setManufacture] = useState([]);
   const productEdit = JSON.parse(localStorage.getItem("productEdit"));
-
   const [data, setData] = useState({
     name: productEdit?.name,
     quantity: productEdit?.quantity,
@@ -132,7 +104,6 @@ function EditProduct() {
     images: productEdit?.images.map((item) => ({
       name: item.name,
       product: null,
-      return_id: null,
       exchange_id: null,
     })),
     configuration: {
@@ -200,24 +171,6 @@ function EditProduct() {
     },
   });
 
-
-  function getDate() {
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = now.getMonth() + 1;
-    var day = now.getDate();
-    if (month.toString().length == 1) {
-      month = "0" + month;
-    }
-    if (day.toString().length == 1) {
-      day = "0" + day;
-    }
-    var date = year + "/" + month + "/" + day;
-    return date;
-  }
-
-
-
   const toastSuccess = (message) => {
     toast.success(message, {
       position: "top-right",
@@ -231,13 +184,24 @@ function EditProduct() {
     });
   };
 
-
   const getRandomMuserParams = (params) => ({
     limit: params.pagination?.pageSize,
     page: params.pagination?.current,
     searchUsername: params.pagination?.search1,
     searchStatus: params.pagination?.search2,
   });
+
+  const loadDataWin = () => {
+    fetch(
+      `http://localhost:8080/api/auth/wins?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setWin(results.data.data);
+      });
+  };
 
   const loadDataManufacture = () => {
     setLoading(true);
@@ -447,6 +411,70 @@ function EditProduct() {
 
   const dateFormat = "YYYY";
 
+  const handleSubmit = (data) => {
+    set.forEach((item) => {
+      uploadFile(item);
+    });
+    data.images = imageUrls;
+    data.status = "ACTIVE";
+    data.debut = moment(data.debut).format("yyyy");
+    const quantity = Number(data.quantity);
+    data.images = imageUrls.map((item) => ({
+      name: item,
+      product: null,
+      return_id: null,
+      exchange_id: null,
+    }));
+
+    const product = {
+      name: data.name,
+      quantity: Number(data.quantity),
+      price: Number(data.price),
+      imei: data.imei,
+      weight: Number(data.weight),
+      height: Number(data.height),
+      width: Number(data.width),
+      length: Number(data.length),
+      debut: data.debut,
+      categoryId: data.categoryId,
+      manufactureId: data.manufactureId,
+      images: data.images,
+      status: "ACTIVE",
+      processorId: data.processorId,
+      screenId: data.screenId,
+      cardId: data.cardId,
+      originId: data.originId,
+      colorId: data.colorId,
+      batteryId: data.batteryId,
+      ramId: data.ramId,
+      winId: data.win,
+      material: data.material,
+      cardOnboard: data.cardOnboard,
+      accessoryId: data.accessoryId,
+      security: data.security,
+      description: data.description,
+      storageId: data.storageId,
+    };
+    fetch("http://localhost:8080/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(product),
+    })
+      .then((response) => response.json())
+      .then((results) => {
+        if (results.status === 200) {
+          onReset();
+          toastSuccess("Thêm mới thành công !");
+          window.location.href = "/admin/product";
+        } else {
+          toastError("Thêm mới sản phẩm thất bại !");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   const loadDataStorage = () => {
     setLoading(true);
     fetch(
@@ -470,7 +498,6 @@ function EditProduct() {
 
   useEffect(() => {
     listAll(imageUpload).then((response) => {
-      // console.log("imagesListRef",imagesListRef)
       response.items.forEach((item) => {
         getDownloadURL(item).then((url) => {
           setImageUrls((prev) => [...prev, url]);
@@ -488,72 +515,22 @@ function EditProduct() {
     loadDataAccessor();
     loadDataStorage();
     loadDataColor();
+    loadDataWin();
     loadDataCategory();
-
-    console.log('product edit');
-    console.log(productEdit);
-
-    console.log('dữ liệu set data')
-    console.log(data);
-
+    loadDataProductById(id);
   }, [images]);
-  console.log("form", form);
 
-  const handleClick = (values) => {
-    console.log(values);
-    fetch("http://localhost:8080/api/products/" + productEdit.id, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: values.name,
-        quantity: values.quantity,
-        price: values.price,
-        imei: values.imei,
-        weight: values.weight,
-        length: values.length,
-        width: values.width,
-        debut: form?.debut,
-        height: values.height,
-        size: values.size,
-        status: form?.status,
-        p_n: values.p_n,
-        material: values.material,
-        images: form?.images
-          ? form?.images.map((item) => ({
-              name: item.name,
-              product: null,
-              return_id: null,
-              exchange_id: null,
-            }))
-          : null,
-        processorId: values.processorId,
-        RamId: values.ramId,
-        batteryId: values.batteryId,
-        security: values.security,
-        screenId: values.screenId,
-        originId: values.originId,
-        categoryId: values.categoryId,
-        manufactureId: values.manufactureId,
-        storageId: values.storageId,
-        cardId: values.cardId,
-        cardOnboard: values.cardOnboard,
-        description: values.description,
-        accessoryId: values.accessoryId,
-        colorId: values.colorId,
-        win: values.win,
-      }),
-    }).then(() => {
-      localStorage.removeItem("productEdit");
-      toastSuccess("Cập nhật sản phẩm thành công!");
-      setTimeout(() => {
-        navigate("/admin/product");
-      }, 3000);
-    });
+  let { id } = useParams();
+  const loadDataProductById = (id) => {
+    fetch(`http://localhost:8080/api/products/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log('data product get by id');
+        console.log(res);
+        setDataProduct(res);
+      });
   };
-  const handleClickRemove = (url) => {
-    const urlImg = imageUrls.filter((i) => i !== url);
-    console.log("urlImg", urlImg)(setImageUrls(urlImg));
-  };
+
   return (
     <div className="row">
       <div className="row">
@@ -561,7 +538,7 @@ function EditProduct() {
           <MenuFoldOutlined style={{ fontSize: "20px" }} />
         </div>
         <div className="col-11">
-          <h4 className="text-danger fw-bold">Cập nhật sản phẩm</h4>
+          <h4 className="text-danger fw-bold">Tạo sản phẩm</h4>
         </div>
       </div>
       <div
@@ -584,8 +561,7 @@ function EditProduct() {
             layout="vertical"
             autoComplete="off"
             onFinish={(values) => {
-              handleClick(values);
-              console.log({ values });
+              handleSubmit(values);
             }}
             onFinishFailed={(error) => {
               console.log({ error });
@@ -635,7 +611,6 @@ function EditProduct() {
                     style={{ width: "100%" }}
                     placeholder="Nhập mã máy"
                     value={imei}
-                    readOnly={true}
                   />
                 </Form.Item>
               </div>
@@ -645,9 +620,7 @@ function EditProduct() {
                   name="categoryId"
                   label="Thể loại sản phẩm"
                   requiredMark="optional"
-                  initialValue={form.categoryProducts?.map(
-                    (item) => item.category.name
-                  )}
+                  initialValue={form.categoryProducts?.map((item) => item.category.id)}
                   rules={[
                     {
                       required: true,
@@ -1093,7 +1066,7 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn loại pin">
+                  <Select placeholder="Chọn hãng sản xuất" disabled={true}>
                     {manufacture?.map((item) => (
                       <Select.Option value={item.id}>{item.name}</Select.Option>
                     ))}
@@ -1153,24 +1126,21 @@ function EditProduct() {
                   <TextArea rows={4} />
                 </Form.Item>
               </div>
-              <div className="col-7">
-                <div className="row mt-5">
-                  <div className="col-6">
-                    <input
-                      className="form-control"
-                      type="file"
-                      onChange={(event) => {
-                        setImageUpload(event.target.files[0]);
-                      }}
-                    />
-                  </div>
-                  <div className="col-4">
-                    <Button onClick={uploadFile} className="mt-1">
+              <div className="col-7 mt-5">
+                <Space
+                  direction="vertical"
+                  style={{
+                    width: "100%",
+                  }}
+                  size="large"
+                >
+                  <Upload {...props} listType="picture" maxCount={5}>
+                    <Button icon={<UploadOutlined />}>
                       {" "}
-                      Upload Image
+                      Chọn hình ảnh (Tối đa: 5)
                     </Button>
-                  </div>
-                </div>
+                  </Upload>
+                </Space>
               </div>
               <div></div>
             </div>
@@ -1181,10 +1151,7 @@ function EditProduct() {
                 htmlType="submit"
                 style={{ width: "100px" }}
               >
-                Cập nhật
-              </Button>
-              <Button htmlType="button" className="ms-2" onClick={onReset}>
-                Làm mới
+                Tạo mới
               </Button>
             </Form.Item>
           </Form>
@@ -1193,4 +1160,4 @@ function EditProduct() {
     </div>
   );
 }
-export default EditProduct;
+export default CopyProduct;

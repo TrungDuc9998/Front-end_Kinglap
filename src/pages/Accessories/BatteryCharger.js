@@ -1,5 +1,15 @@
-import { Table, Form, Select, Input, Button, Modal, DatePicker, Radio, Space } from "antd";
-import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
+import {
+  Table,
+  Form,
+  Select,
+  Input,
+  Button,
+  Modal,
+  DatePicker,
+  Radio,
+  Space,
+} from "antd";
+import { DatePickerProps, RangePickerProps } from "antd/es/date-picker";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -8,19 +18,19 @@ import {
   ReloadOutlined,
   SearchOutlined,
   LockOutlined,
-  UnlockOutlined
+  UnlockOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 // import Product from "../Product/index";
 import moment from "moment";
 import axios from "axios";
-import 'toastr/build/toastr.min.css';
+import "toastr/build/toastr.min.css";
 import toastrs from "toastr";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Moment from 'react-moment';
-const url = 'http://localhost:8080/api';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Moment from "react-moment";
+const url = "http://localhost:8080/api";
 const { Option } = Select;
 
 const BatteryCharger = () => {
@@ -35,7 +45,7 @@ const BatteryCharger = () => {
       progress: undefined,
       theme: "light",
     });
-  }
+  };
   const notifyError = (message) => {
     toast.error(message, {
       position: "top-right",
@@ -47,33 +57,33 @@ const BatteryCharger = () => {
       progress: undefined,
       theme: "light",
     });
-  }
+  };
   const [formEdit] = Form.useForm();
   const [category, setCategory] = useState([]);
   const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
-  const [data, setData] = useState([{
-    id: "",
-    batteryType: "",
-    battery: "",
-    charger: "",
-   
-    categoryId: null,
-    active: "ACTIVE",
-  }]
-  );
+  const [data, setData] = useState([
+    {
+      id: "",
+      batteryType: "",
+      battery: "",
+      charger: "",
+
+      categoryId: null,
+      active: "ACTIVE",
+    },
+  ]);
   const [formDefault, setValuesDefault] = useState({
     id: "",
     batteryType: "",
     battery: "",
     charger: "",
-  
+
     categoryId: null,
     active: "ACTIVE",
-  }
-  );
+  });
   const [form, setValues] = useState({
     id: "",
     batteryType: "",
@@ -81,8 +91,7 @@ const BatteryCharger = () => {
     charger: "",
     categoryId: null,
     active: "ACTIVE",
-  }
-  );
+  });
 
   const [searchBatteryType, setSearchBatteryType] = useState();
   const [searchBattery, setSearchBattery] = useState();
@@ -102,7 +111,7 @@ const BatteryCharger = () => {
       pageSize: 10,
       searchBatteryType: "",
       searchBattery: "",
-      searchCharger: ""
+      searchCharger: "",
     },
   });
 
@@ -140,7 +149,7 @@ const BatteryCharger = () => {
       dataIndex: "status",
       width: "15%",
       render: (status) => {
-        if (status == 'ACTIVE') {
+        if (status == "ACTIVE") {
           return (
             <>
               <div
@@ -152,7 +161,7 @@ const BatteryCharger = () => {
             </>
           );
         }
-        if (status == 'INACTIVE') {
+        if (status == "INACTIVE") {
           return (
             <>
               <div
@@ -179,11 +188,13 @@ const BatteryCharger = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/admin/batteryCharger/close/${data.id}`, { method: "PUT" }).then(() => getData());
+                    `http://localhost:8080/api/admin/batteryCharger/close/${data.id}`,
+                    { method: "PUT" }
+                  ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
-                  }
-                  toast.success('Khóa thành công!', {
+                  };
+                  toast.success("Khóa thành công!", {
                     position: "top-right",
                     autoClose: 1000,
                     hideProgressBar: false,
@@ -204,11 +215,13 @@ const BatteryCharger = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/admin/batteryCharger/open/${data.id}`, { method: "PUT" }).then(() => getData());
+                    `http://localhost:8080/api/admin/batteryCharger/open/${data.id}`,
+                    { method: "PUT" }
+                  ).then(() => getData());
                   toastrs.options = {
-                    timeOut: 6000
-                  }
-                  toast.success('Mở khóa thành công!', {
+                    timeOut: 6000,
+                  };
+                  toast.success("Mở khóa thành công!", {
                     position: "top-right",
                     autoClose: 1000,
                     hideProgressBar: false,
@@ -222,19 +235,20 @@ const BatteryCharger = () => {
               />
             </>
           );
-        }
-        else if (data.status == "DRAFT") {
+        } else if (data.status == "DRAFT") {
           return (
             <>
               <UnlockOutlined
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/admin/batteryCharger/open/${data.id}`, { method: "PUT" }).then(() => getData());
+                    `http://localhost:8080/api/admin/batteryCharger/open/${data.id}`,
+                    { method: "PUT" }
+                  ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
-                  }
-                  toast.success('Khóa thành công!', {
+                  };
+                  toast.success("Khóa thành công!", {
                     position: "top-right",
                     autoClose: 1000,
                     hideProgressBar: false,
@@ -278,9 +292,13 @@ const BatteryCharger = () => {
   //APILoadList
   const getData = () => {
     setLoading(true);
-    axios.get(url + `/auth/batteryCharger?${qs.stringify(
-      getRandomuserParams(tableParams)
-    )}`)
+    axios
+      .get(
+        url +
+          `/auth/batteryCharger?${qs.stringify(
+            getRandomuserParams(tableParams)
+          )}`
+      )
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -290,7 +308,7 @@ const BatteryCharger = () => {
           pagination: {
             ...tableParams.pagination,
             total: totalSet,
-          }
+          },
         });
       });
   };
@@ -304,15 +322,15 @@ const BatteryCharger = () => {
   const handle = (e) => {
     setValues({
       ...form,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-  }
+  };
   const handleSelect = (e) => {
     setValues({
       ...form,
-      categoryId: e
+      categoryId: e,
     });
-  }
+  };
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -356,21 +374,26 @@ const BatteryCharger = () => {
 
   function submitAdd(e) {
     if (form.ratio < 0 || form.ratio > 100) {
-      notifyError('Tỉ lệ phải từ 0-100!');
+      notifyError("Tỉ lệ phải từ 0-100!");
     } else {
       e.preventDefault();
-      axios.post(url + "/staff/batteryCharger", form)
-        .then(res => {
-          notifySuccess('Thêm bản ghi thành công')
+      axios
+        .post(url + "/staff/batteryCharger", form)
+        .then((res) => {
+          if (res.status === 200) {
+            notifySuccess("Thêm bản ghi thành công");
+            setOpen(false);
+            getData();
+            setValues(formDefault);
+            console.log(res.data);
+          }
+
           // setAdd(false);
-          setOpen(false);
-          getData();
-          setValues(formDefault);
-          console.log(res.data);
-        }).catch((error) => {
-          notifyError('Yêu cầu nhập đủ các trường!');
-          return;
         })
+        .catch((error) => {
+          notifyError("Yêu cầu nhập đủ các trường!");
+          return;
+        });
     }
   }
 
@@ -383,13 +406,11 @@ const BatteryCharger = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-        .then((response) => getData())
-        .then((data) => {
-          console.log("Success:", data);
-          toastSuccess("Thêm mới thành công !");
-        })
-        .catch((error) => {
-          console.error("Error:", error);
+        .then((response) =>response.json())
+        .then((results) => {
+          if (results.status === 200) {
+            toastSuccess("Thêm mới thành công !");
+          }
         });
       setOpen(false);
     }
@@ -401,12 +422,12 @@ const BatteryCharger = () => {
       battery: data.battery,
       batteryType: data.batteryType,
       charger: data.charger,
-      status: data.status
-    }
+      status: data.status,
+    };
     if (isUpdate === false) {
       data.status = "ACTIVE";
       console.log(data.status);
-      fetch('http://localhost:8080/api/admin/batteryCharger/' + edit.id, {
+      fetch("http://localhost:8080/api/admin/batteryCharger/" + edit.id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(edit),
@@ -438,24 +459,24 @@ const BatteryCharger = () => {
   };
   function submitEdit(e) {
     if (form.ratio < 0 || form.ratio > 100) {
-      notifyError('Tỉ lệ phải từ 0-100!');
+      notifyError("Tỉ lệ phải từ 0-100!");
     } else {
       // e.preventDefault();
-      axios.put(url + "/admin/batteryCharger/" + form.id, form)
-        .then(res => {
-          notifySuccess('Sửa bản ghi thành công')
+      axios
+        .put(url + "/admin/batteryCharger/" + form.id, form)
+        .then((res) => {
+          notifySuccess("Sửa bản ghi thành công");
           getData();
           setEditing(false);
           setValues(formDefault);
           console.log(res.data);
-        }).catch((error) => {
-          notifyError('Yêu cầu nhập đủ các trường!');
-          return;
         })
+        .catch((error) => {
+          notifyError("Yêu cầu nhập đủ các trường!");
+          return;
+        });
     }
-
   }
-
 
   //Delete
   const onDelete = (id) => {
@@ -463,18 +484,22 @@ const BatteryCharger = () => {
       title: "Xoá giảm giá",
       content: "Bạn có muốn xoá bản ghi này không?",
       onOk() {
-        axios.delete(url + "/admin/batteryCharger/" + id)
-          .then(res => {
-            notifySuccess('Xóa bản ghi thành công!')
-            getData();
-            console.log(res.data);
-          }).catch((errorMessage) => {
-            notifyError('Xóa bản ghi không thành công!');
-            return;
+        axios
+          .delete(url + "/admin/batteryCharger/" + id)
+          .then((res) => {
+            if (res.status == 200) {
+              console.log(res);
+              notifySuccess("Xóa bản ghi thành công!");
+              getData();
+            }
           })
+          .catch((errorMessage) => {
+            notifyError("Xóa bản ghi không thành công!");
+            return;
+          });
       },
       onCancel() {
-        console.log('Cancel');
+        console.log("Cancel");
       },
     });
   };
@@ -487,35 +512,34 @@ const BatteryCharger = () => {
   };
   const search = () => {
     setTableParams(
-      tableParams.pagination.current = 1,
-      tableParams.pagination.pageSize = 10,
-      tableParams.pagination.searchBatteryType = searchBatteryType,
-      tableParams.pagination.searchBattery = searchBattery,
-      tableParams.pagination.searchCharger = searchCharger
+      (tableParams.pagination.current = 1),
+      (tableParams.pagination.pageSize = 10),
+      (tableParams.pagination.searchBatteryType = searchBatteryType),
+      (tableParams.pagination.searchBattery = searchBattery),
+      (tableParams.pagination.searchCharger = searchCharger)
     );
     getData();
-  }
+  };
 
   const clearSearchForm = () => {
-    setSearchBattery("")
-    setSearchBatteryType("")
-    setSearchCharger("")
+    setSearchBattery("");
+    setSearchBatteryType("");
+    setSearchCharger("");
     setTableParams({
       ...tableParams,
       pagination: {
-        ...tableParams.pagination.current = 1,
-        ...tableParams.pagination.pageSize = 10,
-        ...tableParams.pagination.searchBattery = "",
-        ...tableParams.pagination.searchBatteryType = "",
-        ...tableParams.pagination.searchCharger = ""
-      }
+        ...(tableParams.pagination.current = 1),
+        ...(tableParams.pagination.pageSize = 10),
+        ...(tableParams.pagination.searchBattery = ""),
+        ...(tableParams.pagination.searchBatteryType = ""),
+        ...(tableParams.pagination.searchCharger = ""),
+      },
     });
     getData();
-  }
+  };
 
   return (
     <div>
-      <ToastContainer />
       <div
         className="row"
         style={{
@@ -528,18 +552,27 @@ const BatteryCharger = () => {
         <div className="row">
           <div className="col-4 mt-4">
             <label>Loại pin</label>
-            <Input placeholder="Nhập loại pin" value={searchBatteryType}
-              onChange={(e) => setSearchBatteryType(e.target.value)} />
+            <Input
+              placeholder="Nhập loại pin"
+              value={searchBatteryType}
+              onChange={(e) => setSearchBatteryType(e.target.value)}
+            />
           </div>
           <div className="col-4 mt-4">
             <label>Dung lượng pin</label>
-            <Input placeholder="Nhập dung lượng pin" value={searchBattery}
-              onChange={(e) => setSearchBattery(e.target.value)} />
+            <Input
+              placeholder="Nhập dung lượng pin"
+              value={searchBattery}
+              onChange={(e) => setSearchBattery(e.target.value)}
+            />
           </div>
           <div className="col-4 mt-4">
             <label>Power supply</label>
-            <Input placeholder="Nhập power supply" value={searchCharger}
-              onChange={(e) => setSearchCharger(e.target.value)} />
+            <Input
+              placeholder="Nhập power supply"
+              value={searchCharger}
+              onChange={(e) => setSearchCharger(e.target.value)}
+            />
           </div>
         </div>
         <div className="col-12 mt-3 mb-2 text-center ">
@@ -561,7 +594,6 @@ const BatteryCharger = () => {
             <ReloadOutlined />
             Đặt lại
           </Button>
-
         </div>
       </div>
       <div className="row">
@@ -582,14 +614,13 @@ const BatteryCharger = () => {
                 display: "none",
               },
             }}
-           cancelText={"Đóng"}
+            cancelText={"Đóng"}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
             width={650}
           >
             <Form
-              initialValues={{
-              }}
+              initialValues={{}}
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 10 }}
@@ -676,7 +707,7 @@ const BatteryCharger = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            //rowKey={(record) => console.log('record',record)}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -684,7 +715,7 @@ const BatteryCharger = () => {
           />
           <Modal
             title="Cập nhật"
-            visible={isEditing}
+            open={isEditing}
             onCancel={handleCancel}
             okButtonProps={{
               style: {
@@ -767,7 +798,6 @@ const BatteryCharger = () => {
                 </div>
               </Form.Item>
             </Form>
-
           </Modal>
         </div>
       </div>

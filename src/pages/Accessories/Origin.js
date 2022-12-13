@@ -6,14 +6,14 @@ import {
   ReloadOutlined,
   SearchOutlined,
   UnlockOutlined,
-  LockOutlined
+  LockOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 import toastrs from "toastr";
-import { ToastContainer, toast } from "react-toastify";
-import Moment from 'react-moment';
-import "./Origin.css"
+import {toast } from "react-toastify";
+import Moment from "react-moment";
+import "./Origin.css";
 const { Option } = Select;
 
 const getRandomuserParams = (params) => ({
@@ -22,19 +22,6 @@ const getRandomuserParams = (params) => ({
   searchName: params.pagination?.search1,
   searchStatus: params.pagination?.search2,
 });
-
-const toastSuccess = (message) => {
-  toast.success(message, {
-    position: "top-right",
-    autoClose: 3000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "light",
-  });
-};
 
 const Origin = () => {
   const [data, setData] = useState();
@@ -46,7 +33,6 @@ const Origin = () => {
   const [isDelete, setDelete] = useState(false);
   const [searchName, setSearchName] = useState();
   const [searchStatus, setSearchStatus] = useState();
-
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -55,6 +41,19 @@ const Origin = () => {
       search2: "",
     },
   });
+
+  const toastSuccessOrigin = (message) => {
+    toast.success(message, {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
 
   const columns = [
     {
@@ -71,11 +70,7 @@ const Origin = () => {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       render(createdAt) {
-        return (
-          <Moment format="DD-MM-YYYY">
-            {createdAt}
-          </Moment>
-        );
+        return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
       },
       width: "20%",
     },
@@ -83,11 +78,7 @@ const Origin = () => {
       title: "Ngày cập nhật",
       dataIndex: "updatedAt",
       render(updatedAt) {
-        return (
-          <Moment format="DD-MM-YYYY">
-            {updatedAt}
-          </Moment>
-        );
+        return <Moment format="DD-MM-YYYY">{updatedAt}</Moment>;
       },
       width: "20%",
     },
@@ -160,12 +151,12 @@ const Origin = () => {
             <>
               <UnlockOutlined
                 onClick={() => {
-                  setLoading(true);
+                  // setLoading(true);
                   fetch(
                     `http://localhost:8080/api/admin/origin/${data.id}/inactive`,
                     { method: "PUT" }
                   ).then(() => fetchData());
-                  toastSuccess("Khoá thành công !");
+                  toastSuccessOrigin("Khoá thành công !");
                 }}
               />
               <EditOutlined
@@ -181,12 +172,11 @@ const Origin = () => {
             <>
               <LockOutlined
                 onClick={() => {
-                  setLoading(true);
                   fetch(
                     `http://localhost:8080/api/admin/origin/${data.id}/active`,
                     { method: "PUT" }
                   ).then(() => fetchData());
-                  toastSuccess("Mở khóa thành công!");
+                  toastSuccessOrigin("Mở khóa thành công!");
                 }}
               />
               <EditOutlined
@@ -203,7 +193,6 @@ const Origin = () => {
   ];
 
   const fetchData = () => {
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -212,7 +201,6 @@ const Origin = () => {
       .then((res) => res.json())
       .then((results) => {
         setData(results.data.data);
-        setLoading(false);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -225,7 +213,7 @@ const Origin = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [loading,data != undefined]);
 
   const onDelete = (id) => {
     console.log(id);
@@ -244,7 +232,6 @@ const Origin = () => {
     tableParams.pagination = pagination;
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -253,7 +240,6 @@ const Origin = () => {
       .then((res) => res.json())
       .then((results) => {
         setData(results.data.data);
-        setLoading(false);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -270,7 +256,6 @@ const Origin = () => {
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.current = 1;
-    setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -279,7 +264,6 @@ const Origin = () => {
       .then((res) => res.json())
       .then((results) => {
         setData(results.data.data);
-        setLoading(false);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -323,15 +307,17 @@ const Origin = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-        .then((response) => fetchData())
-        .then((data) => {
-          console.log("Success:", data);
-          toastSuccess("Thêm mới thành công!");
-        })
-        .catch((error) => {
-          console.error("Error:", error);
+        .then((response) => response.json())
+        .then((results) => {
+          console.log(results);
+          if (results.status === 200) {
+            console.log('status 200')
+            toastSuccessOrigin("Thêm mới xuất xứ thành công!");
+            setOpen(false);
+            fetchData();
+          }
         });
-      setOpen(false);
+   
     }
   };
 
@@ -340,20 +326,20 @@ const Origin = () => {
     const edit = {
       id: dataEdit.id,
       name: data.name,
-      status: dataEdit.status
-    }
+      status: dataEdit.status,
+    };
     if (isUpdate === false) {
       data.status = "ACTIVE";
       console.log(data);
       fetch(`http://localhost:8080/api/admin/origin/` + edit.id, {
         method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(edit)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(edit),
       })
         .then((response) => fetchData())
         .then((data) => {
           console.log("Success:", data);
-          toastSuccess("Cập nhật thành công!");
+          toastSuccessOrigin("Cập nhật thành công!");
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -374,7 +360,7 @@ const Origin = () => {
 
   return (
     <div>
-      <ToastContainer></ToastContainer>
+      {/* <ToastContainer></ToastContainer> */}
       <div
         className="row"
         style={{
@@ -422,7 +408,8 @@ const Origin = () => {
             onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
-            <ReloadOutlined />Đặt lại
+            <ReloadOutlined />
+            Đặt lại
           </Button>
           <Button
             className="mx-2  mt-2"
@@ -430,7 +417,8 @@ const Origin = () => {
             onClick={search}
             style={{ borderRadius: "10px" }}
           >
-            <SearchOutlined />Tìm kiếm
+            <SearchOutlined />
+            Tìm kiếm
           </Button>
         </div>
       </div>
@@ -455,11 +443,10 @@ const Origin = () => {
                 display: "none",
               },
             }}
-           cancelText={"Đóng"}
+            cancelText={"Đóng"}
           >
             <Form
-              initialValues={{
-              }}
+              initialValues={{}}
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 10 }}
@@ -488,7 +475,12 @@ const Origin = () => {
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" className="create" htmlType="submit">
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                    >
                       Tạo mới
                     </Button>
                   </div>
@@ -528,7 +520,7 @@ const Origin = () => {
                 display: "none",
               },
             }}
-           cancelText={"Đóng"}
+            cancelText={"Đóng"}
           >
             <Form
               form={formEdit}
@@ -542,7 +534,8 @@ const Origin = () => {
               }}
               onFinishFailed={(error) => {
                 console.log({ error });
-              }}>
+              }}
+            >
               <Form.Item
                 name="name"
                 label="Tên nước"
@@ -560,7 +553,12 @@ const Origin = () => {
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" className="create" htmlType="submit">
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                    >
                       Cập nhật
                     </Button>
                   </div>
@@ -570,19 +568,20 @@ const Origin = () => {
           </Modal>
           <Modal
             title="Xóa danh mục"
-            visible={isDelete}
+            open={isDelete}
             onCancel={() => {
               setDelete(false);
             }}
             onOk={() => {
-              fetch(
-                `http://localhost:8080/api/admin/origin/${id}`, { method: 'DELETE' }).then(() => fetchData());
+              fetch(`http://localhost:8080/api/admin/origin/${id}`, {
+                method: "DELETE",
+              }).then(() => fetchData());
               setDelete(false);
               toastrs.options = {
-                timeOut: 6000
-              }
+                timeOut: 6000,
+              };
               toastrs.clear();
-              toast.success('Xóa danh mục thành công!', {
+              toast.success("Xóa danh mục thành công!", {
                 position: "top-right",
                 autoClose: 1000,
                 hideProgressBar: false,
