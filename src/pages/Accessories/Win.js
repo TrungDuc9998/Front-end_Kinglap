@@ -327,7 +327,7 @@ const Screen = () => {
     }
       axios.post(url+"/staff/wins", form)
         .then(res => {
-          notifySuccess('Thêm bản ghi thành công')
+          notifySuccess('Thêm mới hệ điều hàng thành công')
           // setAdd(false);
           setOpen(false);
           getData();
@@ -426,7 +426,6 @@ const Screen = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div
         className="row"
         style={{
@@ -560,13 +559,14 @@ const Screen = () => {
           <Table
             columns={columns}
             dataSource={data}
+            rowKey={(record) => record.id}
             pagination={tableParams.pagination}
             loading={loading}
             onChange={handleTableChange}
           />
           <Modal
             title="Cập nhật"
-            visible={isEditing}
+            open={isEditing}
             onCancel={handleCancel}
             onOk={(e) => {
               handleEdit(e);

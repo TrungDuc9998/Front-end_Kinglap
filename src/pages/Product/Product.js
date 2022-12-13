@@ -1,19 +1,31 @@
 import {
+  CopyOutlined,
   DeleteOutlined,
-  EditOutlined, LockOutlined,
+  EditOutlined,
+  LockOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  UnlockOutlined
+  UnlockOutlined,
 } from "@ant-design/icons";
-import { Button, Input, Modal, Select, Table, Image, List, Avatar, DatePicker } from "antd";
-import VirtualList from 'rc-virtual-list';
+import {
+  Button,
+  Input,
+  Modal,
+  Select,
+  Table,
+  Image,
+  List,
+  Avatar,
+  DatePicker,
+} from "antd";
+import VirtualList from "rc-virtual-list";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import 'toastr/build/toastr.min.css';
+import "toastr/build/toastr.min.css";
 import toastrs from "toastr";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import CurrencyFormat from "react-currency-format";
 import CreateProduct from "./CreateProduct";
@@ -38,10 +50,10 @@ const Product = () => {
     pagination: {
       current: 1,
       pageSize: 10,
-      search1: '',
-      search2: '',
-      search3: '',
-      search4: '',
+      search1: "",
+      search2: "",
+      search3: "",
+      search4: "",
     },
   });
   const notifySuccess = (message) => {
@@ -55,7 +67,7 @@ const Product = () => {
       progress: undefined,
       theme: "light",
     });
-  }
+  };
   const notifyError = (message) => {
     toast.error(message, {
       position: "top-right",
@@ -67,8 +79,7 @@ const Product = () => {
       progress: undefined,
       theme: "light",
     });
-  }
-
+  };
 
   var i = 0;
 
@@ -79,126 +90,71 @@ const Product = () => {
   };
 
   const columns = [
-    // {
-    //     title: "Ảnh",
-    //     dataIndex: "images",
-    //     key: 'images',
-    //     width: "20%",
-    //     render: (_,{images}) => (
-    //         <List>
-    //         <VirtualList
-    //           data={images}
-    //           height={200}
-    //           itemHeight={150}
-    //           itemKey="id"
-    //           onScroll={onScroll}
-    //         >
-    //           {(item) => (
-    //             <List.Item key={item.id}>
-    //               <List.Item.Meta
-    //                 avatar={
-    //                     <Image.PreviewGroup>
-    //                         <Image src={item.name}>
-    //                         </Image>
-    //                         {/* <Avatar shape="square" size={200} src={item.name} /> */}
-
-    //                     </Image.PreviewGroup>
-    //                 }
-    //               />
-    //             </List.Item>
-    //           )}
-    //         </VirtualList>
-    //       </List>
-    //     ) 
-    // }, 
+    {
+      title: "Hình ảnh",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "7%",
+      render: (id, data) => {
+        return (
+          <>
+            <Image width={100} src={data?.images[0]?.name} />
+          </>
+        );
+      },
+    },
     {
       title: "Tên sản phẩm",
       width: "30%",
-      render: (data) => `${data.name} ( ${data.manufacture.name})`
-    },
-    {
-      title: "Imei",
-      dataIndex: "imei",
-      width: "15%",
+      render: (data) => `${data.name} (${data.debut})`,
     },
     {
       title: "Xuất xứ",
       dataIndex: "origin",
       width: "10%",
-      render: (origin) => `${origin.name}`
+      render: (origin) => `${origin.name}`,
     },
     {
       title: "Giá tiền",
       dataIndex: "price",
       width: "10%",
-      render: (price) =>
+      render: (price) => (
         <>
-          <CurrencyFormat
-            style={{ fontSize: "14px" }}
-            value={price}
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          {price.toLocaleString("it-IT", {
+            style: "currency",
+            currency: "VND",
+          })}
         </>
+      ),
     },
     {
       title: "Số lượng",
       dataIndex: "quantity",
       width: "10%",
     },
-    // {
-    //   title: "Ngày phát hành",
-    //   dataIndex: "debut",
-    //   width: "10%",
-    // },
-    // {
-    //   title: "Kích cỡ",
-    //   dataIndex: "size",
-    //   width: "10%",
-    // },
-    // {
-    //   title: "Cân nặng",
-    //   dataIndex: "weight",
-    //   width: "10%",
-    // },
-    // {
-    //   title: "Cao",
-    //   dataIndex: "height",
-    //   width: "10%",
-    // },
-    // {
-    //   title: "Chiều dài",
-    //   dataIndex: "length",
-    //   width: "10%",
-    // },
-    // {
-    //   title: "Chiều rộng",
-    //   dataIndex: "width",
-    //   width: "10%",
-    // },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      width: "5%",
+      width: "9%",
       render: (status) => {
-        if (status == 'ACTIVE') {
+        if (status == "ACTIVE") {
           return (
             <>
               <div
                 className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "120px", borderRadius: "5px", padding: "3px" }}
               >
                 Hoạt động
               </div>
             </>
           );
         }
-        if (status == 'INACTIVE') {
+        if (status == "INACTIVE") {
           return (
             <>
               <div
                 className="bg-danger text-center text-light"
-                style={{ width: "100px", borderRadius: "5px" }}
+                style={{ width: "120px", borderRadius: "5px", padding: "3px" }}
               >
                 Không hoạt động
               </div>
@@ -211,7 +167,7 @@ const Product = () => {
       title: "Kích hoạt",
       dataIndex: "id",
       dataIndex: "data",
-      width: "10%",
+      width: "7%",
       render: (id, data) => {
         if (data.status == "ACTIVE") {
           return (
@@ -220,10 +176,12 @@ const Product = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/products/inactive/${data.id}`, { method: "PUT" }).then(() => load());
+                    `http://localhost:8080/api/products/inactive/${data.id}`,
+                    { method: "PUT" }
+                  ).then(() => load());
                   toastrs.options = {
                     timeOut: 6000,
-                  }
+                  };
                   notifySuccess("Khóa thành công!");
                 }}
               />
@@ -236,10 +194,12 @@ const Product = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/products/active/${data.id}`, { method: "PUT" }).then(() => load());
+                    `http://localhost:8080/api/products/active/${data.id}`,
+                    { method: "PUT" }
+                  ).then(() => load());
                   toastrs.options = {
-                    timeOut: 6000
-                  }
+                    timeOut: 6000,
+                  };
                   notifySuccess("Mở khóa thành công!");
                 }}
               />
@@ -252,29 +212,44 @@ const Product = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "15%",
+      width: "10%",
       render: (id, data) => {
         return (
           <>
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
-                //onEdit(data.id, data.username, data.status);
-                navigate('/admin/product/edit')
-                console.log("data", data);
-                localStorage.setItem("productEdit", JSON.stringify(data));
-                // <CreateProduct/>
+                getProductById(data.id, 1);
               }}
             />
-            <DeleteOutlined
+            {/* <DeleteOutlined
               onClick={() => onDelete(data.id)}
               style={{ color: "red", marginLeft: 12 }}
+            /> */}
+            <CopyOutlined
+              style={{ color: "red", marginLeft: 12, fontSize: "20px" }}
+              onClick={() => {
+                getProductById(data.id, 2);
+              }}
             />
           </>
         );
-      }
+      },
     },
   ];
+
+  const getProductById = (id, check) => {
+    fetch(`http://localhost:8080/api/products/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        localStorage.setItem("productEdit", JSON.stringify(res));
+        if (check === 2) {
+          navigate(`/admin/product/copy/${res.id}`);
+        } else {
+          navigate(`/admin/product/edit/${res.id}`);
+        }
+      });
+  };
 
   const load = () => {
     setLoading(true);
@@ -328,7 +303,6 @@ const Product = () => {
       });
   };
 
-
   const onSearch = (value) => {
     console.log("search:", value);
   };
@@ -364,17 +338,17 @@ const Product = () => {
             current: results.data.current_page,
             pageSize: 10,
             total: results.data.total,
-          }
-        })
+          },
+        });
       });
-  }
+  };
 
   const clearSearchForm = () => {
     searchProductKey("");
     searchStatus("");
     searchImei("");
     searchPrice("");
-  }
+  };
 
   const showModal = () => {
     setOpen(true);
@@ -427,17 +401,30 @@ const Product = () => {
         <div className="row">
           <div className="col-3 mt-1">
             <label>Tìm kiếm theo từ khóa</label>
-            <Input type="text" name="searchProductKey" value={searchProductKey} placeholder="Nhập từ khóa" onChange={changeSearchProductKey} />
+            <Input
+              type="text"
+              name="searchProductKey"
+              value={searchProductKey}
+              placeholder="Nhập từ khóa"
+              onChange={changeSearchProductKey}
+            />
           </div>
           <div className="col-3 mt-1">
             <label>Imei</label>
             <br />
-            <Input type="text" name="searchImei" value={searchImei} placeholder="Nhập imei" onChange={changeSearchImei} />
+            <Input
+              type="text"
+              name="searchImei"
+              value={searchImei}
+              placeholder="Nhập imei"
+              onChange={changeSearchImei}
+            />
           </div>
           <div className="col-3 mt-1">
             <label>Trạng thái</label>
             <br />
-            <Select allowClear={true}
+            <Select
+              allowClear={true}
               style={{ width: "400px", borderRadius: "5px" }}
               showSearch
               placeholder="Chọn trạng thái"
@@ -455,7 +442,8 @@ const Product = () => {
           <div className="col-3 mt-1">
             <label>Mức giá</label>
             <br />
-            <Select allowClear={true}
+            <Select
+              allowClear={true}
               style={{ width: "400px", borderRadius: "5px" }}
               showSearch
               placeholder="Chọn mức giá"
@@ -501,14 +489,13 @@ const Product = () => {
             className="offset-11 "
             type="primary"
             onClick={() => {
-              navigate('/admin/product/create')
+              navigate("/admin/product/create");
             }}
             style={{ borderRadius: "10px" }}
           >
             <PlusOutlined />
             Thêm mới
           </Button>
-
         </div>
       </div>
 
@@ -537,12 +524,13 @@ const Product = () => {
               setDelete(false);
             }}
             onOk={() => {
-              fetch(
-                `http://localhost:8080/api/users/${id}`, { method: 'DELETE' }).then(() => load());
+              fetch(`http://localhost:8080/api/users/${id}`, {
+                method: "DELETE",
+              }).then(() => load());
               setDelete(false);
               toastrs.options = {
-                timeOut: 6000
-              }
+                timeOut: 6000,
+              };
               toastrs.clear();
               notifySuccess("Xóa thành công!");
             }}

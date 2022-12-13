@@ -1,24 +1,10 @@
-import {
-  Select,
-  Input,
-  Button,
-  InputNumber,
-  Space,
-  Image,
-  AutoComplete,
-} from "antd";
+import { Select, Input, Button, InputNumber, Image, AutoComplete } from "antd";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import qs from "qs";
 import "../Order/table.css";
-import { Table, Modal } from "antd";
-import {
-  DeleteOutlined,
-  MenuFoldOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { Modal } from "antd";
+import { DeleteOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
-import CurrencyFormat from "react-currency-format";
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -32,7 +18,7 @@ const getRandomuserParams = (params) => ({
 const toastSuccess = (message) => {
   toast.success(message, {
     position: "top-right",
-    autoClose: 5000,
+    autoClose: 2000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
@@ -55,23 +41,23 @@ const toastError = (message) => {
   });
 };
 
-function Table1() {
+function CreateOrderAdmin() {
   const [value, setValue] = useState("");
   const [users, setUsers] = useState();
   const [getFullName, setFullNameClient] = useState();
   const [valueUser, setValueUser] = useState("");
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [password1, setPassword1] = useState();
-  const [password2, setPassword2] = useState();
-  const [fullName, setFullName] = useState();
-  const [email, setEmail] = useState();
+  const [password1, setPassword1] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [phoneClient, setPhoneClient] = useState();
   const [phoneNumber, setPhoneNumber] = useState();
   const [address, setAddRess] = useState();
   const [fullNameForm, setFullNameForm] = useState();
   const [phoneNumberForm, setPhoneNumberForm] = useState();
   const [addressForm, setAddRessForm] = useState();
-  const [username, setUsername] = useState();
+  const [username, setUsername] = useState("");
   const [open, setOpen] = useState(false);
   const [addressDetail, setAddressDetail] = useState();
   const [quantity, setQuantity] = useState();
@@ -117,6 +103,15 @@ function Table1() {
       search2: "",
     },
   });
+  const [tableParamPro, setTableParamPro] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "",
+      searchStatus: "ACTIVE",
+    },
+  });
   const [tableParamDiscount, setTableParamDiscount] = useState({
     pagination: {
       current: 1,
@@ -156,15 +151,17 @@ function Table1() {
       .then((res) => res.json())
       .then((results) => {
         console.log(results);
-        setUsers(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
+        if (results.status === 200) {
+          setUsers(results.data.data);
+          setLoading(false);
+          setTableParams({
+            pagination: {
+              current: results.data.current_page,
+              pageSize: 10,
+              total: results.data.total,
+            },
+          });
+        }
       });
   };
 
@@ -221,8 +218,7 @@ function Table1() {
   };
 
   const handleSubmitOrder = () => {
-    console.log(fullNameForm);
-    console.log(dataCart.length);
+    console.log("length phone: ", phoneClient.length);
     if (dataCart === undefined || dataCart.length === 0) {
       toastError("Vui lòng thêm sản phẩm vào giỏ hàng");
     } else if (
@@ -263,32 +259,39 @@ function Table1() {
       });
       console.log(shipping);
 
-      try {
-        fetch("http://localhost:8080/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            payment: order.payment,
-            userId: order.userId | null,
-            total: Number(order.total) + Number(shipping),
-            address: order.address,
-            note: "",
-            customerName:
-              order.customerName == "" ? fullNameForm : order.customerName,
-            phone: order.phone,
-            status: "CHO_XAC_NHAN",
-            money: 0,
-            orderDetails: orderDetails,
-          }),
-        }).then((res) => {
-          console.log(orderDetails);
-          console.log(res.data);
-        });
-        // debugger
-        console.log(order);
-        toastSuccess("Thêm hoá đơn thành công");
-      } catch (err) {
-        toastError("Thêm hoá đơn thất bại");
+      if (phoneClient.length != 10) {
+        toastError("Số điện thoại không đúng định dạng !");
+      } else {
+        try {
+          fetch("http://localhost:8080/api/orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              payment: order.payment,
+              userId: order.userId | null,
+              total: Number(order.total) + Number(shipping),
+              address: order.address,
+              note: "",
+              customerName:
+                order.customerName == "" ? fullNameForm : order.customerName,
+              phone: order.phone,
+              status: "CHO_XAC_NHAN",
+              money: 0,
+              orderDetails: orderDetails,
+            }),
+          })
+            .then((res) => res.json())
+            .then((results) => {
+              if (results.status === 200) {
+                toastSuccess("Thêm hoá đơn thành công");
+                resetInputField();
+              } else {
+                toastError("Thêm hoá đơn thất bại");
+              }
+            });
+        } catch (err) {
+          toastError("Thêm hoá đơn thất bại");
+        }
       }
     }
   };
@@ -308,8 +311,6 @@ function Table1() {
         total: cart.total,
       }),
     }).then((res) => {
-      console.log("load data cart:");
-      console.log(res.data);
       loadDataCart();
     });
   };
@@ -374,25 +375,11 @@ function Table1() {
     }
   };
 
-  const onChangeDiscount = (value) => {
-    console.log("DATA Discount: " + value);
-    // setProvinceID(value);
-    // loadDataDistrict(value);
-  };
-  const onSearchDisCount = (value) => {
-    console.log("discount Id khi onClick: " + value);
-    // if (value.target.innerText !== "") {
-    //   setValueProvince(value.target.innerText);
-    //   loadDataDistrict();
-    // }
-  };
 
   const onChangeDistricts = (value) => {
     if (value != null) {
       setIsDisabled(false);
     }
-    console.log("value district onchange");
-    console.log(value);
     setDistrictId(value);
     loadDataWard(value);
   };
@@ -466,7 +453,7 @@ function Table1() {
   };
 
   const loadDataDistrict = (value) => {
-    console.log('provent id,', value);
+    console.log("provent id,", value);
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
       {
@@ -490,25 +477,25 @@ function Table1() {
       .then((result) => {
         let dataDis = [];
 
-        if(value === 201) {
-          result.data.splice(0,1);
-          result.data.splice(0,1);
+        if (value === 201) {
+          result.data.splice(0, 1);
+          result.data.splice(0, 1);
           dataDis = result.data;
           setDistrict(dataDis);
-        }if(value === 202){
-          result.data.splice(1,1);
-          result.data.splice(1,1);
-          result.data.splice(2,1);
+        }
+        if (value === 202) {
+          result.data.splice(1, 1);
+          result.data.splice(1, 1);
+          result.data.splice(2, 1);
           dataDis = result.data;
           setDistrict(dataDis);
-        }if(value === 268) {
-         result.data.splice(0,1);
+        }
+        if (value === 268) {
+          result.data.splice(0, 1);
           dataDis = result.data;
           setDistrict(dataDis);
           console.log(dataDis);
-         
-        }
-        else {
+        } else {
           setDistrict(result.data);
         }
       })
@@ -750,15 +737,16 @@ function Table1() {
   const loadDataProduct = () => {
     fetch(
       `http://localhost:8080/api/products?${qs.stringify(
-        getRandomuserParams(tableParams)
+        getRandomuserParams(tableParamPro)
       )}`
     )
       .then((res) => res.json())
       .then((results) => {
         const dataResult = [];
         results.data.data.forEach((item) => {
+          console.log(item.name);
           dataResult.push(
-            renderItem(item.id, item.name, item?.images[0].name, item.price)
+            renderItem(item.id, item.name, item?.images[0]?.name, item.price)
           );
           setData(dataResult);
         });
@@ -767,14 +755,11 @@ function Table1() {
 
   const onSearchUser = (searchItem) => {
     setValueUser(searchItem);
-   
   };
   const onChangeUser = (event) => {
     setValueUser(event.target.value);
-
   };
   const onSearchAndFillUser = (item) => {
- 
     if (item != null) {
       setFullNameClient(item.fullName);
     }
@@ -803,7 +788,6 @@ function Table1() {
   });
 
   const onSelectAuto = (value) => {
-    console.log("data on select auto", data);
     setValueProduct(value);
     let isUpdate = false;
     if (value !== undefined) {
@@ -820,7 +804,6 @@ function Table1() {
       data
         ?.filter((item) => item.value === value)
         .map((product) => {
-        
           priceProduct = product.price;
         });
       if (isUpdate === false) {
@@ -832,41 +815,14 @@ function Table1() {
     }
   };
 
-  const [options, setOptions] = useState([]);
-  const handleSearch = (value) => {
-    setData(value ? searchResult(value) : []);
+
+  const resetInputField = () => {
+    setPhoneNumberForm("");
+    loadDataProvince();
+    loadDataDistrict();
+    loadDataWard();
+    setFullNameForm("");
   };
-
-  const searchResult = (query) =>
-    new Array(data)
-      .join(".")
-      .split(".")
-      .map((_, idx) => {
-        const category = `${query}`;
-        return {
-          value: category,
-          label: (
-            <div
-              style={{
-                display: "flex",
-                // justifyContent: 'space-between',
-              }}
-            >
-              <span>
-                {query}
-                <a
-                  href={`http://localhost:8080/api/products?q=${query}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {category}
-                </a>
-              </span>
-            </div>
-          ),
-        };
-      });
-
   return (
     <div>
       <div className="row">
@@ -906,7 +862,6 @@ function Table1() {
               </div>
             </div>
           </div>
-          {/* <button type="submit">Thêm sản phẩm</button> */}
         </div>
         <div className="col-5">
           <div className="title">
@@ -1054,7 +1009,7 @@ function Table1() {
               <div className="form-group">
                 <label>Thông tin người bán</label>
                 <Input
-                  readOnly="true"
+                  readOnly={true}
                   value={userNameLogin}
                   placeholder="Hà Trung Kiên"
                 />
@@ -1063,30 +1018,10 @@ function Table1() {
             <div className="col-6">
               <div className="form-group">
                 <label>Số điện thoại khách hàng</label>
-                {/* <Select
-                  style={{
-                    width: "100%",
-                  }}
-                  showSearch
-                  placeholder="Số điện thoại khách hàng"
-                  optionFilterProp="children"
-                  onChange={onChangePhoneNumber}
-                  onClick={onSearchPhoneNumber}
-                  filterOption={(input, option) =>
-                    option.children.includes(input.toLowerCase())
-                  }
-                >
-                  {data != undefined
-                    ? users.map((item, index) => (
-                        <Option key={index} value={item.id}>
-                          {item.phoneNumber}{" "}
-                        </Option>
-                      ))
-                    : ""}
-                </Select> */}
                 <Input
                   onChange={(e) => setPhoneClient(e.target.value)}
                   value={phoneNumberForm}
+                  type="number"
                 />
               </div>
             </div>
@@ -1097,6 +1032,7 @@ function Table1() {
                 <label>Phương thức mua hàng</label>
                 <br />
                 <Select
+                  combobox="true"
                   placeholder="Hình thức mua hàng"
                   style={{
                     width: 240,
@@ -1112,37 +1048,13 @@ function Table1() {
                 </Select>
               </div>
             </div>
-            {/* <div className="col-6">
-              <div className="form-group">
-                <label>Khuyến mãi</label>
-                <Select
-                  // disabled={disableCountry}
-                  showSearch
-                  placeholder="Chọn dịch vụ"
-                  optionFilterProp="children"
-                  style={{
-                    width: 240,
-                  }}
-                  onChange={onChangeDiscount}
-                  onClick={onSearchDisCount}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                >
-                  {discounts?.map((item) => (
-                    <Option key={item.id} value={item.name}>
-                      {item.name} - {item.ratio}%
-                    </Option>
-                  ))}
-                </Select>
-              </div>
-            </div> */}
           </div>
           <div className="row mt-3">
             <div className="col-6">
               <label>Tỉnh/ Thành Phố</label>
               <Select
-                disabled={disableCountry}
+                combobox="true"
+                disabled={disableCountry || dataCart?.length === 0}
                 showSearch
                 placeholder="Tỉnh/thành phố"
                 optionFilterProp="children"
@@ -1165,8 +1077,9 @@ function Table1() {
                 <div className="search-inner">
                   <label>Tên quận huyện</label>
                   <Select
+                    combobox="true"
                     showSearch
-                    disabled={disableCountry}
+                    disabled={disableCountry || dataCart?.length === 0}
                     placeholder="Quận/huyện"
                     optionFilterProp="children"
                     style={{
@@ -1180,8 +1093,8 @@ function Table1() {
                         .includes(input.toLowerCase())
                     }
                   >
-                    {district.map((item) => (
-                      <Option key={item.DistrictID} value={item.DistrictID}>
+                    {district?.map((item) => (
+                      <Option key={item.DistrictID } value={item.DistrictID}>
                         {item.DistrictName}
                       </Option>
                     ))}
@@ -1192,6 +1105,7 @@ function Table1() {
                 <div className="search-inner">
                   <label>Tên phường xã</label>
                   <Select
+                    combobox="true"
                     showSearch
                     placeholder="Phường/xã"
                     optionFilterProp="children"
@@ -1200,7 +1114,7 @@ function Table1() {
                     }}
                     onChange={onChangeWards}
                     onClick={onSearchWards}
-                    disabled={disableCountry}
+                    disabled={disableCountry || dataCart?.length === 0}
                     filterOption={(input, option) =>
                       option.children
                         .toLowerCase()
@@ -1229,28 +1143,10 @@ function Table1() {
             </div>
           </div>
           <div className="row mt-3">
-            {/* <div className="col-6">
-              <label>Hình thức thanh toán</label>
-              <Select
-                placeholder="Hình thức thanh toán"
-                style={{
-                  width: 240,
-                }}
-                onChange={handleChangePayment2}
-              >
-                <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">
-                  Tại cửa hàng
-                </Option>
-                <Option key={"TÀI KHOẢN VN PAY"} value="TÀI KHOẢN VN PAY">
-                  Tài khoản VN PAY
-                </Option>
-              </Select>
-            </div> */}
             <div className="col-6">
               <div className="form-group">
                 <label>Tổng tiền</label>
                 <br />
-                {/* <Space direction="vertical"> */}
                 <Input
                   className="text-danger fw-bold"
                   style={{
@@ -1262,16 +1158,13 @@ function Table1() {
                     currency: "VND",
                   })}
                   onChange={(e) => setTotal(e.target.value)}
-                  // addonAfter={"VNĐ"}
                   defaultValue={0}
                 />
-                {/* </Space> */}
               </div>
             </div>
             <div className="col-6">
               <div className="form-group">
                 <label>Phí ship</label>
-                {/* <Space direction="vertical"> */}
                 <Input
                   style={{
                     width: 240,
@@ -1284,7 +1177,6 @@ function Table1() {
                   })}
                   defaultValue={0}
                 />
-                {/* </Space> */}
               </div>
             </div>
           </div>
@@ -1338,7 +1230,6 @@ function Table1() {
                         </td>
                         <td key={item.product.id}>
                           <InputNumber
-                            // disabled={isDisabled}
                             onChange={(event) =>
                               onChangeInputNumber(
                                 event,
@@ -1355,12 +1246,6 @@ function Table1() {
                             max={item.product.quantity}
                           />
                         </td>
-                        {/* <td>
-                          {item.total.toLocaleString("it-IT", {
-                            style: "currency",
-                            currency: "VND",
-                          })}
-                        </td> */}
                         <td>
                           <DeleteOutlined
                             onClick={() => onDelete(item.id)}
@@ -1372,14 +1257,6 @@ function Table1() {
                   })}
                 </tbody>
               </table>
-              {/* <Table
-                columns={columns}
-                rowKey={(record) => record++}
-                dataSource={dataCart}
-                pagination={tableParams.pagination}
-                loading={loading}
-                onChange={handleTableChange}
-              /> */}
               <Modal
                 title="Xóa sản phẩm "
                 open={isDelete}
@@ -1391,7 +1268,6 @@ function Table1() {
                     method: "DELETE",
                   }).then(() => loadDataCart());
                   setDelete(false);
-                  // toastSuccess("Xóa sản phẩm thành công!");
                 }}
               >
                 Bạn muốn xoá sản phẩm khỏi giỏ hàng không ?
@@ -1408,6 +1284,7 @@ function Table1() {
             >
               Hoàn tất đặt hàng
             </Button>
+            
           </div>
         </div>
       </div>
@@ -1415,4 +1292,4 @@ function Table1() {
   );
 }
 
-export default Table1;
+export default CreateOrderAdmin;

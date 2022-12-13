@@ -5,13 +5,8 @@ import {
   Input,
   Button,
   Modal,
-  DatePicker,
-  Radio,
-  Space,
   Form,
-  InputNumber,
 } from "antd";
-import { DatePickerProps, RangePickerProps } from "antd/es/date-picker";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -420,7 +415,7 @@ const Screen = () => {
     axios
       .post(url + "/staff/screens", form)
       .then((res) => {
-        notifySuccess("Thêm bản ghi thành công");
+        notifySuccess("Thêm bản ghi màn hình thành công");
         // setAdd(false);
         setOpen(false);
         getData();
@@ -540,7 +535,6 @@ const Screen = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div
         className="row"
         style={{
@@ -833,6 +827,7 @@ const Screen = () => {
         <div className="col-12">
           <Table
             columns={columns}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}

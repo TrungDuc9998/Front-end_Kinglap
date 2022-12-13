@@ -82,7 +82,7 @@ function Card() {
         }).then((results) => {
             // console.log(results)
             getData();
-            notifySuccess('Thêm mới thành công');
+            notifySuccess('Thêm mới card thành công');
         })
 
         setModalText("The modal will be closed after two seconds");
@@ -256,7 +256,7 @@ function Card() {
             body: JSON.stringify(cardEdit),
         }).then((results) => {
             console.log(results)
-            notifySuccess('Thêm mới thành công');
+            notifySuccess('Thêm card 1 mới thành công');
             setLoading(true);
         })
     }
@@ -351,7 +351,6 @@ function Card() {
             })
     }
     return (<>
-        <ToastContainer />
         <div>
             <div
                 className="row"
@@ -492,7 +491,7 @@ function Card() {
                     />
                     <Modal
                         title="Cập nhật"
-                        visible={isEditing}
+                        open={isEditing}
                         onCancel={() => {
                             setEditing(false);
                         }}
@@ -571,7 +570,7 @@ function Card() {
                     <Modal
                         // style={{borderRadius:"10px"}}
                         title="Hiển thị"
-                        visible={isView}
+                        open={isView}
                         onCancel={() => {
                             setView(false);
                         }}

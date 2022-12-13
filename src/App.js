@@ -39,13 +39,6 @@ function App() {
                   }
                 />
               );
-              // <>
-              // <Menu />
-              // <Navbar />
-              // <HomeUser></HomeUser>
-              // <Newletter />
-              // <Footer />
-              //  </>
             }
           })}
         </Routes>

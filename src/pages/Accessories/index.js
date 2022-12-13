@@ -1,58 +1,104 @@
-import React from 'react'
+import React from "react";
 import "antd/dist/antd.css";
-import { Tabs } from 'antd';
-import BatteryCharger from './BatteryCharger';
-import Origin from './Origin';
-import Processor from './Processor';
-import Storage from './Storage';
-import Screen from './Screen';
-import Ram from './Ram';
-import Color from './Color';
-import Card from './Card';
-import Win from './Win';
+import { Tabs } from "antd";
+import BatteryCharger from "./BatteryCharger";
+import Origin from "./Origin";
+import Processor from "./Processor";
+import Storage from "./Storage";
+import Screen from "./Screen";
+import Ram from "./Ram";
+import Color from "./Color";
+import Card from "./Card";
+import Win from "./Win";
+import { ToastContainer } from "react-toastify";
+import { MenuFoldOutlined } from "@ant-design/icons";
 
-const { TabPane } = Tabs;
+const onChange = (key) => {
+  console.log(key);
+};
+
+const toastError = (message) => {
+  toast.error(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
 
 function Accessories() {
   return (
-    <div style={{
-      display: 'block', padding: 30
-    }}>
-      <h4>Quản lý linh kiện</h4>
+    <div
+      style={{
+        display: "block",
+       
+      }}
+    >
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Quản lý linh kiện & phụ kiện</h4>
+        </div>
+      </div>
+      <ToastContainer></ToastContainer>
       <div className="card-container">
-        <Tabs type="card">
-          <TabPane tab="Xuất xứ" key="1">
-            <Origin />
-          </TabPane>
-          <TabPane tab="Bộ xử lý" key="2">
-            <Processor />
-          </TabPane>
-          <TabPane tab="Lưu trữ" key="3">
-            <Storage />
-          </TabPane>
-          <TabPane tab="Pin & Sạc" key="4">
-            <BatteryCharger />
-          </TabPane>
-          <TabPane tab="Màn hình" key="5">
-            <Screen />
-          </TabPane>
-          <TabPane tab="Ram" key="6">
-            <Ram />
-          </TabPane>
-          <TabPane tab="Màu" key="7">
-            <Color />
-          </TabPane>
-          <TabPane tab="Hệ điều hành" key="8">
-            <Win/>
-          </TabPane>
-          <TabPane tab="Card" key="9">
-            <Card></Card>
-          </TabPane>
-          {/* <TabPane tab="Đồ họa" key="11">
-            3rd TAB PANE Content
-          </TabPane> */}
-
-        </Tabs>
+        <Tabs
+          defaultActiveKey="1"
+          onChange={onChange}
+          items={[
+            {
+              label: "Xuất xứ",
+              key: "1",
+              children: <Origin />,
+            },
+            {
+              label: "Bộ xử lý",
+              key: "2",
+              children: <Processor />,
+            },
+            {
+              label: "Lưu trữ",
+              key: "3",
+              children: <Storage />,
+            },
+            {
+              label: "Pin và sạc",
+              key: "4",
+              children: <BatteryCharger />,
+            },
+            {
+              label: "Màn hình",
+              key: "5",
+              children: <Screen />,
+            },
+            {
+              label: "Ram",
+              key: "6",
+              children: <Ram />,
+            },
+            {
+              label: "Màu",
+              key: "7",
+              children: <Color />,
+            },
+            {
+              label: "Hệ điều hành",
+              key: "8",
+              children: <Win />,
+            },
+            {
+              label: "Card",
+              key: "9",
+              children: <Card />,
+            },
+          ]}
+        />
       </div>
     </div>
   );

@@ -30,12 +30,13 @@ import Accessories from "../pages/Accessories";
 import ExchangeUser from "../pages/customer/Order/Exchange";
 import ReturnUser from "../pages/customer/Order/Return";
 import ExchangeDetail from "../pages/Order/ExchangeDetail";
-import Table1 from "../pages/Order/Table";
 import Statistical from "../pages/statistical/Statistical";
 import Compare from "../pages/customer/compareProduct/Compare";
 import Inventory from "../pages/Product/Inventory";
 import Test from "../pages/Home/qr";
 import Policy from "../pages/Home/Policy/policy";
+import CopyProduct from "../pages/Product/CopyProduct";
+import CreateOrderAdmin from "../pages/Order/Table";
 const publicRoutes = [
   {
     path: "/",
@@ -54,7 +55,7 @@ const publicRoutes = [
     component: CreateProduct,
   },
   {
-    path: "/admin/product/edit",
+    path: "/admin/product/edit/:id",
     component: EditProduct,
   },
   {
@@ -80,7 +81,7 @@ const publicRoutes = [
   },
   {
     path: "/admin/order/create",
-    component: Table1,
+    component: CreateOrderAdmin,
   },
   {
     path: "/admin/user",
@@ -180,6 +181,10 @@ const publicRoutes = [
   {
     path: "/policy",
     component: Policy
+  },
+  {
+    path: "/admin/product/copy/:id",
+    component: CopyProduct
   }
 
 

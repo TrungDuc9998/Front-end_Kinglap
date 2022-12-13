@@ -426,7 +426,6 @@ const Ram = () => {
 
   return (
     <div>
-      <ToastContainer></ToastContainer>
       <div
         className="row"
         style={{

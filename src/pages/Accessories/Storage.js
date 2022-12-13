@@ -9,7 +9,6 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const { Option } = Select;
 
@@ -89,7 +88,6 @@ const Storage = () => {
       render: (id, data) => {
         return (
           <>
-            <ToastContainer></ToastContainer>
             <EditOutlined
               style={{ marginLeft: 12 }}
               onClick={() => {
@@ -289,8 +287,8 @@ const Storage = () => {
       .then((results) => {
         if (results.data == null) {
           toastError(results.message);
-        } else {
-          toastSuccess("Thêm mới thành công!");
+        } else if(results.status === 200) {
+          toastSuccess("Thêm mới lưu trữ thành công!");
           setOpen(false);
           fetchData();
           formE.setFieldsValue(formDefault);
@@ -315,26 +313,7 @@ const Storage = () => {
     setEditing(false);
     formE.setFieldsValue(formDefault);
   };
-  // const search=()=>{
-  //   setTableParams(
-  //     tableParams.pagination.current= 1,
-  //     tableParams.pagination.pageSize= 10,
-  //     //tableParams.pagination.searchStorageType=searchStorageType,
-  //   );
-  //   fetchData();
-  // }
-  // const clearSearchForm = () => {
-  //   setSearchStorageType("")
-  //   setTableParams({
-  //     ...tableParams,
-  //     pagination: {
-  //       ...tableParams.pagination.current = 1,
-  //       ...tableParams.pagination.pageSize = 10,
-  //       ...tableParams.pagination.searchStorageType = ""
-  //     }
-  //   });
-  //   fetchData();
-  // }
+  
   return (
     <div>
       {/* <div
@@ -501,12 +480,13 @@ const Storage = () => {
           <Table
             columns={columns}
             dataSource={data}
+            rowKey={(record) => record.id}
             loading={loading}
             onChange={handleTableChange}
           />
           <Modal
             title="Cập nhật"
-            visible={isEditing}
+            open={isEditing}
             onCancel={handleCancel}
             onOk={() => {
               setEditing(false);

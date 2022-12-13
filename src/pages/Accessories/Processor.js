@@ -23,9 +23,8 @@ import {
 import qs from "qs";
 import React, { useEffect, useState, useRef } from "react";
 import "./Processor.css";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 const { Option } = Select;
-
 const getRandomParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
@@ -33,7 +32,7 @@ const getRandomParams = (params) => ({
   searchStatus: params.pagination?.search2,
 });
 
-const toastSuccess = (message) => {
+const toastSuccessProcessor = (message) => {
   toast.success(message, {
     position: "top-right",
     autoClose: 3000,
@@ -57,7 +56,6 @@ const Processor = () => {
   const [searchName, setSearchName] = useState();
   const [isView, setView] = useState(false);
   const [formEdit] = Form.useForm();
-  const [cpuTechnology, setCpuTechnology] = useState();
   const [cpuCompany, setCpuCompany] = useState("2");
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -76,7 +74,7 @@ const Processor = () => {
 
   const loadDataProcessor = () => {
     setSearchName("");
-    setLoading(true);
+    // setLoading(true);
     fetch(
       `http://localhost:8080/api/auth/processors?${qs.stringify(
         getRandomParams(tableParams)
@@ -86,7 +84,7 @@ const Processor = () => {
       .then((results) => {
         console.log(results);
         setProcessors(results.data.data);
-        setLoading(false);
+        // setLoading(false);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -103,9 +101,7 @@ const Processor = () => {
       inputRef.current.focus();
     }
     console.log({ inputRef });
-  }, [cpuCompany != undefined]);
-
-  const loadDataCategory = () => { };
+  }, [cpuCompany != undefined, loading]);
 
   const onDelete = (record) => {
     Modal.confirm({
@@ -129,7 +125,7 @@ const Processor = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === 200) {
-          toastSuccess("Xoá thành công !");
+          toastSuccessProcessor("Xoá thành công !");
           loadDataProcessor();
         }
         console.log("Success:", data);
@@ -249,12 +245,12 @@ const Processor = () => {
               <UnlockOutlined
                 style={{}}
                 onClick={() => {
-                  setLoading(true);
+                  // setLoading(true);
                   fetch(
                     `http://localhost:8080/api/staff/processors/${data.id}/inactive`,
                     { method: "PUT" }
                   ).then(() => loadDataProcessor());
-                  toastSuccess("Khoá thành công !");
+                  toastSuccessProcessor("Khoá thành công !");
                 }}
               />
               <EditOutlined
@@ -271,12 +267,12 @@ const Processor = () => {
               <LockOutlined
                 style={{}}
                 onClick={() => {
-                  setLoading(true);
+                  // setLoading(true);
                   fetch(
                     `http://localhost:8080/api/staff/processors/${data.id}/active`,
                     { method: "PUT" }
                   ).then(() => loadDataProcessor());
-                  toastSuccess("Mở khóa thành công!");
+                  toastSuccessProcessor("Mở khóa thành công!");
                 }}
               />
               <EditOutlined
@@ -294,9 +290,6 @@ const Processor = () => {
 
   const clearSearchForm = () => {
     loadDataProcessor();
-    // loadDataProcessor();
-    // setSearchName("");
-    // setSearchStatus();
   };
 
   const handleTableChange = (pagination) => {
@@ -304,7 +297,7 @@ const Processor = () => {
     tableParams.pagination = pagination;
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
-    setLoading(true);
+    // setLoading(true);
     fetch(
       `http://localhost:8080/api/auth/processors?${qs.stringify(
         getRandomParams(tableParams)
@@ -313,7 +306,7 @@ const Processor = () => {
       .then((res) => res.json())
       .then((results) => {
         setProcessors(results.data.data);
-        setLoading(false);
+        // setLoading(false);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -324,22 +317,17 @@ const Processor = () => {
       });
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
   const onSearch = (value) => {
     console.log("search:", value);
   };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
 
   const showModal = (data) => {
     setOpen(true);
   };
 
-  const handleOk = () => { };
+  const handleOk = () => {};
 
   const handleCancel = () => {
     console.log("Clicked cancel button");
@@ -353,7 +341,7 @@ const Processor = () => {
     formEdit.setFieldsValue(data);
   };
 
-  const handleSubmit = (data) => {
+  const handleSubmitProcessor = (data) => {
     if (isUpdate === false) {
       data.status = "ACTIVE";
       console.log(data);
@@ -363,11 +351,13 @@ const Processor = () => {
         body: JSON.stringify(data),
       })
         .then((response) => loadDataProcessor())
-        .then((data) => {
-          console.log("Success:", data);
-          toastSuccess("Thêm mới thành công !");
+        .then((results) => {
+          if (results.status === 200) {
+            toastSuccessProcessor("Thêm mới bộ xử lý thành công !");
+            onReset();
+            setLoading(false);
+          }
           setOpen(false);
-          onReset();
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -399,7 +389,7 @@ const Processor = () => {
         .then((response) => loadDataProcessor())
         .then((data) => {
           console.log("Success:", data);
-          toastSuccess("Cập nhật thành công!");
+          toastSuccessProcessor("Cập nhật bộ xử lý thành công!");
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -412,7 +402,7 @@ const Processor = () => {
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.current = 1;
-    setLoading(true);
+    // setLoading(true);
     fetch(
       `http://localhost:8080/api/auth/processors?${qs.stringify(
         getRandomParams(tableParams)
@@ -422,7 +412,7 @@ const Processor = () => {
       .then((results) => {
         console.log(results.data.data);
         setProcessors(results.data.data);
-        setLoading(false);
+        // setLoading(false);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -438,11 +428,8 @@ const Processor = () => {
     setSearchStatus(value);
   };
 
-  const handleChange = () => { };
-
   return (
     <div>
-      <ToastContainer></ToastContainer>
       <div
         className="row"
         style={{
@@ -532,15 +519,17 @@ const Processor = () => {
           >
             <Form
               form={form}
-              initialValues={{
-                // cpuCompany: name,
-              }}
+              initialValues={
+                {
+                  // cpuCompany: name,
+                }
+              }
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 10 }}
               onFinish={(values) => {
                 setIsUpdate(false);
-                handleSubmit(values, isUpdate);
+                handleSubmitProcessor(values, isUpdate);
                 console.log({ values });
               }}
               onFinishFailed={(error) => {
@@ -627,7 +616,7 @@ const Processor = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập số nhân CPU" />
+                <Input placeholder="Nhập số nhân CPU" type="number" />
               </Form.Item>
               <Form.Item
                 name="numberOfThread"
@@ -640,7 +629,7 @@ const Processor = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập số luồng CPU" />
+                <Input placeholder="Nhập số luồng CPU" type="number" />
               </Form.Item>
               <Form.Item
                 name="caching"
