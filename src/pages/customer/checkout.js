@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StoreContext from "../../store/Context";
+import "./css/checkout.css"
+
 function Checkout() {
   const onSearchProduct = (searchItem) => {
     getData();
@@ -213,7 +215,13 @@ function Checkout() {
   };
 
   useEffect(() => {
-    //informations = information[0].address.split(",");
+    setProvinceID(information[0].address.split(",")[0]);
+    setDistrictId(information[0].address.split(",")[1]);
+    setWardCode(information[0].address.split(",")[2]);
+    setValue(information[0].address.split(",")[0])
+    setValueDistrict(information[0].address.split(",")[1]);
+    setValueWard(information[0].address.split(",")[2]);
+    setAddRess(information[0].address.split(",")[3]);
     setName(information[0].fullName)
     setPhone(information[0].phoneNumber)
     localStorage.getItem("")
@@ -334,7 +342,6 @@ function Checkout() {
       length += cartList[i].length * cartList[i].quantity;
     }
     if (value != null) {
-      console.log(serviceId);
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
         {
@@ -361,7 +368,41 @@ function Checkout() {
       )
         .then((response) => response.json())
         .then((data) => {
-          console.log(data.data)
+          setShipping(data.data.total);
+        });
+    }
+  };
+
+  const SubmitShipping2 = (value) => {
+    if (value != null) {
+      console.log(serviceId);
+      fetch(
+        "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            shop_id: 3379752,
+            token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+          },
+          body: JSON.stringify({
+            service_id: serviceId,
+            insurance_value: total,
+            coupon: null,
+            from_district_id: 3440,
+            to_district_id: districtId,
+            height: Math.round(totalHeight * 0.1),
+            length: Math.round(totalLength * 0.1),
+            weight: Math.round(totalWeight * 1000),
+            width: Math.round(totalLength * 0.1),
+            to_ward_code: value,
+          }),
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.data.total)
           setShipping(data.data.total);
         });
     }
@@ -372,7 +413,7 @@ function Checkout() {
       setIsDisabled(true);
     }
     setWardCode(value);
-    SubmitShipping(value);
+    SubmitShipping2(value);
   };
 
   const onSearchWards = (value) => {
@@ -488,7 +529,7 @@ function Checkout() {
           token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
         },
         body: JSON.stringify({
-          province_id: value,
+          province_id: value ? value : ProvinceID != 1,
         }),
       }
     )
@@ -499,7 +540,27 @@ function Checkout() {
         throw Error(response.status);
       })
       .then((result) => {
-        setDistrict(result.data);
+        let dataDis = [];
+        if (value === 201) {
+          result.data.splice(0, 1);
+          result.data.splice(0, 1);
+          dataDis = result.data;
+          setDistrict(dataDis);
+        } if (value === 202) {
+          result.data.splice(1, 1);
+          result.data.splice(1, 1);
+          result.data.splice(2, 1);
+          dataDis = result.data;
+          setDistrict(dataDis);
+        } if (value === 268) {
+          result.data.splice(0, 1);
+          dataDis = result.data;
+          setDistrict(dataDis);
+          console.log(dataDis);
+        }
+        else {
+          setDistrict(result.data);
+        }
         result.data.forEach((element) => {
           if (element.DistrictName === information[0].address.split(",")[1]) {
             loadDataWard(element.DistrictID)
@@ -579,13 +640,14 @@ function Checkout() {
   const information = JSON.parse(localStorage.getItem("information"));
 
   const showCarts = (carts) => {
+    console.log(carts)
     let cartList = carts;
     if (cartList.length > 0) {
       // for(i=0;i<cartList.length;i++){
       const listItems = cartList.map((cart) => (
         <div className="row d-flex">
           <div className="col-3 img mt-2">
-            <img alt="Ảnh sản phẩm" src={cart.images[0].name} className="img-content"></img>
+            <img alt="Ảnh sản phẩm" src={cart.images[0]?.name} className="img-content"></img>
           </div>
           <div className="col-5 mt-5 d-block ">
             <div>
@@ -595,7 +657,7 @@ function Checkout() {
             </div>
           </div>
           <div className="col-4 mt-5">
-            <p className="text-name">{formatCash(cart.price * cart.quantity + "")} VNĐ</p>
+            <p className="text-name">{formatCash(cart.price * cart.quantity + "")} VND</p>
           </div>
         </div>
       ));
@@ -663,49 +725,61 @@ function Checkout() {
                 <div className="row ck-content">
                   <div className="col-12" style={{ paddingLeft: "20px" }}>
                     <p style={{ fontWeight: "600" }}>Địa chỉ giao hàng</p>
-                    <form className="form-info">
-
-                      <div className="search-inner">
-                        <label>Tỉnh/Thành phố</label>
-                        <input
-                          type={"text"}
-                          className="form-control radio-ip"
-                          placeholder="Tên tỉnh thành"
-                          value={value}
-                          onChange={onChangeProvince}
-                          onClick={() => onSearchProvince(value)}
-                        />
-                      </div>
-                      <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
-                        {array
-                          .filter((item) => {
-                            const searchTerm = value.toString().toLowerCase();
-                            const fullName =
-                              item.ProvinceName !== undefined
-                                ? item.ProvinceName.toLowerCase()
-                                : "";
-                            return (
-                              searchTerm &&
-                              fullName.startsWith(searchTerm) &&
-                              fullName !== searchTerm
-                            );
-                          })
-                          .slice(0, 5)
-                          .map((item) => (
-                            <div
-                              style={{ with: "10%" }}
-                              onClick={() =>
-                                onSearchProvince(
-                                  item.ProvinceName,
-                                  item.ProvinceID
-                                )
-                              }
-                              className="dropdown-row"
-                              key={item.ProvinceName}
-                            >
-                              {item.ProvinceName}
-                            </div>
-                          ))}
+                    <div>
+                      <div className="search-container mb-2">
+                        <div className="search-inner">
+                          <label>Tỉnh/ Thành Phố</label>
+                          <Select
+                            defaultValue={information[0].address.split(",")[0]}
+                            disabled={disableCountry}
+                            showSearch
+                            placeholder="Tỉnh/thành phố"
+                            optionFilterProp="children"
+                            style={{
+                              width: 380,
+                              marginLeft: "36px",
+                            }}
+                            onChange={onChange}
+                            onClick={onSearch}
+                            filterOption={(input, option) =>
+                              option.children.toLowerCase().includes(input.toLowerCase())
+                            }
+                          >
+                            {array.map((item) => (
+                              <Option key={item.ProvinceID} value={item.ProvinceID}>
+                                {item.ProvinceName}
+                              </Option>
+                            ))}
+                          </Select>
+                        </div></div>
+                      <div className="search-container mb-2">
+                        <div className="search-inner">
+                          <label>Tên quận huyện</label>
+                          <Select
+                            defaultValue={information[0].address.split(",")[1]}
+                            showSearch
+                            disabled={disableCountry}
+                            placeholder="Quận/huyện"
+                            optionFilterProp="children"
+                            style={{
+                              width: 380,
+                              marginLeft: "38px",
+                            }}
+                            onChange={onChangeDistricts}
+                            onClick={onSearchDistricts}
+                            filterOption={(input, option) =>
+                              option.children
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                          >
+                            {district.map((item) => (
+                              <Option key={item.DistrictID} value={item.DistrictID}>
+                                {item.DistrictName}
+                              </Option>
+                            ))}
+                          </Select>
+                        </div>
                       </div>
                       <div className="search-container mb-2">
                         <div className="search-inner">
@@ -736,88 +810,21 @@ function Checkout() {
                           </Select>
                         </div>
                       </div>
-                      <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
-                        {district
-                          .filter((item) => {
-                            const searchTerm = valueDistrict
-                              .toString()
-                              .toLowerCase();
-                            const fullName =
-                              item.DistrictName !== undefined
-                                ? item.DistrictName.toLowerCase()
-                                : "";
-
-                            return (
-                              searchTerm &&
-                              fullName.startsWith(searchTerm) &&
-                              fullName !== searchTerm
-                            );
-                          })
-                          .slice(0, 5)
-                          .map((item) => (
-                            <div
-                              onClick={() =>
-                                onSearchDistrict(
-                                  item.DistrictName,
-                                  item.DistrictID
-                                )
-                              }
-                              className="dropdown-row"
-                              key={item.DistrictID}
-                            >
-                              {item.DistrictName}
-                            </div>
-                          ))}
-                      </div>
-                      <div className="search-inner">
-                        <label>Tên phường xã</label>
-                        <input
-                          type={"text"}
-                          className="form-control radio-ip"
-                          placeholder="Tên phường xã"
-                          value={valueWard}
-                          disabled={isDisabled}
-                          onChange={onChangeWard}
-                          onClick={() => onSearchWard(valueWard)}
-                        />
-                      </div>
-                      <div className="dropdown" style={{ width: "350px", marginLeft: "160px", marginTop: "-4px" }}>
-                        {Ward.filter((item) => {
-                          const searchTerm = valueWard.toString().toLowerCase();
-                          const fullName =
-                            item.WardName !== undefined
-                              ? item.WardName.toLowerCase()
-                              : "";
-
-                          return (
-                            searchTerm &&
-                            fullName.startsWith(searchTerm) &&
-                            fullName !== searchTerm
-                          );
-                        })
-                          .slice(0, 5)
-                          .map((item) => (
-                            <div
-                              onClick={() =>
-                                onSearchWard(item.WardName, item.WardCode)
-                              }
-                              className="dropdown-row"
-                              key={item.WardName}
-                            >
-                              {item.WardName}
-                            </div>
-                          ))}
-                      </div>
-                      <div>
-                        <label>Địa chỉ</label>
-                        <input
-                          type={"text"}
-                          className="form-control radio-ip"
-                          placeholder="Nhập số nhà/Tên đường"
-                          onChange={changeAddress}
-                        ></input>
-                      </div>
-                    </form>
+                    </div>
+                    <div>
+                      <label>Địa chỉ</label>
+                      <input
+                        defaultValue={information[0].address.split(",")[3]}
+                        style={{
+                          width: 380,
+                          marginLeft: "97px",
+                          borderRadius: "2px",
+                        }}
+                        type={"text"}
+                        placeholder="Nhập số nhà/Tên đường"
+                        onChange={changeAddress}
+                      ></input>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -842,15 +849,23 @@ function Checkout() {
             <div className="form-group">
               <label>Phí vận chuyển</label>
               {/* <div className="input-group"> */}
-              <Input
+              {shipping ? <Input
                 style={{ borderRadius: "16px" }}
                 type="text"
-                value={formatCash(shipping + "")}
+                value={formatCash(shipping + "") + " VND"}
                 onChange={(e) => setShipping(e.target.value)}
                 className="form-control fw-bold text-danger"
                 placeholder="0"
                 disabled
-              />
+              /> : <Input
+              style={{ borderRadius: "16px" }}
+              type="text"
+              value={"0" + " VND"}
+              onChange={(e) => setShipping(e.target.value)}
+              className="form-control fw-bold text-danger"
+              placeholder="0"
+              disabled
+            />}
               <img style={{ width: "200px", height: "150px", marginLeft: "130px" }} src="https://inkythuatso.com/uploads/images/2021/12/thiet-ke-khong-ten-04-13-29-21.jpg"></img>
               {/* <span className="input-group-text">VNĐ</span>
                             </div> */}
@@ -859,7 +874,7 @@ function Checkout() {
             <span style={{ color: "red", fontSize: "20px", fontWeight: "700" }}>
               Thành tiền:{" "}
               {formatCash(parseInt(getTotal(carts)) + parseInt(shipping) + "")}{" "}
-              VNĐ
+              VND
             </span>
           </div>
           <p style={{ fontWeight: "600" }}>4. Hình thức thanh toán</p>

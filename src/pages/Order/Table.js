@@ -281,7 +281,6 @@ function Table1() {
             orderDetails: orderDetails,
           }),
         }).then((res) => {
-          console.log("đặt hàng thành công !");
           console.log(orderDetails);
           console.log(res.data);
         });
