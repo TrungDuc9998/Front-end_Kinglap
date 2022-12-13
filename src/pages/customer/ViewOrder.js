@@ -64,28 +64,8 @@ function ViewOrder() {
   });
 
   const getData = () => {
-    let userId = localStorage.getItem("username");
-    console.log(userId);
-    fetch(
-      `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        console.log(results);
-        setOrders(results);
-        setOrderDetails(results[0].orderDetails);
-        setTotal(results.total);
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: totalSet,
-          },
-        });
-      });
     let param = searchParams.get("vnp_ResponseCode");
+    let userId = localStorage.getItem("username");
     if (param === "00") {
       let total = localStorage.getItem("total");
       let payment = localStorage.getItem("payment");
@@ -125,13 +105,13 @@ function ViewOrder() {
           address:
             type == 0
               ? "TẠI CỬA HÀNG"
-              : address +
+              : value +
               ", " +
               valueWard +
               ", " +
               valueDistrict +
               ", " +
-              value,
+              address,
           phone: phone,
           customerName: customerName,
           // email: email,
@@ -151,9 +131,27 @@ function ViewOrder() {
         localStorage.removeItem("valueDistrict");
         localStorage.removeItem("value");
       });
-      toastSuccess("Đặt hàng thành công!");
       localStorage.removeItem("carts");
     }
+    fetch(
+      `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        console.log(results);
+        setOrders(results);
+        setOrderDetails(results[0].orderDetails);
+        setTotal(results.total);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: totalSet,
+          },
+        });
+      });
   };
 
   useEffect(() => {

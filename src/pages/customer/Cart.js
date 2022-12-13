@@ -45,6 +45,10 @@ function Cart() {
         }
     }
 
+    const toOtherProduct = () => {
+        navigate("/user")
+    }
+
     const [checked, setChecked] = useState([]);
 
     //check all
@@ -164,9 +168,9 @@ function Cart() {
                 <div className="mt-2">
                     <a className="btn btn-primary btn-cart" onClick={handleCheckout}>Tiến hành đặt hàng</a>
                 </div>
-                {/* <div className="mt-2">
-                    <button className="btn btn-outline-primary btn-cart">Chọn thêm sản phẩm</button>
-                </div> */}
+                <div className="mt-2">
+                    <button className="btn btn-outline-primary btn-cart" onClick={toOtherProduct}>Chọn thêm sản phẩm</button>
+                </div>
 
             </div>
         </div>
