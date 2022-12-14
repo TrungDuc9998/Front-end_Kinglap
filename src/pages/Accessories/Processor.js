@@ -1,8 +1,5 @@
 import {
   Table,
-  DatePicker,
-  Checkbox,
-  Slider,
   Select,
   Input,
   Button,
@@ -13,7 +10,6 @@ import {
   CheckCircleOutlined,
   DeleteOutlined,
   EditOutlined,
-  EyeOutlined,
   LockOutlined,
   PlusOutlined,
   ReloadOutlined,

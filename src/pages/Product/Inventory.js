@@ -363,7 +363,8 @@ function Inventory() {
                 Hệ điều hành
               </div>
               <div className="card-body row">
-                <li>{product?.win}</li>
+                <li>OS: {product?.win.name}</li>
+                <li>Version: {product?.win.version}</li>
               </div>
             </div>
           </Modal>

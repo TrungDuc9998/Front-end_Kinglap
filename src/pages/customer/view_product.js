@@ -208,7 +208,8 @@ function ViewProduct() {
                 <span className="product-available">In Stock</span>
                 <Link to={"/user/compare/" + product.id}>
                   <Tooltip title="So sánh sản phẩm">
-                    <Button className="ms-5"
+                    <Button
+                      className="ms-5"
                       type="primary"
                       shape="circle"
                       icon={<PlusCircleOutlined />}
@@ -245,7 +246,6 @@ function ViewProduct() {
                     Mua ngay
                   </button>
                 </Link>
-                
               </div>
               <div>
                 <p style={{ fontSize: "20px", fontWeight: "600" }}>
@@ -275,7 +275,7 @@ function ViewProduct() {
                     </tr>
                     <tr>
                       <th scope="row">Hệ điều hành</th>
-                      <td>{product.win}</td>
+                      <td>{product.win.version}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -434,118 +434,14 @@ function ViewProduct() {
                       Hệ điều hành
                     </div>
                     <div className="card-body row">
-                      <li>{product.win}</li>
+                      <li>OS: {product.win.name}</li>
+                      <li>Version: {product.win.version}</li>                
                     </div>
-                    {/* <div class="card-header" style={{ textAlign: 'left' }}>
-                                            Âm thanh
-                                        </div>
-                                        <div class="card-body row">
-                                            <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
-                                            </div>
-                                            <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
-                                            </div>
-                                        </div>
-                                        <div class="card-header" style={{ textAlign: 'left' }}>
-                                            Bàn phím & TouchPad
-                                        </div>
-                                        <div class="card-body row">
-                                            <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
-                                            </div>
-                                            <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
-                                            </div>
-                                        </div>
-                                        <div class="card-header" style={{ textAlign: 'left' }}>
-                                            Thông tin pin & sạc
-                                        </div>
-                                        <div class="card-body row">
-                                            <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
-                                            </div>
-                                            <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
-                                            </div>
-                                        </div>
-                                        <div class="card-header" style={{ textAlign: 'left' }}>
-                                            Hệ điều hành
-                                        </div>
-                                        <div class="card-body row">
-                                            <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
-                                            </div>
-                                            <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
-                                            </div>
-                                        </div>
-                                        <div class="card-header" style={{ textAlign: 'left' }}>
-                                            Phụ kiện trong hộp
-                                        </div>
-                                        <div class="card-body row">
-                                            <div className="col-6">
-                                                <li>Hãng CPU: thiếu</li>
-                                                <li>Công nghệ CPU: thiếu</li>
-                                                <li>Tốc độ CPU: thiếu</li>
-                                                <li>Tốc độ tối đa CPU: thiếu</li>
-                                            </div>
-                                            <div className="col-6">
-                                                <li>Số nhân: thiếu</li>
-                                                <li>Số luồng: thiếu</li>
-                                                <li>Bộ nhớ đệm: thiếu</li>
-                                            </div>
-                                        </div> */}
                   </div>
                 </Modal>
               </div>
             </div>
           </div>
-
-          {/* <div className="col-md-12" style={{ height: '400px' }} >
-                        <div className="product-tab">
-                            <Tabs
-                                centered="true"
-                                defaultActiveKey="1"
-                                // onChange={onChange}
-                                className="tab-nav"
-                                items={[
-                                    {
-                                        label: `Description`,
-                                        key: 'tab1',
-                                        children: <div>
-                                            Mô tả
-                                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
-                                        </div>
-                                    },
-                                    {
-                                        label: `Detail`,
-                                        key: 'tab2',
-                                        children: "tab2"
-                                    }
-                                ]} />
-                        </div>
-                    </div> */}
           <div className="mb-5 mt-5">
             <div className="col-12 text-center mb-4">
               <p style={{ fontSize: "30px", fontWeight: "600" }}>
