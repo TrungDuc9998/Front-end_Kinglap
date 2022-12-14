@@ -265,7 +265,7 @@ const Exchange = () => {
           console.log("vào push");
           dataPro.push({
             id: product.id,
-            image: product?.images[0].name,
+            image: product?.images[0]?.name,
             name: product?.name,
             price: product?.price,
             debut: product?.debut,

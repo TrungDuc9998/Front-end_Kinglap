@@ -1,6 +1,15 @@
-import { Select, Input, Button, InputNumber, Image, AutoComplete } from "antd";
+import {
+  Select,
+  Input,
+  Button,
+  InputNumber,
+  Image,
+  AutoComplete,
+  Form,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import qs from "qs";
+import "./table.css";
 import "../Order/table.css";
 import { Modal } from "antd";
 import { DeleteOutlined, MenuFoldOutlined } from "@ant-design/icons";
@@ -121,27 +130,6 @@ function CreateOrderAdmin() {
     },
   });
 
-  const loadDataDisCount = () => {
-    fetch(
-      `http://localhost:8080/api/discount?${qs.stringify(
-        getRandomuserParams(tableParamDiscount)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setDiscounts(results.data.data);
-        console.log(results.data.data);
-        setLoading(false);
-        setTableParamDiscount({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
-  };
-
   const loadInfo = () => {
     fetch(
       `http://localhost:8080/api/information?${qs.stringify(
@@ -165,18 +153,18 @@ function CreateOrderAdmin() {
       });
   };
 
-  const handleOk = () => {
+  const handleOk = (value) => {
     if (password2 === password1) {
       fetch(`http://localhost:8080/api/orders/createUser`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: username,
-          newPassword: password1,
-          fullName: fullName,
-          email: email,
-          phoneNumber: phoneNumber,
-          address: address,
+          username: value.username,
+          newPassword: value.password,
+          fullName: value.fullName,
+          email: value.email,
+          phoneNumber: value.phoneNumber,
+          address: value.address,
         }),
       })
         .then((res) => res.json())
@@ -213,12 +201,9 @@ function CreateOrderAdmin() {
     setTypeOrder(value);
   };
 
-  const handleChangePayment2 = (value) => {
-    setPayment(value);
-  };
-
   const handleSubmitOrder = () => {
-    console.log("length phone: ", phoneClient.length);
+    console.log("địa chỉ chi tiết");
+    console.log(addressDetail);
     if (dataCart === undefined || dataCart.length === 0) {
       toastError("Vui lòng thêm sản phẩm vào giỏ hàng");
     } else if (
@@ -257,10 +242,11 @@ function CreateOrderAdmin() {
           isCheck: null,
         });
       });
-      console.log(shipping);
-
       if (phoneClient.length != 10) {
         toastError("Số điện thoại không đúng định dạng !");
+      }
+      if (addressDetail === undefined) {
+        toastError("Nhập địa chỉ chi tiết!");
       } else {
         try {
           fetch("http://localhost:8080/api/orders", {
@@ -277,6 +263,7 @@ function CreateOrderAdmin() {
               phone: order.phone,
               status: "CHO_XAC_NHAN",
               money: 0,
+              shippingFree: shipping,
               orderDetails: orderDetails,
             }),
           })
@@ -284,7 +271,8 @@ function CreateOrderAdmin() {
             .then((results) => {
               if (results.status === 200) {
                 toastSuccess("Thêm hoá đơn thành công");
-                resetInputField();
+
+                // resetInputField();
               } else {
                 toastError("Thêm hoá đơn thất bại");
               }
@@ -374,7 +362,6 @@ function CreateOrderAdmin() {
       loadDataDistrict();
     }
   };
-
 
   const onChangeDistricts = (value) => {
     if (value != null) {
@@ -650,7 +637,6 @@ function CreateOrderAdmin() {
     loadDataProduct();
     loadDataClient();
     loadDataCart();
-    loadDataDisCount();
     loadInfo();
     setDisableCountry(true);
     loadDataUseLogin();
@@ -701,8 +687,6 @@ function CreateOrderAdmin() {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log("data cart");
-        console.log(results);
         setDataCart(results.data.data);
         let total = 0;
         let weight = 0;
@@ -716,8 +700,6 @@ function CreateOrderAdmin() {
           height += item.product.height * item.quantity;
           length += item.product.length * item.quantity;
         });
-        console.log("----------- total set dữ liệu ----------");
-        console.log(total);
         setTotalWeight(weight);
         setTotal(total);
         setTotalLength(length);
@@ -735,6 +717,7 @@ function CreateOrderAdmin() {
   };
 
   const loadDataProduct = () => {
+    console.log("vào load data product");
     fetch(
       `http://localhost:8080/api/products?${qs.stringify(
         getRandomuserParams(tableParamPro)
@@ -742,6 +725,7 @@ function CreateOrderAdmin() {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log(results);
         const dataResult = [];
         results.data.data.forEach((item) => {
           console.log(item.name);
@@ -814,7 +798,6 @@ function CreateOrderAdmin() {
       setTotal(total);
     }
   };
-
 
   const resetInputField = () => {
     setPhoneNumberForm("");
@@ -913,17 +896,27 @@ function CreateOrderAdmin() {
               </div>
             </div>
             <div className="col-6 ">
-              <Button onClick={showModal} style={{ borderRadius: "10px" }}>
+              <Button
+                onClick={showModal}
+                style={{ borderRadius: "10px" }}
+                danger
+              >
                 Tạo khách hàng
               </Button>
               <Modal
-                title="Tạo mới"
+                title="Tạo khách hàng"
                 open={open}
                 onOk={handleOk}
+                okButtonProps={{
+                  style: {
+                    display: "none",
+                  },
+                }}
+                cancelText={"Đóng"}
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
               >
-                <label>
+                {/* <label>
                   Tài khoản
                   <span className="text-danger"> *</span>
                 </label>
@@ -1000,7 +993,125 @@ function CreateOrderAdmin() {
                   placeholder="Nhập địa chỉ"
                   onChange={changeAddRess}
                   onClick={changeAddRess}
-                />
+                /> */}
+                <Form
+                  // form={form}
+                  initialValues={
+                    {
+                      // cpuCompany: name,
+                    }
+                  }
+                  autoComplete="off"
+                  layout="vertical"
+                  onFinish={(values) => {
+                    handleOk(values);
+                    console.log({ values });
+                  }}
+                  onFinishFailed={(error) => {
+                    console.log({ error });
+                  }}
+                >
+                  <Form.Item
+                    className="mt-2"
+                    name="username"
+                    label="Tài khoản"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tài khoản khách hàng không được để trống",
+                      },
+                      { whitespace: true },
+                      { min: 3 },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập tài khoản khách hàng" />
+                  </Form.Item>
+                  <Form.Item
+                    name="password"
+                    label="Mật khẩu"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Mật khẩu khách hàng không được để trống",
+                      },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập mật khẩu" type="password" />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="password2"
+                    label="Xác nhận mật khẩu"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Xác nhận mật khẩu không được để trống",
+                      },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Xác nhận mật khẩu" />
+                  </Form.Item>
+                  <Form.Item
+                    name="fullName"
+                    label="Nhập họ và tên"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Họ tên khách hàng không được để trống",
+                      },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập họ tên khách hàng" />
+                  </Form.Item>
+                  <Form.Item
+                    name="email"
+                    label="Email"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Email không được để trống",
+                      },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập email" type="email" />
+                  </Form.Item>
+                  <Form.Item
+                    name="phoneNumber"
+                    label="Số điện thoại"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Số điện thoại khách hàng không được để trống",
+                      },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Nhập số điện thoại" type="number" />
+                  </Form.Item>
+                  <Form.Item
+                    name="address"
+                    label="Địa chỉ"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Địa chỉ không được để trống",
+                      },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input placeholder="Địa chỉ" type="text" />
+                  </Form.Item>
+                  <Form.Item className="text-center">
+                    <Button block type="primary" htmlType="submit" id="create">
+                      Tạo mới khách hàng
+                    </Button>
+                  </Form.Item>
+                </Form>
               </Modal>
             </div>
           </div>
@@ -1094,7 +1205,7 @@ function CreateOrderAdmin() {
                     }
                   >
                     {district?.map((item) => (
-                      <Option key={item.DistrictID } value={item.DistrictID}>
+                      <Option key={item.DistrictID} value={item.DistrictID}>
                         {item.DistrictName}
                       </Option>
                     ))}
@@ -1135,6 +1246,7 @@ function CreateOrderAdmin() {
                 <br />
                 <TextArea
                   value={addressDetail}
+                  disabled={disableCountry || dataCart?.length === 0}
                   onChange={(e) => setAddressDetail(e.target.value)}
                   rows={6}
                   placeholder={"Địa chỉ chi tiết"}
@@ -1284,7 +1396,6 @@ function CreateOrderAdmin() {
             >
               Hoàn tất đặt hàng
             </Button>
-            
           </div>
         </div>
       </div>

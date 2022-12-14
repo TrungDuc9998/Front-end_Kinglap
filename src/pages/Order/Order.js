@@ -1171,6 +1171,16 @@ const Order = () => {
                     </tbody>
                   </table>
                   <p className="fw-bold">
+                    Phí ship :{" "}
+                    <i className="text-danger fw-bold">
+                      {" "}
+                      {dataO?.shippingFree.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </i>
+                  </p>
+                  <p className="fw-bold">
                     Đã đặt cọc :{" "}
                     <i className="text-danger fw-bold">
                       {" "}
