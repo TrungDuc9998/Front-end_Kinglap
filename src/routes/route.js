@@ -35,6 +35,7 @@ import Compare from "../pages/customer/compareProduct/Compare";
 import Inventory from "../pages/Product/Inventory";
 import Test from "../pages/Home/qr";
 import Policy from "../pages/Home/Policy/policy";
+import Find from "../pages/customer/find";
 import CopyProduct from "../pages/Product/CopyProduct";
 import CreateOrderAdmin from "../pages/Order/Table";
 const publicRoutes = [
@@ -162,7 +163,7 @@ const publicRoutes = [
   {
     path: "/admin/order/exchange/detail/:id",
     component: ExchangeDetail,
-  },{
+  }, {
     path: "/admin/statistical",
     component: Statistical
   },
@@ -181,6 +182,10 @@ const publicRoutes = [
   {
     path: "/policy",
     component: Policy
+  },
+  {
+    path: "user/find",
+    component: Find
   },
   {
     path: "/admin/product/copy/:id",
