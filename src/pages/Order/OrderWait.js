@@ -162,11 +162,9 @@ const OrderWait = () => {
 
   const search = () => {
     if (searchStartDate != undefined && searchEndDate != undefined) {
-      console.log("vào");
       tableParams.pagination.searchStartDate = searchStartDate;
       tableParams.pagination.searchEndDate = searchEndDate;
     }
-    console.log(searchName);
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.current = 1;
     setLoading(true);
@@ -218,8 +216,6 @@ const OrderWait = () => {
     }).then((res) => {
       clearSearchForm();
     });
-
-    console.log(dataOrder);
   };
 
   const clearSearchForm = () => {
@@ -261,7 +257,6 @@ const OrderWait = () => {
   };
 
   const confirmOrder = (record) => {
-    console.log(record);
     const sdt = record.phone;
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
@@ -292,9 +287,7 @@ const OrderWait = () => {
   };
 
   const showModalData = (id) => {
-    console.log("id show modal: ", id);
     axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
       setDataOD(res.data);
     });
     loadDataOrderHistoryById(id);
@@ -302,13 +295,9 @@ const OrderWait = () => {
   };
 
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
-    // setLoading(true);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data order history");
-        console.log(res);
         setOrderHistory(res);
       });
   };
@@ -484,11 +473,6 @@ const OrderWait = () => {
     },
   ];
 
-  const onChange = (value) => {};
-
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
@@ -602,7 +586,26 @@ const OrderWait = () => {
           </Button>
         </div>
       </div>
-
+      <div className="row">
+        <div className="col-12 mt-4 confirmDeleving">
+          {selectedRowKeys.length > 0 ? (
+            <div className="text-center ">
+              <Button
+                type="primary"
+                shape="round"
+                icon={<CheckCircleOutlined />}
+                className="ms-5"
+                onClick={confirmCheckBox}
+                
+              >
+               Xác nhận
+              </Button>
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
       <div
         className="mt-4 row"
         style={{
@@ -645,11 +648,11 @@ const OrderWait = () => {
                 display: "none",
               },
             }}
-           cancelText={"Đóng"}
+            cancelText={"Đóng"}
             onOk={() => {
               setView(false);
             }}
-            width= {800}
+            width={800}
           >
             {/* <h6>Mã hoá đơn {orderHistory[0]?.id} </h6> */}
             <table className="table">
@@ -701,15 +704,6 @@ const OrderWait = () => {
             />
           </Modal>
         </div>
-        {selectedRowKeys.length > 0 ? (
-          <div className="text-center mb-4">
-            <Button type="primary" onClick={confirmCheckBox}>
-              Cập nhật đơn hàng
-            </Button>
-          </div>
-        ) : (
-          ""
-        )}
       </div>
     </div>
   );
