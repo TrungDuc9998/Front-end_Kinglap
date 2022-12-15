@@ -17,6 +17,7 @@ import {
   EyeOutlined,
   RetweetOutlined,
   MenuFoldOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
@@ -72,7 +73,6 @@ const OrderDelivering = () => {
   useEffect(() => {
     loadDataOrder();
   }, [dataOrder != undefined]);
-
 
   const columnOrderHistory = [
     {
@@ -592,6 +592,25 @@ const OrderDelivering = () => {
           </Button>
         </div>
       </div>
+      <div className="row">
+        <div className="col-12 mt-4 confirmDeleving">
+          {selectedRowKeys.length > 0 ? (
+            <div className="text-center ">
+              <Button
+                type="primary"
+                shape="round" icon={<CheckCircleOutlined/>}
+                className="ms-5"
+                onClick={confirmCheckBox}
+                danger
+              >
+               Nhận hàng
+              </Button>
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
       <div
         className="mt-4 row"
         style={{
@@ -610,19 +629,6 @@ const OrderDelivering = () => {
             pagination={tableParams.pagination}
             loading={loading}
           />
-          {/* <Modal
-            title="Xác nhận đơn hàng"
-            visible={isEditing}
-            onCancel={() => {
-              resetEditing();
-            }}
-            onOk={() => {
-              setEditing(true);
-            }}
-          >
-            Bạn có muốn xác nhận đơn hàng không ?
-          </Modal> */}
-
           <Modal
             id="a"
             title="Chi tiết đơn hàng"
@@ -632,7 +638,7 @@ const OrderDelivering = () => {
                 display: "none",
               },
             }}
-           cancelText={"Đóng"}
+            cancelText={"Đóng"}
             onCancel={() => {
               setView(false);
             }}
@@ -688,15 +694,6 @@ const OrderDelivering = () => {
             />
           </Modal>
         </div>
-        {selectedRowKeys.length > 0 ? (
-          <div className="text-center mb-4">
-            <Button type="primary" onClick={confirmCheckBox}>
-              Nhận hàng
-            </Button>
-          </div>
-        ) : (
-          ""
-        )}
       </div>
     </div>
   );

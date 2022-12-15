@@ -12,6 +12,7 @@ import Card from "./Card";
 import Win from "./Win";
 import { ToastContainer } from "react-toastify";
 import { MenuFoldOutlined } from "@ant-design/icons";
+import Accessory from "./Accessory";
 
 const onChange = (key) => {
   console.log(key);
@@ -96,6 +97,11 @@ function Accessories() {
               label: "Card",
               key: "9",
               children: <Card />,
+            },
+            {
+              label: "Phụ kiện",
+              key: "10",
+              children: <Accessory />,
             },
           ]}
         />

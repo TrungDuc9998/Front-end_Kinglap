@@ -14,6 +14,7 @@ import {
   CheckCircleOutlined,
   EditOutlined,
   MenuFoldOutlined,
+  PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
@@ -153,16 +154,6 @@ const OrderConfirm = () => {
         confirmOrder(record, isPut);
       },
     });
-  };
-  const changeSearchDate = (val, dateStrings) => {
-    setDateOrder(dateStrings);
-  };
-  const showModalData = (id) => {
-    axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
-      setDataOD(res.data);
-    });
-    setView(true);
   };
 
   const loadDataOrder = () => {
@@ -318,34 +309,12 @@ const OrderConfirm = () => {
               onClick={() => navigate(`/admin/order/${id}/confirm`)}
               style={{ fontSize: "20px" }}
             />
-            {/* <CheckCircleOutlined
-              style={{ marginLeft: 15, fontSize: "20px", color: "blue" }}
-              onClick={() => {
-                onConfirm(record);
-              }}
-            />
-            <CloseCircleOutlined
-              onClick={() => onCancel(record)}
-              style={{
-                color: "red",
-                marginLeft: 15,
-                fontSize: "20px",
-                color: "red",
-              }}
-            /> */}
           </>
         );
       },
     },
   ];
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
@@ -460,9 +429,6 @@ const OrderConfirm = () => {
 
     loadDataOrder();
     setSearchName("");
-
-    // setSearchStartDate();
-    // searchEndDate()
   };
 
   const handleUpdateOrderDetail = (item) => {
@@ -550,7 +516,28 @@ const OrderConfirm = () => {
           </Button>
         </div>
       </div>
-
+      <div className="row">
+        <div className="col-12 mt-4 confirm">
+          {selectedRowKeys.length > 0 ? (
+            <div className="text-center ">
+              <Button type="primary" shape="round" onClick={confirmCheckBox}>
+                Cập nhật đơn hàng
+              </Button>
+              <Button
+                className="ms-2"
+                type="primary"
+                shape="round"
+                danger
+                onClick={cancelCheckBox}
+              >
+                Huỷ
+              </Button>
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
       <div
         className="mt-4 row"
         style={{
@@ -600,7 +587,6 @@ const OrderConfirm = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
-                  {/* <th scope="col">Trạng thái</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -632,23 +618,6 @@ const OrderConfirm = () => {
             </table>
           </Modal>
         </div>
-        {selectedRowKeys.length > 0 ? (
-          <div className="text-center mb-4">
-            <Button type="primary" onClick={confirmCheckBox}>
-              Cập nhật đơn hàng
-            </Button>
-            <Button
-              className="ms-2"
-              type="primary"
-              danger
-              onClick={cancelCheckBox}
-            >
-              Huỷ
-            </Button>
-          </div>
-        ) : (
-          ""
-        )}
       </div>
     </div>
   );

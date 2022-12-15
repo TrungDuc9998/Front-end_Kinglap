@@ -129,12 +129,10 @@ const CancelOrder = () => {
       render(total) {
         return (
           <>
-            <CurrencyFormat
-              style={{ fontSize: "14px" }}
-              value={total}
-              displayType={"text"}
-              thousandSeparator={true}
-            />
+             {total?.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
           </>
         );
       },

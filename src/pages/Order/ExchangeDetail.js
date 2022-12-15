@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Image, Modal } from "antd";
+import { Button, Image, Modal, Table } from "antd";
 import { Link, useParams } from "react-router-dom";
 import { CheckCircleOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { toast, ToastContainer } from "react-toastify";
@@ -21,6 +21,7 @@ function exchangeDetail() {
   const [dataExchange, setDataExchange] = useState([]);
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState();
   let { id } = useParams();
 
@@ -84,6 +85,7 @@ function exchangeDetail() {
     fetch(`http://localhost:8080/api/returns/${id}`)
       .then((res) => res.json())
       .then((res) => {
+        console.log("data exchange detail");
         console.log(res);
         setDataExchange(res);
       });
@@ -115,6 +117,9 @@ function exchangeDetail() {
   };
 
   const handleSubmit = (isPut) => {
+
+    console.log('vào handle submit');
+
     const orderDetail = [];
 
     dataExchange.forEach((element) => {
@@ -127,11 +132,7 @@ function exchangeDetail() {
       });
     });
 
-    console.log('order detail update');
-    console.log(orderDetail);
-
     const exchangeDetails = [];
-    console.log(dataExchange);
 
     dataExchange
       .filter((item) => item.select === true)
@@ -145,6 +146,9 @@ function exchangeDetail() {
           status: isPut === true ? "DA_XAC_NHAN" : "KHONG_XAC_NHAN",
         });
       });
+
+    console.log('data exchange sau khi handle submit');
+    console.log(dataExchange);
 
     fetch(`http://localhost:8080/api/returns/${id}`, {
       method: "PUT",
@@ -171,6 +175,155 @@ function exchangeDetail() {
     } else {
       toastSuccess("Huỷ yêu cầu thành công !");
     }
+  };
+
+  const columns = [
+    {
+      title: "Id",
+      dataIndex: "id",
+      sorter: true,
+      width: "10%",
+    },
+    {
+      title: "Hình ảnh",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "7%",
+      render: (id, data) => {
+        return (
+          <>
+            <Image
+              width={100}
+              src={data?.orderDetail.product?.images[0]?.name}
+            />
+          </>
+        );
+      },
+    },
+
+    {
+      title: "Sản phẩm trước đó",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
+        return <>{data.orderDetail.product.name}</>;
+      },
+    },
+
+    {
+      title: "Giá tiền",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
+        return (
+          <>
+            {data.orderDetail.product.price.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+    },
+    {
+      title: "Hình ảnh",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
+        return (
+          <>
+            <Image width={100} src={data?.productId?.images[0]?.name} />
+          </>
+        );
+      },
+    },
+    {
+      title: "Đổi sang",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
+        return <>{data.productId.name}</>;
+      },
+    },
+    {
+      title: "Giá tiền",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
+        return (
+          <>
+            {data.productId.price.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+    },
+
+    {
+      title: "Trạng thái",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "20%",
+      render: (id, data) => {
+        return (
+          <>
+            {data.status != "YEU_CAU" ? (
+              data.status === "DA_XAC_NHAN" ? (
+                <div
+                  className="bg-success text-center text-light"
+                  style={{
+                    width: "150px",
+                    borderRadius: "5px",
+                    padding: "4px",
+                  }}
+                >
+                  Đã xác nhận
+                </div>
+              ) : (
+                <div
+                  className="bg-danger text-center text-light"
+                  style={{
+                    width: "150px",
+                    borderRadius: "5px",
+                    padding: "4px",
+                  }}
+                >
+                  Huỷ
+                </div>
+              )
+            ) : (
+              <div
+                className="bg-warning text-center text-light"
+                style={{
+                  width: "150px",
+                  borderRadius: "5px",
+                  padding: "4px",
+                }}
+              >
+                Yêu cầu xác nhận
+              </div>
+            )}
+          </>
+        );
+      },
+    },
+  ];
+
+  const onSelectChange = (newSelectedRowKeys) => {
+    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
   };
 
   return (
@@ -264,12 +417,13 @@ function exchangeDetail() {
                 <tr key={d.id}>
                   <th scope="row">
                     <input
-                      disabled={disabled}
+                      disabled={d.select == true ? true :" "}
                       onChange={(event) => {
                         onChangeStudent1(event.target.checked, d);
                       }}
                       type="checkbox"
-                      checked={d.select}
+                      checked={d.select == true ? "" :d.select}
+                      
                     ></input>
                   </th>
                   <td>{d.id}</td>
@@ -333,12 +487,18 @@ function exchangeDetail() {
                         Yêu cầu xác nhận
                       </div>
                     )}
-                    {/* {d.status} */}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <Table
+            rowSelection={rowSelection}
+            columns={columns}
+            rowKey={(record) => record.id}
+            dataSource={dataExchange}
+            pagination={{ position: ["none", "none"] }}
+          />
         </div>
         <div className="col-12 text-center mb-3 mt-2">
           <Button onClick={onConfirm} type="primary">

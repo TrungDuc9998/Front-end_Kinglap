@@ -293,7 +293,7 @@ function CreateOrderAdmin() {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        productId: cart.product.id,
+        productId: cart.productId,
         userId: cart.useId | 1,
         quantity: quantity !== undefined ? quantity + 1 : cart.quantity,
         total: cart.total,
@@ -1357,6 +1357,12 @@ function CreateOrderAdmin() {
                             min={1}
                             max={item.product.quantity}
                           />
+                        </td>
+                        <td>
+                          {item.total.toLocaleString("it-IT", {
+                            style: "currency",
+                            currency: "VND",
+                          })}
                         </td>
                         <td>
                           <DeleteOutlined
