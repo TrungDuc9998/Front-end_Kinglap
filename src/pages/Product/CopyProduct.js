@@ -1,10 +1,20 @@
 import { MenuFoldOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Form, Input, Select, Upload, Space } from "antd";
+import {
+  Button,
+  Image,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  Upload,
+  Space,
+} from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import qs from "qs";
 import { useEffect, useState } from "react";
+import { render } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -412,9 +422,8 @@ function CopyProduct() {
   const dateFormat = "YYYY";
 
   const handleSubmit = (data) => {
-    set.forEach((item) => {
-      uploadFile(item);
-    });
+    console.log('image url');
+    console.log(imageUrls);
     data.images = imageUrls;
     data.status = "ACTIVE";
     data.debut = moment(data.debut).format("yyyy");
@@ -425,7 +434,6 @@ function CopyProduct() {
       return_id: null,
       exchange_id: null,
     }));
-
     const product = {
       name: data.name,
       quantity: Number(data.quantity),
@@ -455,7 +463,8 @@ function CopyProduct() {
       description: data.description,
       storageId: data.storageId,
     };
-    fetch("http://localhost:8080/api/products", {
+    console.log(product);
+    fetch(`http://localhost:8080/api/products/copy/${productEdit.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
@@ -463,9 +472,9 @@ function CopyProduct() {
       .then((response) => response.json())
       .then((results) => {
         if (results.status === 200) {
+          console.log(results);
           onReset();
           toastSuccess("Thêm mới thành công !");
-          window.location.href = "/admin/product";
         } else {
           toastError("Thêm mới sản phẩm thất bại !");
         }
@@ -525,7 +534,7 @@ function CopyProduct() {
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log('data product get by id');
+        console.log("data product get by id");
         console.log(res);
         setDataProduct(res);
       });
@@ -620,7 +629,9 @@ function CopyProduct() {
                   name="categoryId"
                   label="Thể loại sản phẩm"
                   requiredMark="optional"
-                  initialValue={form.categoryProducts?.map((item) => item.category.id)}
+                  initialValue={form.categoryProducts?.map(
+                    (item) => item.category.id
+                  )}
                   rules={[
                     {
                       required: true,
@@ -648,6 +659,7 @@ function CopyProduct() {
                       required: true,
                       message: "Giá tiền không được để trống",
                     },
+                    { min: 6, message: "Giá trị lớn hơn 6 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -710,6 +722,7 @@ function CopyProduct() {
                 <Form.Item
                   name="length"
                   label="Chiều dài"
+               
                   initialValue={form.length}
                   rules={[
                     {
@@ -723,6 +736,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều dài"
                     type="number"
+                    readOnly= {true}
                     value={length}
                   />
                 </Form.Item>
@@ -744,6 +758,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều rộng"
                     value={width}
+                    readOnly= {true}
                     type="number"
                   />
                 </Form.Item>
@@ -765,6 +780,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều cao"
                     type="number"
+                    readOnly= {true}
                   />
                 </Form.Item>
               </div>
@@ -817,7 +833,7 @@ function CopyProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn xuất xứ">
+                  <Select placeholder="Chọn xuất xứ" disabled={true}>
                     {dataOrigin?.map((cate) => (
                       <Select.Option value={cate.id}>{cate.name}</Select.Option>
                     ))}
@@ -844,6 +860,7 @@ function CopyProduct() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Nhập chất liệu"
+                    readOnly= {true}
                   />
                 </Form.Item>
               </div>
@@ -1126,8 +1143,8 @@ function CopyProduct() {
                   <TextArea rows={4} />
                 </Form.Item>
               </div>
-              <div className="col-7 mt-5">
-                <Space
+              <div className="col-7 mt-4">
+                {/* <Space
                   direction="vertical"
                   style={{
                     width: "100%",
@@ -1140,7 +1157,30 @@ function CopyProduct() {
                       Chọn hình ảnh (Tối đa: 5)
                     </Button>
                   </Upload>
-                </Space>
+                </Space> */}
+                <Image.PreviewGroup>
+                  <Image width={100} src={productEdit?.images[0]?.name} />
+                  {productEdit.length > 2 ? (
+                    <Image width={100} src={productEdit?.images[1]?.name} />
+                  ) : (
+                    ""
+                  )}
+                  {productEdit.length > 3 ? (
+                    <Image width={100} src={productEdit?.images[2]?.name} />
+                  ) : (
+                    ""
+                  )}
+                  {productEdit.length > 4 ? (
+                    <Image width={100} src={productEdit?.images[3]?.name} />
+                  ) : (
+                    ""
+                  )}
+                  {productEdit.length > 4 ? (
+                    <Image width={100} src={productEdit?.images[4]?.name} />
+                  ) : (
+                    ""
+                  )}
+                </Image.PreviewGroup>
               </div>
               <div></div>
             </div>

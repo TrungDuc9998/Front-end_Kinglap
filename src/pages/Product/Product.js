@@ -117,7 +117,8 @@ const Product = () => {
       render: (id, data) => {
         return (
           <>
-            <Image width={100} src={data?.images[0]?.name} />
+            {data?.images.length}
+            {/* <Image width={100} src={data?.images[} /> */}
           </>
         );
       },

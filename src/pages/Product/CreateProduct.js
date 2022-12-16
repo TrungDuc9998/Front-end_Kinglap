@@ -1,7 +1,4 @@
-import {
-  UploadOutlined,
-  MenuFoldOutlined,
-} from "@ant-design/icons";
+import { UploadOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { storage } from "../../image/firebase/firebase";
 import { v4 } from "uuid";
@@ -10,8 +7,6 @@ import {
   Input,
   Select,
   DatePicker,
-  Space,
-  Image,
   Form,
   Upload,
 } from "antd";
@@ -65,7 +60,6 @@ function CreateProduct() {
       authorization: "authorization-text",
     },
     onChange(info) {
-      // console.log(info.fileList.length);
       if (info.file.status == "error") {
         info.file.status = "done";
       }
@@ -136,6 +130,7 @@ function CreateProduct() {
         });
       });
     });
+    loadDataCategory();
     loadDataOrigin();
     loadDataProcess();
     loadDataScreen();
@@ -147,7 +142,10 @@ function CreateProduct() {
     loadDataStorage();
     loadDataColor();
     loadDataWin();
-  }, [images]);
+    console.log('vào useEffect');
+    console.log(images);
+    console.log(imageUrls);
+  }, [images || images.length == 0]);
 
   const loadDataWin = () => {
     fetch(
@@ -395,31 +393,46 @@ function CreateProduct() {
       });
   };
 
-  useEffect(() => {
-    loadDataCategory();
-    loadDataManufacture();
-  }, []);
-
   const onReset = () => {
+    if (set.length > 0) {
+      set.forEach((item, index) => {
+        set.splice(index, set.length);
+        setImages([]);
+      });
+    }
+
+    images.forEach((item, index) => {
+      images.splice(index, images.length);
+    });
+    console.log("image");
+    console.log(images);
+    imageUrls.forEach((item,index) => {
+      imageUrls.splice(index, imageUrls.length);
+    })
+    imageUpload.forEach((item,index) => {
+      imageUpload.splice(index, imageUpload.length);
+    });
+    console.log(imageUrls);
+    console.log(imageUpload);
+    setImageUrls(imageUrls);
+    setImageUrls(imageUpload);
+    setImages(images);
     form.resetFields();
   };
 
   const handleSubmit = (data) => {
-    set.forEach((item) => {
-      uploadFile(item);
-    });
+    console.log('image url');
+    console.log(imageUrls);
     data.images = imageUrls;
     data.status = "ACTIVE";
     data.debut = moment(data.debut).format("yyyy");
     const quantity = Number(data.quantity);
-    console.log(quantity);
     data.images = imageUrls.map((item) => ({
       name: item,
       product: null,
       return_id: null,
       exchange_id: null,
     }));
-
     const product = {
       name: data.name,
       quantity: Number(data.quantity),
@@ -449,6 +462,7 @@ function CreateProduct() {
       description: data.description,
       storageId: data.storageId,
     };
+    console.log(product);
     fetch("http://localhost:8080/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -457,6 +471,7 @@ function CreateProduct() {
       .then((response) => response.json())
       .then((results) => {
         if (results.status === 200) {
+          console.log(results);
           onReset();
           toastSuccess("Thêm mới thành công !");
         } else {
@@ -466,6 +481,12 @@ function CreateProduct() {
       .catch((error) => {
         console.error("Error:", error);
       });
+  };
+
+  const handleUpload = () => {
+    set.forEach((item) => {
+      uploadFile(item);
+    });
   };
 
   return (
@@ -518,7 +539,7 @@ function CreateProduct() {
                       message: "Tên sản phẩm không được để trống",
                     },
                     { whitespace: true },
-                    { min: 3 },
+                    { min: 3 ,message: "Giá trị lớn hơn 3 ký tự"},
                   ]}
                   hasFeedback
                 >
@@ -548,6 +569,7 @@ function CreateProduct() {
                     style={{ width: "100%" }}
                     placeholder="Nhập mã máy"
                     value={imei}
+                   
                   />
                 </Form.Item>
               </div>
@@ -584,7 +606,7 @@ function CreateProduct() {
                       message: "Giá tiền không được để trống",
                     },
                     { whitespace: true },
-                    { min: 6 },
+                    { min: 7,message: "Giá trị lớn hơn 6 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -592,6 +614,8 @@ function CreateProduct() {
                     style={{ width: "100%" }}
                     placeholder="Nhập giá tiền"
                     value={price}
+                    type="number"
+                    min={10000000}
                   />
                 </Form.Item>
               </div>
@@ -603,7 +627,7 @@ function CreateProduct() {
                   rules={[
                     {
                       required: true,
-                      message: "Giá tiền không được để trống",
+                      message: "Số lượng không được để trống",
                     },
                     { whitespace: true },
                   ]}
@@ -612,8 +636,9 @@ function CreateProduct() {
                   <Input
                     type="number"
                     style={{ width: "100%" }}
-                    placeholder="Nhập giá tiền"
+                    placeholder="Nhập số lượng"
                     value={quantity}
+                    min={1}
                   />
                 </Form.Item>
               </div>
@@ -657,6 +682,7 @@ function CreateProduct() {
                     placeholder="Chiều dài"
                     type="number"
                     value={length}
+                    min={100}
                   />
                 </Form.Item>
               </div>
@@ -677,6 +703,7 @@ function CreateProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều rộng"
                     value={width}
+                    min={100}
                     type="number"
                   />
                 </Form.Item>
@@ -698,6 +725,7 @@ function CreateProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều cao"
                     type="number"
+                    min={1}
                   />
                 </Form.Item>
               </div>
@@ -718,6 +746,7 @@ function CreateProduct() {
                     style={{ width: "100%" }}
                     placeholder="Cân nặng"
                     type="number"
+                    min={1}
                   />
                 </Form.Item>
               </div>
@@ -732,7 +761,7 @@ function CreateProduct() {
                     },
                   ]}
                 >
-                  <DatePicker picker="year" />
+                  <DatePicker placeholder="Chọn năm sản xuất" picker="year" />
                 </Form.Item>
               </div>
               <div className="col-2">
@@ -767,7 +796,7 @@ function CreateProduct() {
                       message: "Chất liệu không được để trống",
                     },
                     { whitespace: true },
-                    { min: 3 },
+                    { min: 3,message: "Giá trị lớn hơn 3 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -1005,7 +1034,7 @@ function CreateProduct() {
                       message: "Bảo mật không được để trống",
                     },
                     { whitespace: true },
-                    { min: 3 },
+                    { min: 3,message: "Giá trị lớn hơn 3 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -1041,38 +1070,44 @@ function CreateProduct() {
               <div className="col-7">
                 <div className="row mt-5">
                   <div className="col-6">
-                    <Space
-                      direction="vertical"
-                      style={{
-                        width: "100%",
-                      }}
-                      size="large"
+                    <Form.Item
+                      name="upload"
+                      label="Upload"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn ảnh!",
+                        },
+                      ]}
                     >
-                      <Upload
-                        {...props}
-                        listType="picture"
-                        maxCount={5}
-                      >
+                      <Upload {...props} listType="picture" maxCount={5}>
                         <Button icon={<UploadOutlined />}>
                           {" "}
                           Chọn hình ảnh (Tối đa: 5)
                         </Button>
                       </Upload>
-                    </Space>
+                    </Form.Item>
                   </div>
                 </div>
               </div>
               <div></div>
             </div>
             <Form.Item className="text-center mt-4">
-              <Button
-                block
-                type="primary"
-                htmlType="submit"
-                style={{ width: "100px" }}
-              >
-                Tạo mới
-              </Button>
+              {(images.length > 0 || imageUrls.length >0 )  ? (
+                <Button
+                  block
+                  type="primary"
+                  htmlType="submit"
+                  style={{ width: "100px" }}
+                >
+                  Tạo mới
+                </Button>
+              ) : (
+                <Button type="primary" onClick={handleUpload}>
+                  Upload
+                </Button>
+              )}
+
               <Button htmlType="button" className="ms-2" onClick={onReset}>
                 Làm mới
               </Button>
