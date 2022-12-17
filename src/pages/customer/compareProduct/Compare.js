@@ -42,21 +42,21 @@ function Compare() {
   }, [def]);
 
   const handelCLickProduct = (product) => {
-    console.log("handleClickProduct:", product);
-    if(product === undefined) {
-      console.log("handleClickProduct:", dataProduct);
-      dispatch(viewProduct(dataProduct));
-      console.log("state", state);
-    }else {
-      dispatch(viewProduct(product));
-      console.log("state", state);
-    }
+    // console.log("handleClickProduct:", product);
+    // if(product === undefined) {
+    //   console.log("handleClickProduct:", dataProduct);
+    //   dispatch(viewProduct(dataProduct));
+    //   console.log("state", state);
+    // }else {
+    //   dispatch(viewProduct(product));
+    //   console.log("state", state);
+    // }
   };
 
   const onChangeProduct = (value) => {
     data.forEach((element) => {
       if (element.id === value) {
-        setPro1(element);
+        getProductById(element.id, true);
       }
     });
   };
@@ -68,10 +68,23 @@ function Compare() {
   const onChangeProduct2 = (value) => {
     data.forEach((element) => {
       if (element.id === value) {
-        setPro2(element);
+        console.log("vào iff");
+        console.log(element);
+        getProductById(element.id, false);
       }
     });
     console.log(value);
+  };
+  const getProductById = (id, check) => {
+    fetch(`http://localhost:8080/api/products/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (check === true) {
+          setPro1(res);
+        } else {
+          setPro2(res);
+        }
+      });
   };
 
   const onSearchProduct2 = (searchItem) => {
@@ -113,7 +126,9 @@ function Compare() {
             ? pro2?.name != undefined
               ? pro1?.name + " VS " + pro2?.name
               : pro1?.name + " VS ..."
-            : (pro2 === undefined ? (dataProduct?.name + " VS ..."): (dataProduct?.name + "VS" + pro2?.name ))}
+            : pro2 === undefined
+            ? dataProduct?.name + " VS ..."
+            : dataProduct?.name + "VS" + pro2?.name}
         </h4>
         <hr />
       </div>
@@ -127,7 +142,7 @@ function Compare() {
             style={{
               width: "70%",
             }}
-            value={pro1?.name == undefined ? dataProduct?.name : pro1?.name }
+            value={pro1?.name == undefined ? dataProduct?.name : pro1?.name}
             // options={data}
             onChange={onChangeProduct}
             onClick={onSearchProduct}
@@ -152,10 +167,10 @@ function Compare() {
               <Image
                 className="mt-5"
                 width={350}
-                src={dataProduct?.images[0].name}
+                src={dataProduct?.images[0]?.name}
               />
             ) : (
-              <Image className="mt-5" width={350} src={pro1?.images[0].name} />
+              <Image className="mt-5" width={350} src={pro1?.images[0]?.name} />
             )}
 
             <div className="mt-3 fw-bold mb-3">
@@ -175,7 +190,9 @@ function Compare() {
                     style={{ fontSize: "16px", textDecoration: "none" }}
                     onClick={() => handelCLickProduct(pro1)}
                   >
-                    <a href="/user/product" className="text-primary">Xem chi tiết</a>
+                    <a href="/user/product" className="text-primary">
+                      Xem chi tiết
+                    </a>
                   </h3>
                 </div>
               ) : (
@@ -203,7 +220,6 @@ function Compare() {
         </div>
         <div className="col-12 col-sm-6 ps-5">
           <Select
-           
             allowClear
             showSearch
             placeholder="Tên sản phẩm"
@@ -230,7 +246,7 @@ function Compare() {
               : ""}
           </Select>
           <div className="text-center" style={{ width: "70%", height: "40%" }}>
-            <Image className="mt-5" width={350} src={pro2?.images[0].name} />
+            <Image className="mt-5" width={350} src={pro2?.images[0]?.name} />
             <div className="mt-3 fw-bold mb-3">
               {pro2?.price != undefined ? (
                 <div>
@@ -248,7 +264,9 @@ function Compare() {
                     style={{ fontSize: "16px", textDecoration: "none" }}
                     onClick={() => handelCLickProduct(pro2)}
                   >
-                    <a href="/user/product" className="text-primary">Xem chi tiết</a>
+                    <a href="/user/product" className="text-primary">
+                      Xem chi tiết
+                    </a>
                   </h3>
                 </div>
               ) : (

@@ -34,11 +34,14 @@ function HomeUser() {
   };
 
   const getProductById = (id) => {
+    console.log('productId:',id);
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        dispatch(viewProduct(res));
-        console.log("state", state);
+        localStorage.setItem("product_detail", JSON.stringify(res));
+        navigate("/user/product")
+        // dispatch(viewProduct(res));
+        // console.log("state", state);
       });
   };
 
@@ -297,7 +300,7 @@ function HomeUser() {
                                       className="product-name"
                                       onClick={() => handelCLickProduct(pro)}
                                     >
-                                      <a  href="/user/product">{pro.name}</a>
+                                      <a>{pro.name}</a>
                                     </h3>
                                     <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount?<del className="product-old-price">{formatCash(Math.ceil(pro.price/((100- pro.discount.ratio) / 100))+"")} VNĐ</del>:""}</h4>
                                     <div className="product-rating">

@@ -112,14 +112,14 @@ function Menu() {
                                     <div>
                                         <a style={{ color: "white" }} onClick={yourOrder}>
                                             <Heart></Heart>
-                                            <span>Hoá đơn</span>
+                                            <span> Đơn hàng</span>
                                         </a>
                                     </div>
 
                                     <div className="">
                                         <a style={{ color: "white" }} onClick={yourCart} aria-expanded="true">
                                             <ShoppingCart></ShoppingCart>
-                                            <span>Giỏ hàng</span>
+                                            <span> Giỏ hàng</span>
                                         </a>
                                     </div>
                                 </div>
