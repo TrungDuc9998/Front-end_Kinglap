@@ -250,7 +250,7 @@ const Find = () => {
                                         </div>
                                     </div>
                                     <div className="product-body">
-                                        <p className="product-category">{item?.category?.name ? item.category?.name : ""}</p>
+                                        <p className="product-category">{item.categoryProducts?.category?.name ? item.categoryProducts.category.name : ""}</p>
                                         <h3 className="product-name" onClick={() => handelCLickProduct(item)} ><a href="/user/product">{item.name}</a></h3>
                                         <h4 className="product-price">{formatCash(item.price + "")} VNĐ {item.discount ? <del className="product-old-price">{formatCash(item.price / ((100 - item.discount.ratio) / 100) + "")} VNĐ</del> : ""}</h4>
                                         <div className="product-rating">

@@ -14,7 +14,7 @@ function Navbar() {
                                     <Link className="nav-link active" aria-current="page" to={"/user"} style={{ marginTop: '20%' }}><h4 style={{ fontWeight: '600' }}>Trang chủ</h4></Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link className="nav-link" to={"/user/find"} style={{ marginTop: '30%' }}><Filter size={20} ></Filter> Lọc sản phẩm</Link>
+                                    <Link className="nav-link" to={"/user/find"} style={{ marginTop: '30%' }}><Filter size={20} ></Filter>Sản phẩm</Link>
                                 </li>
                                 {/* <li className="nav-item">
                                     <Link className="nav-link" to={""}>Accessories</Link>

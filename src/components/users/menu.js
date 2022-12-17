@@ -1,13 +1,98 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import './css/layout.css';
-import { Phone, Mail, MapPin, DollarSign, User, Heart, ShoppingCart } from 'react-feather';
-import { Link, Navigate } from "react-router-dom";
+import { Phone, MapPin, DollarSign, User, Heart, ShoppingCart } from 'react-feather';
+import { Link } from "react-router-dom";
 import logo from '../../asset/images/LOGO LAPTOP.png'
 import { useNavigate } from "react-router-dom";
+import qs from "qs";
+import { AutoComplete, Image, Select } from "antd";
+import { useContext } from "react";
+import Context from "../../store/Context";
+import { viewProduct } from "../../store/Actions";
 
 const isLogin = localStorage.getItem("token");
 
 function Menu() {
+    const renderItem = (id, title, count, price) => ({
+        value: id,
+        label: (
+            <div
+                style={{
+                    display: "flex",
+                }}
+            >
+                <span>
+                    <Image width={85} src={count} />
+                </span>
+                {title}
+            </div>
+        ),
+        price: price,
+    });
+    const [tableParamPro, setTableParamPro] = useState({
+        pagination: {
+            current: 1,
+            pageSize: 100,
+            search1: "",
+            search2: "",
+            searchStatus: "ACTIVE",
+        },
+    });
+    const loadDataProduct = () => {
+        fetch(
+            `http://localhost:8080/api/products?${qs.stringify(
+                getRandomuserParams(tableParamPro)
+            )}`
+        )
+            .then((res) => res.json())
+            .then((results) => {
+                const dataResult = [];
+                results.data.data.forEach((item) => {
+                    dataResult.push(
+                        renderItem(item.id, item.name, item?.images[0]?.name, item.price)
+                    );
+                    setData(dataResult);
+                });
+            });
+    };
+
+    const [values, setValues] = useState();
+    const onChangeSearch = (event) => {
+        setValues(event)
+    }
+    const onSelectAuto = (value) => {
+        getProductById(value);
+        navigate("/user/product")
+        setValues('')
+    };
+
+
+    const [total, setTotal] = useState();
+    const [totalSet, setTotalSet] = useState(10);
+    const getRandomuserParams = (params) => ({
+        limit: params.pagination?.pageSize,
+        page: params.pagination?.current,
+    });
+    const [tableParams, setTableParams] = useState({
+        pagination: {
+            current: 1,
+            pageSize: 8
+        },
+    });
+    const url = 'http://localhost:8080/api/products';
+    const [data, setData] = useState();
+    const [valueProduct, setValueProduct] = useState("");
+    const onChangeProduct = (value) => {
+        // getProductById(value)
+    };
+    const [state, dispatch] = useContext(Context);
+    const getProductById = (id) => {
+        fetch(`http://localhost:8080/api/products/${id}`)
+            .then((res) => res.json())
+            .then((res) => {
+                dispatch(viewProduct(res));
+            });
+    };
     let navigate = useNavigate();
     const yourCart = () => {
         navigate("/user/cart");
@@ -42,6 +127,10 @@ function Menu() {
     const login = () => {
         navigate('/login')
     }
+    useEffect(() => {
+        // getData();
+        loadDataProduct();
+    }, [])
 
     return (
         <>
@@ -52,13 +141,13 @@ function Menu() {
                             <li className="nav-item">
                                 <a>
                                     <Phone size={14} color="red"></Phone>
-                                     024 7106 9999
+                                    024 7106 9999
                                 </a>
                             </li>
                             <li className="nav-item">
                                 <a>
                                     <MapPin size={12} color="red"></MapPin>
-                                     125 P. Trần Đại Nghĩa, Bách Khoa, Hai Bà Trưng, Hà Nội
+                                    125 P. Trần Đại Nghĩa, Bách Khoa, Hai Bà Trưng, Hà Nội
                                 </a>
                             </li>
                         </ul>
@@ -95,15 +184,23 @@ function Menu() {
 
                             <div className="col-md-6">
                                 <div className="header-search">
-                                    <form>
-                                        <select className="input-select">
-                                            <option value="0">Tất cả sản phẩm</option>
-                                            {/* <option value="1">Category 01</option>
-                                            <option value="1">Category 02</option> */}
-                                        </select>
-                                        <input className="input" placeholder="Search here" />
-                                        <button className="search-btn">Search</button>
-                                    </form>
+                                    <AutoComplete
+                                        name={"search"}
+                                        style={{
+                                            width: 700,
+                                        }}
+                                        allowClear={true}
+                                        options={data}
+                                        onChange={(event) => onChangeSearch(event)}
+                                        onSelect={onSelectAuto}
+                                        value={values}
+                                        placeholder="Chọn sản phẩm"
+                                        filterOption={(inputValue, option) =>
+                                            option.label.props.children[1]
+                                                .toUpperCase()
+                                                .indexOf(inputValue.toUpperCase()) !== -1
+                                        }
+                                    />
                                 </div>
                             </div>
 

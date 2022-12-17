@@ -9,6 +9,7 @@ import {
   Radio,
   Space,
   Image,
+  Option
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -26,7 +27,6 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-const { Option } = Select;
 const { RangePicker } = DatePicker;
 const url = "http://localhost:8080/api/returns";
 
@@ -51,6 +51,8 @@ const toastSuccess = (message) => {
 };
 
 const ExchangeSuccess = () => {
+
+
   let navigate = useNavigate();
   const [dataOD, setDataOD] = useState();
   const [order, setOrder] = useState();
@@ -59,6 +61,7 @@ const ExchangeSuccess = () => {
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
   const [dataExchange, setDataExchange] = useState();
+  const [dataExchange1, setDataExchange1] = useState();
   const [put, setPut] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -134,7 +137,7 @@ const ExchangeSuccess = () => {
         quantity: 1,
         status: isPut === true ? "DA_XAC_NHAN" : "KHONG_XAC_NHAN",
       }),
-    }).then((res) => {});
+    }).then((res) => { });
 
     fetch(
       `http://localhost:8080/api/orders/${record.orderDetail.id}/orderDetails`,
@@ -149,7 +152,7 @@ const ExchangeSuccess = () => {
           isCheck: 1,
         }),
       }
-    ).then((res) => {});
+    ).then((res) => { });
     loadDataExchange();
   };
 
@@ -193,6 +196,7 @@ const ExchangeSuccess = () => {
         console.log(results);
         console.log(results.data.data);
         setDataExchange(results.data.data);
+        setDataExchange1(results.data.data);
         setLoading(false);
       });
   };
@@ -280,9 +284,23 @@ const ExchangeSuccess = () => {
     },
   ];
 
+  const [valueSearch, setValueSearch] = useState('TAT_CA');
   const onChange = (value) => {
-    console.log(`selected ${value}`);
+    setValueSearch(value);
   };
+  const onClickDatLai = () => {
+    setValueSearch("TAT_CA");
+    setDataExchange(dataExchange1);
+  }
+  const onClickSearch = () => {
+    console.log(valueSearch);
+    if (valueSearch == "TAT_CA") {
+      setDataExchange(dataExchange1);
+      return;
+    }
+    setDataExchange(dataExchange1.filter((item) => item.status === valueSearch));
+
+  }
 
   const onSearch = (value) => {
     console.log("search:", value);
@@ -317,7 +335,7 @@ const ExchangeSuccess = () => {
     });
   };
 
-  const getOrderDetail = () => {};
+  const getOrderDetail = () => { };
   const getProduct = (id) => {
     let count = 0;
     let name;
@@ -359,24 +377,32 @@ const ExchangeSuccess = () => {
           <br />
           <Select
             style={{ width: "300px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            optionFilterProp="children"
+            // placeholder="Chọn trạng thái"
+            defaultValue={'TAT_CA'}
+            value={valueSearch}
             onChange={onChange}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
+            options={[
+              {
+                value: 'TAT_CA',
+                label: 'Tất cả',
+              },
+              {
+                value: 'DA_XU_LY',
+                label: 'Đã xử lý',
+              },
+              {
+                value: 'CHUA_XU_LY',
+                label: 'Chưa xử lý',
+              },
+            ]}
           >
-            <Option value="DA_XU_LY">Đã xử lý</Option>
-            <Option value="CHUA_XU_LY">Chưa xử lý</Option>
           </Select>
         </div>
         <div className="col-12 text-center ">
           <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={showModal}
+            onClick={onClickDatLai}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -385,7 +411,7 @@ const ExchangeSuccess = () => {
           <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={showModal}
+            onClick={onClickSearch}
             style={{ borderRadius: "10px" }}
           >
             <SearchOutlined />
@@ -490,7 +516,7 @@ const ExchangeSuccess = () => {
           </Modal>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
