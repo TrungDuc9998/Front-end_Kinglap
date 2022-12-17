@@ -107,7 +107,7 @@ function ViewProduct() {
   };
   const [state, dispatch] = useContext(Context);
   console.log("state", state.cartCheckout);
-  const product = JSON.parse(localStorage.getItem("product_view"));
+  const product = JSON.parse(localStorage.getItem("product_detail"));
   console.log(product);
   const handleAddToCart = (product, quantity) => {
     dispatch(addToCartByView({ product, quantity }));
@@ -128,7 +128,7 @@ function ViewProduct() {
       <div className="container mt-2">
         <div className="row">
           <div className="col-5 img-content">
-            <div
+            {/* <div
               id="carouselExampleCaptions"
               className="carousel carousel-dark slide"
               data-bs-ride="false"
@@ -157,7 +157,7 @@ function ViewProduct() {
               </div>
               <div className="carousel-inner">
                 {product.images.map((image) => (
-                  <div className="carousel-item active">
+                  <div className="carousel-item ">
                     <img className="d-block w-100" src={image.name} alt="" />
                   </div>
                 ))}
@@ -185,6 +185,81 @@ function ViewProduct() {
                   aria-hidden="true"
                 ></span>
                 <span className="visually-hidden">Next</span>
+              </button>
+            </div> */}
+            <div
+              id="carouselExampleIndicators"
+              class="carousel slide"
+              data-bs-ride="carousel"
+            >
+              <div class="carousel-indicators">
+                <button
+                  type="button"
+                  data-bs-target="#carouselExampleIndicators"
+                  data-bs-slide-to="0"
+                  class="active"
+                  aria-current="true"
+                  aria-label="Slide 1"
+                ></button>
+                <button
+                  type="button"
+                  data-bs-target="#carouselExampleIndicators"
+                  data-bs-slide-to="1"
+                  aria-label="Slide 2"
+                ></button>
+                <button
+                  type="button"
+                  data-bs-target="#carouselExampleIndicators"
+                  data-bs-slide-to="2"
+                  aria-label="Slide 3"
+                ></button>
+              </div>
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <img
+                    src="https://firebasestorage.googleapis.com/v0/b/fir-react-storage-96f9d.appspot.com/o/images%2F091d4f1bebc76ea61eec0b9d8af26e5f%20-%20Copy.jpg086dcb2b-0731-4650-89d3-45bf7095181a?alt=media&token=233930b5-4de5-4e96-a252-a2e184904222"
+                    class="d-block w-100"
+                    alt="..."
+                  />
+                </div>
+                <div class="carousel-item">
+                  <img
+                    src="https://firebasestorage.googleapis.com/v0/b/fir-react-storage-96f9d.appspot.com/o/images%2F091d4f1bebc76ea61eec0b9d8af26e5f%20-%20Copy.jpg086dcb2b-0731-4650-89d3-45bf7095181a?alt=media&token=233930b5-4de5-4e96-a252-a2e184904222"
+                    class="d-block w-100"
+                    alt="..."
+                  />
+                </div>
+                <div class="carousel-item">
+                  <img
+                    src="https://firebasestorage.googleapis.com/v0/b/fir-react-storage-96f9d.appspot.com/o/images%2F091d4f1bebc76ea61eec0b9d8af26e5f%20-%20Copy.jpg086dcb2b-0731-4650-89d3-45bf7095181a?alt=media&token=233930b5-4de5-4e96-a252-a2e184904222"
+                    class="d-block w-100"
+                    alt="..."
+                  />
+                </div>
+              </div>
+              <button
+                class="carousel-control-prev"
+                type="button"
+                data-bs-target="#carouselExampleIndicators"
+                data-bs-slide="prev"
+              >
+                <span
+                  class="carousel-control-prev-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button
+                class="carousel-control-next"
+                type="button"
+                data-bs-target="#carouselExampleIndicators"
+                data-bs-slide="next"
+              >
+                <span
+                  class="carousel-control-next-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Next</span>
               </button>
             </div>
           </div>
@@ -218,7 +293,12 @@ function ViewProduct() {
                   </Tooltip>
                 </Link>
               </div>
-              <p>Số lượng còn lại: {product.quantity - quantity}</p>
+              <p className="text-danger fs-6">
+                Số lượng còn lại:{" "}
+                {product.quantity - quantity > 0
+                  ? product.quantity - quantity
+                  : 0}
+              </p>
               <Input
                 value={quantity}
                 className="m-2"
@@ -227,7 +307,7 @@ function ViewProduct() {
                 style={{ width: "30%" }}
                 placeholder="Số lượng"
                 min={1}
-                max={10}
+                max={product.quantity}
               />
 
               <div className="add-to-cart">
@@ -435,7 +515,7 @@ function ViewProduct() {
                     </div>
                     <div className="card-body row">
                       <li>OS: {product.win.name}</li>
-                      <li>Version: {product.win.version}</li>                
+                      <li>Version: {product.win.version}</li>
                     </div>
                   </div>
                 </Modal>
