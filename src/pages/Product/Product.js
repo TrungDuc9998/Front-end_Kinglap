@@ -1,37 +1,27 @@
 import {
-  CopyOutlined,
-  DeleteOutlined,
-  EditOutlined,
+  CopyOutlined, EditOutlined,
   LockOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  UnlockOutlined,
+  UnlockOutlined
 } from "@ant-design/icons";
 import {
   Button,
   Input,
   Modal,
   Select,
-  Table,
-  Image,
-  List,
-  Avatar,
-  DatePicker,
+  Table
 } from "antd";
-import VirtualList from "rc-virtual-list";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import "toastr/build/toastr.min.css";
-import toastrs from "toastr";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import CurrencyFormat from "react-currency-format";
-import CreateProduct from "./CreateProduct";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import toastrs from "toastr";
+import "toastr/build/toastr.min.css";
 import * as XLSX from 'xlsx/xlsx.mjs';
 const EXTENSIONS = ['xlsx', 'xls', 'csv']
-import moment from "moment";
 const { Option } = Select;
 
 const getRandomuserParams = (params) => ({
@@ -908,11 +898,10 @@ const Product = () => {
                 option.children.toLowerCase().includes(input.toLowerCase())
               }
             >
-              <Option value="10000000">Dưới 10 triệu</Option>
-              <Option value="20000000">Dưới 20 triệu</Option>
-              <Option value="30000000">Dưới 30 triệu</Option>
-              <Option value="40000000">Dưới 40 triệu</Option>
-              <Option value="50000000">Dưới 50 triệu</Option>
+              <Option value="9999999">Dưới 10 triệu</Option>
+              <Option value="10000000">Từ 10 - 15 triệu</Option>
+              <Option value="15000000">Từ 15 - 20 triệu</Option>
+              <Option value="20000000">Trên 20 triệu</Option>
             </Select>
           </div>
           <div className="col-12 text-center ">
