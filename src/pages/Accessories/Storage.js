@@ -8,6 +8,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
+import { ToastContainer, toast } from 'react-toastify';
 import React, { useEffect, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 const { Option } = Select;
@@ -173,7 +174,6 @@ const Storage = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results.data.data);
         setDetail(results.data.data);
         setLoading(false);
       });
@@ -258,7 +258,6 @@ const Storage = () => {
   }
 
   const handleSelect = (e) => {
-    console.log("select",e)
     setValues({
       ...form,
       storageDetailId: e
@@ -308,7 +307,6 @@ const Storage = () => {
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
     setEditing(false);
     formE.setFieldsValue(formDefault);
@@ -316,49 +314,6 @@ const Storage = () => {
   
   return (
     <div>
-      {/* <div
-        className="row"
-        style={{
-          borderRadius: "20px",
-          height: "auto",
-          border: "1px solid #d9d9d9",
-          background: "#fafafa",
-        }}
-      >
-        
-            <div className="col-10 mt-3 mb-3">
-              <label>Từ khoá</label>
-              <div className="row">
-                <div className="col-4 mt-3">
-                    <Input placeholder="Nhập kiểu ổ cứng" value={searchStorageType}
-                      onChange={(e) => setSearchStorageType(e.target.value)}/>
-                </div>
-                <div className="col-8 mt-3">
-                    <Button
-                        className="mb-2 mx-2"
-                        type="primary"
-                        onClick={search}
-                        style={{ borderRadius: "10px" }}
-                    >
-                        <SearchOutlined />
-                        Tìm kiếm
-                    </Button>
-                    <Button
-                        className="mb-2"
-                        type="primary-uotline"
-                        onClick={clearSearchForm}
-                        style={{ borderRadius: "10px" }}
-                    >
-                        <ReloadOutlined />
-                        Đặt lại
-                    </Button>
-
-                    </div>
-              </div>
-              
-            </div>
-            
-      </div> */}
       <div className="row">
         <div className="col-12 mt-4">
           <Button
@@ -499,7 +454,6 @@ const Storage = () => {
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 10 }}
               onFinish={(values) => {
-                console.log("values",values);
                 handleEdit(
                   values
                 );
@@ -510,15 +464,7 @@ const Storage = () => {
             >
               <Form.Item
                 className="mt-2"
-                // name="storageDetailId"
                 label="Kiểu ổ cứng"
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Kiểu ổ cứng không được để trống",
-                //   },
-                // ]}
-                // hasFeedback
               >
                 <Select
                 showSearch

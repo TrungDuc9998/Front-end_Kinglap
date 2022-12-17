@@ -216,7 +216,6 @@ const Origin = () => {
   }, [loading,data != undefined]);
 
   const onDelete = (id) => {
-    console.log(id);
     setId(id);
     setDelete(true);
   };
@@ -251,8 +250,6 @@ const Origin = () => {
   };
 
   const search = () => {
-    console.log(searchStatus);
-    console.log(searchName);
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.current = 1;
@@ -278,20 +275,11 @@ const Origin = () => {
     console.log("search:", value);
   };
 
-  const changeSearchName = (event) => {
-    setSearchName(event.target.value);
-  };
-
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
   const showModal = () => {
     setOpen(true);
-  };
-
-  const handleOk = () => {
-    setOpen(false);
-    fetchData();
   };
 
   const handleCancel = () => {
@@ -301,7 +289,6 @@ const Origin = () => {
   const handleSubmit = (data) => {
     if (isUpdate === false) {
       data.status = "ACTIVE";
-      console.log(data);
       fetch("http://localhost:8080/api/admin/origin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -309,20 +296,16 @@ const Origin = () => {
       })
         .then((response) => response.json())
         .then((results) => {
-          console.log(results);
           if (results.status === 200) {
-            console.log('status 200')
             toastSuccessOrigin("Thêm mới xuất xứ thành công!");
             setOpen(false);
             fetchData();
           }
         });
-   
     }
   };
 
   const handleSubmitUpdate = (data) => {
-    console.log("old", dataEdit);
     const edit = {
       id: dataEdit.id,
       name: data.name,
@@ -330,7 +313,6 @@ const Origin = () => {
     };
     if (isUpdate === false) {
       data.status = "ACTIVE";
-      console.log(data);
       fetch(`http://localhost:8080/api/admin/origin/` + edit.id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -338,7 +320,6 @@ const Origin = () => {
       })
         .then((response) => fetchData())
         .then((data) => {
-          console.log("Success:", data);
           toastSuccessOrigin("Cập nhật thành công!");
         })
         .catch((error) => {
@@ -360,7 +341,6 @@ const Origin = () => {
 
   return (
     <div>
-      {/* <ToastContainer></ToastContainer> */}
       <div
         className="row"
         style={{
@@ -435,7 +415,6 @@ const Origin = () => {
           <Modal
             title="Tạo mới"
             open={open}
-            onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
             okButtonProps={{
@@ -444,12 +423,13 @@ const Origin = () => {
               },
             }}
             cancelText={"Đóng"}
+            width={700}
           >
             <Form
               initialValues={{}}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmit(values, isUpdate);
@@ -521,12 +501,13 @@ const Origin = () => {
               },
             }}
             cancelText={"Đóng"}
+            width={700}
           >
             <Form
               form={formEdit}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmitUpdate(values, isUpdate);

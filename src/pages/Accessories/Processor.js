@@ -70,7 +70,6 @@ const Processor = () => {
 
   const loadDataProcessor = () => {
     setSearchName("");
-    // setLoading(true);
     fetch(
       `http://localhost:8080/api/auth/processors?${qs.stringify(
         getRandomParams(tableParams)
@@ -78,9 +77,7 @@ const Processor = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setProcessors(results.data.data);
-        // setLoading(false);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -96,7 +93,6 @@ const Processor = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-    console.log({ inputRef });
   }, [cpuCompany != undefined, loading]);
 
   const onDelete = (record) => {
@@ -114,7 +110,6 @@ const Processor = () => {
   };
 
   const deleteProcessor = (record) => {
-    console.log(record);
     fetch(`http://localhost:8080/api/staff/processors/${record.id}`, {
       method: "DELETE",
     })
@@ -124,7 +119,6 @@ const Processor = () => {
           toastSuccessProcessor("Xoá thành công !");
           loadDataProcessor();
         }
-        console.log("Success:", data);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -289,7 +283,6 @@ const Processor = () => {
   };
 
   const handleTableChange = (pagination) => {
-    console.log(pagination);
     tableParams.pagination = pagination;
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
@@ -314,7 +307,6 @@ const Processor = () => {
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -326,7 +318,6 @@ const Processor = () => {
   const handleOk = () => {};
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
   };
 
@@ -340,7 +331,6 @@ const Processor = () => {
   const handleSubmitProcessor = (data) => {
     if (isUpdate === false) {
       data.status = "ACTIVE";
-      console.log(data);
       fetch("http://localhost:8080/api/staff/processors", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -376,7 +366,6 @@ const Processor = () => {
     };
     if (isUpdate === false) {
       data.status = "ACTIVE";
-      console.log(data.status);
       fetch("http://localhost:8080/api/staff/processors/" + edit.id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -384,7 +373,6 @@ const Processor = () => {
       })
         .then((response) => loadDataProcessor())
         .then((data) => {
-          console.log("Success:", data);
           toastSuccessProcessor("Cập nhật bộ xử lý thành công!");
         })
         .catch((error) => {
@@ -406,7 +394,6 @@ const Processor = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results.data.data);
         setProcessors(results.data.data);
         // setLoading(false);
         setTableParams({
@@ -420,7 +407,6 @@ const Processor = () => {
   };
 
   const changeSearchStatus = (value) => {
-    console.log(value);
     setSearchStatus(value);
   };
 
@@ -526,7 +512,6 @@ const Processor = () => {
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmitProcessor(values, isUpdate);
-                console.log({ values });
               }}
               onFinishFailed={(error) => {
                 console.log({ error });
@@ -688,7 +673,6 @@ const Processor = () => {
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmitUpdate(values, isUpdate);
-                console.log({ values });
               }}
               onFinishFailed={(error) => {
                 console.log({ error });

@@ -56,7 +56,6 @@ const Screen = () => {
     });
   };
   const [formE] = Form.useForm();
-  const [category, setCategory] = useState([]);
   const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -132,75 +131,44 @@ const Screen = () => {
 
   const columns = [
     {
-      title: "Kích thước",
-      dataIndex: "size",
-      sorter: true,
+      title: "Loại màn hình",
+      dataIndex: "screenType",
       width: "10%",
     },
     {
       title: "Công nghệ",
       dataIndex: "screenTechnology",
-      sorter: true,
-      width: "20%",
+      width: "17%",
     },
     {
       title: "Độ phân giải",
       dataIndex: "resolution",
-      sorter: true,
-      width: "15%",
+      width: "13.5%",
     },
     {
-      title: "Loại màn hình",
-      dataIndex: "screenType",
-      sorter: true,
-      width: "15%",
+      title: "Kích thước",
+      dataIndex: "size",
+      width: "8.5%",
     },
-    // {
-    //   title: "Tần số quét",
-    //   dataIndex: "scanFrequency",
-    //   sorter: true,
-    //   width: "20%",
-    // },
-    // {
-    //   title: "Tấm nền",
-    //   dataIndex: "backgroundPanel",
-    //   sorter: true,
-    //   width: "20%",
-    // },
-    // {
-    //   title: "Độ sáng",
-    //   dataIndex: "brightness",
-    //   sorter: true,
-    //   width: "20%",
-    // },
-    // {
-    //   title: "Độ phủ màu",
-    //   dataIndex: "colorCoverage",
-    //   sorter: true,
-    //   width: "20%",
-    // },
     {
-      title: "Tỷ lệ",
-      dataIndex: "screenRatio",
-      sorter: true,
+      title: "Tần số quét",
+      dataIndex: "scanFrequency",
       width: "10%",
     },
-    // {
-    //   title: "Màn hình cảm ứng",
-    //   dataIndex: "touchScreen",
-    //   sorter: true,
-    //   width: "20%",
-    // },
-    // {
-    //   title: "Độ tương phản",
-    //   dataIndex: "contrast",
-    //   sorter: true,
-    //   width: "20%",
-    // },
+    {
+      title: "Tấm nền",
+      dataIndex: "backgroundPanel",
+      width: "7%",
+    },
+    {
+      title: "Độ sáng",
+      dataIndex: "brightness",
+      width: "8%",
+    },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      with: "40%",
+      width: "10%",
       render: (status) => {
         if (status == "ACTIVE") {
           return (
@@ -322,7 +290,7 @@ const Screen = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "10%",
+      width: "9%",
       render: (id, data) => {
         return (
           <>
@@ -376,16 +344,8 @@ const Screen = () => {
     });
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
 
   const showModal = () => {
     setOpen(true);
@@ -421,7 +381,6 @@ const Screen = () => {
         getData();
         setValues(formDefault);
         formE.setFieldsValue(formDefault);
-        console.log(res.data);
       })
       .catch((error) => {
         notifyError("Yêu cầu nhập đủ các trường!");
@@ -430,7 +389,6 @@ const Screen = () => {
   };
   //loadFormEdit
   const showModalEdit = (data) => {
-    console.log("edit", data);
     setValues(data);
     formE.setFieldsValue(data);
   };
@@ -460,7 +418,6 @@ const Screen = () => {
         setEditing(false);
         setValues(formDefault);
         formE.setFieldsValue(formDefault);
-        console.log(res.data);
       })
       .catch((error) => {
         notifyError("Yêu cầu nhập đủ các trường!");
@@ -479,7 +436,6 @@ const Screen = () => {
           .then((res) => {
             notifySuccess("Xóa bản ghi thành công!");
             getData();
-            console.log(res.data);
           })
           .catch((errorMessage) => {
             notifyError("Xóa bản ghi không thành công!");
@@ -487,13 +443,11 @@ const Screen = () => {
           });
       },
       onCancel() {
-        console.log("Cancel");
       },
     });
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
     setEditing(false);
     setValues(formDefault);
@@ -657,7 +611,7 @@ const Screen = () => {
                   </Form.Item>
                   <Form.Item
                     className="mt-2"
-                    name="screenType"
+                    name="resolution"
                     label="Độ phân giải"
                     rules={[
                       {
@@ -672,7 +626,7 @@ const Screen = () => {
                   </Form.Item>
                   <Form.Item
                     className="mt-2"
-                    name="resolution"
+                    name="screenType"
                     label="Loại màn hình"
                     rules={[
                       {
@@ -850,7 +804,6 @@ const Screen = () => {
               autoComplete="off"
               layout="vertical"
               onFinish={(values) => {
-                console.log("editV", values);
                 handleEdit(values);
               }}
               onFinishFailed={(error) => {
@@ -891,7 +844,7 @@ const Screen = () => {
                   </Form.Item>
                   <Form.Item
                     className="mt-2"
-                    name="screenType"
+                    name="resolution"
                     label="Độ phân giải"
                     rules={[
                       {
@@ -906,7 +859,7 @@ const Screen = () => {
                   </Form.Item>
                   <Form.Item
                     className="mt-2"
-                    name="resolution"
+                    name="screenType"
                     label="Loại màn hình"
                     rules={[
                       {

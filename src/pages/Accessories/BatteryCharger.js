@@ -59,7 +59,6 @@ const BatteryCharger = () => {
     });
   };
   const [formEdit] = Form.useForm();
-  const [category, setCategory] = useState([]);
   const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -132,22 +131,30 @@ const BatteryCharger = () => {
     {
       title: "Loại pin",
       dataIndex: "batteryType",
-      width: "15%",
+      width: "17.5%",
     },
     {
       title: "Dung lượng pin",
       dataIndex: "battery",
-      width: "15%",
+      width: "17.5%",
     },
     {
       title: "Nguồn cấp",
       dataIndex: "charger",
-      width: "20%",
+      width: "17.5%",
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
+      },
+      width: "17.5%",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      width: "15%",
+      width: "13%",
       render: (status) => {
         if (status == "ACTIVE") {
           return (
@@ -179,7 +186,7 @@ const BatteryCharger = () => {
       title: "Kích hoạt",
       dataIndex: "id",
       dataIndex: "data",
-      width: "9%",
+      width: "8%",
       render: (id, data) => {
         if (data.status == "ACTIVE") {
           return (
@@ -269,7 +276,7 @@ const BatteryCharger = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "20%",
+      width: "9%",
       render: (id, data) => {
         return (
           <>
@@ -318,20 +325,6 @@ const BatteryCharger = () => {
     getData();
   }, []);
 
-  //OnChange Form
-  const handle = (e) => {
-    setValues({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
-  const handleSelect = (e) => {
-    setValues({
-      ...form,
-      categoryId: e,
-    });
-  };
-
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
       pagination,
@@ -340,16 +333,8 @@ const BatteryCharger = () => {
     });
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
 
   const showModal = () => {
     setOpen(true);
@@ -362,45 +347,9 @@ const BatteryCharger = () => {
     formEdit.setFieldsValue(data);
   };
 
-  //btn Add
-  const handleAdd = (e) => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    submitAdd(e);
-    setTimeout(() => {
-      setConfirmLoading(false);
-    }, 2000);
-  };
-
-  function submitAdd(e) {
-    if (form.ratio < 0 || form.ratio > 100) {
-      notifyError("Tỉ lệ phải từ 0-100!");
-    } else {
-      e.preventDefault();
-      axios
-        .post(url + "/staff/batteryCharger", form)
-        .then((res) => {
-          if (res.status === 200) {
-            notifySuccess("Thêm bản ghi thành công");
-            setOpen(false);
-            getData();
-            setValues(formDefault);
-            console.log(res.data);
-          }
-
-          // setAdd(false);
-        })
-        .catch((error) => {
-          notifyError("Yêu cầu nhập đủ các trường!");
-          return;
-        });
-    }
-  }
-
   const handleSubmit = (data) => {
     if (isUpdate === false) {
       data.status = "ACTIVE";
-      console.log(data);
       fetch("http://localhost:8080/api/staff/batteryCharger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -426,7 +375,6 @@ const BatteryCharger = () => {
     };
     if (isUpdate === false) {
       data.status = "ACTIVE";
-      console.log(data.status);
       fetch("http://localhost:8080/api/admin/batteryCharger/" + edit.id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -434,7 +382,6 @@ const BatteryCharger = () => {
       })
         .then((response) => getData())
         .then((data) => {
-          console.log("Success:", data);
           toastSuccess("Cập nhật thành công!");
         })
         .catch((error) => {
@@ -443,40 +390,6 @@ const BatteryCharger = () => {
       setEditing(false);
     }
   };
-  //loadFormEdit
-  const showModalEdit = (data) => {
-    setValues(data);
-  };
-
-  //btn Edit
-  const handleEdit = (e) => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    submitEdit(e);
-    setTimeout(() => {
-      setConfirmLoading(false);
-    }, 2000);
-  };
-  function submitEdit(e) {
-    if (form.ratio < 0 || form.ratio > 100) {
-      notifyError("Tỉ lệ phải từ 0-100!");
-    } else {
-      // e.preventDefault();
-      axios
-        .put(url + "/admin/batteryCharger/" + form.id, form)
-        .then((res) => {
-          notifySuccess("Sửa bản ghi thành công");
-          getData();
-          setEditing(false);
-          setValues(formDefault);
-          console.log(res.data);
-        })
-        .catch((error) => {
-          notifyError("Yêu cầu nhập đủ các trường!");
-          return;
-        });
-    }
-  }
 
   //Delete
   const onDelete = (id) => {
@@ -488,7 +401,6 @@ const BatteryCharger = () => {
           .delete(url + "/admin/batteryCharger/" + id)
           .then((res) => {
             if (res.status == 200) {
-              console.log(res);
               notifySuccess("Xóa bản ghi thành công!");
               getData();
             }
@@ -499,13 +411,11 @@ const BatteryCharger = () => {
           });
       },
       onCancel() {
-        console.log("Cancel");
       },
     });
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
     setEditing(false);
     setValues(formDefault);
@@ -623,7 +533,7 @@ const BatteryCharger = () => {
               initialValues={{}}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmit(values, isUpdate);
@@ -722,12 +632,14 @@ const BatteryCharger = () => {
                 display: "none",
               },
             }}
+            cancelText={"Đóng"}
+            width={650}
           >
             <Form
               form={formEdit}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmitUpdate(values, isUpdate);

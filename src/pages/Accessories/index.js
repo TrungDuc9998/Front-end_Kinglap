@@ -44,7 +44,7 @@ function Accessories() {
           <MenuFoldOutlined style={{ fontSize: "20px" }} />
         </div>
         <div className="col-11">
-          <h4 className="text-danger fw-bold">Quản lý linh kiện & phụ kiện</h4>
+          <h4 className="text-danger fw-bold">Quản lý linh kiện, phụ kiện & thuộc tính</h4>
         </div>
       </div>
       <ToastContainer></ToastContainer>

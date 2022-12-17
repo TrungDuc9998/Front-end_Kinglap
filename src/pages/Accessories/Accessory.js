@@ -12,17 +12,17 @@ import {
 import qs from "qs";
 import React, { useEffect, useState, useRef } from "react";
 import "./Processor.css";
+import Moment from "react-moment";
 import { toast } from "react-toastify";
 import TextArea from "antd/lib/input/TextArea";
 const { Option } = Select;
 const getRandomParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchCpuCompany: params.pagination?.search1,
-  searchStatus: params.pagination?.search2,
+  searchName: params.pagination?.search1,
 });
 
-const toastSuccessProcessor = (message) => {
+const toastSuccessAccessory = (message) => {
   toast.success(message, {
     position: "top-right",
     autoClose: 3000,
@@ -38,33 +38,28 @@ const toastSuccessProcessor = (message) => {
 const Accessory = () => {
   const [isUpdate, setIsUpdate] = useState(false);
   const [data, setData] = useState();
-  const [searchStatus, setSearchStatus] = useState();
-  const [processors, setProcessors] = useState();
-  const [processor, setProcessor] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [searchName, setSearchName] = useState();
   const [isView, setView] = useState(false);
   const [formEdit] = Form.useForm();
-  const [cpuCompany, setCpuCompany] = useState("2");
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
       search1: "",
-      search2: "",
     },
   });
+  const [dataEdit, setDataEdit] = useState({});
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
   const [form] = Form.useForm();
-  const inputRef = useRef(null);
-
   const onReset = () => {
     form.resetFields();
   };
 
   const loadDataAccessory = () => {
     setSearchName("");
-    // setLoading(true);
     fetch(
       `http://localhost:8080/api/auth/accessory?${qs.stringify(
         getRandomParams(tableParams)
@@ -72,8 +67,7 @@ const Accessory = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
-        setProcessors(results.data.data);
+        setData(results.data.data);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -86,81 +80,67 @@ const Accessory = () => {
 
   useEffect(() => {
     loadDataAccessory();
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-    console.log({ inputRef });
-  }, [cpuCompany != undefined, loading]);
-
-  const onDelete = (record) => {
-    Modal.confirm({
-      icon: <CheckCircleOutlined />,
-      title: "Xoá RAM ",
-      content: `Bạn có muốn xoá ram ${record.cpuCompany} ${record.cpuTechnology} không?`,
-      okText: "Có",
-      cancelText: "Không",
-      okType: "primary",
-      onOk: () => {
-        deleteProcessor(record);
-      },
-    });
-  };
-
-  const deleteProcessor = (record) => {
-    console.log(record);
-    fetch(`http://localhost:8080/api/staff/processors/${record.id}`, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status === 200) {
-          toastSuccessProcessor("Xoá thành công !");
-          loadDataProcessor();
-        }
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
+  }, [loading, data != undefined]);
 
   const columns = [
     {
       title: "Mã phụ kiện",
       dataIndex: "id",
-      width: "12%",
+      width: "10%",
     },
     {
       title: "Tên phụ kiện",
       dataIndex: "name",
-      width: "30%",
+      width: "36%",
     },
     {
       title: "Mô tả",
       dataIndex: "description",
-      width: "30%",
+      width: "36%",
     },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
+      },
+      width: "10%",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "id",
+      dataIndex: "data",
+      width: "8%",
+      render: (id, data) => {
+        return (
+          <>
+            <EditOutlined
+              style={{ marginLeft: 12 }}
+              onClick={() => {
+                onEdit(data);
+              }}
+            />
+          </>
+        );
+      },
+    }
   ];
 
   const clearSearchForm = () => {
-    loadDataProcessor();
+    loadDataAccessory();
   };
 
   const handleTableChange = (pagination) => {
-    console.log(pagination);
     tableParams.pagination = pagination;
     tableParams.pagination.search1 = searchName;
-    tableParams.pagination.search2 = searchStatus;
-    // setLoading(true);
     fetch(
-      `http://localhost:8080/api/auth/processors?${qs.stringify(
+      `http://localhost:8080/api/auth/accessory?${qs.stringify(
         getRandomParams(tableParams)
       )}`
     )
       .then((res) => res.json())
       .then((results) => {
-        setProcessors(results.data.data);
-        // setLoading(false);
+        setData(results.data.data);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -171,47 +151,31 @@ const Accessory = () => {
       });
   };
 
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
-  const [open, setOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-
   const showModal = (data) => {
     setOpen(true);
   };
 
-  const handleOk = () => {};
-
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
   };
 
-  const [dataEdit, setDataEdit] = useState({});
-  const onEdit = (data) => {
-    setDataEdit(data);
-    setEditing(true);
-    formEdit.setFieldsValue(data);
-  };
-
-  const handleSubmitProcessor = (data) => {
+  const handleSubmit = (data) => {
     if (isUpdate === false) {
       data.status = "ACTIVE";
-      console.log(data);
-      fetch("http://localhost:8080/api/staff/processors", {
+      fetch("http://localhost:8080/api/admin/accessory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-        .then((response) => loadDataProcessor())
+        .then((response) => response.json())
         .then((results) => {
           if (results.status === 200) {
-            toastSuccessProcessor("Thêm mới bộ xử lý thành công !");
+            toastSuccessAccessory("Thêm mới phụ kiện thành công !");
             onReset();
             setLoading(false);
           }
           setOpen(false);
+          loadDataAccessory();
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -219,31 +183,27 @@ const Accessory = () => {
     }
   };
 
+  const onEdit = (data) => {
+    setDataEdit(data);
+    setEditing(true);
+    formEdit.setFieldsValue(data);
+  };
+
   const handleSubmitUpdate = (data) => {
     const edit = {
       id: dataEdit.id,
-      cpuCompany: data.cpuCompany,
-      cpuTechnology: data.cpuTechnology,
-      cpuType: data.cpuType,
-      cpuSpeed: data.cpuSpeed,
-      maxSpeed: data.maxSpeed,
-      multiplier: data.multiplier,
-      numberOfThread: data.numberOfThread,
-      caching: data.caching,
-      status: dataEdit.status,
+      name: data.name,
+      description: data.description
     };
     if (isUpdate === false) {
-      data.status = "ACTIVE";
-      console.log(data.status);
-      fetch("http://localhost:8080/api/staff/processors/" + edit.id, {
+      fetch("http://localhost:8080/api/admin/accessory/" + edit.id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(edit),
       })
-        .then((response) => loadDataProcessor())
+        .then((response) => loadDataAccessory())
         .then((data) => {
-          console.log("Success:", data);
-          toastSuccessProcessor("Cập nhật bộ xử lý thành công!");
+          toastSuccessAccessory("Cập nhật thông tin phụ kiện thành công!");
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -254,19 +214,15 @@ const Accessory = () => {
 
   const search = () => {
     tableParams.pagination.search1 = searchName;
-    tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.current = 1;
-    // setLoading(true);
     fetch(
-      `http://localhost:8080/api/auth/processors?${qs.stringify(
+      `http://localhost:8080/api/auth/accessory?${qs.stringify(
         getRandomParams(tableParams)
       )}`
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results.data.data);
-        setProcessors(results.data.data);
-        // setLoading(false);
+        setData(results.data.data);
         setTableParams({
           pagination: {
             current: results.data.current_page,
@@ -277,50 +233,46 @@ const Accessory = () => {
       });
   };
 
-  const changeSearchStatus = (value) => {
-    console.log(value);
-    setSearchStatus(value);
-  };
-
   return (
     <div>
       <div
         className="row"
         style={{
-          borderRadius: "20px",
-          height: "150px",
+          borderRadius: "10px",
+          height: "80px",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-4">
-          <label>Tên phụ kiện</label>
-          <Input
-            name="searchName"
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            placeholder="Nhập tên phụ kiện"
-          />
-        </div>
-        <div className="col-12 text-center ">
-          <Button
-            className="mt-2"
-            type="primary-outline"
-            onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
-          >
-            <ReloadOutlined />
-            Đặt lại
-          </Button>
-          <Button
-            className="mx-2  mt-2"
-            type="primary"
-            onClick={search}
-            style={{ borderRadius: "10px" }}
-          >
-            <SearchOutlined />
-            Tìm kiếm
-          </Button>
+        <div className="col-12 d-flex justify-content-around align-items-center">
+          <div className="col-5 d-flex align-items-center">
+            <label style={{width: "105px", marginRight: "10px"}}>Tên phụ kiện</label>
+            <Input
+              name="searchName"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              placeholder="Nhập tên phụ kiện"
+            />
+          </div>
+          <div className="col-4">
+            <Button
+              type="primary-outline"
+              onClick={clearSearchForm}
+              style={{ borderRadius: "10px" }}
+            >
+              <ReloadOutlined />
+              Đặt lại
+            </Button>
+            <Button
+              className="mx-5"
+              type="primary"
+              onClick={search}
+              style={{ borderRadius: "10px" }}
+            >
+              <SearchOutlined />
+              Tìm kiếm
+            </Button>
+          </div>
         </div>
       </div>
       <div className="row">
@@ -336,31 +288,26 @@ const Accessory = () => {
           <Modal
             id="modal"
             title="Tạo mới"
+            open={open}
+            confirmLoading={confirmLoading}
+            onCancel={handleCancel}
+            width={700}
             okButtonProps={{
               style: {
                 display: "none",
               },
             }}
             cancelText={"Đóng"}
-            width={700}
-            open={open}
-            onOk={handleOk}
-            confirmLoading={confirmLoading}
-            onCancel={handleCancel}
           >
             <Form
               form={form}
-              initialValues={
-                {
-                  // cpuCompany: name,
-                }
-              }
+              initialValues={{}}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
                 setIsUpdate(false);
-                handleSubmitProcessor(values, isUpdate);
+                handleSubmit(values, isUpdate);
                 console.log({ values });
               }}
               onFinishFailed={(error) => {
@@ -374,100 +321,21 @@ const Accessory = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Tên phụ kiện không được trống !",
+                    message: "Tên phụ kiện không được trống!",
                   },
                   { whitespace: true },
                   { min: 3 },
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập tên phụ kiện" ref={cpuCompany} />
+                <Input placeholder="Nhập tên phụ kiện" />
               </Form.Item>
               <Form.Item
                 name="description"
                 label="Mô tả"
                 hasFeedback
               >
-                <TextArea placeholder="Nhập công nghệ CPU" />
-              </Form.Item>
-
-              <Form.Item
-                name="cpuType"
-                label="Loại CPU"
-                rules={[
-                  {
-                    required: true,
-                    message: "Loại CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input placeholder="Tốc độ CPU" />
-              </Form.Item>
-              <Form.Item
-                name="cpuSpeed"
-                label="Tốc độ CPU"
-                rules={[
-                  {
-                    required: true,
-                    message: "Tốc độ CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input placeholder="Nhập tốc độ CPU" />
-              </Form.Item>
-              <Form.Item
-                name="maxSpeed"
-                label="Tốc độ tối đa CPU"
-                rules={[
-                  {
-                    required: true,
-                    message: "Tốc độ tối đa không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input placeholder="Tốc độ tối đa CPU" />
-              </Form.Item>
-              <Form.Item
-                name="multiplier"
-                label="Số nhân"
-                rules={[
-                  {
-                    required: true,
-                    message: "Số nhân CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input placeholder="Nhập số nhân CPU" type="number" />
-              </Form.Item>
-              <Form.Item
-                name="numberOfThread"
-                label="Số luồng CPU"
-                rules={[
-                  {
-                    required: true,
-                    message: "Số luồng CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input placeholder="Nhập số luồng CPU" type="number" />
-              </Form.Item>
-              <Form.Item
-                name="caching"
-                label="Bộ nhớ đệm"
-                rules={[
-                  {
-                    required: true,
-                    message: "Bộ nhớ đẹm CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input placeholder="Nhập bộ nhớ đệm CPU" />
+                <TextArea placeholder="Mô tả sản phẩm ..." />
               </Form.Item>
               <Form.Item className="text-center">
                 <Button block type="primary" htmlType="submit" id="create">
@@ -491,7 +359,7 @@ const Accessory = () => {
           <Table
             columns={columns}
             rowKey={(record) => record.id}
-            dataSource={processors}
+            dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
             onChange={handleTableChange}
@@ -507,13 +375,14 @@ const Accessory = () => {
                 display: "none",
               },
             }}
+            cancelText={"Đóng"}
             width={700}
           >
             <Form
               form={formEdit}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmitUpdate(values, isUpdate);
@@ -525,119 +394,27 @@ const Accessory = () => {
             >
               <Form.Item
                 className="mt-2"
-                name="cpuCompany"
-                label="Hãng CPU"
-                initialValue={dataEdit.cpuCompany}
+                name="name"
+                label="Tên phụ kiện"
+                initialValue={dataEdit.name}
                 rules={[
                   {
                     required: true,
-                    message: "Hãng CPU không được để trống",
+                    message: "Tên phụ kiện không được trống!",
                   },
                   { whitespace: true },
-                  { min: 3 },
                 ]}
                 hasFeedback
               >
                 <Input />
               </Form.Item>
               <Form.Item
-                name="cpuTechnology"
-                label="Công nghệ CPU"
-                initialValue={dataEdit.cpuTechnology}
-                rules={[
-                  {
-                    required: true,
-                    message: "Công nghệ CPU không được để trống",
-                  },
-                ]}
+                name="description"
+                label="Mô tả"
+                initialValue={dataEdit.description}
                 hasFeedback
               >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="cpuType"
-                label="Loại CPU"
-                initialValue={dataEdit.cpuType}
-                rules={[
-                  {
-                    required: true,
-                    message: "Loại CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="cpuSpeed"
-                label="Tốc độ CPU"
-                initialValue={dataEdit.cpuSpeed}
-                rules={[
-                  {
-                    required: true,
-                    message: "Tốc độ CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="maxSpeed"
-                label="Tốc độ tối đa CPU"
-                initialValue={dataEdit.maxSpeed}
-                rules={[
-                  {
-                    required: true,
-                    message: "Tốc độ tối đa không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="multiplier"
-                label="Số nhân"
-                initialValue={dataEdit.multiplier}
-                rules={[
-                  {
-                    required: true,
-                    message: "Số nhân CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="numberOfThread"
-                label="Số luồng CPU"
-                initialValue={dataEdit.numberOfThread}
-                rules={[
-                  {
-                    required: true,
-                    message: "Số luồng CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                name="caching"
-                label="Bộ nhớ đệm"
-                initialValue={dataEdit.caching}
-                rules={[
-                  {
-                    required: true,
-                    message: "Bộ nhớ đẹm CPU không được để trống",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input />
+                <TextArea />
               </Form.Item>
               <Form.Item className="text-center">
                 <Button block type="primary" htmlType="submit" id="create">
@@ -645,24 +422,6 @@ const Accessory = () => {
                 </Button>
               </Form.Item>
             </Form>
-          </Modal>
-
-          <Modal
-            // style={{borderRadius:"10px"}}
-            title="Hiển thị"
-            open={isView}
-            onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
-              setView(false);
-            }}
-          >
-            <label>
-              Tên thể loại
-              <span className="text-danger"> *</span>
-            </label>
-            <Input placeholder="Tên thể loại" />
           </Modal>
         </div>
       </div>

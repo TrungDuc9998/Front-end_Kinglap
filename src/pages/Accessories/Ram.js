@@ -93,12 +93,12 @@ const Ram = () => {
     {
       title: "Loại Ram",
       dataIndex: "typeOfRam",
-      width: "7.5%",
+      width: "7%",
     },
     {
       title: "Dung lượng Ram",
       dataIndex: "ramCapacity",
-      width: "11%",
+      width: "14%",
     },
     {
       title: "Tốc độ ram",
@@ -257,7 +257,6 @@ const Ram = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setRams(results.data.data);
         setLoading(false);
         setTableParams({
@@ -275,7 +274,6 @@ const Ram = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-    console.log({ inputRef });
   }, [cpuCompany != undefined]);
 
   const handleTableChange = (pagination) => {
@@ -303,7 +301,6 @@ const Ram = () => {
   };
 
   const search = () => {
-    console.log(searchStatus);
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.current = 1;
@@ -315,7 +312,6 @@ const Ram = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results.data.data);
         setRams(results.data.data);
         setLoading(false);
         setTableParams({
@@ -348,8 +344,6 @@ const Ram = () => {
   };
 
   const handleOk = () => {
-    console.log("vào handle OK");
-    setModalText("The modal will be closed after two seconds");
     setOpen(false);
   };
 
@@ -358,7 +352,6 @@ const Ram = () => {
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpenE(false);
     setOpen(false);
   };
@@ -366,7 +359,6 @@ const Ram = () => {
   const handleSubmit = (data) => {
     if (isUpdate === false) {
       data.status = "ACTIVE";
-      console.log(data);
       fetch("http://localhost:8080/api/staff/rams", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -374,7 +366,6 @@ const Ram = () => {
       })
         .then((response) => loadDataRam())
         .then((data) => {
-          console.log("Success:", data);
           toastSuccess("Thêm mới thành công !");
           onReset();
         })
@@ -404,7 +395,6 @@ const Ram = () => {
     })
       .then((response) => loadDataRam())
       .then((data) => {
-        console.log("Success:", data);
         toastSuccess("Cập nhật thành công!");
       })
       .catch((error) => {
@@ -420,7 +410,6 @@ const Ram = () => {
   };
 
   const changeSearchStatus = (value) => {
-    console.log(value);
     setSearchStatus(value);
   };
 
@@ -519,7 +508,7 @@ const Ram = () => {
               form={form}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 14 }}
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmit(values, isUpdate);
@@ -631,11 +620,6 @@ const Ram = () => {
                       Tạo mới
                     </Button>
                   </div>
-                  <div className="col-6">
-                    {/* <Button block type="danger" id="create" htmlType="submit">
-                      Lưu nháp
-                    </Button> */}
-                  </div>
                 </div>
               </Form.Item>
             </Form>
@@ -652,12 +636,13 @@ const Ram = () => {
                 display: "none",
               },
             }}
+            width={650}
           >
             <Form
               form={formEdit}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmitE(values, isUpdate);
