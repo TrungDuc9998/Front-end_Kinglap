@@ -831,10 +831,10 @@ const Product = () => {
   const importExcel = (e) => {
     console.log("dataImport",dataImport)
     dataImport?dataImport.map((pro,index)=>
-      {handleImport(pro,index)}
+      {handleImport(pro,index);}
       ):notifyError("Hãy chọn file excel cần import");
       setDataImport();
-      notifySuccess("Import thành công");
+    dataImport?notifySuccess("Import thành công"):"";
     const file = document.querySelectorAll('input[name="file"]');
     file[0].value=null;
     //setFileImp();

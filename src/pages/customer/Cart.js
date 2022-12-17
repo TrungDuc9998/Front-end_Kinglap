@@ -132,7 +132,7 @@ function Cart() {
                                 <p className="d-flex"><span className="price me-3 text-danger">
                                     <CurrencyFormat
                                         style={{ fontSize: "14px" }}
-                                        value={product.price * product.quantity}
+                                        value={Math.ceil(product.price * product.quantity)}
                                         displayType={"text"}
                                         thousandSeparator={true}
                                     /> VNĐ
@@ -140,7 +140,7 @@ function Cart() {
                                 </span> 
                                 {product.discount?<span className="price ms-3"><CurrencyFormat
                                         style={{ fontSize: "14px" }}
-                                        value={product.price/((100- product.discount.ratio) / 100)} 
+                                        value={Math.ceil(product.price/((100- product.discount.ratio) / 100))} 
                                         displayType={"text"}
                                         thousandSeparator={true}
                                         /> VNĐ</span>:""}
