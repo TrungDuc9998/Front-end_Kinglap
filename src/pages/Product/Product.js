@@ -40,7 +40,7 @@ const Product = () => {
   const [isDelete, setDelete] = useState(false);
   const [id, setId] = useState();
   //import
-  var importSuccess=false;
+  
   const [fileImp, setFileImp] = useState();
   const [dataImport, setDataImport] = useState();
   const [battery, setBattery] = useState();
@@ -332,6 +332,7 @@ const Product = () => {
   const onSearch = (value) => {
     console.log("search:", value);
   };
+  const [importSuccess, setImportSuccess]=useState(false);
   const [searchProductKey, setSearchProductKey] = useState();
   const [searchStatus, setSearchStatus] = useState();
   const [searchPrice, setSearchPrice] = useState();
@@ -676,9 +677,6 @@ const Product = () => {
     console.log(data);
     const row=index+1;
     var mess="Import thất bản ghi thứ "+row;
-    // if (isUpdate === false) {
-    //data.debut = moment(data.debut).format("yyyy");
-
     const quantity = Number(data.quantity);
     console.log(quantity);
     data.images = [data.images].map((item) => ({
@@ -767,14 +765,13 @@ const Product = () => {
     })
       .then((response) => response.json())
       .then((response) => {
-        console.log("Success:", response);
-        importSuccess=true;
-        if(response.errors){
-          notifyError(mess);
-        }
+        response.data?setImportSuccess(true):console.log(response);
+        console.log(importSuccess);
+        response.errors?notifyError(mess):console.log(response);
       })
       .catch((error) => {
-        console.error("Error:", error);
+        notifyError(mess);
+        console.log("Error:", error);
       });
   };
   const uploadExcel = (e) => {
@@ -819,15 +816,15 @@ const Product = () => {
     }
   }
   const importExcel = (e) => {
-    console.log("dataImport",dataImport)
+    console.log("dataImport",dataImport);
     dataImport?dataImport.map((pro,index)=>
       {handleImport(pro,index);}
       ):notifyError("Hãy chọn file excel cần import");
       setDataImport();
-    dataImport?notifySuccess("Import thành công"):"";
+      importSuccess==true?notifySuccess("Import thành công"):console.log("false");
     const file = document.querySelectorAll('input[name="file"]');
     file[0].value=null;
-    //setFileImp();
+    setImportSuccess(false);
   }
 
   return (
