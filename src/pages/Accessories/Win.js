@@ -49,22 +49,21 @@ const Screen = () => {
     });
   }
   const [formE] = Form.useForm();
-  const [category, setCategory] = useState([]);
   const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [data, setData] = useState();
   const [formDefault, setValuesDefault] = useState({
-    id:"",
-    name:"",
-    version:"",
+    id: "",
+    name: "",
+    version: "",
     status: "ACTIVE",
   }
   );
   const [form, setValues] = useState({
-    id:"",
-    name:"",
-    version:"",
+    id: "",
+    name: "",
+    version: "",
     status: "ACTIVE",
   }
   );
@@ -83,8 +82,8 @@ const Screen = () => {
     pagination: {
       current: 1,
       pageSize: 10,
-      searchName:"",
-      searchVersion:""
+      searchName: "",
+      searchVersion: ""
     },
   });
 
@@ -93,42 +92,42 @@ const Screen = () => {
       title: "Tên hệ điều hành",
       dataIndex: "name",
       sorter: true,
-      width: "20%",
+      width: "16%",
     },
     {
       title: "Version",
       dataIndex: "version",
       sorter: true,
-      width: "20%",
+      width: "24%",
     },
     {
-        title: "Ngày tạo",
-        dataIndex: "createdAt",
-        render(createdAt) {
-          return (
-            <Moment format="DD-MM-YYYY">
-              {createdAt}
-            </Moment>
-          );
-        },
-        width: "20%",
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      render(createdAt) {
+        return (
+          <Moment format="DD-MM-YYYY">
+            {createdAt}
+          </Moment>
+        );
       },
-      {
-        title: "Ngày cập nhật",
-        dataIndex: "updatedAt",
-        render(updatedAt) {
-          return (
-            <Moment format="DD-MM-YYYY">
-              {updatedAt}
-            </Moment>
-          );
-        },
-        width: "20%",
+      width: "15%",
+    },
+    {
+      title: "Ngày cập nhật",
+      dataIndex: "updatedAt",
+      render(updatedAt) {
+        return (
+          <Moment format="DD-MM-YYYY">
+            {updatedAt}
+          </Moment>
+        );
       },
+      width: "15%",
+    },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      with: "30%",
+      width: "10%",
       render: (status) => {
         if (status == 'ACTIVE') {
           return (
@@ -160,7 +159,7 @@ const Screen = () => {
       title: "Kích hoạt",
       dataIndex: "id",
       dataIndex: "data",
-      width: "5%",
+      width: "10%",
       render: (id, data) => {
         if (data.status == "ACTIVE") {
           return (
@@ -245,8 +244,8 @@ const Screen = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "20%",
-      render: (id,data) => {
+      width: "10%",
+      render: (id, data) => {
         return (
           <>
             <EditOutlined
@@ -298,16 +297,8 @@ const Screen = () => {
     });
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
 
   const showModal = () => {
     setOpen(true);
@@ -320,54 +311,51 @@ const Screen = () => {
 
   //btn Add
   const handleAdd = (value) => {
-    const form={
-        name:value.name,
-        version:value.version,
-        status:"ACTIVE"
+    const form = {
+      name: value.name,
+      version: value.version,
+      status: "ACTIVE"
     }
-      axios.post(url+"/staff/wins", form)
-        .then(res => {
-          notifySuccess('Thêm mới hệ điều hàng thành công')
-          // setAdd(false);
-          setOpen(false);
-          getData();
-          setValues(formDefault);
-          formE.setFieldsValue(formDefault);
-          console.log(res.data);
-        }).catch((error) => {
-          notifyError('Yêu cầu nhập đủ các trường!');
-          return;
-        })
+    axios.post(url + "/staff/wins", form)
+      .then(res => {
+        notifySuccess('Thêm mới hệ điều hàng thành công')
+        // setAdd(false);
+        setOpen(false);
+        getData();
+        setValues(formDefault);
+        formE.setFieldsValue(formDefault);
+      }).catch((error) => {
+        notifyError('Yêu cầu nhập đủ các trường!');
+        return;
+      })
 
   }
   //loadFormEdit
   const showModalEdit = (data) => {
-    console.log("edit",data)
     setValues(data);
     formE.setFieldsValue(data);
   };
 
   //btn Edit
-  const handleEdit = (value)=>{
-      // e.preventDefault();
-      const dataEdit={
-        id:form.id,
-        name:value.name,
-        version:value.version,
-        status: form.status,
-      }
-      axios.put(url + "/staff/wins/" + dataEdit.id, dataEdit)
-        .then(res => {
-          notifySuccess('Sửa bản ghi thành công')
-          getData();
-          setEditing(false);
-          setValues(formDefault);
-          formE.setFieldsValue(formDefault);
-          console.log(res.data);
-        }).catch((error) => {
-          notifyError('Yêu cầu nhập đủ các trường!');
-          return;
-        })
+  const handleEdit = (value) => {
+    // e.preventDefault();
+    const dataEdit = {
+      id: form.id,
+      name: value.name,
+      version: value.version,
+      status: form.status,
+    }
+    axios.put(url + "/staff/wins/" + dataEdit.id, dataEdit)
+      .then(res => {
+        notifySuccess('Sửa bản ghi thành công')
+        getData();
+        setEditing(false);
+        setValues(formDefault);
+        formE.setFieldsValue(formDefault);
+      }).catch((error) => {
+        notifyError('Yêu cầu nhập đủ các trường!');
+        return;
+      })
   }
 
 
@@ -381,30 +369,27 @@ const Screen = () => {
           .then(res => {
             notifySuccess('Xóa bản ghi thành công!')
             getData();
-            console.log(res.data);
           }).catch((errorMessage) => {
             notifyError('Xóa bản ghi không thành công!');
             return;
           })
       },
       onCancel() {
-        console.log('Cancel');
       },
     });
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
     setEditing(false);
     setValues(formDefault);
   };
-  const search=()=>{
+  const search = () => {
     setTableParams(
-      tableParams.pagination.current= 1,
-      tableParams.pagination.pageSize= 10,
-      tableParams.pagination.searchName=searchName,
-      tableParams.pagination.searchVersion=searchVersion,
+      tableParams.pagination.current = 1,
+      tableParams.pagination.pageSize = 10,
+      tableParams.pagination.searchName = searchName,
+      tableParams.pagination.searchVersion = searchVersion,
     );
     getData();
   }
@@ -422,7 +407,7 @@ const Screen = () => {
     });
     getData();
   }
-  
+
 
   return (
     <div>
@@ -435,43 +420,42 @@ const Screen = () => {
           background: "#fafafa",
         }}
       >
-        
-            <div className="col-10 mt-3 mb-3">
-              <label>Từ khoá</label>
-              <div className="row">
-                <div className="col-4 mt-3">
-                    <Input placeholder="Nhập tên hệ điều hành" value={searchName}
-                      onChange={(e) => setSearchName(e.target.value)}/>
-                </div>
-                <div className="col-4 mt-3">
-                    <Input placeholder="Nhập version" value={searchVersion}
-                      onChange={(e) => setSearchVersion(e.target.value)}/>
-                </div>
-                <div className="col-4 mt-3">
-                    <Button
-                        className="mb-2 mx-2"
-                        type="primary"
-                        onClick={search}
-                        style={{ borderRadius: "10px" }}
-                    >
-                        <SearchOutlined />
-                        Tìm kiếm
-                    </Button>
-                    <Button
-                        className="mb-2"
-                        type="primary-uotline"
-                        onClick={clearSearchForm}
-                        style={{ borderRadius: "10px" }}
-                    >
-                        <ReloadOutlined />
-                        Đặt lại
-                    </Button>
 
-                    </div>
-              </div>
-              
+        <div className="col-10 mt-3 mb-3">
+          <label>Từ khoá</label>
+          <div className="row">
+            <div className="col-4 mt-3">
+              <Input placeholder="Nhập tên hệ điều hành" value={searchName}
+                onChange={(e) => setSearchName(e.target.value)} />
             </div>
-            
+            <div className="col-4 mt-3">
+              <Input placeholder="Nhập version" value={searchVersion}
+                onChange={(e) => setSearchVersion(e.target.value)} />
+            </div>
+            <div className="col-4 mt-3">
+              <Button
+                className="mb-2 mx-2"
+                type="primary"
+                onClick={search}
+                style={{ borderRadius: "10px" }}
+              >
+                <SearchOutlined />
+                Tìm kiếm
+              </Button>
+              <Button
+                className="mb-2"
+                type="primary-uotline"
+                onClick={clearSearchForm}
+                style={{ borderRadius: "10px" }}
+              >
+                <ReloadOutlined />
+                Đặt lại
+              </Button>
+            </div>
+          </div>
+
+        </div>
+
       </div>
       <div className="row">
         <div className="col-12 mt-4">
@@ -489,12 +473,13 @@ const Screen = () => {
             onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            width={650}
           >
             <Form
               form={formE}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
                 handleAdd(values)
               }}
@@ -515,7 +500,7 @@ const Screen = () => {
                 ]}
                 hasFeedback
               >
-                <Input placeholder="Nhập tên hệ điều hành"/>
+                <Input placeholder="Nhập tên hệ điều hành" />
               </Form.Item>
               <Form.Item
                 className="mt-2"
@@ -571,21 +556,21 @@ const Screen = () => {
             onOk={(e) => {
               handleEdit(e);
             }}
+            width={650}
           >
             <Form
               form={formE}
               //autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
-                console.log("editV",values)
                 handleEdit(values);
               }}
               onFinishFailed={(error) => {
                 console.log({ error });
               }}
             >
-              
+
               <Form.Item
                 className="mt-2"
                 name="name"

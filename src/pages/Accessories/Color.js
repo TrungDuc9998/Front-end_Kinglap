@@ -48,7 +48,6 @@ const Color = () => {
     });
   }
   const [formE] = Form.useForm();
-  const [category, setCategory] = useState([]);
   const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -65,8 +64,6 @@ const Color = () => {
   );
 
   const [searchName, setSearchName] = useState();
-  const [searchSize, setSearchSize] = useState();
-  const [searchScreenTechnology, setSearchScreenTechnology] = useState();
   //loadParam getList
   const getRandomuserParams = (params) => ({
     limit: params.pagination?.pageSize,
@@ -170,16 +167,8 @@ const Color = () => {
     });
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
 
   const showModal = () => {
     setOpen(true);
@@ -204,7 +193,6 @@ const Color = () => {
         getData();
         setValues(formDefault);
         formE.setFieldsValue(formDefault);
-        console.log(res.data);
       }).catch((error) => {
         notifyError('Yêu cầu nhập đủ các trường!');
         return;
@@ -213,7 +201,6 @@ const Color = () => {
   }
   //loadFormEdit
   const showModalEdit = (data) => {
-    console.log("edit", data)
     setValues(data);
     formE.setFieldsValue(data);
   };
@@ -233,7 +220,6 @@ const Color = () => {
         setEditing(false);
         setValues(formDefault);
         formE.setFieldsValue(formDefault);
-        console.log(res.data);
       }).catch((error) => {
         notifyError('Yêu cầu nhập đủ các trường!');
         return;
@@ -251,20 +237,17 @@ const Color = () => {
           .then(res => {
             notifySuccess('Xóa bản ghi thành công!')
             getData();
-            console.log(res.data);
           }).catch((errorMessage) => {
             notifyError('Xóa bản ghi không thành công!');
             return;
           })
       },
       onCancel() {
-        console.log('Cancel');
       },
     });
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
     setEditing(false);
     setValues(formDefault);
@@ -354,12 +337,13 @@ const Color = () => {
             onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            width={650}
           >
             <Form
               form={formE}
               autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
                 handleAdd(values)
               }}
@@ -421,14 +405,14 @@ const Color = () => {
             onOk={(e) => {
               handleEdit(e);
             }}
+            width={650}
           >
             <Form
               form={formE}
               //autoComplete="off"
               labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              wrapperCol={{ span: 13 }}
               onFinish={(values) => {
-                console.log("editV", values)
                 handleEdit(values);
               }}
               onFinishFailed={(error) => {

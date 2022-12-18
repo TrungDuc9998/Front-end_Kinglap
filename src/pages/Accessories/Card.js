@@ -56,14 +56,10 @@ function Card() {
         },
     ];
 
-    const onChange = (value) => {
-        console.log(`selected ${value}`);
-    };
     const [formEdit] = Form.useForm();
     const [isUpdate, setIsUpdate] = useState(false);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
-    const [modalText, setModalText] = useState("Content of the modal");
 
     const showModal = () => {
         setOpen(true);
@@ -74,28 +70,19 @@ function Card() {
             memory: memory,
             model: model
         }
-        console.log(form)
         fetch("http://localhost:8080/api/card", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(form),
         }).then((results) => {
-            // console.log(results)
             getData();
             notifySuccess('Thêm mới card thành công');
         })
-
-        setModalText("The modal will be closed after two seconds");
         setConfirmLoading(true);
         setTimeout(() => {
             setOpen(false);
             getData();
         }, 2000);
-    };
-
-    const onView = (record) => {
-        console.log("record", record)
-        setView(true);
     };
 
     const toastSuccess = (message) => {
@@ -112,14 +99,12 @@ function Card() {
     };
 
     const handleCancel = () => {
-        console.log("Clicked cancel button");
         setOpen(false);
     };
 
     const handleSubmit = (data) => {
         if (isUpdate === false) {
             data.status = "ACTIVE";
-            console.log(data);
             fetch("http://localhost:8080/api/card", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -127,7 +112,6 @@ function Card() {
             })
                 .then((response) => getData())
                 .then((data) => {
-                    console.log("Success:", data);
                     toastSuccess("Thêm mới thành công !");
                 })
                 .catch((error) => {
@@ -146,7 +130,6 @@ function Card() {
         }
         if (isUpdate === false) {
             data.status = "ACTIVE";
-            console.log(data);
             fetch(`http://localhost:8080/api/card/` + edit.id, {
                 method: "PUT",
                 headers: { 'Content-Type': 'application/json' },
@@ -154,7 +137,6 @@ function Card() {
             })
                 .then((response) => getData())
                 .then((data) => {
-                    console.log("Success:", data);
                     toastSuccess("Cập nhật thành công!");
                 })
                 .catch((error) => {
@@ -169,7 +151,6 @@ function Card() {
         tableParams.pagination.trandemark = trandemarkSearch;
         tableParams.pagination.current = 1;
         setLoading(true);
-        console.log("param", tableParams);
         fetch(
             `http://localhost:8080/api/card?${qs.stringify(
                 getRandomuserParams(tableParams)
@@ -177,8 +158,6 @@ function Card() {
         )
             .then((res) => res.json())
             .then((results) => {
-                console.log("res", results.data.data);
-                // setData(results.data.data);
                 setLoading(false);
                 setTableParams({
                     pagination: {
@@ -190,15 +169,13 @@ function Card() {
             });
     };
 
-
-
     const getRandomuserParams = (params) => ({
         limit: params.pagination?.pageSize,
         page: params.pagination?.current,
         trandemark: params.pagination?.trandemarkSearch,
         memory: params.pagination?.memorySearch,
     });
-    
+
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
@@ -209,7 +186,6 @@ function Card() {
     });
     const [totalSet, setTotal] = useState(10);
     const url = "http://localhost:8080/api/card";
-    const [cards, setCards] = useState([]);
 
     const getData = () => {
         axios.get(url + `?${qs.stringify(
@@ -217,7 +193,6 @@ function Card() {
         )}`)
             .then((results) => {
                 setData(results.data.data.data)
-                console.log(cards);
                 setTableParams({
                     ...tableParams,
                     pagination: {
@@ -255,7 +230,6 @@ function Card() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(cardEdit),
         }).then((results) => {
-            console.log(results)
             notifySuccess('Thêm card 1 mới thành công');
             setLoading(true);
         })
@@ -289,35 +263,10 @@ function Card() {
     const onChangeInputMemorySearch = (event) => {
         setMemorySearch(event.target.value);
     }
-    const onChangeInputModel = (event) => {
-        setModel(event.target.value);
-    }
-    const onChangeInputPrice = (event) => {
-        setPrice(event.target.value);
-    }
-    const onChangeInputMemory = (event) => {
-        setMemory(event.target.value);
-    }
-
 
     const [trandemarkE, setTrandemarkE] = useState('')
     const [modelE, setModelE] = useState('')
-    const [priceE, setPriceE] = useState('')
     const [memoryE, setMemoryE] = useState('')
-    const onChangeInputTrandemarkE = (event) => {
-        setTrandemarkE(event.target.value);
-    }
-    const onChangeInputModelE = (event) => {
-        setModelE(event.target.value);
-    }
-    const onChangeInputPriceE = (event) => {
-        setPriceE(event.target.value);
-    }
-    const onChangeInputMemoryE = (event) => {
-        setMemoryE(event.target.value);
-    }
-
-
 
     const notifySuccess = (message) => {
         toast.success(message, {
@@ -339,7 +288,6 @@ function Card() {
     })
     const showModalCancel = (card) => {
         setCardDel(card);
-        console.log(cardDel)
         setDelete(true);
     };
 
@@ -402,17 +350,17 @@ function Card() {
                         onOk={handleOk}
                         confirmLoading={confirmLoading}
                         onCancel={handleCancel}
+                        width={650}
                     >
                         <Form
                             initialValues={{
                             }}
                             autoComplete="off"
                             labelCol={{ span: 7 }}
-                            wrapperCol={{ span: 10 }}
+                            wrapperCol={{ span: 13 }}
                             onFinish={(values) => {
                                 setIsUpdate(false);
                                 handleSubmit(values, isUpdate);
-                                console.log({ values });
                             }}
                             onFinishFailed={(error) => {
                                 console.log({ error });
@@ -499,16 +447,16 @@ function Card() {
                             Update(cardEdit);
                             setEditing(false);
                         }}
+                        width={650}
                     >
                         <Form
                             form={formEdit}
                             autoComplete="off"
                             labelCol={{ span: 7 }}
-                            wrapperCol={{ span: 10 }}
+                            wrapperCol={{ span: 13 }}
                             onFinish={(values) => {
                                 setIsUpdate(false);
                                 handleSubmitUpdate(values, isUpdate);
-                                console.log({ values });
                             }}
                             onFinishFailed={(error) => {
                                 console.log({ error });
