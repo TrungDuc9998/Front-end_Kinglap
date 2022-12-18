@@ -1,4 +1,13 @@
-import { Select, Input, Button, Modal, Alert, Image, Checkbox } from "antd";
+import {
+  Select,
+  Input,
+  Button,
+  Modal,
+  Alert,
+  Image,
+  Checkbox,
+  AutoComplete,
+} from "antd";
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
@@ -27,6 +36,7 @@ const Exchange = () => {
   const [dataProduct, setDataProduct] = useState([]);
   const [reason, setReason] = useState();
   const [note, setNote] = useState();
+  const [data, setData] = useState([]);
   const [dataCart, setDataCart] = useState();
   const [loading, setLoading] = useState(false);
   const [isView, setView] = useState(false);
@@ -46,6 +56,15 @@ const Exchange = () => {
       search2: "",
     },
   });
+  const [tableParamPro, setTableParamPro] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 100,
+      search1: "",
+      search2: "",
+      searchStatus: "ACTIVE",
+    },
+  });
   const showModal = (item) => {
     setItem(item);
     setIsModalOpen(true);
@@ -53,8 +72,9 @@ const Exchange = () => {
 
   const handleOk = () => {
     const data = [];
-    console.log(dataCart);
-    dataCart?.forEach((element) => {
+    
+
+    dataCart?.forEach((element, index) => {
       data.push({
         orderId: id,
         productId: element.id,
@@ -71,6 +91,10 @@ const Exchange = () => {
         body: JSON.stringify(data),
       })
         .then((response) => response.json())
+        .then((results) => {
+          console.log(results);
+          handleSubmitReturn(results.data, item);
+        })
         .then((data) => {
           console.log("Success:", data);
         })
@@ -78,20 +102,28 @@ const Exchange = () => {
           console.error("Error:", error);
         });
     }
-    handleSubmitReturn(data, item);
+
     setIsModalOpen(false);
   };
 
   const handleSubmitReturn = (data, dataOrderDetail) => {
-    console.log("checked:", checked);
+    console.log('data order detail handle submit');
+    console.log(dataOrderDetail);
+
     const ExchangeDetail = [];
     data?.forEach((element) => {
       ExchangeDetail.push({
-        productId: element.productId,
+        productId: element.product.id,
         orderDetailId: item.id,
         quantity: 1,
+        orderChange: element.id,
+        status: "YEU_CAU",
+        id: null,
       });
     });
+
+    console.log('data exchange');
+    console.log(ExchangeDetail);
 
     var date = new Date().getDate();
     var month = new Date().getMonth() + 1;
@@ -106,6 +138,7 @@ const Exchange = () => {
       moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
     );
     if (reason != undefined) {
+      ///tạo đơn đổi
       try {
         fetch("http://localhost:8080/api/auth/returns", {
           method: "POST",
@@ -120,7 +153,7 @@ const Exchange = () => {
           }),
         }).then((res) => {});
         fetch(
-          `http://localhost:8080/api/orders/${dataOrderDetail.id}/orderDetails`,
+          `http://localhost:8080/api/orders/${dataOrderDetail.id}/updateOrderDetail`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -147,7 +180,6 @@ const Exchange = () => {
     setChecked(false);
     setDataCart([]);
     loadDataOrder(id);
-    console.log('đi qua chỗ này');
   };
   const handleCancel = () => {
     setDataCart([]);
@@ -183,15 +215,8 @@ const Exchange = () => {
   useEffect(() => {
     loadDataOrder(id);
     loadDataProduct();
+    loadDataProduct2();
   }, [checked]);
-
-  const showModalData = (id) => {
-    axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
-      setDataOD(res.data);
-    });
-    setView(true);
-  };
 
   const loadDataProduct = () => {
     setLoading(true);
@@ -234,35 +259,41 @@ const Exchange = () => {
   };
 
   const loadDataOrder = (id) => {
-    console.log(id);
     setLoading(true);
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("order log");
-        console.log(res);
         setOrder(res);
       });
   };
 
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-    setValueInputNumber(value);
+  const deleteProduct = (item) => {
+    let total = 0;
+    dataCart.forEach((element, index) => {
+      if (element.id === item.id) {
+        dataCart.splice(index, 1);
+      }
+    });
+
+    dataCart.forEach((element) => {
+      total += element.price;
+    });
+    setTotalProduct(total);
+
+    loadDataProduct();
   };
 
-  const onChangeProduct = (value) => {
-    console.log("value consolog");
-    console.log(value);
+  const onSelectAuto = (value) => {
+    setValueProduct(value);
+
     const dataPro = [];
     let productValue;
-    setValueProduct(value);
-    console.log(dataProduct);
+
     let isUpdate = false;
     if (value !== undefined) {
       dataProduct
         .filter((item) => item.id === value)
         .map((product) => {
-          console.log("vào push");
           dataPro.push({
             id: product.id,
             image: product?.images[0]?.name,
@@ -275,7 +306,7 @@ const Exchange = () => {
     }
     if (dataCart === undefined) {
       dataPro.forEach((element, index) => {
-        if (element.price < item.product.price) {
+        if (Number(element.price) < Number(item.product.price)) {
           dataPro.splice(index, 1);
           toastError(
             "Sản phẩm phải có giá tiền lớn hơn hoặc bằng sản phẩm trước đó"
@@ -289,7 +320,7 @@ const Exchange = () => {
         toastError("Sản phẩm không được vượt quá số lượng mua ban đầu !");
       } else {
         dataPro.forEach((element, index) => {
-          if (element.price < item.product.price) {
+          if (Number(element.price) < Number(item.product.price)) {
             dataPro.splice(index, 1);
             toastError(
               "Sản phẩm phải có giá tiền lớn hơn hoặc bằng sản phẩm trước đó"
@@ -317,24 +348,50 @@ const Exchange = () => {
     }
   };
 
-  const onSearchProduct = (searchItem) => {
-    console.log("value product click" + searchItem);
+  const loadDataProduct2 = () => {
+    fetch(
+      `http://localhost:8080/api/products?${qs.stringify(
+        getRandomProductParams(tableParamPro)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        const dataResult = [];
+        results.data.data.forEach((item) => {
+          dataResult.push(
+            renderItem(
+              item.id,
+              item.name,
+              item?.images[0]?.name,
+              item.price,
+              item.debut
+            )
+          );
+          setData(dataResult);
+        });
+      });
   };
-  const deleteProduct = (item) => {
-    let total = 0;
-    dataCart.forEach((element, index) => {
-      if (element.id === item.id) {
-        dataCart.splice(index, 1);
-      }
-    });
 
-    dataCart.forEach((element) => {
-      total += element.price;
-    });
-    setTotalProduct(total);
-
-    loadDataProduct();
-  };
+  const renderItem = (id, title, count, price, debut) => ({
+    value: id,
+    label: (
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <span>
+          <Image width={85} src={count} />
+        </span>
+        {" " + title + " (" + debut + ") "}{" "}
+        {price.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        })}
+      </div>
+    ),
+    price: price,
+  });
 
   return (
     <div>
@@ -438,7 +495,7 @@ const Exchange = () => {
                     </td>
 
                     <td>
-                      {(item.isCheck === null) ? (
+                      {item.isCheck === null ? (
                         <Button onClick={() => showModal(item)}>
                           Chọn sản phẩm
                         </Button>
@@ -529,12 +586,15 @@ const Exchange = () => {
                 <p>
                   Số tiền khách hàng phải trả thêm:{" "}
                   <i className="text-danger">
-                    {totalProduct > 0
+                    {totalProduct > item?.total
                       ? (totalProduct - item?.total).toLocaleString("it-IT", {
                           style: "currency",
                           currency: "VND",
                         })
-                      : "0 VND"}
+                      : (item?.total - totalProduct).toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
                   </i>
                 </p>
                 <p className="text-danger fw-bold mt-2">
@@ -555,7 +615,20 @@ const Exchange = () => {
                 </div>
               </div>
             </div>
-            <Select
+            <AutoComplete
+              style={{
+                width: 760,
+              }}
+              options={data}
+              onSelect={onSelectAuto}
+              placeholder="Tên sản phẩm"
+              filterOption={(inputValue, option) =>
+                option.label.props.children[1]
+                  .toUpperCase()
+                  .indexOf(inputValue.toUpperCase()) !== -1
+              }
+            />
+            {/* <Select
               showSearch
               placeholder="Tên sản phẩm"
               optionFilterProp="children"
@@ -575,7 +648,7 @@ const Exchange = () => {
                     </Option>
                   ))
                 : ""}
-            </Select>
+            </Select> */}
           </div>
           <table className="table">
             <thead>

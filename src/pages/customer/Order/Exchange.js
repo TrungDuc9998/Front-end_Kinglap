@@ -11,16 +11,10 @@ import {
   Space,
   Alert,
   Image,
+  Checkbox,
 } from "antd";
 import {
   CheckCircleOutlined,
-  DoubleRightOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-  SearchOutlined,
   CloseCircleOutlined,
   RetweetOutlined,
 } from "@ant-design/icons";
@@ -31,7 +25,6 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 const { TextArea } = Input;
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { render } from "@testing-library/react";
 const { Option } = Select;
@@ -62,6 +55,7 @@ const ExchangeUser = () => {
   const [valueProduct, setValueProduct] = useState("");
   const [currentDate, setCurrentDate] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [checked, setChecked] = useState(false);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -77,7 +71,8 @@ const ExchangeUser = () => {
 
   const handleOk = () => {
     const data = [];
-    dataCart?.forEach((element) => {
+
+    dataCart?.forEach((element, index) => {
       data.push({
         orderId: id,
         productId: element.id,
@@ -86,7 +81,6 @@ const ExchangeUser = () => {
         isCheck: item?.id,
       });
     });
-    console.log(data);
 
     if (reason != undefined) {
       fetch("http://localhost:8080/api/orders/exchanges", {
@@ -95,6 +89,10 @@ const ExchangeUser = () => {
         body: JSON.stringify(data),
       })
         .then((response) => response.json())
+        .then((results) => {
+          console.log(results);
+          handleSubmitReturn(results.data, item);
+        })
         .then((data) => {
           console.log("Success:", data);
         })
@@ -102,20 +100,28 @@ const ExchangeUser = () => {
           console.error("Error:", error);
         });
     }
-    handleSubmitReturn(data, item);
+
     setIsModalOpen(false);
   };
 
   const handleSubmitReturn = (data, dataOrderDetail) => {
+    console.log("data order detail handle submit");
+    console.log(dataOrderDetail);
+
     const ExchangeDetail = [];
     data?.forEach((element) => {
       ExchangeDetail.push({
-        productId: element.productId,
-        total: element.price,
+        productId: element.product.id,
         orderDetailId: item.id,
         quantity: 1,
+        orderChange: element.id,
+        status: "YEU_CAU",
+        id: null,
       });
     });
+
+    console.log("data exchange");
+    console.log(ExchangeDetail);
 
     var date = new Date().getDate();
     var month = new Date().getMonth() + 1;
@@ -123,12 +129,14 @@ const ExchangeUser = () => {
     var hours = new Date().getHours();
     var min = new Date().getMinutes();
     var sec = new Date().getSeconds();
-    setCurrentDate(
-      date + "-" + month + "-" + year + " " + hours + ":" + min + ":" + sec
-    );
+    setCurrentDate(date + "-" + month + "-" + year + " ");
     const event = new Date(order?.updatedAt);
     const event1 = new Date("2022-11-11 18:56:26");
+    console.log(
+      moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
+    );
     if (reason != undefined) {
+      ///tạo đơn đổi
       try {
         fetch("http://localhost:8080/api/auth/returns", {
           method: "POST",
@@ -137,13 +145,13 @@ const ExchangeUser = () => {
             orderId: order.id,
             reason: reason,
             description: note,
-            isCheck: "1",
+            isCheck: checked === true ? "3" : "1",
             status: "CHUA_XU_LY",
             returnDetailEntities: ExchangeDetail,
           }),
         }).then((res) => {});
         fetch(
-          `http://localhost:8080/api/orders/${dataOrderDetail.id}/orderDetails`,
+          `http://localhost:8080/api/orders/${dataOrderDetail.id}/updateOrderDetail`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -158,15 +166,18 @@ const ExchangeUser = () => {
           }
         ).then((res) => loadDataOrder(id));
         toastSuccess("Gửi yêu cầu thành công!");
-        setDataCart([]);
-        loadDataProduct();
+        setIsModalOpen(false);
+        setLoading(false);
       } catch (err) {
-        console.log(err);
         toastError("Gửi yêu cầu thất bại!");
       }
     } else {
-      toastError("Bạn chưa nhập lý do");
+      toastError("Bạn chưa nhập lý do đổi hàng !");
     }
+
+    setChecked(false);
+    setDataCart([]);
+    loadDataOrder(id);
   };
   const handleCancel = () => {
     setDataCart([]);
@@ -378,16 +389,6 @@ const ExchangeUser = () => {
               <div className="mt-2 ms-5">
                 Số điện thoại: <b>{order?.phone}</b>{" "}
               </div>
-              <div className="mt-2">
-                <TextArea
-                  onChange={(e) => setReason(e.target.value)}
-                  className="ms-2 ms-5"
-                  style={{ width: "80%" }}
-                  placeholder="Lý do đổi hàng"
-                  rows={3}
-                  cols={2}
-                />
-              </div>
             </div>
             <div className="col-6 mt-4 mb-5">
               <div className="mt-2">
@@ -404,16 +405,6 @@ const ExchangeUser = () => {
               </div>
               <div className="mt-2">
                 Trạng thái: <b>Đã nhận hàng</b>{" "}
-              </div>
-              <div className="mt-2">
-                <TextArea
-                  onChange={(e) => setNote(e.target.value)}
-                  className="ms-2"
-                  style={{ width: "80%" }}
-                  placeholder="Ghi chú"
-                  rows={3}
-                  cols={2}
-                />
               </div>
             </div>
           </div>
@@ -505,6 +496,7 @@ const ExchangeUser = () => {
           title="Chọn sản phẩm muốn đổi hàng"
           open={isModalOpen}
           onOk={handleOk}
+          width={850}
           onCancel={handleCancel}
         >
           <div className="search-inner mb-2">
@@ -526,6 +518,16 @@ const ExchangeUser = () => {
                     })}
                   </i>
                 </p>
+                <div className="mt-4">
+                  <TextArea
+                    onChange={(e) => setReason(e.target.value)}
+                    className="mb-2"
+                    style={{ width: "80%" }}
+                    placeholder="Lý do đổi hàng"
+                    rows={3}
+                    cols={2}
+                  />
+                </div>
               </div>
               <div className="col-5">
                 <p>
@@ -550,6 +552,22 @@ const ExchangeUser = () => {
                       : "0 VND"}
                   </i>
                 </p>
+                <p className="text-danger fw-bold mt-2">
+                  Vui lòng tích chọn nếu sản phẩm lỗi
+                </p>
+                <Checkbox onChange={(e) => setChecked(e.target.checked)}>
+                  Sản phẩm lỗi
+                </Checkbox>
+                <div className="mt-2">
+                  <TextArea
+                    onChange={(e) => setNote(e.target.value)}
+                    className="ms-2"
+                    style={{ width: "100%" }}
+                    placeholder="Ghi chú"
+                    rows={3}
+                    cols={4}
+                  />
+                </div>
               </div>
             </div>
             <Select

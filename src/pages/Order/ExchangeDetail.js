@@ -17,6 +17,19 @@ const toastSuccess = (message) => {
   });
 };
 
+const toastError = (message) => {
+  toast.error(message, {
+    position: "top-right",
+    autoClose: 2000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
+
 function exchangeDetail() {
   const [dataExchange, setDataExchange] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -45,7 +58,6 @@ function exchangeDetail() {
     fetch(`http://localhost:8080/api/auth/returns/${id}/detail`)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
         setData(res.data);
       });
   };
@@ -85,8 +97,6 @@ function exchangeDetail() {
     fetch(`http://localhost:8080/api/returns/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data exchange detail");
-        console.log(res);
         setDataExchange(res);
       });
   };
@@ -99,11 +109,9 @@ function exchangeDetail() {
         return d;
       })
     );
-    console.log(dataExchange);
   };
 
   const onChangeStudent1 = (check, d) => {
-    console.log(d);
     let checked = check;
     setDataExchange(
       dataExchange.map((data) => {
@@ -113,31 +121,38 @@ function exchangeDetail() {
         return data;
       })
     );
-    console.log(dataExchange);
   };
 
   const handleSubmit = (isPut) => {
-
-    console.log('vào handle submit');
-
     const orderDetail = [];
 
+
+    console.log('data exchange handle submit');
+    console.log(dataExchange);
+
     dataExchange.forEach((element) => {
-      orderDetail.push({
-        id: element.orderDetail.id,
-        isCheck: element.orderDetail.id,
-        productId: element.productId.id,
-        quantity: element.quantity,
-        total: 0,
-      });
+      if(element.select === true) {
+        console.log('vào kiểm tra selected === true');
+        orderDetail.push({
+          id: element.orderDetail.id,
+          isCheck: element.orderChange,
+          productId: element.productId.id,
+          quantity: element.quantity,
+          total: 0,
+          isBoolean: element.select
+        });
+      } 
     });
 
     const exchangeDetails = [];
 
+    let check = false;
+
     dataExchange
       .filter((item) => item.select === true)
       .forEach((item) => {
-        console.log(item.productId.id);
+        console.log('vào if');
+        check = true;
         exchangeDetails.push({
           id: item.id,
           productId: item.productId.id,
@@ -147,33 +162,36 @@ function exchangeDetail() {
         });
       });
 
-    console.log('data exchange sau khi handle submit');
-    console.log(dataExchange);
+    console.log(orderDetail);
 
-    fetch(`http://localhost:8080/api/returns/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        orderId: 1,
-        reason: "a",
-        description: "a",
-        isCheck: 1,
-        status: isPut === true ? "DA_XU_LY" : "KHONG_XU_LY",
-        returnDetailEntities: exchangeDetails,
-      }),
-    }).then((res) => loadDataExchangeDetail(id));
-    if (isPut === true) {
-      fetch(
-        `http://localhost:8080/api/orders/update/exchange/${data.orderId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderDetail),
-        }
-      ).then((res) => {});
-      toastSuccess("Xác nhận yêu cầu thành công !");
+    if (check === true) {
+      fetch(`http://localhost:8080/api/returns/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: 1,
+          reason: "a",
+          description: "a",
+          isCheck: 1,
+          status: isPut === true ? "DA_XU_LY" : "KHONG_XU_LY",
+          returnDetailEntities: exchangeDetails,
+        }),
+      }).then((res) => loadDataExchangeDetail(id));
+      if (isPut === true) {
+        fetch(
+          `http://localhost:8080/api/orders/update/exchange/${data.orderId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderDetail),
+          }
+        ).then((res) => {});
+        toastSuccess("Xác nhận yêu cầu thành công !");
+      } else {
+        toastSuccess("Huỷ yêu cầu thành công !");
+      }
     } else {
-      toastSuccess("Huỷ yêu cầu thành công !");
+      toastError("Vui lòng chọn đơn muốn xác nhận !");
     }
   };
 
@@ -417,13 +435,12 @@ function exchangeDetail() {
                 <tr key={d.id}>
                   <th scope="row">
                     <input
-                      disabled={d.select == true ? true :" "}
+                      disabled={d.status != "YEU_CAU"}
                       onChange={(event) => {
                         onChangeStudent1(event.target.checked, d);
                       }}
                       type="checkbox"
-                      checked={d.select == true ? "" :d.select}
-                      
+                      checked={d.status === "YEU_CAU" ?  d.select : ""}
                     ></input>
                   </th>
                   <td>{d.id}</td>
@@ -492,13 +509,13 @@ function exchangeDetail() {
               ))}
             </tbody>
           </table>
-          <Table
+          {/* <Table
             rowSelection={rowSelection}
             columns={columns}
             rowKey={(record) => record.id}
             dataSource={dataExchange}
             pagination={{ position: ["none", "none"] }}
-          />
+          /> */}
         </div>
         <div className="col-12 text-center mb-3 mt-2">
           <Button onClick={onConfirm} type="primary">
