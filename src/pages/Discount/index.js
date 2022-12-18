@@ -817,7 +817,7 @@ const Discount = () => {
                       <th scope="col">Tên sản phẩm</th>
                       <th scope="col">Giá tiền</th>
                       <th scope="col">Số lượng</th>
-                      <th scope="col">Mã máy</th>
+                      <th scope="col">Giảm giá</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -829,7 +829,7 @@ const Discount = () => {
                           <td>{item.name}</td>
                           <td>{item.price}</td>
                           <td>{item.quantity}</td>
-                          <td>{item.imei}</td>
+                          <td>{item.discount?item.discount.name+" ("+item.discount.ratio+"%)":""}</td>
                           {/* <td>{item.price - (item.price * item.discount)}</td> */}
                         </tr>
                       );
