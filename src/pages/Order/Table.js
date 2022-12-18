@@ -40,7 +40,7 @@ const toastSuccess = (message) => {
 const toastError = (message) => {
   toast.error(message, {
     position: "top-right",
-    autoClose: 5000,
+    autoClose: 2000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
@@ -242,10 +242,10 @@ function CreateOrderAdmin() {
           isCheck: null,
         });
       });
-      if (phoneClient.length != 10) {
+      if (phoneClient != undefined && phoneClient.length != 10) {
         toastError("Số điện thoại không đúng định dạng !");
       }
-      if (addressDetail === undefined) {
+      if ( typeOrder != "TẠI CỬA HÀNG" && addressDetail === undefined) {
         toastError("Nhập địa chỉ chi tiết!");
       } else {
         try {

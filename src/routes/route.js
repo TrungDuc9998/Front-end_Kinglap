@@ -38,6 +38,7 @@ import Policy from "../pages/Home/Policy/policy";
 import Find from "../pages/customer/find";
 import CopyProduct from "../pages/Product/CopyProduct";
 import CreateOrderAdmin from "../pages/Order/Table";
+import ViewProductAdmin from "../pages/Product/ViewProduct";
 const publicRoutes = [
   {
     path: "/",
@@ -190,9 +191,11 @@ const publicRoutes = [
   {
     path: "/admin/product/copy/:id",
     component: CopyProduct
+  },
+  {
+    path: "/admin/product/view/:id",
+    component: ViewProductAdmin
   }
-
-
 ];
 
 const privateRoutes = [];

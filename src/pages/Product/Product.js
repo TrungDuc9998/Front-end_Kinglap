@@ -1,5 +1,8 @@
 import {
-  CopyOutlined, EditOutlined,
+  CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
   LockOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -222,7 +225,7 @@ const Product = () => {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "10%",
+      width: "12%",
       render: (id, data) => {
         return (
           <>
@@ -240,8 +243,11 @@ const Product = () => {
               style={{ color: "red", marginLeft: 12, fontSize: "20px" }}
               onClick={() => {
                 getProductById(data.id, 2);
-              }}
+              }}     
             />
+             <EyeOutlined  onClick={() => {
+                getProductById(data.id, 3);
+              }}    style={{ color: "blue", marginLeft: 12, fontSize: "20px" }}/>
           </>
         );
       },
@@ -255,7 +261,9 @@ const Product = () => {
         localStorage.setItem("productEdit", JSON.stringify(res));
         if (check === 2) {
           navigate(`/admin/product/copy/${res.id}`);
-        } else {
+        }else if(check === 3) {
+          navigate(`/admin/product/view/${res.id}`);
+        }else {
           navigate(`/admin/product/edit/${res.id}`);
         }
       });

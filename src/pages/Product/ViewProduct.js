@@ -1,11 +1,21 @@
 import { MenuFoldOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Form, Input, Select, Upload, Image } from "antd";
+import {
+  Button,
+  Image,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  Upload,
+  Space,
+} from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
 import qs from "qs";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { render } from "react-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 } from "uuid";
@@ -16,7 +26,27 @@ const getRandomuserParams = (params) => ({
   page: params.pagination?.current,
 });
 
-function EditProduct() {
+function ViewProductAdmin() {
+  const [dataProduct, setDataProduct] = useState([]);
+  const [imageUpload, setImageUpload] = useState([]);
+  const [imageUrls, setImageUrls] = useState([]);
+  const [images, setImages] = useState([]);
+  const [name, setName] = useState();
+  const [price, setPrice] = useState();
+  const [quantity, setQuantity] = useState();
+  const [length, setLength] = useState();
+  const [width, setWidth] = useState();
+  const [imei, setImei] = useState();
+  const [win, setWin] = useState();
+  const [battery, setBattery] = useState();
+  const [dataOrigin, setDataOrigin] = useState();
+  const [processors, setProcessors] = useState([]);
+  const [dataScreen, setDataScreen] = useState([]);
+  const [dataRam, setDataRam] = useState([]);
+  const [dataCard, setDataCard] = useState([]);
+  const [dataStorage, setDataStorage] = useState([]);
+  const [dataAccessory, setDataAccessory] = useState([]);
+  const [dataColor, setDataColor] = useState([]);
   const set = new Set();
   const props = {
     name: "file",
@@ -29,7 +59,6 @@ function EditProduct() {
         info.file.status = "done";
       }
       if (info.file.status == "removed") {
-        console.log(info);
         console.log("removed");
       }
       if (info.file.status === "done") {
@@ -39,94 +68,29 @@ function EditProduct() {
       }
     },
   };
-  const navigate = useNavigate();
-  const [imageUpload, setImageUpload] = useState([]);
-  const [imageUrls, setImageUrls] = useState([]);
-  const [images, setImages] = useState([]);
-  const [name, setName] = useState();
-  const [price, setPrice] = useState();
-  const [quantity, setQuantity] = useState();
-  const [size, setSize] = useState();
-  const [length, setLength] = useState();
-  const [height, setHeight] = useState();
-  const [width, setWidth] = useState();
-  const [debut, setDebut] = useState(getDate);
-  const [description, setDescription] = useState();
-  const [origin, setOrigin] = useState();
-  const [imei, setImei] = useState();
-  const [win, setWin] = useState();
-  const [slot, setSlot] = useState();
-  const [optical, setOptical] = useState();
-  const [processor, SetProcessor] = useState();
-  const [battery, setBattery] = useState();
-  const [capacity, setCapacity] = useState("VGA ADM");
-  const [ram, setRam] = useState("4GB");
-  const [dataOrigin, setDataOrigin] = useState();
-  const [processors, setProcessors] = useState([]);
-  const [dataScreen, setDataScreen] = useState([]);
-  const [dataRam, setDataRam] = useState([]);
-  const [dataCard, setDataCard] = useState([]);
-  const [dataStorage, setDataStorage] = useState([]);
-  const [dataAccessory, setDataAccessory] = useState([]);
-  const [dataColor, setDataColor] = useState([]);
 
   const [clearForm] = Form.useForm();
 
   const onReset = () => {
-    clearForm.resetFields();
     clearForm.setFieldValue();
   };
 
-  const imagesListRef = ref(storage, "images/"); //all url
   const uploadFile = (image) => {
     if (image == null) return;
     const imageRef = ref(storage, `images/${image.name + v4()}`);
     uploadBytes(imageRef, image).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
         setImages((prev) => [...prev, url]);
-        console.log("url", url);
-        // console.log("snapshot.ref", snapshot.ref); //_service: {…}, _location: {…}
         setImageUrls((prev) => [...prev, url]); //set url ->all url
-        console.log("đi qua chỗ này");
       });
       setImageUpload((prev) => [...prev, image]);
-      console.log("đi xuống cuối cùng");
     });
-  };
-
-  //xử lú sau khi uploadfile
-  useEffect(() => {
-    listAll(imageUpload).then((response) => {
-      console.log("imagesListRef", imagesListRef);
-      response.items.forEach((item) => {
-        console.log("item", item);
-        getDownloadURL(item).then((url) => {
-          setImageUrls((prev) => [...prev, url]);
-          setImages((prev) => [...prev, url]);
-        });
-      });
-    });
-    loadDataWin();
-    imageUrls.forEach((image) => console.log(image));
-  }, [images]);
-
-  const loadDataWin = () => {
-    fetch(
-      `http://localhost:8080/api/auth/wins?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setWin(results.data.data);
-      });
   };
 
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
   const [manufacture, setManufacture] = useState([]);
   const productEdit = JSON.parse(localStorage.getItem("productEdit"));
-
   const [data, setData] = useState({
     name: productEdit?.name,
     quantity: productEdit?.quantity,
@@ -150,7 +114,6 @@ function EditProduct() {
     images: productEdit?.images.map((item) => ({
       name: item.name,
       product: null,
-      return_id: null,
       exchange_id: null,
     })),
     configuration: {
@@ -218,21 +181,6 @@ function EditProduct() {
     },
   });
 
-  function getDate() {
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = now.getMonth() + 1;
-    var day = now.getDate();
-    if (month.toString().length == 1) {
-      month = "0" + month;
-    }
-    if (day.toString().length == 1) {
-      day = "0" + day;
-    }
-    var date = year + "/" + month + "/" + day;
-    return date;
-  }
-
   const toastSuccess = (message) => {
     toast.success(message, {
       position: "top-right",
@@ -252,6 +200,18 @@ function EditProduct() {
     searchUsername: params.pagination?.search1,
     searchStatus: params.pagination?.search2,
   });
+
+  const loadDataWin = () => {
+    fetch(
+      `http://localhost:8080/api/auth/wins?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setWin(results.data.data);
+      });
+  };
 
   const loadDataManufacture = () => {
     setLoading(true);
@@ -461,6 +421,69 @@ function EditProduct() {
 
   const dateFormat = "YYYY";
 
+  const handleSubmit = (data) => {
+    console.log('image url');
+    console.log(imageUrls);
+    data.images = imageUrls;
+    data.status = "ACTIVE";
+    data.debut = moment(data.debut).format("yyyy");
+    const quantity = Number(data.quantity);
+    data.images = imageUrls.map((item) => ({
+      name: item,
+      product: null,
+      return_id: null,
+      exchange_id: null,
+    }));
+    const product = {
+      name: data.name,
+      quantity: Number(data.quantity),
+      price: Number(data.price),
+      imei: data.imei,
+      weight: Number(data.weight),
+      height: Number(data.height),
+      width: Number(data.width),
+      length: Number(data.length),
+      debut: data.debut,
+      categoryId: data.categoryId,
+      manufactureId: data.manufactureId,
+      images: data.images,
+      status: "ACTIVE",
+      processorId: data.processorId,
+      screenId: data.screenId,
+      cardId: data.cardId,
+      originId: data.originId,
+      colorId: data.colorId,
+      batteryId: data.batteryId,
+      ramId: data.ramId,
+      winId: data.win,
+      material: data.material,
+      cardOnboard: data.cardOnboard,
+      accessoryId: data.accessoryId,
+      security: data.security,
+      description: data.description,
+      storageId: data.storageId,
+    };
+    console.log(product);
+    fetch(`http://localhost:8080/api/products/copy/${productEdit.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(product),
+    })
+      .then((response) => response.json())
+      .then((results) => {
+        if (results.status === 200) {
+          console.log(results);
+          onReset();
+          toastSuccess("Thêm mới thành công !");
+        } else {
+          toastError("Thêm mới sản phẩm thất bại !");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   const loadDataStorage = () => {
     setLoading(true);
     fetch(
@@ -484,7 +507,6 @@ function EditProduct() {
 
   useEffect(() => {
     listAll(imageUpload).then((response) => {
-      // console.log("imagesListRef",imagesListRef)
       response.items.forEach((item) => {
         getDownloadURL(item).then((url) => {
           setImageUrls((prev) => [...prev, url]);
@@ -502,96 +524,22 @@ function EditProduct() {
     loadDataAccessor();
     loadDataStorage();
     loadDataColor();
+    loadDataWin();
     loadDataCategory();
-
-    console.log("product edit");
-    console.log(productEdit);
-
-    console.log("dữ liệu set data");
-    console.log(data);
+    loadDataProductById(id);
   }, [images]);
-  console.log("form", form);
 
-  const handleClick = (data) => {
-    console.log("image url");
-    console.log(imageUrls);
-
-    if (imageUrls.length > 0) {
-      data.images = imageUrls;
-      data.status = "ACTIVE";
-      data.debut = moment(data.debut).format("yyyy");
-      const quantity = Number(data.quantity);
-      data.images = imageUrls.map((item) => ({
-        name: item,
-        product: null,
-        return_id: null,
-        exchange_id: null,
-      }));
-    }
-    const product = {
-      name: data.name,
-      quantity: Number(data.quantity),
-      price: Number(data.price),
-      imei: data.imei,
-      weight: Number(data.weight),
-      height: Number(data.height),
-      width: Number(data.width),
-      length: Number(data.length),
-      debut: data.debut,
-      categoryId: data.categoryId,
-      manufactureId: data.manufactureId,
-      images: (imageUrls.length > 0) ? data.images : [],
-      status: "ACTIVE",
-      processorId: data.processorId,
-      screenId: data.screenId,
-      cardId: data.cardId,
-      originId: data.originId,
-      colorId: data.colorId,
-      batteryId: data.batteryId,
-      ramId: data.ramId,
-      winId: data.win,
-      material: data.material,
-      cardOnboard: data.cardOnboard,
-      accessoryId: data.accessoryId,
-      security: data.security,
-      description: data.description,
-      storageId: data.storageId,
-    };
-    console.log("product");
-    console.log(product);
-    console.log(productEdit.id);
-    handleSubmit(product);
-  };
-
-  const handleSubmit = (product) => {
-    console.log("product handle submit");
-    console.log(product);
-
-    fetch(`http://localhost:8080/api/products/${productEdit.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(product),
-    })
-      .then((response) => {})
-      .then((results) => {
-        console.log(results);
-        onReset();
-        localStorage.removeItem("productEdit");
-        toastSuccess("Cập nhật sản phẩm thành công!");
-        setTimeout(() => {
-          navigate("/admin/product");
-        }, 3000);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
+  let { id } = useParams();
+  const loadDataProductById = (id) => {
+    fetch(`http://localhost:8080/api/products/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("data product get by id");
+        console.log(res);
+        setDataProduct(res);
       });
   };
 
-  const handleUpload = () => {
-    set.forEach((item) => {
-      uploadFile(item);
-    });
-  };
   return (
     <div className="row">
       <div className="row">
@@ -599,7 +547,7 @@ function EditProduct() {
           <MenuFoldOutlined style={{ fontSize: "20px" }} />
         </div>
         <div className="col-11">
-          <h4 className="text-danger fw-bold">Cập nhật sản phẩm</h4>
+          <h4 className="text-danger fw-bold">Chi tiết sản phẩm</h4>
         </div>
       </div>
       <div
@@ -622,7 +570,7 @@ function EditProduct() {
             layout="vertical"
             autoComplete="off"
             onFinish={(values) => {
-              handleClick(values);
+              handleSubmit(values);
             }}
             onFinishFailed={(error) => {
               console.log({ error });
@@ -649,6 +597,7 @@ function EditProduct() {
                     style={{ width: "100%" }}
                     placeholder="Nhập tên sản phẩm"
                     value={name}
+                    readOnly={true}
                   />
                 </Form.Item>
               </div>
@@ -671,8 +620,8 @@ function EditProduct() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Nhập mã máy"
-                    // value={imei}
-                    // readOnly={true}
+                    value={imei}
+                    readOnly={true}
                   />
                 </Form.Item>
               </div>
@@ -692,9 +641,9 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn thể loại" mode="multiple">
+                  <Select placeholder="Chọn thể loại"  mode="multiple">
                     {category.map((cate) => (
-                      <Select.Option value={cate.id}>{cate.name}</Select.Option>
+                      <Select.Option disabled value={cate.id}>{cate.name}</Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
@@ -712,6 +661,7 @@ function EditProduct() {
                       required: true,
                       message: "Giá tiền không được để trống",
                     },
+                    { min: 6, message: "Giá trị lớn hơn 6 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -720,6 +670,7 @@ function EditProduct() {
                     style={{ width: "100%" }}
                     placeholder="Nhập giá tiền"
                     value={price}
+                    readOnly
                   />
                 </Form.Item>
               </div>
@@ -742,6 +693,7 @@ function EditProduct() {
                     style={{ width: "100%" }}
                     placeholder="Nhập số lượng"
                     value={quantity}
+                    readOnly
                   />
                 </Form.Item>
               </div>
@@ -761,9 +713,9 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select mode="multiple" placeholder="Chọn màu">
+                  <Select mode="multiple"  placeholder="Chọn màu">
                     {dataColor?.map((item) => (
-                      <Select.Option value={item.id}>{item.name}</Select.Option>
+                      <Select.Option disabled value={item.id}>{item.name}</Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
@@ -774,6 +726,7 @@ function EditProduct() {
                 <Form.Item
                   name="length"
                   label="Chiều dài"
+               
                   initialValue={form.length}
                   rules={[
                     {
@@ -787,6 +740,7 @@ function EditProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều dài"
                     type="number"
+                    readOnly= {true}
                     value={length}
                   />
                 </Form.Item>
@@ -808,6 +762,7 @@ function EditProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều rộng"
                     value={width}
+                    readOnly= {true}
                     type="number"
                   />
                 </Form.Item>
@@ -829,6 +784,7 @@ function EditProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều cao"
                     type="number"
+                    readOnly= {true}
                   />
                 </Form.Item>
               </div>
@@ -849,6 +805,7 @@ function EditProduct() {
                     style={{ width: "100%" }}
                     placeholder="Cân nặng"
                     type="number"
+                    readOnly
                   />
                 </Form.Item>
               </div>
@@ -864,11 +821,7 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <DatePicker
-                    picker="year"
-                    placeholder="Chọn năm sản xuất"
-                    format={dateFormat}
-                  />
+                  <DatePicker picker="year" disabled format={dateFormat} />
                 </Form.Item>
               </div>
               <div className="col-2">
@@ -885,9 +838,9 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn xuất xứ">
+                  <Select placeholder="Chọn xuất xứ" >
                     {dataOrigin?.map((cate) => (
-                      <Select.Option value={cate.id}>{cate.name}</Select.Option>
+                      <Select.Option disabled={true} value={cate.id}>{cate.name}</Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
@@ -912,6 +865,7 @@ function EditProduct() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Nhập chất liệu"
+                    readOnly= {true}
                   />
                 </Form.Item>
               </div>
@@ -928,9 +882,9 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn ram">
+                  <Select placeholder="Chọn ram"   >
                     {dataRam?.map((item) => (
-                      <Select.Option value={item.id}>
+                      <Select.Option disabled value={item.id}>
                         {item.ramCapacity +
                           " " +
                           item.typeOfRam +
@@ -956,9 +910,9 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn CPU">
+                  <Select placeholder="Chọn CPU"  >
                     {processors?.map((item) => (
-                      <Select.Option value={item.id}>
+                      <Select.Option disabled value={item.id}>
                         {item.cpuCompany +
                           " " +
                           item.cpuTechnology +
@@ -986,9 +940,9 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn màn hình">
+                  <Select placeholder="Chọn màn hình"  >
                     {dataScreen?.map((item) => (
-                      <Select.Option value={item.id}>
+                      <Select.Option disabled value={item.id}>
                         {item.size +
                           " " +
                           item.screenTechnology +
@@ -1014,9 +968,9 @@ function EditProduct() {
                   ]}
                   requiredMark="optional"
                 >
-                  <Select placeholder="Chọn card rời">
+                  <Select placeholder="Chọn card rời" >
                     {dataCard?.map((item) => (
-                      <Select.Option value={item.id}>
+                      <Select.Option disabled value={item.id}>
                         {item.trandemark + " " + item.model + " " + item.memory}
                       </Select.Option>
                     ))}
@@ -1036,9 +990,9 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn hệ điều hành">
+                  <Select placeholder="Chọn hệ điều hành" >
                     {win?.map((item) => (
-                      <Select.Option value={item.id}>
+                      <Select.Option disabled value={item.id}>
                         {item.name + " - " + item.version}
                       </Select.Option>
                     ))}
@@ -1058,9 +1012,9 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn card onboard">
+                  <Select placeholder="Chọn card onboard" >
                     {dataCard?.map((item) => (
-                      <Select.Option value={item.id}>
+                      <Select.Option  disabled value={item.id}>
                         {item.trandemark + " " + item.model + " " + item.memory}
                       </Select.Option>
                     ))}
@@ -1080,9 +1034,9 @@ function EditProduct() {
                   ]}
                   requiredMark="optional"
                 >
-                  <Select placeholder="Chọn ổ cứng">
+                  <Select placeholder="Chọn ổ cứng" >
                     {dataStorage?.map((item) => (
-                      <Select.Option value={item.id}>
+                      <Select.Option disabled value={item.id}>
                         {item.storageType.name +
                           " " +
                           item.type +
@@ -1108,7 +1062,7 @@ function EditProduct() {
                 >
                   <Select placeholder="Chọn loại pin">
                     {battery?.map((item) => (
-                      <Select.Option value={item.id}>
+                      <Select.Option value={item.id} disabled>
                         {item.batteryType +
                           " " +
                           item.battery +
@@ -1134,9 +1088,9 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn loại pin">
+                  <Select placeholder="Chọn hãng sản xuất" >
                     {manufacture?.map((item) => (
-                      <Select.Option value={item.id}>{item.name}</Select.Option>
+                      <Select.Option disabled={true} value={item.id}>{item.name}</Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
@@ -1157,7 +1111,7 @@ function EditProduct() {
                   ]}
                   hasFeedback
                 >
-                  <Input style={{ width: "100%" }} placeholder="Bảo mật" />
+                  <Input style={{ width: "100%" }} readOnly placeholder="Bảo mật" />
                 </Form.Item>
               </div>
               <div className="col-4">
@@ -1177,7 +1131,7 @@ function EditProduct() {
                 >
                   <Select mode="multiple" placeholder="Chọn các phụ kiện">
                     {dataAccessory?.map((item) => (
-                      <Select.Option value={item.id}>{item.name}</Select.Option>
+                      <Select.Option disabled value={item.id}>{item.name}</Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
@@ -1191,38 +1145,24 @@ function EditProduct() {
                   initialValue={form.description}
                   onChange={(e) => setDescription(e.target.value)}
                 >
-                  <TextArea rows={4} />
+                  <TextArea readOnly rows={4} />
                 </Form.Item>
               </div>
-              <div className="col-7">
-                <div className="row mt-5">
-                  <div className="col-6">
-                    <Form.Item
-                      name="upload"
-                      label="Upload"
-                     
-                    >
-                      <Upload
-                        {...props}
-                        listType="picture"
-                        maxCount={5 - productEdit.images.length}
-                      >
-                        <Button
-                          icon={<UploadOutlined />}
-                          disabled={productEdit.images.length === 5}
-                        >
-                          Chọn hình ảnh (Tối đa: {5 - productEdit.images.length}
-                          )
-                        </Button>
-                      </Upload>
-                    </Form.Item>
-                  </div>
-                </div>
-              </div>
-              <div></div>
-            </div>
-            <div className="row">
-              <div className="col-7">
+              <div className="col-7 mt-4">
+                {/* <Space
+                  direction="vertical"
+                  style={{
+                    width: "100%",
+                  }}
+                  size="large"
+                >
+                  <Upload {...props} listType="picture" maxCount={5}>
+                    <Button icon={<UploadOutlined />}>
+                      {" "}
+                      Chọn hình ảnh (Tối đa: 5)
+                    </Button>
+                  </Upload>
+                </Space> */}
                 <Image.PreviewGroup>
                   <Image width={100} src={productEdit?.images[0]?.name} />
                   {productEdit.length > 2 ? (
@@ -1247,39 +1187,13 @@ function EditProduct() {
                   )}
                 </Image.PreviewGroup>
               </div>
+              <div></div>
             </div>
-            <Form.Item className="text-center mt-4">
-              {productEdit.images.length < 5 ? (
-                <Button
-                  block
-                  type="primary"
-                  danger
-                  disabled={imageUrls.length > 0 ? true : false}
-                  style={{ width: "100px" }}
-                  onClick={handleUpload}
-                >
-                  Upload
-                </Button>
-              ) : (
-                ""
-              )}
-              <Button
-                block
-                className="ms-2"
-                type="primary"
-                htmlType="submit"
-                style={{ width: "100px" }}
-              >
-                Cập nhật
-              </Button>
-              <Button htmlType="button" className="ms-2" onClick={onReset}>
-                Làm mới
-              </Button>
-            </Form.Item>
+            
           </Form>
         </div>
       </div>
     </div>
   );
 }
-export default EditProduct;
+export default ViewProductAdmin;
