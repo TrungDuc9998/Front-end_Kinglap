@@ -693,45 +693,45 @@ const Product = () => {
       return_id: null,
       exchange_id: null,
     }));
-    category.forEach(item=>(item.name)==data.category?data.category=item.id:"");
-    dataColor.forEach(item=>(item.name)==data.productColors?data.color=item.id:"");
-    dataOrigin.forEach(item=>(item.name)==data.origin?data.origin=item.id:"");
-    dataRam.forEach(item=>(item.ramCapacity +
+    category.forEach(item=>(item.name.trim())==data.category?data.category=item.id:"");
+    dataColor.forEach(item=>(item.name.trim())==data.productColors?data.color=item.id:"");
+    dataOrigin.forEach(item=>(item.name.trim())==data.origin?data.origin=item.id:"");
+    dataRam.forEach(item=>(item.ramCapacity.trim() +
       " " +
-      item.typeOfRam +
+      item.typeOfRam.trim() +
       " " +
-      item.ramSpeed +
+      item.ramSpeed.trim() +
       " " +
-      item.maxRamSupport)==data.ram?data.ram=item.id:"");
-    processors.forEach(item=>(item.cpuCompany +
+      item.maxRamSupport.trim())==data.ram?data.ram=item.id:"");
+    processors.forEach(item=>(item.cpuCompany.trim() +
       " " +
-      item.cpuTechnology +
+      item.cpuTechnology.trim() +
       " " +
-      item.cpuType +
+      item.cpuType.trim() +
       " " +
-      item.cpuSpeed)==data.processor?data.processor=item.id:"");
-    dataScreen.forEach(item=>(item.size +
+      item.cpuSpeed.trim())==data.processor?data.processor=item.id:"");
+    dataScreen.forEach(item=>(item.size.trim() +
       " " +
-      item.screenTechnology +
+      item.screenTechnology.trim() +
       " " +
-      item.resolution +
+      item.resolution.trim() +
       " " +
-      item.screenType)==data.screen?data.screen=item.id:"");
-    dataCard.forEach(item=>(item.trandemark + " " + item.model + " " + item.memory)==data.card?data.card=item.id:"");
-    dataWin.forEach(item=>(item.name + " - " + item.version)==data.win?data.win=item.id:"");
-    dataCard.forEach(item=>(item.trandemark + " " + item.model + " " + item.memory)==data.cardOnboard?data.cardOnboard=item.id:"");
-    dataStorage.forEach(item=>(item.storageType.name +
+      item.screenType.trim())==data.screen?data.screen=item.id:"");
+    dataCard.forEach(item=>(item.trandemark.trim() + " " + item.model.trim() + " " + item.memory.trim())==data.card?data.card=item.id:"");
+    dataWin.forEach(item=>(item.name.trim() + " - " + item.version.trim())==data.win?data.win=item.id:"");
+    dataCard.forEach(item=>(item.trandemark.trim() + " " + item.model.trim() + " " + item.memory.trim())==data.cardOnboard?data.cardOnboard=item.id:"");
+    dataStorage.forEach(item=>(item.storageType.name.trim() +
       " " +
-      item.type +
+      item.type.trim() +
       " " +
-      item.capacity)==data.storage?data.storage=item.id:"");
-    battery.forEach(item=>(item.batteryType +
+      item.capacity.trim())==data.storage?data.storage=item.id:"");
+    battery.forEach(item=>(item.batteryType.trim() +
       " " +
-      item.battery +
+      item.battery.trim() +
       " " +
-      item.charger)==data.battery?data.battery=item.id:"");
-    manufacture.forEach(item=>(item.name)==data.manufacture?data.manufacture=item.id:"");
-    dataAccessory.forEach(item=>(item.name)==data.accessoryProducts?data.accessoryId=item.id:"");
+      item.charger.trim())==data.battery?data.battery=item.id:"");
+    manufacture.forEach(item=>(item.name.trim())==data.manufacture?data.manufacture=item.id:"");
+    dataAccessory.forEach(item=>(item.name.trim())==data.accessoryProducts?data.accessoryId=item.id:"");
 
     const product = {
       //id:data.id,
