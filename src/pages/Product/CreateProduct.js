@@ -257,7 +257,11 @@ function CreateProduct() {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`
+      )}`, {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -359,7 +363,11 @@ function CreateProduct() {
     fetch(
       `http://localhost:8080/api/staff/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
-      )}`
+      )}`, {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -379,7 +387,11 @@ function CreateProduct() {
     fetch(
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
-      )}`
+      )}`, {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {

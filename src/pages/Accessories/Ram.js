@@ -34,7 +34,9 @@ const onDelete = (record) => {
     okType: "primary",
     onOk: () => {
       fetch(`http://localhost:8080/api/staff/rams/${record.id}`, {
-        method: "DELETE",
+        method: "DELETE", headers: {
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
       });
       // loadDataRam();
     },
@@ -191,7 +193,12 @@ const Ram = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/staff/rams/${data.id}/inactive`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => loadDataRam());
                   toastSuccess("Khoá thành công !");
                 }}
@@ -211,7 +218,12 @@ const Ram = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/staff/rams/${data.id}/active`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => loadDataRam());
                   toastSuccess("Mở khóa thành công!");
                 }}
@@ -361,7 +373,10 @@ const Ram = () => {
       data.status = "ACTIVE";
       fetch("http://localhost:8080/api/staff/rams", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
         body: JSON.stringify(data),
       })
         .then((response) => loadDataRam())
@@ -390,7 +405,10 @@ const Ram = () => {
     }
     fetch(`http://localhost:8080/api/staff/rams/` + edit.id, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
       body: JSON.stringify(edit),
     })
       .then((response) => loadDataRam())

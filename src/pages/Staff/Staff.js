@@ -114,7 +114,12 @@ import {
                   onClick={() => {
                     setLoading(true);
                     fetch(
-                      `http://localhost:8080/api/staffs/close/${data.id}`, { method: "PUT" }).then(() => load());
+                      `http://localhost:8080/api/staffs/close/${data.id}`, {
+                        method: "PUT",
+                        headers: {
+                          Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        },
+                      }).then(() => load());
                       toastSuccess("Khóa thành công!");
                   }}
                 />
@@ -128,7 +133,12 @@ import {
                   onClick={() => {
                     setLoading(true);
                     fetch(
-                      `http://localhost:8080/api/staffs/open/${data.id}`, { method: "PUT" }).then(() => load());
+                      `http://localhost:8080/api/staffs/open/${data.id}`, {
+                        method: "PUT",
+                        headers: {
+                          Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        },
+                      }).then(() => load());
                       toastSuccess("Mở khóa thành công!");
                   }}
                 />
@@ -166,7 +176,11 @@ import {
       fetch(
         `http://localhost:8080/api/staffs?${qs.stringify(
           getRandomuserParams(tableParams)
-        )}`
+        )}`, {
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem("token"),
+          },
+        }
       )
         .then((res) => res.json())
         .then((results) => {
@@ -194,7 +208,11 @@ import {
       fetch(
         `http://localhost:8080/api/staffs?${qs.stringify(
           getRandomuserParams(tableParams)
-        )}`
+        )}`, {
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem("token"),
+          },
+        }
       )
         .then((res) => res.json())
         .then((results) => {
@@ -236,7 +254,11 @@ import {
       fetch(
         `http://localhost:8080/api/staffs?${qs.stringify(
           getRandomuserParams(tableParams)
-        )}`
+        )}`, {
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem("token"),
+          },
+        }
       )
         .then((res) => res.json())
         .then((results) => {
@@ -264,7 +286,10 @@ import {
     const handleOk = () => {
       if (password2 === password1) {
         fetch(
-          `http://localhost:8080/api/staffs`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, newPassword: password1, status: 1 }) }).then((res) => res.json())
+          `http://localhost:8080/api/staffs`, { method: "POST", headers: {
+            "Content-Type": "application/json",
+            Authorization: 'Bearer ' + localStorage.getItem("token"),
+          }, body: JSON.stringify({ username: username, newPassword: password1, status: 1 }) }).then((res) => res.json())
           .then((results) => {
             if (results.data == null) {
               toastError(results.message);
@@ -450,7 +475,10 @@ import {
                   } else {
                     setLoading(true);
                     fetch(
-                      `http://localhost:8080/api/staffs/${id}`, { method: "PUT", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password3, newPassword: password1, status: status }) }).then((res) => res.json())
+                      `http://localhost:8080/api/staffs/${id}`, { method: "PUT", headers: {
+                        "Content-Type": "application/json",
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      }, body: JSON.stringify({ username: username, password: password3, newPassword: password1, status: status }) }).then((res) => res.json())
                       .then((results) => {
                         if (results.data == null) {
                           toastError(results.message);
@@ -496,7 +524,9 @@ import {
               }}
               onOk={() => {
                 fetch(
-                  `http://localhost:8080/api/staffs/${id}`, { method: 'DELETE' }).then(() => load());
+                  `http://localhost:8080/api/staffs/${id}`, { method: 'DELETE', headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem("token"),
+                  }, }).then(() => load());
                 setDelete(false);
                 toastSuccess("Xóa thành công!")
               }}

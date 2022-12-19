@@ -11,7 +11,7 @@ import {
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 import toastrs from "toastr";
-import {toast } from "react-toastify";
+import { toast } from "react-toastify";
 import Moment from "react-moment";
 import "./Origin.css";
 const { Option } = Select;
@@ -154,7 +154,12 @@ const Origin = () => {
                   // setLoading(true);
                   fetch(
                     `http://localhost:8080/api/admin/origin/${data.id}/inactive`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => fetchData());
                   toastSuccessOrigin("Khoá thành công !");
                 }}
@@ -174,7 +179,12 @@ const Origin = () => {
                 onClick={() => {
                   fetch(
                     `http://localhost:8080/api/admin/origin/${data.id}/active`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => fetchData());
                   toastSuccessOrigin("Mở khóa thành công!");
                 }}
@@ -196,7 +206,12 @@ const Origin = () => {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`
+      )}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -213,7 +228,7 @@ const Origin = () => {
 
   useEffect(() => {
     fetchData();
-  }, [loading,data != undefined]);
+  }, [loading, data != undefined]);
 
   const onDelete = (id) => {
     setId(id);
@@ -234,7 +249,12 @@ const Origin = () => {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`
+      )}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -256,7 +276,12 @@ const Origin = () => {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`
+      )}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -291,7 +316,10 @@ const Origin = () => {
       data.status = "ACTIVE";
       fetch("http://localhost:8080/api/admin/origin", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
         body: JSON.stringify(data),
       })
         .then((response) => response.json())
@@ -315,7 +343,10 @@ const Origin = () => {
       data.status = "ACTIVE";
       fetch(`http://localhost:8080/api/admin/origin/` + edit.id, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
         body: JSON.stringify(edit),
       })
         .then((response) => fetchData())
@@ -556,6 +587,9 @@ const Origin = () => {
             onOk={() => {
               fetch(`http://localhost:8080/api/admin/origin/${id}`, {
                 method: "DELETE",
+                headers: {
+                  Authorization: 'Bearer ' + localStorage.getItem("token"),
+                },
               }).then(() => fetchData());
               setDelete(false);
               toastrs.options = {

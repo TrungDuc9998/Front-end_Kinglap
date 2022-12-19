@@ -111,7 +111,9 @@ const Processor = () => {
 
   const deleteProcessor = (record) => {
     fetch(`http://localhost:8080/api/staff/processors/${record.id}`, {
-      method: "DELETE",
+      method: "DELETE", headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
     })
       .then((response) => response.json())
       .then((data) => {
@@ -238,7 +240,12 @@ const Processor = () => {
                   // setLoading(true);
                   fetch(
                     `http://localhost:8080/api/staff/processors/${data.id}/inactive`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => loadDataProcessor());
                   toastSuccessProcessor("Khoá thành công !");
                 }}
@@ -260,7 +267,12 @@ const Processor = () => {
                   // setLoading(true);
                   fetch(
                     `http://localhost:8080/api/staff/processors/${data.id}/active`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => loadDataProcessor());
                   toastSuccessProcessor("Mở khóa thành công!");
                 }}
@@ -333,7 +345,10 @@ const Processor = () => {
       data.status = "ACTIVE";
       fetch("http://localhost:8080/api/staff/processors", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
         body: JSON.stringify(data),
       })
         .then((response) => loadDataProcessor())
@@ -368,7 +383,10 @@ const Processor = () => {
       data.status = "ACTIVE";
       fetch("http://localhost:8080/api/staff/processors/" + edit.id, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
         body: JSON.stringify(edit),
       })
         .then((response) => loadDataProcessor())
