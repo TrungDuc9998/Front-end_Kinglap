@@ -253,16 +253,9 @@ const Find = () => {
                                         <p className="product-category">{item.categoryProducts?.category?.name ? item.categoryProducts.category.name : ""}</p>
                                         <h3 className="product-name" onClick={() => handelCLickProduct(item)} ><a href="/user/product">{item.name}</a></h3>
                                         <h4 className="product-price">{formatCash(item.price + "")} VNĐ {item.discount ? <del className="product-old-price">{formatCash(item.price / ((100 - item.discount.ratio) / 100) + "")} VNĐ</del> : ""}</h4>
-                                        <div className="product-rating">
-                                        </div>
-                                        <div className="product-btns">
-                                            {/* <button className="add-to-wishlist"><i className="fa fa-heart-o"></i><span className="tooltipp">Yêu thích</span></button>
-                                            <button className="add-to-compare"><i className="fa fa-exchange"></i><span className="tooltipp">So sánh</span></button>
-                                            <button className="quick-view" onClick={() => handelCLickProduct(item)} href="/user/product"><i className="fa fa-eye"></i><span className="tooltipp">Xem</span></button> */}
-                                        </div>
                                     </div>
                                     <div className="add-to-cart">
-                                        <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(item)}><i className="fa fa-shopping-cart"></i> Thêm vào giỏ hàng</button>
+                                        <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(item)}> Thêm vào giỏ hàng</button>
                                     </div>
                                 </div>
                             </div>
