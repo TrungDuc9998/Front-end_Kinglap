@@ -1,6 +1,6 @@
 import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { render } from "@testing-library/react";
-import { Input, Modal, Select, Table } from "antd";
+import { Input, InputNumber, Modal, Select, Table } from "antd";
 import { Option } from "antd/lib/mentions";
 import axios from "axios";
 import qs from 'qs';
@@ -12,6 +12,16 @@ import StoreContext from "../../store/Context";
 import "./css/checkout.css"
 
 function Checkout() {
+  const onChangeInputNumber = (value, event) => {
+    console.log('changed', value);
+    console.log('event', event);
+
+    value.quantity = event;
+  };
+
+  const onclickDeleteCart = (pro) => {
+    setCarts(carts.filter(item => item.id != pro.id));
+  }
   // modal
   const onClickShow = (value) => {
     console.log(value.images[0]);
@@ -25,7 +35,9 @@ function Checkout() {
   };
   const handleOk = () => {
     setIsModalOpen(false);
-    setCarts(carts.concat(productAdd))
+    setProductAdd([]);
+    setCarts(carts.concat(productAdd));
+    console.log("s", carts);
     console.log("carts", carts);
   };
   const handleCancel = () => {
@@ -92,7 +104,7 @@ function Checkout() {
     console.log(value)
     const a = products.filter((item) =>
       value == item.id)[0];
-    // a.quantity = 1;
+    a.quantity = 1;
     if (a != undefined) {
       setProductAdd([...productAdd, a])
     }
@@ -726,15 +738,25 @@ function Checkout() {
           <div className="col-3 img mt-2">
             <img alt="Ảnh sản phẩm" src={cart.images[0]?.name} className="img-content"></img>
           </div>
-          <div className="col-5 mt-5 d-block ">
+          <div className="col-1 mt-5">
+            <InputNumber style={{ width: '50px' }} min={1} max={10} defaultValue={cart.quantity} onChange={(event) => onChangeInputNumber(cart, event)} />
+          </div>
+          <div className="col-4 mt-5 d-block ">
             <div>
-              <p className="text-name">
-                x{cart.quantity} - {cart.name}
+              <p className="text-name1 ">
+                {cart.name}
               </p>
             </div>
           </div>
-          <div className="col-4 mt-5">
-            <p className="text-name">{formatCash(cart.price * cart.quantity + "")} VND</p>
+          <div className="col-3 mt-5">
+            <p className="text-name1 text-center">{formatCash(cart.price * cart.quantity + "")} VND</p>
+          </div>
+          <div className="col-1 mt-5">
+            <DeleteOutlined
+              style={{ fontSize: "18px", marginLeft: "20%", color: 'red' }}
+              onClick={() => {
+                onclickDeleteCart(cart);
+              }} />
           </div>
         </div>
       ));
@@ -1042,7 +1064,7 @@ function Checkout() {
 
                 </Select>
 
-                <Table dataSource={productAdd} columns={columns} />
+                <Table dataSource={productAdd} columns={columns} pagination={{ position: ["none", "none"] }} />
               </Modal>
 
 
