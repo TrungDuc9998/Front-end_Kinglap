@@ -316,19 +316,16 @@ const OrderDelivering = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
-      sorter: true,
       width: "10%",
     },
     {
       title: "Người đặt",
       dataIndex: "customerName",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
-      sorter: true,
       width: "15%",
       render(total) {
         return (
@@ -344,7 +341,6 @@ const OrderDelivering = () => {
     {
       title: "Hình thức đặt",
       dataIndex: "payment",
-      sorter: true,
       width: "20%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG") {
@@ -598,12 +594,12 @@ const OrderDelivering = () => {
             <div className="text-center ">
               <Button
                 type="primary"
-                shape="round" icon={<CheckCircleOutlined/>}
+                shape="round" icon={<CheckCircleOutlined />}
                 className="ms-5"
                 onClick={confirmCheckBox}
                 danger
               >
-               Nhận hàng
+                Nhận hàng
               </Button>
             </div>
           ) : (

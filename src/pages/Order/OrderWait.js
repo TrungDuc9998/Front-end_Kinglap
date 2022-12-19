@@ -331,19 +331,16 @@ const OrderWait = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Người đặt",
       dataIndex: "customerName",
-      sorter: true,
       width: "15%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
-      sorter: true,
       render(total) {
         return (
           <>
@@ -359,7 +356,6 @@ const OrderWait = () => {
     {
       title: "Hình thức đặt",
       dataIndex: "payment",
-      sorter: true,
       width: "20%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG") {
@@ -596,9 +592,9 @@ const OrderWait = () => {
                 icon={<CheckCircleOutlined />}
                 className="ms-5"
                 onClick={confirmCheckBox}
-                
+
               >
-               Xác nhận
+                Xác nhận
               </Button>
             </div>
           ) : (

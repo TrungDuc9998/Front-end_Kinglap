@@ -131,7 +131,7 @@ function exchangeDetail() {
     console.log(dataExchange);
 
     dataExchange.forEach((element) => {
-      if(element.select === true) {
+      if (element.select === true) {
         console.log('vào kiểm tra selected === true');
         orderDetail.push({
           id: element.orderDetail.id,
@@ -141,7 +141,7 @@ function exchangeDetail() {
           total: 0,
           isBoolean: element.select
         });
-      } 
+      }
     });
 
     const exchangeDetails = [];
@@ -185,7 +185,7 @@ function exchangeDetail() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderDetail),
           }
-        ).then((res) => {});
+        ).then((res) => { });
         toastSuccess("Xác nhận yêu cầu thành công !");
       } else {
         toastSuccess("Huỷ yêu cầu thành công !");
@@ -199,7 +199,6 @@ function exchangeDetail() {
     {
       title: "Id",
       dataIndex: "id",
-      sorter: true,
       width: "10%",
     },
     {
@@ -440,7 +439,7 @@ function exchangeDetail() {
                         onChangeStudent1(event.target.checked, d);
                       }}
                       type="checkbox"
-                      checked={d.status === "YEU_CAU" ?  d.select : ""}
+                      checked={d.status === "YEU_CAU" ? d.select : ""}
                     ></input>
                   </th>
                   <td>{d.id}</td>

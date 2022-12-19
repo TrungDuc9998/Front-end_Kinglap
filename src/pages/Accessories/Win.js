@@ -91,14 +91,12 @@ const Screen = () => {
     {
       title: "Tên hệ điều hành",
       dataIndex: "name",
-      sorter: true,
-      width: "16%",
+      width: "20%",
     },
     {
       title: "Version",
       dataIndex: "version",
-      sorter: true,
-      width: "24%",
+      width: "20%",
     },
     {
       title: "Ngày tạo",

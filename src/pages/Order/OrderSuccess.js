@@ -300,19 +300,16 @@ const OrderSuccess = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
-      sorter: true,
       width: "10%",
     },
     {
       title: "Người đặt",
       dataIndex: "customerName",
-      sorter: true,
       width: "15%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
-      sorter: true,
       width: "15%",
       render(total) {
         return (
@@ -328,7 +325,6 @@ const OrderSuccess = () => {
     {
       title: "Hình thức đặt",
       dataIndex: "payment",
-      sorter: true,
       width: "20%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG") {
@@ -543,20 +539,20 @@ const OrderSuccess = () => {
             onOk={() => {
               setEditing(true);
             }}
-            
+
           >
             Bạn có muốn xác nhận đơn hàng không ?
           </Modal>
           <Modal
             title="Chi tiết đơn hàng"
             open={isView}
-            style={{width: "200px  !important"}}
+            style={{ width: "200px  !important" }}
             okButtonProps={{
               style: {
                 display: "none",
               },
             }}
-           cancelText={"Đóng"}
+            cancelText={"Đóng"}
             onCancel={() => {
               setView(false);
             }}
@@ -632,7 +628,7 @@ const OrderSuccess = () => {
               pagination={{ position: ["none", "none"] }}
             />
           </Modal>
-          
+
         </div>
       </div>
     </div>

@@ -117,6 +117,10 @@ function Menu() {
         }
     }
 
+    const Warranty_Policy = () => {
+        navigate('/policy');
+    }
+
     const logout = () => {
         window.location.href = '/';
         localStorage.removeItem("roles");
@@ -155,6 +159,12 @@ function Menu() {
                             </li>
                         </ul>
                         <ul className="nav justify-content-end">
+                            <li className="nav-item">
+                                <a style={{ color: "ưhite" }} onClick={Warranty_Policy}>
+                                    <AiFillRead size={12} color="red"></AiFillRead>
+                                    Chính sách
+                                </a>
+                            </li>
                             <li className="nav-item">
                                 <a style={{ color: "ưhite" }} onClick={toAdmin}>
                                     <DollarSign size={12} color="red"></DollarSign>

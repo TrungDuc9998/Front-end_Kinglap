@@ -51,7 +51,7 @@ function ViewOrder() {
   const [dataOrder, setDataOrder] = useState();
   const [orderId, setOrderId] = useState();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [orderHistory,setOrderHistory] = useState();
+  const [orderHistory, setOrderHistory] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -262,19 +262,16 @@ function ViewOrder() {
     {
       title: "Mã đơn hàng",
       dataIndex: "id",
-      sorter: true,
       width: "7%",
     },
     {
       title: "Ngày đặt hàng",
       dataIndex: "createdAt",
-      sorter: true,
       width: "14%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
-      sorter: true,
       width: "9%",
       render(total) {
         return total.toLocaleString("it-IT", {
@@ -286,7 +283,6 @@ function ViewOrder() {
     {
       title: "Đã thanh toán",
       dataIndex: "money",
-      sorter: true,
       width: "9%",
       render(money) {
         return money.toLocaleString("it-IT", {
@@ -298,7 +294,6 @@ function ViewOrder() {
     {
       title: "Hình thức thanh toán",
       dataIndex: "payment",
-      sorter: true,
       width: "15%",
       render: (payment) => {
         if (payment === "VN_PAY") {
@@ -331,13 +326,11 @@ function ViewOrder() {
     {
       title: "Địa chỉ nhận",
       dataIndex: "address",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      sorter: true,
       width: "15%",
       style: "",
       render: (status) => {

@@ -109,20 +109,17 @@ function Inventory() {
     {
       title: "Tên sản phẩm",
       dataIndex: "name",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Hãng sản xuất",
       dataIndex: "manufacture",
-      sorter: true,
 
       width: "10%",
     },
     {
       title: "Giá tiền",
       dataIndex: "price",
-      sorter: true,
       width: "10%",
       render(price) {
         return (
@@ -138,7 +135,6 @@ function Inventory() {
     {
       title: "Số lượng",
       dataIndex: "total",
-      sorter: true,
       width: "10%",
     },
     {

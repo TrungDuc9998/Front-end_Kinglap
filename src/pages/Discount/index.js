@@ -76,7 +76,7 @@ const Discount = () => {
   //const [dataProduct2, setDataProduct2] = useState([]);//hiển thị modal
   const [dataDiscount, setDataDiscount] = useState();
   const [checked, setChecked] = useState([]);
-  const [trueProDiscount, setTrueProDiscount]=useState(false);//dk interval
+  const [trueProDiscount, setTrueProDiscount] = useState(false);//dk interval
   const onFinishTime = () => {
     console.log('finished!');
   };
@@ -104,7 +104,7 @@ const Discount = () => {
       progress: undefined,
       theme: "light",
     });
-  } 
+  }
 
   function getDateTime() {
     var now = new Date();
@@ -150,78 +150,78 @@ const Discount = () => {
   });
 
   const [dateTimer, setDateTimer] = useState([]);
-   // Call API product 
-   const loadProduct = () => {
+  // Call API product 
+  const loadProduct = () => {
     axios.get(url_Pro + "/allProDiscount").then((res) => {
       setDataProduct(res.data.data);
     });
   }
-  if(trueProDiscount){
-      if(dateTimer!=[]){
-        var listProDiscount=[];
-          setTrueProDiscount(false);
-          //loadProduct();
-          console.log("dataProduct",dataProduct);
-          dataProduct?.forEach((pro)=>{
-              if(pro.discount!==null){
-                console.log("for noDiscount");
-                listProDiscount.push(pro);
-              }
-            })
-            console.log("listProDiscount1",listProDiscount)
-        dateTimer.forEach((time)=>{
-        console.log("listProDiscount2",dataProduct)
+  if (trueProDiscount) {
+    if (dateTimer != []) {
+      var listProDiscount = [];
+      setTrueProDiscount(false);
+      //loadProduct();
+      console.log("dataProduct", dataProduct);
+      dataProduct?.forEach((pro) => {
+        if (pro.discount !== null) {
+          console.log("for noDiscount");
+          listProDiscount.push(pro);
+        }
+      })
+      console.log("listProDiscount1", listProDiscount)
+      dateTimer.forEach((time) => {
+        console.log("listProDiscount2", dataProduct)
         //clearInterval(myTimer);
         var myTimer = setInterval(() => {
-        time--;
-        console.log("time",time);
-        if(time==0){
-          //clearInterval(myTimer);
-          console.log("dataProduct3",dataProduct)
-            if(dataProduct!==[]){
-              if(listProDiscount!=[]){
-                console.log("api noDiscount",dataProduct);
+          time--;
+          console.log("time", time);
+          if (time == 0) {
+            //clearInterval(myTimer);
+            console.log("dataProduct3", dataProduct)
+            if (dataProduct !== []) {
+              if (listProDiscount != []) {
+                console.log("api noDiscount", dataProduct);
                 //setTrueProDiscount(false);
                 //clearInterval(myTimer);
-                dataProduct.forEach((pro)=>{
-                  if(pro.discount!=null){
+                dataProduct.forEach((pro) => {
+                  if (pro.discount != null) {
                     console.log("pro.discount!=null");
-                    if(new Date(pro.discount.endDate).getTime()<= new Date().getTime()){
-                    console.log("trong api noDiscount",pro);
-                        axios.put(url_Pro+ "/noDiscountProduct/" + pro.discount?.id+"/"+pro.id).then((res) => {
-                          console.log("shownoDiscount", res.data.data);
-                          listProDiscount=listProDiscount.filter(p=>p.id!==pro.id);
-                          setTrueProDiscount(false);
-                          time--;
-                          clearInterval(myTimer);
-                          var listProductNoDiscount=dataProduct.filter(p=>p.id!==res.data.data.id);
-                          setDataProduct(listProductNoDiscount);
-                          getData();
+                    if (new Date(pro.discount.endDate).getTime() <= new Date().getTime()) {
+                      console.log("trong api noDiscount", pro);
+                      axios.put(url_Pro + "/noDiscountProduct/" + pro.discount?.id + "/" + pro.id).then((res) => {
+                        console.log("shownoDiscount", res.data.data);
+                        listProDiscount = listProDiscount.filter(p => p.id !== pro.id);
+                        setTrueProDiscount(false);
+                        time--;
+                        clearInterval(myTimer);
+                        var listProductNoDiscount = dataProduct.filter(p => p.id !== res.data.data.id);
+                        setDataProduct(listProductNoDiscount);
+                        getData();
                       });
                     }
                   }
                 })
                 //setTrueProDiscount(false);
                 getData();
-              }else{
+              } else {
                 getData();
               }
-            }else{
+            } else {
               clearInterval(myTimer);
               setTrueProDiscount(false);
               getData();
             }
-        }
-    }, 1000);
-  })
+          }
+        }, 1000);
+      })
     }
   }
-  
+
   // Call API product & view
   // const handAPIProduct = () => {
   //   setView(true);
   // }
-  
+
 
   // Get product by discount
   const showDataProduct = (id) => {
@@ -235,20 +235,18 @@ const Discount = () => {
   }
   const [currentCount, setCount] = useState(1);
   const timer = () => setCount(currentCount + 1);
-  
+
 
   const columns = [
     {
       title: "Tiêu đề",
       dataIndex: "name",
-      sorter: true,
       render: (name) => `${name}`,
       width: "20%",
     },
     {
       title: "Ngày bắt đầu",
       dataIndex: "startDate",
-      sorter: true,
       render(startDate) {
         return (
           <Moment format="DD-MM-YYYY HH:mm:ss">
@@ -261,7 +259,6 @@ const Discount = () => {
     {
       title: "Ngày kết thúc",
       dataIndex: "endDate",
-      sorter: true,
       render(endDate) {
         return (
           <Moment format="DD-MM-YYYY HH:mm:ss">
@@ -274,17 +271,15 @@ const Discount = () => {
     {
       title: "Tỉ lệ (%)",
       dataIndex: "ratio",
-      sorter: true,
       render: (ratio) => `${ratio}`,
       width: "10%",
     },
     {
       title: "Time",
-      sorter: true,
       dataIndex: "endDate",
       render(endDate) {
         return (
-          <Countdown value={(new Date(endDate))-Date.now()} onFinish={onFinishTime} />
+          <Countdown value={(new Date(endDate)) - Date.now()} onFinish={onFinishTime} />
         );
       },
       width: "10%",
@@ -392,7 +387,7 @@ const Discount = () => {
     )}`)
       // .then((res) => res.json())
       .then((results) => {
-        if(results.data.data.data!=null){
+        if (results.data.data.data != null) {
           results.data.data.data.forEach((x) => {
             x.status = x.status === "DRAFT" ? x.status : compareTime(x.endDate)
           })
@@ -406,26 +401,26 @@ const Discount = () => {
               total: totalSet,
             }
           });
-          var listTime=[];
-          results.data.data.data.forEach((discount)=>{
-            if(new Date(discount.endDate).getTime()>=new Date().getTime()){
-              var totalTime=(new Date(discount.endDate).getTime()- new Date().getTime())/(1000)
-              console.log("totalTime",Math.ceil(totalTime))
-              if(listTime.includes(Math.ceil(totalTime))==false){
+          var listTime = [];
+          results.data.data.data.forEach((discount) => {
+            if (new Date(discount.endDate).getTime() >= new Date().getTime()) {
+              var totalTime = (new Date(discount.endDate).getTime() - new Date().getTime()) / (1000)
+              console.log("totalTime", Math.ceil(totalTime))
+              if (listTime.includes(Math.ceil(totalTime)) == false) {
                 listTime.push(Math.ceil(totalTime));
               }
             }
-        })
-        axios.get(url_Pro + "/allProDiscount").then((res) => {
-            if(listTime!=[]){
-            setDataProduct(res.data.data);
-            console.log("giây",listTime);
-            setDateTimer(listTime);
-            setTrueProDiscount(true);
+          })
+          axios.get(url_Pro + "/allProDiscount").then((res) => {
+            if (listTime != []) {
+              setDataProduct(res.data.data);
+              console.log("giây", listTime);
+              setDateTimer(listTime);
+              setTrueProDiscount(true);
             }
-           })
+          })
         }
-        
+
       });
   };
 
@@ -639,21 +634,21 @@ const Discount = () => {
   //check all
   const [isCheckedAll, setIsCheckedAll] = useState(true);
   function handleCheckAll(check) {
-      if (isCheckedAll) {
-          console.log("checkedAll")
-          const checkboxes = document.querySelectorAll('input[name="ck"]');
-          checkboxes.forEach((checkbox) => {
-              checkbox.checked = true;
-          });
-          setIsCheckedAll(false);
-      } else {
-          console.log("not checkedAll")
-          const checkboxes = document.querySelectorAll('input[name="ck"]');
-          checkboxes.forEach((checkbox) => {
-              checkbox.checked = false;
-          })
-          setIsCheckedAll(true);
-      }
+    if (isCheckedAll) {
+      console.log("checkedAll")
+      const checkboxes = document.querySelectorAll('input[name="ck"]');
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = true;
+      });
+      setIsCheckedAll(false);
+    } else {
+      console.log("not checkedAll")
+      const checkboxes = document.querySelectorAll('input[name="ck"]');
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = false;
+      })
+      setIsCheckedAll(true);
+    }
   }
 
   // Call API DiscountProduct
@@ -672,11 +667,11 @@ const Discount = () => {
     ).then((res) => {
       console.log("DataDiscount", res.data.data);
       const checkboxes = document.querySelectorAll('input[name="ck"]');
-          checkboxes.forEach((checkbox) => {
-              checkbox.checked = false;
-          })
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = false;
+      })
       handleCancel();
-      if(res.data.data){
+      if (res.data.data) {
         loadProduct();
         getData();
       }
@@ -811,9 +806,9 @@ const Discount = () => {
                   <thead>
                     <tr>
                       <th scope="col"><input type={"checkbox"}
-                            id="checkall"
-                            // checked={isCheckedAll[product]}
-                            onChange={() => handleCheckAll(checked)} /></th>
+                        id="checkall"
+                        // checked={isCheckedAll[product]}
+                        onChange={() => handleCheckAll(checked)} /></th>
                       <th scope="col">Tên sản phẩm</th>
                       <th scope="col">Giá tiền</th>
                       <th scope="col">Số lượng</th>
@@ -821,11 +816,11 @@ const Discount = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {dataProduct?dataProduct.map(item => {
+                    {dataProduct ? dataProduct.map(item => {
                       // console.log("item", item);
                       return (
                         <tr key={item.id}>
-                          <td>{item.discount?"":<input type={"checkbox"} name="ck" value={item.id} ></input>}</td>
+                          <td>{item.discount ? "" : <input type={"checkbox"} name="ck" value={item.id} ></input>}</td>
                           <td>{item.name}</td>
                           <td>{item.price}</td>
                           <td>{item.quantity}</td>
@@ -833,7 +828,7 @@ const Discount = () => {
                           {/* <td>{item.price - (item.price * item.discount)}</td> */}
                         </tr>
                       );
-                    }):""}
+                    }) : ""}
                   </tbody>
                 </table>
               </div>
