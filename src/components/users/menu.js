@@ -166,10 +166,11 @@ function Menu() {
                         <li className="nav-item">
                                 <a style={{ color: "white" }} onClick={chinhSachBH}>
                                     Chính sách
-                                </a>
+                                </a> */}
                             </li>
                             <li className="nav-item">
-                                <a style={{ color: "white" }} onClick={toAdmin}>
+                                <a style={{ color: "ưhite" }} onClick={toAdmin}>
+                                    <DollarSign size={12} color="red"></DollarSign>
                                     Quản trị
                                 </a>
                             </li>

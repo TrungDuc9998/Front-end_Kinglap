@@ -1,6 +1,6 @@
-import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EyeOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import { render } from "@testing-library/react";
-import { Input, InputNumber, Modal, Select, Table } from "antd";
+import { Input, InputNumber, Modal, Select, Table, Button, message, Upload } from "antd";
 import { Option } from "antd/lib/mentions";
 import axios from "axios";
 import qs from 'qs';
@@ -10,8 +10,39 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StoreContext from "../../store/Context";
 import "./css/checkout.css"
+import qr from "../../image/QR.jpg"
+
+const props = {
+  name: 'file',
+  action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+  headers: {
+    authorization: 'authorization-text',
+  },
+  onChange(info) {
+    if (info.file.status !== 'uploading') {
+      console.log(info.file, info.fileList);
+    }
+    if (info.file.status === 'done') {
+      message.success(`${info.file.name} file uploaded successfully`);
+    } else if (info.file.status === 'error') {
+      message.error(`${info.file.name} file upload failed.`);
+    }
+  },
+};
 
 function Checkout() {
+  // const [isModalOpen1, setIsModalOpen1] = useState(false);
+  // const showModal1 = () => {
+  //   setIsModalOpen1(true);
+  // };
+  // const handleOk1 = () => {
+  //   setIsModalOpen1(false);
+  // };
+  // const handleCancel1 = () => {
+  //   setIsModalOpen1(false);
+  // };
+
+
   const onChangeInputNumber = (value, event) => {
     console.log('changed', value);
     console.log('event', event);
@@ -238,6 +269,10 @@ function Checkout() {
           .then((data) => {
             window.location = data.paymentUrl;
           });
+      } else if (payment === "NGAN_HANG") {
+        console.log("Chuyển khoản qua ngân hàng");
+        // showModal1();
+
       } else {
         localStorage.setItem(
           "total",
@@ -999,6 +1034,15 @@ function Checkout() {
                   ></input>{" "}
                   <label>Đặt cọc qua VN PAY</label>
                 </div>
+                <div>
+                  <input
+                    type={"radio"}
+                    name="ip-ht"
+                    value={"NGAN_HANG"}
+                    onChange={changePayment}
+                  ></input>{" "}
+                  <label>Thanh toán qua tài khoản ngân hàng</label>
+                </div>
               </form>
             </div>
           </div>
@@ -1010,6 +1054,20 @@ function Checkout() {
               >
                 Đặt hàng
               </button>
+              {/* <Modal width={700} title="Chuyển tiền đến tài khoản" open={isModalOpen1} onOk={handleOk1} onCancel={handleCancel1}>
+                <div className="container row">
+                  <div className="col-6">
+                    <img src={qr} style={{ width: '300px' }} />
+                  </div>
+                  <div className="col-6">
+                    <p>Chuyển đến số tài khoản với nội dung là số điện thoại của bạn!</p>
+                    <h4>Hình ảnh giao dịch thành công!</h4>
+                    <Upload {...props}>
+                      <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
+                    </Upload>
+                  </div>
+                </div>
+              </Modal> */}
             </div>
             <div className="col-12 mt-2">
               <button className="btn btn-primary form-control btn-ck "
