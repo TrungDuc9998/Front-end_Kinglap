@@ -256,11 +256,6 @@ function HomeUser() {
                         Laptop
                       </a>
                     </li>
-                    <li>
-                      <a data-toggle="tab" href="#tab1">
-                        Phụ kiện
-                      </a>
-                    </li>
                   </ul>
                 </div>
               </div>
@@ -280,7 +275,7 @@ function HomeUser() {
                               md={{ span: 8 }}
                               sm={{ span: 12 }}
                             >
-                              <div className="product" key={pro.id}>
+                              <div className="product" style={{ marginBottom: "20%" }} key={pro.id}>
                                 <div className="product-img">
                                   <img
                                     src={
@@ -303,33 +298,7 @@ function HomeUser() {
                                     <a>{pro.name}</a>
                                   </h3>
                                   <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
-                                  <div className="product-rating">
-                                    <i className="fa fa-star"></i>
-                                    <i className="fa fa-star"></i>
-                                    <i className="fa fa-star"></i>
-                                    <i className="fa fa-star"></i>
-                                    <i className="fa fa-star"></i>
-                                  </div>
-                                  <div className="product-btns">
-                                    <button className="add-to-wishlist">
-                                      <Heart size={14}></Heart>
-                                      <span className="tooltipp">
-                                        add to wishlist
-                                      </span>
-                                    </button>
-                                    <button className="add-to-compare">
-                                      <Repeat size={14}></Repeat>
-                                      <span className="tooltipp">
-                                        add to compare
-                                      </span>
-                                    </button>
-                                    <button className="quick-view">
-                                      <Eye size={14}></Eye>
-                                      <span className="tooltipp">
-                                        quick view
-                                      </span>
-                                    </button>
-                                  </div>
+
                                 </div>
                                 {
                                   // carts?carts.some(p=>p.id===pro.id)?
@@ -356,108 +325,6 @@ function HomeUser() {
                           ))
                           : ""}
                       </Row>
-
-                      {/* <div className="product">
-                                                <div className="product-img">
-                                                    <img src={product2} alt="" />
-                                                    <div className="product-label">
-                                                        <span className="new">NEW</span>
-                                                    </div>
-                                                </div>
-                                                <div className="product-body">
-                                                    <p className="product-category">Category</p>
-                                                    <h3 className="product-name"><a href="#">product name goes here</a></h3>
-                                                    <h4 className="product-price">$980.00 <del className="product-old-price">$990.00</del></h4>
-                                                    <div className="product-rating">
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star-o"></i>
-                                                    </div>
-                                                    <div className="product-btns">
-                                                        <button className="add-to-wishlist"><Heart size={14}></Heart><span className="tooltipp">add to wishlist</span></button>
-                                                        <button className="add-to-compare"><Repeat size={14}></Repeat><span className="tooltipp">add to compare</span></button>
-                                                        <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
-                                                    </div>
-                                                </div>
-                                                <div className="add-to-cart">
-                                                    <button className="add-to-cart-btn"><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                                </div>
-                                            </div>
-                                            <div className="product">
-                                                <div className="product-img">
-                                                    <img src={product3} alt="" />
-                                                    <div className="product-label">
-                                                        <span className="sale">-30%</span>
-                                                    </div>
-                                                </div>
-                                                <div className="product-body">
-                                                    <p className="product-category">Category</p>
-                                                    <h3 className="product-name"><a href="#">product name goes here</a></h3>
-                                                    <h4 className="product-price">$980.00 <del className="product-old-price">$990.00</del></h4>
-                                                    <div className="product-rating">
-                                                    </div>
-                                                    <div className="product-btns">
-                                                        <button className="add-to-wishlist"><Heart size={14}></Heart><span className="tooltipp">add to wishlist</span></button>
-                                                        <button className="add-to-compare"><Repeat size={14}></Repeat><span className="tooltipp">add to compare</span></button>
-                                                        <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
-                                                    </div>
-                                                </div>
-                                                <div className="add-to-cart">
-                                                    <button className="add-to-cart-btn"><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                                </div>
-                                            </div>
-                                            <div className="product">
-                                                <div className="product-img">
-                                                    <img src={product4} alt="" />
-                                                </div>
-                                                <div className="product-body">
-                                                    <p className="product-category">Category</p>
-                                                    <h3 className="product-name"><a href="#">product name goes here</a></h3>
-                                                    <h4 className="product-price">$980.00 <del className="product-old-price">$990.00</del></h4>
-                                                    <div className="product-rating">
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                    </div>
-                                                    <div className="product-btns">
-                                                        <button className="add-to-wishlist"><Heart size={14}></Heart><span className="tooltipp">add to wishlist</span></button>
-                                                        <button className="add-to-compare"><Repeat size={14}></Repeat><span className="tooltipp">add to compare</span></button>
-                                                        <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
-                                                    </div>
-                                                </div>
-                                                <div className="add-to-cart">
-                                                    <button className="add-to-cart-btn"><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                                </div>
-                                            </div>
-                                            <div className="product">
-                                                <div className="product-img">
-                                                    <img src={product5} alt="" />
-                                                </div>
-                                                <div className="product-body">
-                                                    <p className="product-category">Category</p>
-                                                    <h3 className="product-name"><a href="#">product name goes here</a></h3>
-                                                    <h4 className="product-price">$980.00 <del className="product-old-price">$990.00</del></h4>
-                                                    <div className="product-rating">
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                        <i className="fa fa-star"></i>
-                                                    </div>
-                                                    <div className="product-btns">
-                                                        <button className="add-to-wishlist"><Heart size={14}></Heart><span className="tooltipp">add to wishlist</span></button>
-                                                        <button className="add-to-compare"><Repeat size={14}></Repeat><span className="tooltipp">add to compare</span></button>
-                                                        <button className="quick-view"><Eye size={14}></Eye><span className="tooltipp">quick view</span></button>
-                                                    </div>
-                                                </div>
-                                                <div className="add-to-cart">
-                                                    <button className="add-to-cart-btn"><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                                </div>
-                                            </div> */}
                     </div>
                     <div id="slick-nav-1" className="products-slick-nav"></div>
                   </div>
@@ -499,8 +366,8 @@ function HomeUser() {
                     </div>
                   </li>
                 </ul>
-                <h2 className="text-uppercase">Ưu đã tuần này</h2>
-                <p>BỘ SƯU TẬP MỚI GIẢM GIÁ TỚI 50%</p>
+                <h2 className="text-uppercase">HOT DEAL TUẦN NÀY</h2>
+                <p>Bộ sưu tập mới GIẢM GIÁ tới 50%</p>
                 <a className="primary-btn cta-btn" href="#">
                   Mua ngay
                 </a>
@@ -516,20 +383,6 @@ function HomeUser() {
             <div className="col-md-12">
               <div className="section-title">
                 <h3 className="title">Sản phẩm</h3>
-                <div className="section-nav">
-                  <ul className="section-tab-nav tab-nav">
-                    <li className="active">
-                      <a data-toggle="tab" href="#tab2">
-                        Laptop
-                      </a>
-                    </li>
-                    <li>
-                      <a data-toggle="tab" href="#tab2">
-                        Phụ kiện
-                      </a>
-                    </li>
-                  </ul>
-                </div>
               </div>
             </div>
 
@@ -541,7 +394,7 @@ function HomeUser() {
                       {products
                         ? products.map((pro) => (
                           <div className="product" key={pro.id}>
-                            <div className="product-img">
+                            <div className="product-img sp">
                               <img
                                 src={
                                   pro.images ? pro.images[0]?.name : product1
@@ -561,31 +414,6 @@ function HomeUser() {
                                 <a href="/user/product">{pro.name}</a>
                               </h3>
                               <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
-                              <div className="product-rating">
-                                <i className="fa fa-star"></i>
-                                <i className="fa fa-star"></i>
-                                <i className="fa fa-star"></i>
-                                <i className="fa fa-star"></i>
-                                <i className="fa fa-star"></i>
-                              </div>
-                              <div className="product-btns">
-                                <button className="add-to-wishlist">
-                                  <Heart size={14}></Heart>
-                                  <span className="tooltipp">
-                                    add to wishlist
-                                  </span>
-                                </button>
-                                <button className="add-to-compare">
-                                  <Repeat size={14}></Repeat>
-                                  <span className="tooltipp">
-                                    add to compare
-                                  </span>
-                                </button>
-                                <button className="quick-view">
-                                  <Eye size={14}></Eye>
-                                  <span className="tooltipp">quick view</span>
-                                </button>
-                              </div>
                             </div>
                             {
                               // carts?carts.some(p=>p.id===pro.id)?

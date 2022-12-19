@@ -1,3 +1,9 @@
+::-webkit-scrollbar {
+  width: 6px;
+  height: 15px;
+}
+
+
 #components-layout-demo-side .logo {
   height: 32px;
   margin: 16px;
@@ -91,7 +97,7 @@ body {
 }
 
 .ant-modal {
-  width: auto ;
+  width: auto;
 }
 
 .ant-modal-content {
@@ -110,4 +116,3 @@ body {
 .anticon.anticon-delete {
   font-size: 20px;
 }
-

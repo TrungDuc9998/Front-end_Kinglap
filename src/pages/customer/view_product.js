@@ -79,6 +79,19 @@ function ViewProduct() {
 
   console.log("pro", products);
 
+  function formatCash(str) {
+    if (str.length > 1) {
+      return str
+        .split("")
+        .reverse()
+        .reduce((prev, next, index) => {
+          return (index % 3 ? next : next + ",") + prev;
+        });
+    } else {
+      return "";
+    }
+  }
+
   // modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
@@ -278,10 +291,8 @@ function ViewProduct() {
               </p>
               <div>
                 <h3 className="product-price">
-                  ₫ {product.price}
-                  <del className="product-old-price ms-3">₫ 3000</del>
+                  {formatCash(Math.ceil(product.price) + "")} VNĐ
                 </h3>
-                <span className="product-available">In Stock</span>
                 <Link to={"/user/compare/" + product.id}>
                   <Tooltip title="So sánh sản phẩm">
                     <Button
@@ -526,23 +537,21 @@ function ViewProduct() {
           <div className="mb-5 mt-5">
             <div className="col-12 text-center mb-4">
               <p style={{ fontSize: "30px", fontWeight: "600" }}>
-                RELATED PRODUCTS
+                NHỮNG SẢM PHẨM TƯƠNG TỰ
               </p>
             </div>
             <div className="row">
               <div className="col-md-12">
-                <div className="row" style={{ paddingLeft: "10%" }}>
+                <div className="row list-product">
                   {products.map((pro) => (
                     <div className="product col-2" key={pro.id}>
                       <div className="product-img">
-                        {/* <img src={pro.images ? pro.images[0].name : product1} alt="" /> */}
+                        <img src={pro.images ? pro.images[0]?.name : product1} alt="" />
                         <div className="product-label">
-                          <span className="sale">-30%</span>
                           <span className="new">NEW</span>
                         </div>
                       </div>
                       <div className="product-body">
-                        <p className="product-category">Category</p>
                         <h3
                           className="product-name"
                           onClick={() => handelCLickProduct(pro)}
@@ -550,35 +559,11 @@ function ViewProduct() {
                         >
                           <a href="/user/product">{pro.name}</a>
                         </h3>
-                        <h4 className="product-price">
-                          ₫ {pro.price}{" "}
-                          <del className="product-old-price">₫ 990.00</del>
-                        </h4>
-                        <div className="product-rating">
-                          <i className="fa fa-star"></i>
-                          <i className="fa fa-star"></i>
-                          <i className="fa fa-star"></i>
-                          <i className="fa fa-star"></i>
-                          <i className="fa fa-star"></i>
-                        </div>
-                        <div className="product-btns">
-                          <button className="add-to-wishlist">
-                            <Heart size={14}></Heart>
-                            <span className="tooltipp">add to wishlist</span>
-                          </button>
-                          <button className="add-to-compare">
-                            <Repeat size={14}></Repeat>
-                            <span className="tooltipp">add to compare</span>
-                          </button>
-                          <button className="quick-view">
-                            <Eye size={14}></Eye>
-                            <span className="tooltipp">quick view</span>
-                          </button>
-                        </div>
+                        <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
                       </div>
                       <div className="add-to-cart">
                         <button className="add-to-cart-btn">
-                          <ShoppingCart size={18}></ShoppingCart> add to cart
+                          <ShoppingCart size={18}></ShoppingCart> thêm vào giỏ hàng
                         </button>
                       </div>
                     </div>

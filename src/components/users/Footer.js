@@ -10,25 +10,24 @@ function Footer() {
                     <div className="row">
                         <div className="col-md-3 col-xs-6">
                             <div className="footer">
-                                <h3 className="footer-title">Thông tin liên hệ</h3>
-                                {/* <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.</p> */}
+                                <h3 className="footer-title">Giới thiệu</h3>
                                 <ul className="footer-links">
                                     <li className="nav-item">
                                         <Link to={'/'}>
-                                            <MapPin size={12} color="red"></MapPin>
-                                            125 P. Trần Đại Nghĩa, Bách Khoa, Hai Bà Trưng, Hà Nội
+                                            <MapPin size={12} color="red"></MapPin> 
+                                            Hai Bà Trưng - Hà Nội
                                         </Link>
                                     </li>
                                     <li className="nav-item">
                                         <Link to={'/'}>
                                             <Phone size={12} color="red"></Phone>
-                                            024 7106 9999
+                                            09471069999
                                         </Link>
                                     </li>
                                     <li className="nav-item">
                                         <Link to={'/'}>
                                             <Mail size={12} color="red"></Mail>
-                                            kinglap@gmail.com
+                                            laptopKingLap@gmail.com
                                         </Link>
                                     </li>
                                 </ul>
@@ -37,13 +36,12 @@ function Footer() {
 
                         <div className="col-md-3 col-xs-6">
                             <div className="footer">
-                                <h3 className="footer-title">Danh mục</h3>
+                                <h3 className="footer-title">Loại sản phẩm</h3>
                                 <ul className="footer-links">
-                                    <li><a href="#">Ưu đãi lớn</a></li>
-                                    <li><a href="#">Máy tính xách tay</a></li>
-                                    <li><a href="#">Điện thoại thông minh</a></li>
-                                    <li><a href="#">Máy ảnh</a></li>
-                                    <li><a href="#">Phụ kiện</a></li>
+                                    <li><a href="#">Mã giảm giá</a></li>
+                                    <li><a href="#">Laptop Gaming</a></li>
+                                    <li><a href="#">Laptop văn phòng</a></li>
+                                    <li><a href="#">Laptop đồ họa</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -51,11 +49,11 @@ function Footer() {
                             <div className="footer">
                                 <h3 className="footer-title">Thông tin</h3>
                                 <ul className="footer-links">
-                                    <li><a href="#">Câu hỏi thường gặp mua hàng</a></li>
-                                    <li><a href="#">Chính sách bảo mật</a></li>
-                                    <li><a href="#">Quy chế hoạt động</a></li>
-                                    <li><a href="#">Kiểm tra hóa đơn điện tử</a></li>
-                                    <li><a href="#">Tra cứu thông tin bảo hành</a></li>
+                                    <li><a href="#">About Us</a></li>
+                                    <li><a href="#">Contact Us</a></li>
+                                    <li><a href="#">Privacy Policy</a></li>
+                                    <li><a href="#">Orders and Returns</a></li>
+                                    <li><a href="#">Terms & Conditions</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -64,11 +62,11 @@ function Footer() {
                             <div className="footer">
                                 <h3 className="footer-title">Dịch vụ</h3>
                                 <ul className="footer-links">
-                                    <li><a href="#">Tài khoản của tôi</a></li>
-                                    <li><a href="#">Xem giỏ hàng</a></li>
-                                    <li><a href="#">Danh sách yêu thích</a></li>
-                                    <li><a href="#">Theo dõi đơn hàng của tôi</a></li>
-                                    <li><a href="#">Trợ giúp</a></li>
+                                    <li><a href="#">My Account</a></li>
+                                    <li><a href="#">View Cart</a></li>
+                                    <li><a href="#">Wishlist</a></li>
+                                    <li><a href="#">Track My Order</a></li>
+                                    <li><a href="#">Help</a></li>
                                 </ul>
                             </div>
                         </div>
