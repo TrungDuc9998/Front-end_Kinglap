@@ -188,7 +188,11 @@ const ExchangeSuccess = () => {
     fetch(
       `http://localhost:8080/api/staff/returns?${qs.stringify(
         getRandomOrderParams(tableParams)
-      )}`
+      )}`, {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {

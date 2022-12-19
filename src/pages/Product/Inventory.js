@@ -75,7 +75,11 @@ function Inventory() {
     fetch(
       `http://localhost:8080/api/admin/statistical/inventory?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`
+      )}`, {
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {

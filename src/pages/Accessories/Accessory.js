@@ -164,7 +164,10 @@ const Accessory = () => {
       data.status = "ACTIVE";
       fetch("http://localhost:8080/api/admin/accessory", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
         body: JSON.stringify(data),
       })
         .then((response) => response.json())
@@ -189,6 +192,7 @@ const Accessory = () => {
     formEdit.setFieldsValue(data);
   };
 
+
   const handleSubmitUpdate = (data) => {
     const edit = {
       id: dataEdit.id,
@@ -198,7 +202,10 @@ const Accessory = () => {
     if (isUpdate === false) {
       fetch("http://localhost:8080/api/admin/accessory/" + edit.id, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
         body: JSON.stringify(edit),
       })
         .then((response) => loadDataAccessory())
@@ -246,7 +253,7 @@ const Accessory = () => {
       >
         <div className="col-12 d-flex justify-content-around align-items-center">
           <div className="col-5 d-flex align-items-center">
-            <label style={{width: "105px", marginRight: "10px"}}>Tên phụ kiện</label>
+            <label style={{ width: "105px", marginRight: "10px" }}>Tên phụ kiện</label>
             <Input
               name="searchName"
               value={searchName}

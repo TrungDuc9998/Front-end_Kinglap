@@ -210,7 +210,12 @@ const Screen = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/admin/screens/close/${data.id}`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
@@ -237,7 +242,12 @@ const Screen = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/admin/screens/open/${data.id}`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
@@ -264,7 +274,12 @@ const Screen = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/admin/screens/open/${data.id}`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,

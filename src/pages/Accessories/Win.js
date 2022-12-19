@@ -166,7 +166,12 @@ const Screen = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/admin/wins/close/${data.id}`, { method: "PUT" }).then(() => getData());
+                    `http://localhost:8080/api/admin/wins/close/${data.id}`, {
+                    method: "PUT",
+                    headers: {
+                      Authorization: 'Bearer ' + localStorage.getItem("token"),
+                    },
+                  }).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
                   }
@@ -191,7 +196,12 @@ const Screen = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/admin/wins/open/${data.id}`, { method: "PUT" }).then(() => getData());
+                    `http://localhost:8080/api/admin/wins/open/${data.id}`, {
+                    method: "PUT",
+                    headers: {
+                      Authorization: 'Bearer ' + localStorage.getItem("token"),
+                    },
+                  }).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000
                   }
@@ -217,7 +227,12 @@ const Screen = () => {
                 onClick={() => {
                   setLoading(true);
                   fetch(
-                    `http://localhost:8080/api/admin/wins/open/${data.id}`, { method: "PUT" }).then(() => getData());
+                    `http://localhost:8080/api/admin/wins/open/${data.id}`, {
+                    method: "PUT",
+                    headers: {
+                      Authorization: 'Bearer ' + localStorage.getItem("token"),
+                    },
+                  }).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
                   }

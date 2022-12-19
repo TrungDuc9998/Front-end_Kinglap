@@ -196,7 +196,12 @@ const BatteryCharger = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/admin/batteryCharger/close/${data.id}`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
@@ -223,7 +228,12 @@ const BatteryCharger = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/admin/batteryCharger/open/${data.id}`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
@@ -250,7 +260,11 @@ const BatteryCharger = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/admin/batteryCharger/open/${data.id}`,
-                    { method: "PUT" }
+                    {
+                      method: "PUT", headers: {
+                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      },
+                    }
                   ).then(() => getData());
                   toastrs.options = {
                     timeOut: 6000,
@@ -302,9 +316,9 @@ const BatteryCharger = () => {
     axios
       .get(
         url +
-          `/auth/batteryCharger?${qs.stringify(
-            getRandomuserParams(tableParams)
-          )}`
+        `/auth/batteryCharger?${qs.stringify(
+          getRandomuserParams(tableParams)
+        )}`
       )
       .then((results) => {
         setData(results.data.data.data);
@@ -352,10 +366,13 @@ const BatteryCharger = () => {
       data.status = "ACTIVE";
       fetch("http://localhost:8080/api/staff/batteryCharger", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
         body: JSON.stringify(data),
       })
-        .then((response) =>response.json())
+        .then((response) => response.json())
         .then((results) => {
           if (results.status === 200) {
             toastSuccess("Thêm mới thành công !");
@@ -377,7 +394,10 @@ const BatteryCharger = () => {
       data.status = "ACTIVE";
       fetch("http://localhost:8080/api/admin/batteryCharger/" + edit.id, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
         body: JSON.stringify(edit),
       })
         .then((response) => getData())

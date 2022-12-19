@@ -30,7 +30,12 @@ function Statistical() {
   }, []);
 
   const loadDataStaticalByProduct = () => {
-    fetch(`http://localhost:8080/api/admin/statistical`)
+    fetch(`http://localhost:8080/api/admin/statistical`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    })
       .then((res) => res.json())
       .then((results) => {
         console.log(results);
@@ -39,7 +44,12 @@ function Statistical() {
   };
 
   const sumProduct = () => {
-    fetch(`http://localhost:8080/api/admin/statistical/sum/product`)
+    fetch(`http://localhost:8080/api/admin/statistical/sum/product`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    })
       .then((res) => res.json())
       .then((results) => {
         console.log(results);
@@ -48,7 +58,12 @@ function Statistical() {
   };
 
   const countOrder = () => {
-    fetch(`http://localhost:8080/api/admin/statistical/count/order`)
+    fetch(`http://localhost:8080/api/admin/statistical/count/order`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    })
       .then((res) => res.json())
       .then((results) => {
         console.log(results);
@@ -57,7 +72,12 @@ function Statistical() {
   };
 
   const countCustomer = () => {
-    fetch(`http://localhost:8080/api/admin/statistical/count/customer`)
+    fetch(`http://localhost:8080/api/admin/statistical/count/customer`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    })
       .then((res) => res.json())
       .then((results) => {
         console.log(results);
@@ -76,7 +96,12 @@ function Statistical() {
       month = myArray[1];
       year = myArray[0];
     }
-    fetch(`http://localhost:8080/api/admin/statistical/${month}/${year}`)
+    fetch(`http://localhost:8080/api/admin/statistical/${month}/${year}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    })
       .then((res) => res.json())
       .then((results) => {
         console.log(results);
@@ -86,14 +111,24 @@ function Statistical() {
 
   const loadDataStaticalByYear = (year) => {
     if (year != undefined) {
-      fetch(`http://localhost:8080/api/admin/statistical/${year}`)
+      fetch(`http://localhost:8080/api/admin/statistical/${year}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
+      })
         .then((res) => res.json())
         .then((results) => {
           console.log(results);
           setDataStatical(results);
         });
     } else {
-      fetch(`http://localhost:8080/api/admin/statistical/2022`)
+      fetch(`http://localhost:8080/api/admin/statistical/2022`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        },
+      })
         .then((res) => res.json())
         .then((results) => {
           console.log(results);
