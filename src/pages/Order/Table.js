@@ -165,7 +165,7 @@ function CreateOrderAdmin() {
           fullName: value.fullName,
           email: value.email,
           phoneNumber: value.phoneNumber,
-          address: value.address,
+          address: "none",
         }),
       })
         .then((res) => res.json())
@@ -246,43 +246,52 @@ function CreateOrderAdmin() {
       if (phoneClient != undefined && phoneClient.length != 10) {
         toastError("Số điện thoại không đúng định dạng !");
       }
-      if ( typeOrder != "TẠI CỬA HÀNG" && addressDetail === undefined) {
+      if (typeOrder != "TẠI CỬA HÀNG" && addressDetail === undefined) {
         toastError("Nhập địa chỉ chi tiết!");
       } else {
-        try {
-          fetch("http://localhost:8080/api/orders", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              payment: order.payment,
-              userId: order.userId | null,
-              total: Number(order.total) + Number(shipping),
-              address: order.address,
-              note: "",
-              customerName:
-                order.customerName == "" ? fullNameForm : order.customerName,
-              phone: order.phone,
-              status: "CHO_XAC_NHAN",
-              money: 0,
-              shippingFree: shipping,
-              orderDetails: orderDetails,
-            }),
-          })
-            .then((res) => res.json())
-            .then((results) => {
-              if (results.status === 200) {
-                toastSuccess("Thêm hoá đơn thành công");
-
-                // resetInputField();
-              } else {
-                toastError("Thêm hoá đơn thất bại");
-              }
-            });
-        } catch (err) {
-          toastError("Thêm hoá đơn thất bại");
+        if (Number(order.total) + Number(shipping) > 100000000) {
+          toastError("Giá trị đơn hàng không vượt quá 100 triệu !");
+        } else {
+          try {
+            fetch("http://localhost:8080/api/orders", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                payment: order.payment,
+                userId: order.userId | null,
+                total: Number(order.total) + Number(shipping),
+                address: order.address,
+                note: "",
+                customerName:
+                  order.customerName == "" ? fullNameForm : order.customerName,
+                phone: order.phone,
+                status: "CHO_XAC_NHAN",
+                money: 0,
+                shippingFree: shipping,
+                orderDetails: orderDetails,
+              }),
+            })
+              .then((res) => res.json())
+              .then((results) => {
+                if (results.status === 200) {
+                  toastSuccess("Thêm hoá đơn thành công");
+                  onRest();
+                  loadDataCart();
+                  // resetInputField();
+                } else {
+                  toastError("Thêm hoá đơn thất bại");
+                }
+              });
+          } catch (err) {
+            toastError("Thêm hoá đơn thất bại");
+          }
         }
       }
     }
+  };
+
+  const onRest = () => {
+    setPhoneNumberForm("");
   };
 
   const updateCart = (cart, id, quantity) => {
@@ -432,7 +441,6 @@ function CreateOrderAdmin() {
         throw Error(response.status);
       })
       .then((result) => {
-        console.log(result.data);
         setArray(result.data);
       })
       .catch((error) => {
@@ -668,7 +676,25 @@ function CreateOrderAdmin() {
     )
       .then((res) => res.json())
       .then((results) => {
-        setDataClient(results.data.data);
+        console.log("data client");
+        console.log(results.data.data);
+        const option = [];
+        results.data.data.forEach((item) => {
+          item.information.forEach((element) => {
+            if (element.phoneNumber != "none") {
+              option.push({
+                value: element.phoneNumber,
+                id: element.id,
+                fullName: element.fullName
+              });
+            }
+          });
+        });
+
+        console.log("option set data client");
+        console.log(option);
+
+        setDataClient(option);
         setLoading(false);
         setTableParams({
           pagination: {
@@ -726,10 +752,8 @@ function CreateOrderAdmin() {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         const dataResult = [];
         results.data.data.forEach((item) => {
-          console.log(item.name);
           dataResult.push(
             renderItem(item.id, item.name, item?.images[0]?.name, item.price)
           );
@@ -772,9 +796,21 @@ function CreateOrderAdmin() {
     price: price,
   });
 
+  const onSelectAutoClient = (value) => {
+    console.log("on select client");
+    console.log(value);
+    dataClient.forEach(element => {
+      if(element.value === value) {
+        console.log('kiểm tra số điện thoại khách hàng để  hiển thị');
+        console.log(element.fullName);
+        setValueUser(element.fullName)
+      }
+    })
+  };
+
   const onSelectAuto = (value) => {
     setValueProduct(value);
-    setValues('')
+    setValues("");
     let isUpdate = false;
     if (value !== undefined) {
       let quantity = 0;
@@ -810,8 +846,16 @@ function CreateOrderAdmin() {
   };
 
   const onChangeSearch = (event) => {
-    setValues(event)
-}
+    setValues(event);
+  };
+
+  const onChangeSearchClient = (event) => {
+    console.log("onchange search client");
+    console.log(event);
+    setPhoneClient(event);
+    console.log("id event on change:");
+  };
+
   return (
     <div>
       <div className="row">
@@ -862,48 +906,28 @@ function CreateOrderAdmin() {
             <div className="col-6">
               <div className="search-container">
                 <div className="search-inner">
-                  <input
-                    type="text"
-                    placeholder="Tên khách hàng"
-                    defaultValue={""}
-                    value={fullNameForm}
-                    style={{ width: "240px" }}
-                    onChange={onChangeUser}
-                    onClick={() => onSearchUser(valueUser)}
+                  <label>
+                    {" "}
+                    Số điện thoại khách hàng <span className="text-danger fs-6">*</span>
+                  </label>
+                  <br />
+                  <AutoComplete
+                    style={{ width: 200 }}
+                    onChange={(event) => onChangeSearchClient(event)}
+                    options={dataClient}
+                    onSelect={(event) => onSelectAutoClient(event)}
+                    placeholder="Nhập số điện thoại khách hàng"
+                    filterOption={(inputValue, option) =>
+                      option.value
+                        .toUpperCase()
+                        .indexOf(inputValue.toUpperCase()) !== -1
+                    }
                   />
-                  <div className="dropdown">
-                    {users != null
-                      ? users
-                          .filter((item) => {
-                            const searchTerm = valueUser
-                              .toString()
-                              .toLowerCase();
-                            const fullName =
-                              item.fullName !== undefined
-                                ? item.fullName.toLowerCase()
-                                : "";
-                            return (
-                              searchTerm &&
-                              fullName.startsWith(searchTerm) &&
-                              fullName !== searchTerm
-                            );
-                          })
-                          .slice(0, 10)
-                          .map((item) => (
-                            <div
-                              onClick={() => onSearchAndFillUser(item)}
-                              className="dropdown-row"
-                              key={item.id}
-                            >
-                              {item.fullName}
-                            </div>
-                          ))
-                      : ""}
-                  </div>
+                  
                 </div>
               </div>
             </div>
-            <div className="col-6 ">
+            <div className="col-6 mt-3">
               <Button
                 onClick={showModal}
                 style={{ borderRadius: "10px" }}
@@ -920,95 +944,12 @@ function CreateOrderAdmin() {
                     display: "none",
                   },
                 }}
+                width={700}
                 cancelText={"Đóng"}
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
               >
-                {/* <label>
-                  Tài khoản
-                  <span className="text-danger"> *</span>
-                </label>
-                <Input
-                  type="text"
-                  name="username"
-                  value={username}
-                  placeholder="Nhập tài khoản"
-                  onChange={changeUsername}
-                />
-                <label>
-                  Mật khẩu
-                  <span className="text-danger"> *</span>
-                </label>
-                <Input
-                  type="password"
-                  name="password1"
-                  value={password1}
-                  placeholder="Nhập mật khẩu"
-                  onChange={changePassword1}
-                />
-                <label>
-                  Xác nhận mật khẩu
-                  <span className="text-danger"> *</span>
-                </label>
-                <Input
-                  type="password"
-                  name="password2"
-                  value={password2}
-                  placeholder="Nhập lại mật khẩu"
-                  onChange={changePassword2}
-                />
-                <label>
-                  Họ và tên
-                  <span className="text-danger"> *</span>
-                </label>
-                <Input
-                  type="text"
-                  name="fullName"
-                  value={fullName}
-                  placeholder="Nhập họ và tên"
-                  onChange={changeFullname}
-                />
-                <label>
-                  Email
-                  <span className="text-danger"> *</span>
-                </label>
-                <Input
-                  type="email"
-                  name="email"
-                  value={email}
-                  placeholder="Nhập địa chỉ email"
-                  onChange={changeEmail}
-                />
-                <label>
-                  Số điện thoại
-                  <span className="text-danger"> *</span>
-                </label>
-                <Input
-                  type="number"
-                  name="phoneNumber"
-                  value={phoneNumber}
-                  placeholder="Nhập số điện thoại"
-                  onChange={changePhoneNumber}
-                />
-                <label>
-                  Địa chỉ
-                  <span className="text-danger"> *</span>
-                </label>
-                <Input
-                  type="text"
-                  name="address"
-                  value={address}
-                  placeholder="Nhập địa chỉ"
-                  onChange={changeAddRess}
-                  onClick={changeAddRess}
-                /> */}
                 <Form
-                  // form={form}
-                  initialValues={
-                    {
-                      // cpuCompany: name,
-                    }
-                  }
                   autoComplete="off"
                   layout="vertical"
                   onFinish={(values) => {
@@ -1019,101 +960,95 @@ function CreateOrderAdmin() {
                     console.log({ error });
                   }}
                 >
-                  <Form.Item
-                    className="mt-2"
-                    name="username"
-                    label="Tài khoản"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Tài khoản khách hàng không được để trống",
-                      },
-                      { whitespace: true },
-                      { min: 3 },
-                    ]}
-                    hasFeedback
-                  >
-                    <Input placeholder="Nhập tài khoản khách hàng" />
-                  </Form.Item>
-                  <Form.Item
-                    name="password"
-                    label="Mật khẩu"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Mật khẩu khách hàng không được để trống",
-                      },
-                    ]}
-                    hasFeedback
-                  >
-                    <Input placeholder="Nhập mật khẩu" type="password" />
-                  </Form.Item>
+                  <div className="row">
+                    <div className="col-6">
+                      <Form.Item
+                        className=""
+                        name="username"
+                        label="Tài khoản"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Tài khoản khách hàng không được để trống",
+                          },
+                          { whitespace: true },
+                          { min: 3 },
+                        ]}
+                        hasFeedback
+                      >
+                        <Input placeholder="Nhập tài khoản khách hàng" />
+                      </Form.Item>
+                      <Form.Item
+                        name="password"
+                        label="Mật khẩu"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Mật khẩu khách hàng không được để trống",
+                          },
+                        ]}
+                        hasFeedback
+                      >
+                        <Input placeholder="Nhập mật khẩu" type="password" />
+                      </Form.Item>
+                      <Form.Item
+                        name="password2"
+                        label="Xác nhận mật khẩu"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Xác nhận mật khẩu không được để trống",
+                          },
+                        ]}
+                        hasFeedback
+                      >
+                        <Input placeholder="Xác nhận mật khẩu" />
+                      </Form.Item>
+                    </div>
+                    <div className="col-6">
+                      <Form.Item
+                        name="fullName"
+                        label="Nhập họ và tên"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Họ tên khách hàng không được để trống",
+                          },
+                        ]}
+                        hasFeedback
+                      >
+                        <Input placeholder="Nhập họ tên khách hàng" />
+                      </Form.Item>
+                      <Form.Item
+                        name="email"
+                        label="Email"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Email không được để trống",
+                          },
+                        ]}
+                        hasFeedback
+                      >
+                        <Input placeholder="Nhập email" type="email" />
+                      </Form.Item>
+                      <Form.Item
+                        name="phoneNumber"
+                        label="Số điện thoại"
+                        rules={[
+                          {
+                            required: true,
+                            message:
+                              "Số điện thoại khách hàng không được để trống",
+                          },
+                        ]}
+                        hasFeedback
+                      >
+                        <Input placeholder="Nhập số điện thoại" type="number" />
+                      </Form.Item>
+                    </div>
+                  </div>
 
-                  <Form.Item
-                    name="password2"
-                    label="Xác nhận mật khẩu"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Xác nhận mật khẩu không được để trống",
-                      },
-                    ]}
-                    hasFeedback
-                  >
-                    <Input placeholder="Xác nhận mật khẩu" />
-                  </Form.Item>
-                  <Form.Item
-                    name="fullName"
-                    label="Nhập họ và tên"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Họ tên khách hàng không được để trống",
-                      },
-                    ]}
-                    hasFeedback
-                  >
-                    <Input placeholder="Nhập họ tên khách hàng" />
-                  </Form.Item>
-                  <Form.Item
-                    name="email"
-                    label="Email"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Email không được để trống",
-                      },
-                    ]}
-                    hasFeedback
-                  >
-                    <Input placeholder="Nhập email" type="email" />
-                  </Form.Item>
-                  <Form.Item
-                    name="phoneNumber"
-                    label="Số điện thoại"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Số điện thoại khách hàng không được để trống",
-                      },
-                    ]}
-                    hasFeedback
-                  >
-                    <Input placeholder="Nhập số điện thoại" type="number" />
-                  </Form.Item>
-                  <Form.Item
-                    name="address"
-                    label="Địa chỉ"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Địa chỉ không được để trống",
-                      },
-                    ]}
-                    hasFeedback
-                  >
-                    <Input placeholder="Địa chỉ" type="text" />
-                  </Form.Item>
                   <Form.Item className="text-center">
                     <Button block type="primary" htmlType="submit" id="create">
                       Tạo mới khách hàng
@@ -1126,7 +1061,10 @@ function CreateOrderAdmin() {
           <div className="row mt-3">
             <div className="col-6">
               <div className="form-group">
-                <label>Thông tin người bán</label>
+                <label>
+                  Thông tin người bán{" "}
+                  <span className="text-danger fs-6">*</span>
+                </label>
                 <Input
                   readOnly={true}
                   value={userNameLogin}
@@ -1136,11 +1074,15 @@ function CreateOrderAdmin() {
             </div>
             <div className="col-6">
               <div className="form-group">
-                <label>Số điện thoại khách hàng</label>
+                <label>
+                  Tên khách hàng{" "}
+                  <span className="text-danger fs-6">*</span>
+                </label>
                 <Input
-                  onChange={(e) => setPhoneClient(e.target.value)}
-                  value={phoneNumberForm}
-                  type="number"
+                  onChange={(e) => setValueUser(e.target.value)}
+                  value={valueUser}
+                  placeholder="Tên khách hàng"
+                  // type="number"
                 />
               </div>
             </div>
@@ -1148,7 +1090,10 @@ function CreateOrderAdmin() {
           <div className="row mt-3">
             <div className="col-6">
               <div className="form-group">
-                <label>Phương thức mua hàng</label>
+                <label>
+                  Phương thức mua hàng{" "}
+                  <span className="text-danger fs-6">*</span>
+                </label>
                 <br />
                 <Select
                   combobox="true"
@@ -1265,7 +1210,9 @@ function CreateOrderAdmin() {
           <div className="row mt-3">
             <div className="col-6">
               <div className="form-group">
-                <label>Tổng tiền</label>
+                <label>
+                  Tổng tiền <span className="text-danger fs-6">*</span>
+                </label>
                 <br />
                 <Input
                   className="text-danger fw-bold"
@@ -1284,7 +1231,9 @@ function CreateOrderAdmin() {
             </div>
             <div className="col-6">
               <div className="form-group">
-                <label>Phí ship</label>
+                <label>
+                  Phí ship <span className="text-danger fs-6">*</span>
+                </label>
                 <Input
                   style={{
                     width: 240,
@@ -1319,7 +1268,7 @@ function CreateOrderAdmin() {
           </div>
           <div className="row">
             <div className="col-12 mt-3">
-              <table className="table">
+              <table className="table" style={{ width: "700px" }}>
                 <thead>
                   <tr>
                     <th>STT</th>

@@ -61,31 +61,33 @@ const OrderSuccess = () => {
     },
   });
 
+  function compareDates(d1,d2) {
+    let date1 = new Date(d1).getTime();
+    let date2 = new Date(d2).getTime();
+
+    console.log("date 1");
+    console.log(date1);
+    const date = new Date(d1);
+    date.setDate(date.getDate() + 10);
+    console.log('data:', date);
+    let date3 = new Date(date).getTime();
+    console.log("d3:", date3);
+
+    if (date2 < date3) {
+      console.log(`Thời gian hiện tại nhỏ hơn`);
+    } else if (date2 > date3) {
+      console.log(`Thời gian hiện tại lớn hơn`);
+    } else {
+      console.log(`Bằng nhau`);
+    }
+  }
+
   useEffect(() => {
     loadDataOrder();
-    console.log(dataOrder);
+    compareDates("2022-12-25 23:01:07", "2023-12-25 23:01:07");
+
   }, [dataOrder != undefined]);
 
-  const onConfirm = (record) => {
-    const isPut = true;
-    Modal.success({
-      title: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
-      okText: "Yes",
-      okType: "primary",
-      onOk: () => {
-        confirmOrder(record, isPut);
-      },
-    });
-  };
-
-  const loadDataOrderDetail = (id) => {
-    fetch(url + "/" + id)
-      .then((res) => res.json())
-      .then((results) => {
-        console.log('dataOrderDetail');
-        console.log();
-      });
-  };
 
   const search = () => {
     if (searchStartDate != undefined && searchEndDate != undefined) {
@@ -117,12 +119,12 @@ const OrderSuccess = () => {
   };
 
   const showModalData = (id) => {
-    console.log('id hoá đơn:', id);
+    console.log("id hoá đơn:", id);
     axios.get(url + "/" + id).then((res) => {
       console.log(res.data);
       setDataOD(res.data);
     });
-    loadDataOrderHistoryById(id)
+    loadDataOrderHistoryById(id);
     setView(true);
   };
   const loadDataOrderHistoryById = (id) => {
@@ -374,10 +376,6 @@ const OrderSuccess = () => {
       width: "40%",
       dataIndex: "id",
       render: (id, record) => {
-        // axios.get(url + "/" + id).then((res) => {
-        //   console.log(res.data);
-        //   setDataOD(res.data);
-        // });
         return (
           <>
             <Button
@@ -539,7 +537,6 @@ const OrderSuccess = () => {
             onOk={() => {
               setEditing(true);
             }}
-
           >
             Bạn có muốn xác nhận đơn hàng không ?
           </Modal>
@@ -628,7 +625,6 @@ const OrderSuccess = () => {
               pagination={{ position: ["none", "none"] }}
             />
           </Modal>
-
         </div>
       </div>
     </div>

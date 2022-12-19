@@ -23,6 +23,7 @@ const { TextArea } = Input;
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
+  searchStatus: params.pagination?.searchStatus,
 });
 
 const toastError = (message) => {
@@ -99,6 +100,7 @@ function CreateProduct() {
       pageSize: 100,
       search1: "",
       search2: "",
+      searchStatus: "ACTIVE",
     },
   });
   const [imageUpload, setImageUpload] = useState([]);
