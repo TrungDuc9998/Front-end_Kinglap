@@ -134,3 +134,26 @@
         margin-left: unset;
     }
 }
+
+@media only screen and (max-width: 600px) {
+    .col-5.img-content {
+        width: 100%;
+    }
+    .col-7.info {
+        width: 100%;
+    }
+
+    .navbar.navbar-expand-lg.bg-light {
+        height: 50px !important;
+    }
+}
+
+@media only screen and (max-width: 482px) {
+    .product-name > a {
+        font-size: 10 !important;
+    }
+    
+    .product .product-body {
+        padding: 15px 2px;
+    }
+}

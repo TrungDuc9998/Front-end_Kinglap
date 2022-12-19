@@ -108,18 +108,6 @@ const ProductIndex = (product) => {
                     }):""}</p>
                 <h3 class="product-name"><a href="#">{product.product.name}</a></h3>
                 <h4 class="product-price">${product.product.price} <div></div> <del class="product-old-price">$990.00</del></h4>
-                <div class="product-rating">
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                    <i class="fa fa-star"></i>
-                </div>
-                <div class="product-btns">
-                    <button class="add-to-wishlist"><Heart size={14}></Heart><span class="tooltipp">add to wishlist</span></button>
-                    <button class="add-to-compare"><Repeat size={14}></Repeat><span class="tooltipp">add to compare</span></button>
-                    <button class="quick-view"><Eye size={14}></Eye><span class="tooltipp">quick view</span></button>
-                </div>
             </div>
             <div class="add-to-cart">
                 <button onClick={()=>clickThemVaoMyCart(product.product)} class="add-to-cart-btn"><ShoppingCart size={18}></ShoppingCart> add to cart</button>

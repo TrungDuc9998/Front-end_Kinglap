@@ -1382,7 +1382,7 @@ svg {
 
 .product .product-img>img {
     width: 100%;
-    min-height: 237.35px;
+    max-height: 237.35px;
 }
 
 

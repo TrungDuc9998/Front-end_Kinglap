@@ -14,7 +14,7 @@ function Footer() {
                                 <ul className="footer-links">
                                     <li className="nav-item">
                                         <Link to={'/'}>
-                                            <MapPin size={12} color="red"></MapPin> 
+                                            <MapPin size={12} color="red"></MapPin>
                                             Hai Bà Trưng - Hà Nội
                                         </Link>
                                     </li>
@@ -49,11 +49,11 @@ function Footer() {
                             <div className="footer">
                                 <h3 className="footer-title">Thông tin</h3>
                                 <ul className="footer-links">
-                                    <li><a href="#">About Us</a></li>
-                                    <li><a href="#">Contact Us</a></li>
-                                    <li><a href="#">Privacy Policy</a></li>
-                                    <li><a href="#">Orders and Returns</a></li>
-                                    <li><a href="#">Terms & Conditions</a></li>
+                                    <li><a href="#">Câu hỏi thường gặp mua hàng</a></li>
+                                    <li><a href="#">Chính sách bảo mật</a></li>
+                                    <li><a href="#">Quy chế hoạt động</a></li>
+                                    <li><a href="#">Kiểm tra hóa đơn điện tử</a></li>
+                                    <li><a href="#">Tra cứu thông tin bảo hành</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -62,11 +62,11 @@ function Footer() {
                             <div className="footer">
                                 <h3 className="footer-title">Dịch vụ</h3>
                                 <ul className="footer-links">
-                                    <li><a href="#">My Account</a></li>
-                                    <li><a href="#">View Cart</a></li>
-                                    <li><a href="#">Wishlist</a></li>
-                                    <li><a href="#">Track My Order</a></li>
-                                    <li><a href="#">Help</a></li>
+                                    <li><a href="#">Tài khoản của tôi</a></li>
+                                    <li><a href="#">Xem giỏ hàng</a></li>
+                                    <li><a href="#">Danh sách yêu thích</a></li>
+                                    <li><a href="#">Theo dõi đơn hàng của tôi</a></li>
+                                    <li><a href="#">Trợ giúp</a></li>
                                 </ul>
                             </div>
                         </div>
