@@ -5,10 +5,11 @@ import {
 import { Button, Image, InputNumber, Modal, Table, Tabs } from "antd";
 import axios from "axios";
 import qs from "qs";
-import React, { useEffect, useState } from "react";
+import React, { useContext,useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import StoreContext from '../../store/Context';
 
 const onChange = (key) => {
   console.log(key);
@@ -42,6 +43,7 @@ const toastError = (message) => {
 
 function ViewOrder() {
   let navigate = useNavigate();
+  const [state, dispatch] = useContext(StoreContext);
   const [orders, setOrders] = useState([]);
   const [orderDetails, setOrderDetails] = useState([]);
   const url = "http://localhost:8080/api/orders";
@@ -66,6 +68,7 @@ function ViewOrder() {
   const getData = () => {
     let param = searchParams.get("vnp_ResponseCode");
     let userId = localStorage.getItem("username");
+    console.log("vnp_ResponseCode",param);
     if (param === "00") {
       let total = localStorage.getItem("total");
       let payment = localStorage.getItem("payment");
@@ -119,6 +122,12 @@ function ViewOrder() {
           orderDetails: JSON.parse(orderDetails),
         }),
       }).then(() => {
+        JSON.parse(localStorage.getItem("orderDetails"))?JSON.parse(localStorage.getItem("orderDetails")).forEach((ord)=>{
+          dispatch({
+            type: "REMOVE_CART_AFTER_CHECKOUT",
+            payload: ord.productId
+          })
+        }):console.log("null");
         localStorage.removeItem("total");
         localStorage.removeItem("payment");
         localStorage.removeItem("address");
@@ -130,8 +139,10 @@ function ViewOrder() {
         localStorage.removeItem("valueWard");
         localStorage.removeItem("valueDistrict");
         localStorage.removeItem("value");
+        navigate("/user/order");
       });
-      localStorage.removeItem("carts");
+      
+      //localStorage.removeItem("carts");
     }
     fetch(
       `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
@@ -158,6 +169,10 @@ function ViewOrder() {
     getData();
     // loadDataOrder();
   }, [JSON.stringify(tableParams)]);
+  // useEffect(() => {
+  //   getData();
+  //   // loadDataOrder();
+  // }, []);
 
   const columnOrderHistory = [
     {

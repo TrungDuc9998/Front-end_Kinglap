@@ -81,12 +81,12 @@ function HomeUser() {
     });
     console.log("findCart", findCart);
     if (findCart != null) {
-      if (findCart.quantity < 5) {
+      if (findCart.quantity < 10) {
         dispatch(addToCart(product));
         notifySuccess("Thêm vào giỏ hàng thành công!");
       } else {
         notifyError(
-          "Đã tồn tại 5 sản phẩm trong giỏ hàng! Liên hệ cửa hàng để đặt mua số lượng lớn"
+          "Đã tồn tại 10 sản phẩm trong giỏ hàng! Liên hệ cửa hàng để đặt mua số lượng lớn"
         );
       }
     } else {
