@@ -74,7 +74,8 @@ function ViewProduct() {
   //LoadList
   useEffect(() => {
     getData();
-  }, [JSON.stringify(tableParams)]);
+
+  }, [JSON.stringify(tableParams), JSON.parse(localStorage.getItem("product_detail"))]);
 
   console.log("pro", products);
 
@@ -128,7 +129,7 @@ function ViewProduct() {
       <div className="container mt-2">
         <div className="row">
           <div className="col-5 img-content">
-            {/* <div
+            <div
               id="carouselExampleCaptions"
               className="carousel carousel-dark slide"
               data-bs-ride="false"
@@ -156,8 +157,8 @@ function ViewProduct() {
                 ></button>
               </div>
               <div className="carousel-inner">
-                {product.images.map((image) => (
-                  <div className="carousel-item ">
+                {JSON.parse(localStorage.getItem("product_detail")).images.map((image) => (
+                  <div className="carousel-item active">
                     <img className="d-block w-100" src={image.name} alt="" />
                   </div>
                 ))}
@@ -186,8 +187,8 @@ function ViewProduct() {
                 ></span>
                 <span className="visually-hidden">Next</span>
               </button>
-            </div> */}
-            <div
+            </div>
+            {/* <div
               id="carouselExampleIndicators"
               class="carousel slide"
               data-bs-ride="carousel"
@@ -261,7 +262,7 @@ function ViewProduct() {
                 ></span>
                 <span class="visually-hidden">Next</span>
               </button>
-            </div>
+            </div> */}
           </div>
           <div className="col-7 info">
             <div className="product-details">

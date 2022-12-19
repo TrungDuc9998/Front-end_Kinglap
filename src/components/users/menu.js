@@ -55,15 +55,14 @@ function Menu() {
                 });
             });
     };
-
+    const [search, setSearch] = useState();
     const [values, setValues] = useState();
     const onChangeSearch = (event) => {
         setValues(event)
     }
     const onSelectAuto = (value) => {
         getProductById(value);
-        navigate("/user/product")
-        setValues('')
+        setValues('');
     };
 
 
@@ -90,7 +89,11 @@ function Menu() {
         fetch(`http://localhost:8080/api/products/${id}`)
             .then((res) => res.json())
             .then((res) => {
-                dispatch(viewProduct(res));
+                // dispatch(viewProduct(res));
+                console.log("vào");
+                localStorage.removeItem('product_detail');
+                localStorage.setItem('product_detail', JSON.stringify(res));
+                navigate("/user/product")
             });
     };
     let navigate = useNavigate();

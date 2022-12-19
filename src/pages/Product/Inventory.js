@@ -18,7 +18,46 @@ const getRandomuserParams = (params) => ({
 });
 
 function Inventory() {
+  const onClickClear = () => {
+    setSearchName(undefined);
+    setSearchStatus(undefined);
+    setInventory(inventory1);
+  }
+  const onSearchStatus = (value) => {
+    console.log(value);
+    setSearchStatus(value);
+  }
+  const onSearchName = (value) => {
+    console.log(value);
+    setSearchName(value);
+  }
+  const [searchStatus, setSearchStatus] = useState();
+  const [searchName, setSearchName] = useState();
+  const changeSearchName = (value) => {
+    setSearchName(value);
+  }
+  const changeSearchStatus = (value) => {
+    setSearchStatus(value);
+  }
+  const onClickSearch = () => {
+    console.log("click", searchStatus, "name", searchName);
+    if (searchName == undefined && searchStatus == undefined) {
+      setInventory(inventory1)
+    }
+    if (searchName == undefined && searchStatus != undefined) {
+      console.log("name null");
+      setInventory(inventory1.filter(item => item.manufacture == searchStatus));
+    }
+    if (searchName != undefined && searchStatus == undefined) {
+      console.log("hang null");
+      setInventory(inventory1.filter(item => item.name == searchName));
+    }
+    if (searchName != undefined && searchStatus != undefined) {
+      setInventory(inventory1.filter(item => item.name == searchName && item.manufacture == searchStatus));
+    }
+  }
   const [inventory, setInventory] = useState([]);
+  const [inventory1, setInventory1] = useState([]);
   const [isView, setView] = useState(false);
   const [product, setProduct] = useState();
   const [tableParams, setTableParams] = useState({
@@ -41,6 +80,7 @@ function Inventory() {
       .then((res) => res.json())
       .then((results) => {
         setInventory(results);
+        setInventory1(results);
         setTableParams({
           pagination: {
             current: results.current_page,
@@ -50,6 +90,7 @@ function Inventory() {
         });
       });
   };
+
 
   const columns = [
     {
@@ -153,12 +194,23 @@ function Inventory() {
       >
         <div className="col-4 mt-3">
           <label>Từ khoá</label>
-          <Input
-            type="text"
-            name="searchName"
+          <br></br>
+          <Select
+            allowClear={true}
+            style={{ width: "300px", borderRadius: "5px" }}
+            showSearch
             placeholder="Nhập tên sản phẩm"
-            // onChange={changeSearchName}
-          />
+            optionFilterProp="children"
+            value={searchName}
+            onChange={changeSearchName}
+            onSearch={onSearchName}
+          >
+            {inventory1 ? inventory1.map(item => (
+              <Option value={item.name} selected>
+                {item.name}
+              </Option>
+            )) : ""}
+          </Select>
         </div>
         <div className="col-4 mt-3">
           <label>Hãng sản xuất</label>
@@ -167,21 +219,17 @@ function Inventory() {
             allowClear={true}
             style={{ width: "300px", borderRadius: "5px" }}
             showSearch
+            value={searchStatus}
             placeholder="Chọn hãng"
             optionFilterProp="children"
-            // onChange={changeSearchStatus}
-            // onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
+            onChange={changeSearchStatus}
+            onSearch={onSearchStatus}
           >
-            <Option value="CHO_XAC_NHAN" selected>
-              Chờ xác nhận
-            </Option>
-            <Option value="CHO_LAY_HANG">Chờ lấy hàng</Option>
-            <Option value="DANG_GIAO">Đang giao</Option>
-            <Option value="DA_NHAN">Đã nhận</Option>
-            <Option value="DA_HUY">Đã hủy</Option>
+            {inventory1 ? inventory1.map(item => (
+              <Option value={item.manufacture} selected>
+                {item.manufacture}
+              </Option>
+            )) : ""}
           </Select>
         </div>
 
@@ -189,7 +237,7 @@ function Inventory() {
           <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={clearSearchForm}
+            onClick={onClickClear}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -198,7 +246,7 @@ function Inventory() {
           <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={search}
+            onClick={onClickSearch}
             style={{ borderRadius: "10px" }}
           >
             <SearchOutlined />

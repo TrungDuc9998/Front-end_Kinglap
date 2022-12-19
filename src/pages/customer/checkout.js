@@ -1,4 +1,6 @@
-import { Input, Select } from "antd";
+import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { render } from "@testing-library/react";
+import { Input, Modal, Select, Table } from "antd";
 import { Option } from "antd/lib/mentions";
 import axios from "axios";
 import qs from 'qs';
@@ -10,6 +12,78 @@ import StoreContext from "../../store/Context";
 import "./css/checkout.css"
 
 function Checkout() {
+  // modal
+  const onClickShow = (value) => {
+    console.log(value.images[0]);
+  }
+  const onclickDelete = (value) => {
+    setProductAdd(productAdd.filter(item => item != value))
+  }
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+    setCarts(carts.concat(productAdd))
+    console.log("carts", carts);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+
+  // add product
+  const [productAdd, setProductAdd] = useState([]);
+  const columns = [
+    {
+      title: 'Hình ảnh',
+      dataIndex: 'image',
+      width: '25%',
+      render: (id, data) => {
+        return (
+          <>
+            <img width={150} src={data.images[0].name} />
+          </>)
+      }
+    },
+    {
+      title: 'Tên sản phẩm',
+      dataIndex: 'name',
+      width: '45%'
+    },
+    {
+      title: 'Giá',
+      dataIndex: 'price',
+      width: '15%'
+    },
+    {
+      title: 'Thao tác',
+      dataIndex: '',
+      render: (id, data) => {
+        return (
+          <>
+            <EyeOutlined
+              style={{ fontSize: "18px", marginLeft: "20%" }}
+              onClick={() => {
+                onClickShow(data);
+              }}
+            />
+            <DeleteOutlined
+              style={{ fontSize: "18px", marginLeft: "20%", color: 'red' }}
+              onClick={() => {
+                onclickDelete(data);
+              }}
+            />
+          </>
+        )
+      }
+    },
+  ];
+
+
+
+
   const onSearchProduct = (searchItem) => {
     getData();
   };
@@ -18,8 +92,11 @@ function Checkout() {
     console.log(value)
     const a = products.filter((item) =>
       value == item.id)[0];
-    a.quantity = 1;
-    carts.push(a);
+    // a.quantity = 1;
+    if (a != undefined) {
+      setProductAdd([...productAdd, a])
+    }
+    // carts.push(a);
   };
   // const clickOptions = (pro) => {
   //   console.log("click", pro);
@@ -858,14 +935,14 @@ function Checkout() {
                 placeholder="0"
                 disabled
               /> : <Input
-              style={{ borderRadius: "16px" }}
-              type="text"
-              value={"0" + " VND"}
-              onChange={(e) => setShipping(e.target.value)}
-              className="form-control fw-bold text-danger"
-              placeholder="0"
-              disabled
-            />}
+                style={{ borderRadius: "16px" }}
+                type="text"
+                value={"0" + " VND"}
+                onChange={(e) => setShipping(e.target.value)}
+                className="form-control fw-bold text-danger"
+                placeholder="0"
+                disabled
+              />}
               <img style={{ width: "200px", height: "150px", marginLeft: "130px" }} src="https://inkythuatso.com/uploads/images/2021/12/thiet-ke-khong-ten-04-13-29-21.jpg"></img>
               {/* <span className="input-group-text">VNĐ</span>
                             </div> */}
@@ -913,14 +990,11 @@ function Checkout() {
             </div>
             <div className="col-12 mt-2">
               <button className="btn btn-primary form-control btn-ck "
-                data-bs-toggle="collapse"
-                href="#multiCollapseExample1"
-                role="button" aria-expanded="false"
-                aria-controls="multiCollapseExample1"
+                onClick={showModal}
               >
                 Thêm sản phẩm
               </button>
-              <div class="collapse multi-collapse" id="multiCollapseExample1">
+              {/* <div class="collapse multi-collapse" id="multiCollapseExample1">
                 <div class="card card-body border border-0">
                   <Select className=""
                     showSearch
@@ -936,7 +1010,6 @@ function Checkout() {
                     {products != undefined
                       ? products.map((item, index) => (
                         <Option key={index} value={item.id}>
-                          {/* <Image width={90} className="me-s" src={item.images[0].name} /> */}
                           {item.name}
                         </Option>
                       ))
@@ -944,7 +1017,33 @@ function Checkout() {
 
                   </Select>
                 </div>
-              </div>
+              </div> */}
+              <Modal width={800} title="Thêm sản phẩm" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <Select
+                  allowClear
+                  showSearch
+                  size="large"
+                  placeholder="Tên sản phẩm"
+                  optionFilterProp="children"
+                  onChange={onChangeProduct}
+                  onClick={onSearchProduct}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+
+                >
+                  {products != undefined
+                    ? products.map((item, index) => (
+                      <Option key={index} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))
+                    : ""}
+
+                </Select>
+
+                <Table dataSource={productAdd} columns={columns} />
+              </Modal>
 
 
             </div>
