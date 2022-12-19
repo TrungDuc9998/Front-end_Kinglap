@@ -134,6 +134,10 @@ function Menu() {
     const login = () => {
         navigate('/login')
     }
+
+    const chinhSachBH = () => {
+        navigate('/policy')
+    }
     useEffect(() => {
         // getData();
         loadDataProduct();
@@ -159,15 +163,13 @@ function Menu() {
                             </li>
                         </ul>
                         <ul className="nav justify-content-end">
-                            <li className="nav-item">
-                                <a style={{ color: "ưhite" }} onClick={Warranty_Policy}>
-                                    <AiFillRead size={12} color="red"></AiFillRead>
+                        <li className="nav-item">
+                                <a style={{ color: "white" }} onClick={chinhSachBH}>
                                     Chính sách
                                 </a>
                             </li>
                             <li className="nav-item">
-                                <a style={{ color: "ưhite" }} onClick={toAdmin}>
-                                    <DollarSign size={12} color="red"></DollarSign>
+                                <a style={{ color: "white" }} onClick={toAdmin}>
                                     Quản trị
                                 </a>
                             </li>

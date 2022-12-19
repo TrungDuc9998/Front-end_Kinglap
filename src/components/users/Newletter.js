@@ -11,10 +11,10 @@ function Newletter() {
                 <div className="row">
                     <div className="col-md-12">
                         <div className="newsletter">
-                            <p>Đăng ký để nhận <strong>THƯ MỚI</strong></p>
+                            <p>Đăng kí để nhận thư mới</p>
                             <form className="form-lt">
-                                <input className="input" type="email" placeholder="Nhập email của bạn" />
-                                <button className="newsletter-btn"><Mail size={20}></Mail> Đặt</button>
+                                <input className="input" type="email" placeholder="Nhập email..." />
+                                <button className="newsletter-btn"><Mail className="mail" size={20}></Mail> Đăng ký</button>
                             </form>
                             <ul className="newsletter-follow">
                                 <li>
