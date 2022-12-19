@@ -4,7 +4,6 @@ import {
   Select,
   Input,
   Button,
-  InputNumber,
   Modal,
   DatePicker,
   Radio,
@@ -12,6 +11,7 @@ import {
   Alert,
   Image,
   Checkbox,
+  AutoComplete,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -42,6 +42,8 @@ const ExchangeUser = () => {
   const [dataProduct, setDataProduct] = useState([]);
   const [reason, setReason] = useState();
   const [note, setNote] = useState();
+  const [data, setData] = useState([]);
+  const [values, setValues] = useState();
   const [dataCart, setDataCart] = useState();
   const [valueInputNumber, setValueInputNumber] = useState();
   const [loading, setLoading] = useState(false);
@@ -62,6 +64,16 @@ const ExchangeUser = () => {
       pageSize: 10,
       search1: "",
       search2: "",
+    },
+  });
+
+  const [tableParamPro, setTableParamPro] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 100,
+      search1: "",
+      search2: "",
+      searchStatus: "ACTIVE",
     },
   });
   const showModal = (item) => {
@@ -167,6 +179,9 @@ const ExchangeUser = () => {
         ).then((res) => loadDataOrder(id));
         toastSuccess("Gửi yêu cầu thành công!");
         setIsModalOpen(false);
+        setChecked(false);
+        setReason('');
+        setNote('')
         setLoading(false);
       } catch (err) {
         toastError("Gửi yêu cầu thất bại!");
@@ -213,15 +228,54 @@ const ExchangeUser = () => {
   useEffect(() => {
     loadDataOrder(id);
     loadDataProduct();
+    loadDataProduct2();
   }, []);
 
-  const showModalData = (id) => {
-    axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
-      setDataOD(res.data);
-    });
-    setView(true);
+  const loadDataProduct2 = () => {
+    fetch(
+      `http://localhost:8080/api/products?${qs.stringify(
+        getRandomProductParams(tableParamPro)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataProduct(results.data.data);
+        const dataResult = [];
+        results.data.data.forEach((item) => {
+          dataResult.push(
+            renderItem(
+              item.id,
+              item.name,
+              item?.images[0]?.name,
+              item.price,
+              item.debut
+            )
+          );
+          setData(dataResult);
+        });
+      });
   };
+
+  const renderItem = (id, title, count, price, debut) => ({
+    value: id,
+    label: (
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <span>
+          <Image width={85} src={count} />
+        </span>
+        {" " + title + " (" + debut + ") "}{" "}
+        {price.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        })}
+      </div>
+    ),
+    price: price,
+  });
 
   const loadDataProduct = () => {
     setLoading(true);
@@ -292,7 +346,7 @@ const ExchangeUser = () => {
           console.log("vào push");
           dataPro.push({
             id: product.id,
-            image: product?.images[0].name,
+            images: product?.images[0].name,
             name: product?.name,
             price: product?.price,
             debut: product?.debut,
@@ -361,6 +415,80 @@ const ExchangeUser = () => {
     setTotalProduct(total);
 
     loadDataProduct();
+  };
+
+  const onChangeSearch = (event) => {
+    setValues(event);
+  };
+
+  const onSelectAuto = (value) => {
+    setValueProduct(value);
+    setValues("");
+    const dataPro = [];
+    let productValue;
+
+    let isUpdate = false;
+    if (value !== undefined) {
+      dataProduct
+        .filter((item) => item.id === value)
+        .map((product) => {
+          dataPro.push({
+            id: product.id,
+            images: product?.images[0]?.name,
+            name: product?.name,
+            price: product?.price,
+            debut: product?.debut,
+          });
+          productValue = product;
+        });
+      console.log(dataPro);
+    }
+    if (dataCart === undefined) {
+      dataPro.forEach((element, index) => {
+        if (Number(element.price) < Number(item.product.price)) {
+          dataPro.splice(index, 1);
+          toastError(
+            "Sản phẩm phải có giá tiền lớn hơn hoặc bằng sản phẩm trước đó"
+          );
+        } else {
+          setDataCart(dataPro);
+        }
+      });
+    } else {
+      if (dataCart.length + 1 > item.quantity) {
+        toastError("Sản phẩm không được vượt quá số lượng mua ban đầu !");
+      } else {
+        dataPro.forEach((element, index) => {
+          if (Number(element.price) < Number(item.product.price)) {
+            dataPro.splice(index, 1);
+            toastError(
+              "Sản phẩm phải có giá tiền lớn hơn hoặc bằng sản phẩm trước đó"
+            );
+          } else {
+            console.log("vào else cuối cùng");
+            console.log(productValue);
+            console.log((t) => [...t, productValue]);
+            setDataCart((t) => [...t, productValue]);
+            console.log(dataCart);
+          }
+        });
+      }
+    }
+
+    let total = dataPro[0]?.price;
+    if (dataCart?.length === undefined) {
+      setTotalProduct(total);
+    }
+    if (dataCart?.length + 1 <= item.quantity) {
+      dataCart?.forEach((item) => {
+        total += item.price;
+      });
+      if (total > 0) {
+        setTotalProduct(total);
+      } else {
+        setTotalProduct(0);
+      }
+    }
   };
 
   return (
@@ -555,13 +683,14 @@ const ExchangeUser = () => {
                 <p className="text-danger fw-bold mt-2">
                   Vui lòng tích chọn nếu sản phẩm lỗi
                 </p>
-                <Checkbox onChange={(e) => setChecked(e.target.checked)}>
+                <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)}>
                   Sản phẩm lỗi
                 </Checkbox>
                 <div className="mt-2">
                   <TextArea
                     onChange={(e) => setNote(e.target.value)}
                     className="ms-2"
+                    value={note}
                     style={{ width: "100%" }}
                     placeholder="Ghi chú"
                     rows={3}
@@ -570,7 +699,22 @@ const ExchangeUser = () => {
                 </div>
               </div>
             </div>
-            <Select
+            <AutoComplete
+              style={{
+                width: 800,
+              }}
+              value={values}
+              options={data}
+              onChange={(event) => onChangeSearch(event)}
+              onSelect={onSelectAuto}
+              placeholder="Tên sản phẩm"
+              filterOption={(inputValue, option) =>
+                option.label.props.children[1]
+                  .toUpperCase()
+                  .indexOf(inputValue.toUpperCase()) !== -1
+              }
+            />
+            {/* <Select
               showSearch
               placeholder="Tên sản phẩm"
               optionFilterProp="children"
@@ -590,7 +734,7 @@ const ExchangeUser = () => {
                     </Option>
                   ))
                 : ""}
-            </Select>
+            </Select> */}
           </div>
           <table className="table">
             <thead>
@@ -608,7 +752,14 @@ const ExchangeUser = () => {
                 return (
                   <tr key={index}>
                     <td>{index}</td>
-                    <Image width={90} src={item?.image} /> <td>{item.name}</td>
+                    <td>
+                      {item.images === undefined ? (
+                        <Image width={90} src={item.images} />
+                      ) : (
+                        <Image width={90} src={item.images[0].name} />
+                      )}
+                    </td>
+                    <td>{item.name}</td>
                     <td>
                       {item?.price.toLocaleString("it-IT", {
                         style: "currency",

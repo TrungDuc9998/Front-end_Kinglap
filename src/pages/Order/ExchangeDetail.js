@@ -139,7 +139,8 @@ function exchangeDetail() {
           productId: element.productId.id,
           quantity: element.quantity,
           total: 0,
-          isBoolean: element.select
+          isBoolean: element.select,
+          exchangeStatus: 3,
         });
       }
     });
@@ -375,6 +376,9 @@ function exchangeDetail() {
               </div>
               <div className="mt-2 ms-5 text-success">
                 Lý do: <b>{data?.reason}</b>{" "}
+              </div>
+              <div className="mt-2 ms-5 text-success">
+                Lý do: <b>{data?.isCheck}</b>{" "}
               </div>
             </div>
             <div className="col-6 mt-4 mb-5 text-success">

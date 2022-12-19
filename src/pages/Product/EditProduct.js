@@ -212,7 +212,7 @@ function EditProduct() {
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize: 10,
+      pageSize: 100,
       search1: "",
       search2: "",
     },

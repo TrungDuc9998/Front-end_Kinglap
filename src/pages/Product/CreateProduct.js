@@ -96,7 +96,7 @@ function CreateProduct() {
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize: 10,
+      pageSize: 100,
       search1: "",
       search2: "",
     },
@@ -421,8 +421,6 @@ function CreateProduct() {
   };
 
   const handleSubmit = (data) => {
-    console.log('image url');
-    console.log(imageUrls);
     data.images = imageUrls;
     data.status = "ACTIVE";
     data.debut = moment(data.debut).format("yyyy");

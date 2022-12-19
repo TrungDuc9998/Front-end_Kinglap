@@ -173,14 +173,13 @@ const Discount = () => {
         console.log("listProDiscount2", dataProduct)
         //clearInterval(myTimer);
         var myTimer = setInterval(() => {
-          time--;
-          console.log("time", time);
-          if (time == 0) {
-            //clearInterval(myTimer);
-            console.log("dataProduct3", dataProduct)
-            if (dataProduct !== []) {
-              if (listProDiscount != []) {
-                console.log("api noDiscount", dataProduct);
+        time--;
+        if(time==0){
+          //clearInterval(myTimer);
+          console.log("dataProduct3",dataProduct)
+            if(dataProduct!==[]){
+              if(listProDiscount!=[]){
+                console.log("api noDiscount",dataProduct);
                 //setTrueProDiscount(false);
                 //clearInterval(myTimer);
                 dataProduct.forEach((pro) => {
@@ -770,7 +769,7 @@ const Discount = () => {
               </Button>
               <Button
                 className="mt-2"
-                type="primary-uotline"
+                type="primary-outline"
                 onClick={clearSearchForm}
                 style={{ borderRadius: "10px" }}
               >
@@ -784,7 +783,8 @@ const Discount = () => {
           {/* Modal Áp dụng mã giảm giá */}
           <Modal
             title="Áp dụng mã giảm giá"
-            visible={isView}
+            open={isView}
+            width={850}
             // onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
