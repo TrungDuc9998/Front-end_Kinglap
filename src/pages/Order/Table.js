@@ -52,6 +52,7 @@ const toastError = (message) => {
 
 function CreateOrderAdmin() {
   const [value, setValue] = useState("");
+  const [values, setValues] = useState();
   const [users, setUsers] = useState();
   const [getFullName, setFullNameClient] = useState();
   const [valueUser, setValueUser] = useState("");
@@ -773,6 +774,7 @@ function CreateOrderAdmin() {
 
   const onSelectAuto = (value) => {
     setValueProduct(value);
+    setValues('')
     let isUpdate = false;
     if (value !== undefined) {
       let quantity = 0;
@@ -806,6 +808,10 @@ function CreateOrderAdmin() {
     loadDataWard();
     setFullNameForm("");
   };
+
+  const onChangeSearch = (event) => {
+    setValues(event)
+}
   return (
     <div>
       <div className="row">
@@ -834,8 +840,10 @@ function CreateOrderAdmin() {
                     width: 700,
                   }}
                   options={data}
+                  onChange={(event) => onChangeSearch(event)}
                   onSelect={onSelectAuto}
                   placeholder="Chọn sản phẩm"
+                  value={values}
                   filterOption={(inputValue, option) =>
                     option.label.props.children[1]
                       .toUpperCase()

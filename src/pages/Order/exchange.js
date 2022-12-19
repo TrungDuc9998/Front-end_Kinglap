@@ -15,7 +15,6 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 const { TextArea } = Input;
 import moment from "moment";
@@ -46,6 +45,7 @@ const Exchange = () => {
   const [dataOD, setDataOD] = useState();
   const [valueProduct, setValueProduct] = useState("");
   const [currentDate, setCurrentDate] = useState();
+  const [values, setValues] = useState();
   const [checked, setChecked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tableParams, setTableParams] = useState({
@@ -71,8 +71,10 @@ const Exchange = () => {
   };
 
   const handleOk = () => {
+    console.log("item show modal");
+    console.log(item);
+
     const data = [];
-    
 
     dataCart?.forEach((element, index) => {
       data.push({
@@ -107,7 +109,7 @@ const Exchange = () => {
   };
 
   const handleSubmitReturn = (data, dataOrderDetail) => {
-    console.log('data order detail handle submit');
+    console.log("data order detail handle submit");
     console.log(dataOrderDetail);
 
     const ExchangeDetail = [];
@@ -122,7 +124,7 @@ const Exchange = () => {
       });
     });
 
-    console.log('data exchange');
+    console.log("data exchange");
     console.log(ExchangeDetail);
 
     var date = new Date().getDate();
@@ -168,7 +170,10 @@ const Exchange = () => {
           }
         ).then((res) => loadDataOrder(id));
         toastSuccess("Gửi yêu cầu thành công!");
+        setReason('')
+        setChecked(false);
         setIsModalOpen(false);
+        setNote('')
         setLoading(false);
       } catch (err) {
         toastError("Gửi yêu cầu thất bại!");
@@ -214,7 +219,6 @@ const Exchange = () => {
 
   useEffect(() => {
     loadDataOrder(id);
-    loadDataProduct();
     loadDataProduct2();
   }, [checked]);
 
@@ -263,6 +267,8 @@ const Exchange = () => {
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
+        console.log("load data order by id");
+        console.log(res);
         setOrder(res);
       });
   };
@@ -285,7 +291,7 @@ const Exchange = () => {
 
   const onSelectAuto = (value) => {
     setValueProduct(value);
-
+    setValues("");
     const dataPro = [];
     let productValue;
 
@@ -296,13 +302,14 @@ const Exchange = () => {
         .map((product) => {
           dataPro.push({
             id: product.id,
-            image: product?.images[0]?.name,
+            images: product?.images[0]?.name,
             name: product?.name,
             price: product?.price,
             debut: product?.debut,
           });
           productValue = product;
         });
+      console.log(dataPro);
     }
     if (dataCart === undefined) {
       dataPro.forEach((element, index) => {
@@ -326,7 +333,11 @@ const Exchange = () => {
               "Sản phẩm phải có giá tiền lớn hơn hoặc bằng sản phẩm trước đó"
             );
           } else {
+            console.log("vào else cuối cùng");
+            console.log(productValue);
+            console.log((t) => [...t, productValue]);
             setDataCart((t) => [...t, productValue]);
+            console.log(dataCart);
           }
         });
       }
@@ -356,6 +367,7 @@ const Exchange = () => {
     )
       .then((res) => res.json())
       .then((results) => {
+        setDataProduct(results.data.data);
         const dataResult = [];
         results.data.data.forEach((item) => {
           dataResult.push(
@@ -392,6 +404,14 @@ const Exchange = () => {
     ),
     price: price,
   });
+
+  const onChangeSearch = (event) => {
+    setValues(event);
+  };
+
+  const onChangeReason = (value) => {
+    setReason(value);
+  }
 
   return (
     <div>
@@ -562,6 +582,7 @@ const Exchange = () => {
                 </p>
                 <div className="mt-4">
                   <TextArea
+                    value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     className="mb-2"
                     style={{ width: "80%" }}
@@ -600,13 +621,14 @@ const Exchange = () => {
                 <p className="text-danger fw-bold mt-2">
                   Vui lòng tích chọn nếu sản phẩm lỗi
                 </p>
-                <Checkbox onChange={(e) => setChecked(e.target.checked)}>
+                <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)}>
                   Sản phẩm lỗi
                 </Checkbox>
                 <div className="mt-2">
                   <TextArea
                     onChange={(e) => setNote(e.target.value)}
                     className="ms-2"
+                    value={note}
                     style={{ width: "100%" }}
                     placeholder="Ghi chú"
                     rows={3}
@@ -619,7 +641,9 @@ const Exchange = () => {
               style={{
                 width: 760,
               }}
+              value={values}
               options={data}
+              onChange={(event) => onChangeSearch(event)}
               onSelect={onSelectAuto}
               placeholder="Tên sản phẩm"
               filterOption={(inputValue, option) =>
@@ -628,27 +652,6 @@ const Exchange = () => {
                   .indexOf(inputValue.toUpperCase()) !== -1
               }
             />
-            {/* <Select
-              showSearch
-              placeholder="Tên sản phẩm"
-              optionFilterProp="children"
-              style={{
-                width: 400,
-              }}
-              onChange={onChangeProduct}
-              onClick={onSearchProduct}
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {dataProduct != undefined
-                ? dataProduct.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))
-                : ""}
-            </Select> */}
           </div>
           <table className="table">
             <thead>
@@ -666,7 +669,15 @@ const Exchange = () => {
                 return (
                   <tr key={index}>
                     <td>{index}</td>
-                    <Image width={90} src={item.image} /> <td>{item.name}</td>
+                    {/* <td>{item.images}</td> */}
+                    <td>
+                      {item.images === undefined ? (
+                        <Image width={90} src={item.images} />
+                      ) : (
+                        <Image width={90} src={item.images[0].name} />
+                      )}
+                    </td>
+                    <td>{item.name}</td>
                     <td>
                       {item?.price.toLocaleString("it-IT", {
                         style: "currency",

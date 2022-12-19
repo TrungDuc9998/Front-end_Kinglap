@@ -401,7 +401,7 @@ function ViewOrder() {
       title: "Thao tác",
       dataIndex: "id",
       dataIndex: "data",
-      width: "10%",
+      width: "15%",
       render: (id, data) => {
         if (data.status === "CHO_XAC_NHAN") {
           return (
