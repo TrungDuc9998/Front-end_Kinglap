@@ -17,6 +17,7 @@ function Checkout() {
     console.log('event', event);
 
     value.quantity = event;
+    loadInfo(carts);
   };
 
   const onclickDeleteCart = (pro) => {
@@ -55,7 +56,7 @@ function Checkout() {
       render: (id, data) => {
         return (
           <>
-            <img width={150} src={data.images[0].name} />
+            <img width={150} src={data?.images[0]?.name} />
           </>)
       }
     },
