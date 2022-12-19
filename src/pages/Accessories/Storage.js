@@ -66,20 +66,17 @@ const Storage = () => {
     {
       title: "Bộ lưu trữ chi tiết",
       dataIndex: "storageDetail",
-      sorter: true,
       render: (storageDetail) => `${storageDetail.storageType.name} (${storageDetail.type}, ${storageDetail.capacity})`,
       width: "25%",
     },
     {
       title: "Tổng số khe cắm SSD/HDD",
       dataIndex: "total",
-      sorter: true,
       width: "25%",
     },
     {
       title: "Số khe SSD/HDD còn lại",
       dataIndex: "number",
-      sorter: true,
       width: "25%",
     },
     {
@@ -109,20 +106,17 @@ const Storage = () => {
     {
       title: "Kiểu ổ cứng",
       dataIndex: "storageType",
-      sorter: true,
       render: (storageType) => `${storageType.name}`,
       width: "25%",
     },
     {
       title: "Loại",
       dataIndex: "type",
-      sorter: true,
       width: "25%",
     },
     {
       title: "Dung lượng",
       dataIndex: "capacity",
-      sorter: true,
       width: "25%",
     },
     {
@@ -204,7 +198,7 @@ const Storage = () => {
     fetchData();
     loadDataDetail();
   }, [JSON.stringify(tableParams)]);
-  const [storageDetail, setStorageDetail]=useState()
+  const [storageDetail, setStorageDetail] = useState()
   const [form, setValues] = useState({
     id: "",
     storageDetailId: "",
@@ -235,8 +229,8 @@ const Storage = () => {
   };
 
   const handleEdit = (value) => {
-    const formEdit={
-      id:form.id,
+    const formEdit = {
+      id: form.id,
       storageDetailId: storageDetail,
       total: value.total,
       number: value.number,
@@ -273,7 +267,7 @@ const Storage = () => {
   }
 
   const handleOk = (value) => {
-    const form={
+    const form = {
       storageDetailId: value.storageDetailId,
       total: value.total,
       number: value.number,
@@ -286,7 +280,7 @@ const Storage = () => {
       .then((results) => {
         if (results.data == null) {
           toastError(results.message);
-        } else if(results.status === 200) {
+        } else if (results.status === 200) {
           toastSuccess("Thêm mới lưu trữ thành công!");
           setOpen(false);
           fetchData();
@@ -311,7 +305,7 @@ const Storage = () => {
     setEditing(false);
     formE.setFieldsValue(formDefault);
   };
-  
+
   return (
     <div>
       <div className="row">
@@ -360,19 +354,19 @@ const Storage = () => {
                 hasFeedback
               >
                 <Select
-                showSearch
-                style={{
-                  width: 300,
-                }}
-                placeholder="Search to Select"
-                optionFilterProp="children"
-                filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                onChange={(e) => handleSelect(e)}
-                options={detail.map((detail) => ({
-                  label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
-                  value: detail.id,
-                }))}
-              />
+                  showSearch
+                  style={{
+                    width: 300,
+                  }}
+                  placeholder="Search to Select"
+                  optionFilterProp="children"
+                  filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                  onChange={(e) => handleSelect(e)}
+                  options={detail.map((detail) => ({
+                    label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
+                    value: detail.id,
+                  }))}
+                />
               </Form.Item>
               <Form.Item
                 className="mt-2"
@@ -417,7 +411,7 @@ const Storage = () => {
                 </div>
               </Form.Item>
             </Form>
-           
+
           </Modal>
         </div>
       </div>
@@ -467,22 +461,22 @@ const Storage = () => {
                 label="Kiểu ổ cứng"
               >
                 <Select
-                showSearch
-                style={{
-                  width: 300,
-                }}
-                name="storageDetailId"
-                value={storageDetail}
-                placeholder="Search to Select"
-                optionFilterProp="children"
-                
-                filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                onChange={(e) => handleSelect(e)}
-                options={detail.map((detail) => ({
-                  label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
-                  value: detail.id,
-                }))}
-              />
+                  showSearch
+                  style={{
+                    width: 300,
+                  }}
+                  name="storageDetailId"
+                  value={storageDetail}
+                  placeholder="Search to Select"
+                  optionFilterProp="children"
+
+                  filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                  onChange={(e) => handleSelect(e)}
+                  options={detail.map((detail) => ({
+                    label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
+                    value: detail.id,
+                  }))}
+                />
               </Form.Item>
               <Form.Item
                 className="mt-2"

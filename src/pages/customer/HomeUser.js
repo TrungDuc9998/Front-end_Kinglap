@@ -34,7 +34,7 @@ function HomeUser() {
   };
 
   const getProductById = (id) => {
-    console.log('productId:',id);
+    console.log('productId:', id);
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
       .then((res) => {
@@ -274,86 +274,86 @@ function HomeUser() {
                       <Row gutter={10}>
                         {products
                           ? products.map((pro) => (
-                              <Col
-                                xs={{ span: 24 }}
-                                lg={{ span: 6 }}
-                                md={{ span: 8 }}
-                                sm={{ span: 12 }}
-                              >
-                                <div className="product" key={pro.id}>
-                                  <div className="product-img">
-                                    <img
-                                      src={
-                                        pro.images
-                                          ? pro.images[0]?.name
-                                          : product1
-                                      }
-                                      alt=""
-                                    />
-                                    <div className="product-label">
-                                    {pro.discount?(<span className="sale">{pro.discount.ratio}%</span>):""}
-                                      <span className="new">NEW</span>
-                                    </div>
+                            <Col
+                              xs={{ span: 24 }}
+                              lg={{ span: 6 }}
+                              md={{ span: 8 }}
+                              sm={{ span: 12 }}
+                            >
+                              <div className="product" key={pro.id}>
+                                <div className="product-img">
+                                  <img
+                                    src={
+                                      pro.images
+                                        ? pro.images[0]?.name
+                                        : product1
+                                    }
+                                    alt=""
+                                  />
+                                  <div className="product-label">
+                                    {pro.discount ? (<span className="sale">{pro.discount.ratio}%</span>) : ""}
+                                    <span className="new">NEW</span>
                                   </div>
-                                  <div className="product-body">
-                                    <h3
-                                      className="product-name"
-                                      onClick={() => handelCLickProduct(pro)}
-                                    >
-                                      <a>{pro.name}</a>
-                                    </h3>
-                                    <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount?<del className="product-old-price">{formatCash(Math.ceil(pro.price/((100- pro.discount.ratio) / 100))+"")} VNĐ</del>:""}</h4>
-                                    <div className="product-rating">
-                                      <i className="fa fa-star"></i>
-                                      <i className="fa fa-star"></i>
-                                      <i className="fa fa-star"></i>
-                                      <i className="fa fa-star"></i>
-                                      <i className="fa fa-star"></i>
-                                    </div>
-                                    <div className="product-btns">
-                                      <button className="add-to-wishlist">
-                                        <Heart size={14}></Heart>
-                                        <span className="tooltipp">
-                                          add to wishlist
-                                        </span>
-                                      </button>
-                                      <button className="add-to-compare">
-                                        <Repeat size={14}></Repeat>
-                                        <span className="tooltipp">
-                                          add to compare
-                                        </span>
-                                      </button>
-                                      <button className="quick-view">
-                                        <Eye size={14}></Eye>
-                                        <span className="tooltipp">
-                                          quick view
-                                        </span>
-                                      </button>
-                                    </div>
-                                  </div>
-                                  {
-                                    // carts?carts.some(p=>p.id===pro.id)?
-                                    // (<div className="add-to-cart">
-                                    // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
-                                    //  </div>):
-                                    // (<div className="add-to-cart">
-                                    // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                    //  </div>):
-                                    <div className="add-to-cart">
-                                      <button
-                                        className="add-to-cart-btn"
-                                        onClick={() =>
-                                          handleClickAddToCart(pro)
-                                        }
-                                      >
-                                        <ShoppingCart size={18}></ShoppingCart>{" "}
-                                        Thêm vào giỏ hàng
-                                      </button>
-                                    </div>
-                                  }
                                 </div>
-                              </Col>
-                            ))
+                                <div className="product-body">
+                                  <h3
+                                    className="product-name"
+                                    onClick={() => handelCLickProduct(pro)}
+                                  >
+                                    <a>{pro.name}</a>
+                                  </h3>
+                                  <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
+                                  <div className="product-rating">
+                                    <i className="fa fa-star"></i>
+                                    <i className="fa fa-star"></i>
+                                    <i className="fa fa-star"></i>
+                                    <i className="fa fa-star"></i>
+                                    <i className="fa fa-star"></i>
+                                  </div>
+                                  <div className="product-btns">
+                                    <button className="add-to-wishlist">
+                                      <Heart size={14}></Heart>
+                                      <span className="tooltipp">
+                                        add to wishlist
+                                      </span>
+                                    </button>
+                                    <button className="add-to-compare">
+                                      <Repeat size={14}></Repeat>
+                                      <span className="tooltipp">
+                                        add to compare
+                                      </span>
+                                    </button>
+                                    <button className="quick-view">
+                                      <Eye size={14}></Eye>
+                                      <span className="tooltipp">
+                                        quick view
+                                      </span>
+                                    </button>
+                                  </div>
+                                </div>
+                                {
+                                  // carts?carts.some(p=>p.id===pro.id)?
+                                  // (<div className="add-to-cart">
+                                  // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
+                                  //  </div>):
+                                  // (<div className="add-to-cart">
+                                  // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                  //  </div>):
+                                  <div className="add-to-cart">
+                                    <button
+                                      className="add-to-cart-btn"
+                                      onClick={() =>
+                                        handleClickAddToCart(pro)
+                                      }
+                                    >
+                                      <ShoppingCart size={18}></ShoppingCart>{" "}
+                                      Thêm vào giỏ hàng
+                                    </button>
+                                  </div>
+                                }
+                              </div>
+                            </Col>
+                          ))
                           : ""}
                       </Row>
 
@@ -477,32 +477,32 @@ function HomeUser() {
                   <li>
                     <div>
                       <h3>02</h3>
-                      <span>Days</span>
+                      <span>Ngày</span>
                     </div>
                   </li>
                   <li>
                     <div>
                       <h3>10</h3>
-                      <span>Hours</span>
+                      <span>Giờ</span>
                     </div>
                   </li>
                   <li>
                     <div>
                       <h3>34</h3>
-                      <span>Mins</span>
+                      <span>Phút</span>
                     </div>
                   </li>
                   <li>
                     <div>
                       <h3>60</h3>
-                      <span>Secs</span>
+                      <span>Giây</span>
                     </div>
                   </li>
                 </ul>
-                <h2 className="text-uppercase">hot deal this week</h2>
-                <p>New Collection Up to 50% OFF</p>
+                <h2 className="text-uppercase">Ưu đã tuần này</h2>
+                <p>BỘ SƯU TẬP MỚI GIẢM GIÁ TỚI 50%</p>
                 <a className="primary-btn cta-btn" href="#">
-                  Shop now
+                  Mua ngay
                 </a>
               </div>
             </div>
@@ -540,73 +540,73 @@ function HomeUser() {
                     <div className="products-slick" data-nav="#slick-nav-2">
                       {products
                         ? products.map((pro) => (
-                            <div className="product" key={pro.id}>
-                              <div className="product-img">
-                                <img
-                                  src={
-                                    pro.images ? pro.images[0]?.name : product1
-                                  }
-                                  alt=""
-                                />
-                                <div className="product-label">
-                                {pro.discount?(<span className="sale">{pro.discount.ratio}%</span>):""}
-                                  <span className="new">NEW</span>
-                                </div>
+                          <div className="product" key={pro.id}>
+                            <div className="product-img">
+                              <img
+                                src={
+                                  pro.images ? pro.images[0]?.name : product1
+                                }
+                                alt=""
+                              />
+                              <div className="product-label">
+                                {pro.discount ? (<span className="sale">{pro.discount.ratio}%</span>) : ""}
+                                <span className="new">NEW</span>
                               </div>
-                              <div className="product-body">
-                                <h3
-                                  className="product-name"
-                                  onClick={() => handelCLickProduct(pro)}
-                                >
-                                  <a href="/user/product">{pro.name}</a>
-                                </h3>
-                                <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount?<del className="product-old-price">{formatCash(Math.ceil(pro.price/((100- pro.discount.ratio) / 100))+"")} VNĐ</del>:""}</h4>
-                                <div className="product-rating">
-                                  <i className="fa fa-star"></i>
-                                  <i className="fa fa-star"></i>
-                                  <i className="fa fa-star"></i>
-                                  <i className="fa fa-star"></i>
-                                  <i className="fa fa-star"></i>
-                                </div>
-                                <div className="product-btns">
-                                  <button className="add-to-wishlist">
-                                    <Heart size={14}></Heart>
-                                    <span className="tooltipp">
-                                      add to wishlist
-                                    </span>
-                                  </button>
-                                  <button className="add-to-compare">
-                                    <Repeat size={14}></Repeat>
-                                    <span className="tooltipp">
-                                      add to compare
-                                    </span>
-                                  </button>
-                                  <button className="quick-view">
-                                    <Eye size={14}></Eye>
-                                    <span className="tooltipp">quick view</span>
-                                  </button>
-                                </div>
-                              </div>
-                              {
-                                // carts?carts.some(p=>p.id===pro.id)?
-                                // (<div className="add-to-cart">
-                                // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
-                                //  </div>):
-                                // (<div className="add-to-cart">
-                                // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                                //  </div>):
-                                <div className="add-to-cart">
-                                  <button
-                                    className="add-to-cart-btn"
-                                    onClick={() => handleClickAddToCart(pro)}
-                                  >
-                                    <ShoppingCart size={18}></ShoppingCart> Thêm
-                                    vào giỏ hàng
-                                  </button>
-                                </div>
-                              }
                             </div>
-                          ))
+                            <div className="product-body">
+                              <h3
+                                className="product-name"
+                                onClick={() => handelCLickProduct(pro)}
+                              >
+                                <a href="/user/product">{pro.name}</a>
+                              </h3>
+                              <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
+                              <div className="product-rating">
+                                <i className="fa fa-star"></i>
+                                <i className="fa fa-star"></i>
+                                <i className="fa fa-star"></i>
+                                <i className="fa fa-star"></i>
+                                <i className="fa fa-star"></i>
+                              </div>
+                              <div className="product-btns">
+                                <button className="add-to-wishlist">
+                                  <Heart size={14}></Heart>
+                                  <span className="tooltipp">
+                                    add to wishlist
+                                  </span>
+                                </button>
+                                <button className="add-to-compare">
+                                  <Repeat size={14}></Repeat>
+                                  <span className="tooltipp">
+                                    add to compare
+                                  </span>
+                                </button>
+                                <button className="quick-view">
+                                  <Eye size={14}></Eye>
+                                  <span className="tooltipp">quick view</span>
+                                </button>
+                              </div>
+                            </div>
+                            {
+                              // carts?carts.some(p=>p.id===pro.id)?
+                              // (<div className="add-to-cart">
+                              // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
+                              //  </div>):
+                              // (<div className="add-to-cart">
+                              // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                              //  </div>):
+                              <div className="add-to-cart">
+                                <button
+                                  className="add-to-cart-btn"
+                                  onClick={() => handleClickAddToCart(pro)}
+                                >
+                                  <ShoppingCart size={18}></ShoppingCart> Thêm
+                                  vào giỏ hàng
+                                </button>
+                              </div>
+                            }
+                          </div>
+                        ))
                         : ""}
                     </div>
                     <div id="slick-nav-2" className="products-slick-nav"></div>

@@ -225,19 +225,16 @@ const OrderConfirm = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Người đặt",
       dataIndex: "customerName",
-      sorter: true,
       width: "15%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
-      sorter: true,
       width: "15%",
       render(total) {
         return (
@@ -253,7 +250,6 @@ const OrderConfirm = () => {
     {
       title: "Hình thức thanh toán",
       dataIndex: "payment",
-      sorter: true,
       width: "20%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG") {

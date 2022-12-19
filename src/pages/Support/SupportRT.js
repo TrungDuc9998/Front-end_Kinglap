@@ -54,42 +54,36 @@ const SupportRT = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "name",
-      sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
     {
       title: "Người đặt",
       dataIndex: "name",
-      sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
     {
       title: "Ngày tạo",
       dataIndex: "name",
-      sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
     {
       title: "Hình thức đặt",
       dataIndex: "name",
-      sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "name",
-      sorter: true,
       render: (name) => `${name.first} ${name.last}`,
       width: "15%",
     },
     {
       title: "Nội dung",
       dataIndex: "name",
-      sorter: true,
       render: (record) => {
         return (
           <>

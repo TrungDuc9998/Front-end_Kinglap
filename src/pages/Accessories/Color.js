@@ -83,7 +83,6 @@ const Color = () => {
     {
       title: "Tên màu",
       dataIndex: "name",
-      sorter: true,
       width: "20%",
     },
     {
@@ -391,7 +390,7 @@ const Color = () => {
       >
         <div className="col-12">
           <Table
-           rowKey={(record) => record.id}
+            rowKey={(record) => record.id}
             columns={columns}
             dataSource={data}
             pagination={tableParams.pagination}

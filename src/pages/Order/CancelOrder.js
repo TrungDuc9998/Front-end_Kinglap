@@ -112,24 +112,21 @@ const CancelOrder = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
-      sorter: true,
       width: "15%",
     },
     {
       title: "Người đặt",
       dataIndex: "customerName",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
-      sorter: true,
       width: "15%",
       render(total) {
         return (
           <>
-             {total?.toLocaleString("it-IT", {
+            {total?.toLocaleString("it-IT", {
               style: "currency",
               currency: "VND",
             })}
@@ -140,7 +137,6 @@ const CancelOrder = () => {
     {
       title: "Hình thức đặt",
       dataIndex: "payment",
-      sorter: true,
       width: "20%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG") {
@@ -171,7 +167,6 @@ const CancelOrder = () => {
     {
       title: "Địa chỉ",
       dataIndex: "address",
-      sorter: true,
       width: "20%",
     },
     {
@@ -369,7 +364,7 @@ const CancelOrder = () => {
                 display: "none",
               },
             }}
-           cancelText={"Đóng"}
+            cancelText={"Đóng"}
             open={isView}
             onCancel={() => {
               setView(false);

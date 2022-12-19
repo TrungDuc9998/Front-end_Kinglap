@@ -162,19 +162,16 @@ const ReturnConfirm = () => {
     {
       title: "Mã đơn đổi",
       dataIndex: "id",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Mã hoá đơn",
       dataIndex: "orderId",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Lý do",
       dataIndex: "reason",
-      sorter: true,
       width: "30%",
     },
     {

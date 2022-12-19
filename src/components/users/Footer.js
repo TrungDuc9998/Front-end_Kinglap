@@ -10,25 +10,25 @@ function Footer() {
                     <div className="row">
                         <div className="col-md-3 col-xs-6">
                             <div className="footer">
-                                <h3 className="footer-title">About Us</h3>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.</p>
+                                <h3 className="footer-title">Thông tin liên hệ</h3>
+                                {/* <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.</p> */}
                                 <ul className="footer-links">
                                     <li className="nav-item">
                                         <Link to={'/'}>
                                             <MapPin size={12} color="red"></MapPin>
-                                            1734 Stonecoal Road
+                                            125 P. Trần Đại Nghĩa, Bách Khoa, Hai Bà Trưng, Hà Nội
                                         </Link>
                                     </li>
                                     <li className="nav-item">
                                         <Link to={'/'}>
                                             <Phone size={12} color="red"></Phone>
-                                            +021-95-51-84
+                                            024 7106 9999
                                         </Link>
                                     </li>
                                     <li className="nav-item">
                                         <Link to={'/'}>
                                             <Mail size={12} color="red"></Mail>
-                                            email@email.com
+                                            kinglap@gmail.com
                                         </Link>
                                     </li>
                                 </ul>
@@ -37,38 +37,38 @@ function Footer() {
 
                         <div className="col-md-3 col-xs-6">
                             <div className="footer">
-                                <h3 className="footer-title">Categories</h3>
+                                <h3 className="footer-title">Danh mục</h3>
                                 <ul className="footer-links">
-                                    <li><a href="#">Hot deals</a></li>
-                                    <li><a href="#">Laptops</a></li>
-                                    <li><a href="#">Smartphones</a></li>
-                                    <li><a href="#">Cameras</a></li>
-                                    <li><a href="#">Accessories</a></li>
+                                    <li><a href="#">Ưu đãi lớn</a></li>
+                                    <li><a href="#">Máy tính xách tay</a></li>
+                                    <li><a href="#">Điện thoại thông minh</a></li>
+                                    <li><a href="#">Máy ảnh</a></li>
+                                    <li><a href="#">Phụ kiện</a></li>
                                 </ul>
                             </div>
                         </div>
                         <div className="col-md-3 col-xs-6">
                             <div className="footer">
-                                <h3 className="footer-title">Information</h3>
+                                <h3 className="footer-title">Thông tin</h3>
                                 <ul className="footer-links">
-                                    <li><a href="#">About Us</a></li>
-                                    <li><a href="#">Contact Us</a></li>
-                                    <li><a href="#">Privacy Policy</a></li>
-                                    <li><a href="#">Orders and Returns</a></li>
-                                    <li><a href="#">Terms & Conditions</a></li>
+                                    <li><a href="#">Câu hỏi thường gặp mua hàng</a></li>
+                                    <li><a href="#">Chính sách bảo mật</a></li>
+                                    <li><a href="#">Quy chế hoạt động</a></li>
+                                    <li><a href="#">Kiểm tra hóa đơn điện tử</a></li>
+                                    <li><a href="#">Tra cứu thông tin bảo hành</a></li>
                                 </ul>
                             </div>
                         </div>
 
                         <div className="col-md-3 col-xs-6">
                             <div className="footer">
-                                <h3 className="footer-title">Service</h3>
+                                <h3 className="footer-title">Dịch vụ</h3>
                                 <ul className="footer-links">
-                                    <li><a href="#">My Account</a></li>
-                                    <li><a href="#">View Cart</a></li>
-                                    <li><a href="#">Wishlist</a></li>
-                                    <li><a href="#">Track My Order</a></li>
-                                    <li><a href="#">Help</a></li>
+                                    <li><a href="#">Tài khoản của tôi</a></li>
+                                    <li><a href="#">Xem giỏ hàng</a></li>
+                                    <li><a href="#">Danh sách yêu thích</a></li>
+                                    <li><a href="#">Theo dõi đơn hàng của tôi</a></li>
+                                    <li><a href="#">Trợ giúp</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -81,7 +81,7 @@ function Footer() {
                     <div className="row">
                         <div className="col-md-12 text-center">
                             <span className="copyright">
-                                Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i className="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                                Bản quyền &copy;<script>document.write(new Date().getFullYear());</script> Tất cả các quyền | Mẫu này được thực hiện với <i className="fa fa-heart-o" aria-hidden="true"></i> <a href="https://colorlib.com" target="_blank">Colorlib</a>
                             </span>
                         </div>
                     </div>

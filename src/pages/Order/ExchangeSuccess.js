@@ -205,25 +205,21 @@ const ExchangeSuccess = () => {
     {
       title: "Mã đơn đổi",
       dataIndex: "id",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Mã hoá đơn",
       dataIndex: "orderId",
-      sorter: true,
       width: "20%",
     },
     {
       title: "Lý do",
       dataIndex: "reason",
-      sorter: true,
       width: "25%",
     },
     {
       title: "Ghi chú",
       dataIndex: "description",
-      sorter: true,
       width: "25%",
     },
     {

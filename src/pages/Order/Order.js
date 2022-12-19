@@ -373,13 +373,13 @@ const Order = () => {
     // createQRCode();
     setCheckId(
       `SỐ ĐIỆN THOẠI: 0338861522` +
-        `\nEMAIL: ptung539@gmail.com` +
-        `\nĐỊA CHỈ: Lạng Giang - Bắc Giang` +
-        `\nNGÂN HÀNG: NCB - Số tài khoản: 899983869999` +
-        `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A` +
-        `\nHOÁ ĐƠN MUA HÀNG` +
-        `\nMÃ HOÁ ĐƠN: ${id}` +
-        `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A`
+      `\nEMAIL: ptung539@gmail.com` +
+      `\nĐỊA CHỈ: Lạng Giang - Bắc Giang` +
+      `\nNGÂN HÀNG: NCB - Số tài khoản: 899983869999` +
+      `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A` +
+      `\nHOÁ ĐƠN MUA HÀNG` +
+      `\nMÃ HOÁ ĐƠN: ${id}` +
+      `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A`
     );
     loadDataOrderHistoryById(id);
     setView(true);
@@ -416,19 +416,16 @@ const Order = () => {
     {
       title: "Mã HD",
       dataIndex: "id",
-      sorter: true,
       width: "7%",
     },
     {
       title: "Người đặt",
       dataIndex: "customerName",
-      sorter: true,
       width: "15%",
     },
     {
       title: "Ngày tạo",
       dataIndex: "createdAt",
-      sorter: true,
       render(createdAt) {
         return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
       },
@@ -437,7 +434,6 @@ const Order = () => {
     {
       title: "Tổng tiền(VNĐ)",
       dataIndex: "total",
-      sorter: true,
       width: "10%",
       render(total) {
         return (
@@ -453,7 +449,6 @@ const Order = () => {
     {
       title: "Hình thức thanh toán",
       dataIndex: "payment",
-      sorter: true,
       width: "13%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG") {
@@ -484,7 +479,6 @@ const Order = () => {
     {
       title: "Địa chỉ nhận hàng",
       dataIndex: "address",
-      sorter: true,
       width: "25%",
     },
     {
@@ -949,7 +943,7 @@ const Order = () => {
             <SearchOutlined />
             Tìm kiếm
           </Button>
-          
+
         </div>
       </div>
       <div className="row">
@@ -1098,8 +1092,8 @@ const Order = () => {
                 <div className="qrcode ">
                   {qrImageUrl && (
                     <div className="mt-4">
-                      <a href={qrImageUrl} download={`HoaDon`+ dataO?.id +'.png'}>
-                        <img src={qrImageUrl} style={{width: "140px", height:"140px"}} alt="QR CODE" />
+                      <a href={qrImageUrl} download={`HoaDon` + dataO?.id + '.png'}>
+                        <img src={qrImageUrl} style={{ width: "140px", height: "140px" }} alt="QR CODE" />
                       </a>
                     </div>
                   )}
