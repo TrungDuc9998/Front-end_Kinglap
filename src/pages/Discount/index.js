@@ -67,6 +67,7 @@ const Discount = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
+  const [isViewCancel, setViewCancel] = useState(false);
   const [isAdd, setAdd] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [searchStartDate, setSearchStartDate] = useState(getDateTime());
@@ -232,8 +233,15 @@ const Discount = () => {
     // handAPIProduct();
     setView(true);
   }
-  const [currentCount, setCount] = useState(1);
-  const timer = () => setCount(currentCount + 1);
+  const showDataProductCancel = () => {
+    // axios.get(urlStaff + "/" + id).then((res) => {
+    //   console.log("showDataProduct", res.data.data);
+    //   setDataDiscount(res.data.data);
+    // });
+    setViewCancel(true);
+  }
+  // const [currentCount, setCount] = useState(1);
+  // const timer = () => setCount(currentCount + 1);
 
 
   const columns = [
@@ -241,7 +249,7 @@ const Discount = () => {
       title: "Tiêu đề",
       dataIndex: "name",
       render: (name) => `${name}`,
-      width: "20%",
+      width: "30%",
     },
     {
       title: "Ngày bắt đầu",
@@ -273,16 +281,16 @@ const Discount = () => {
       render: (ratio) => `${ratio}`,
       width: "10%",
     },
-    {
-      title: "Time",
-      dataIndex: "endDate",
-      render(endDate) {
-        return (
-          <Countdown value={(new Date(endDate)) - Date.now()} onFinish={onFinishTime} />
-        );
-      },
-      width: "10%",
-    },
+    // {
+    //   title: "Time",
+    //   dataIndex: "endDate",
+    //   render(endDate) {
+    //     return (
+    //       <Countdown value={(new Date(endDate)) - Date.now()} onFinish={onFinishTime} />
+    //     );
+    //   },
+    //   width: "10%",
+    // },
     {
       title: "Trạng thái",
       dataIndex: "status",
@@ -321,17 +329,17 @@ const Discount = () => {
     {
       title: "Thao tác",
       dataIndex: "id",
-      width: "15%",
+      width: "10%",
       render: (id, data) => {
         if (data.status == "DRAFT") {
           return (
             <>
-              <UnlockOutlined
+              {/* <UnlockOutlined
                 className="mt-2"
                 type="dashed"
                 onClick={() => changeStatusItem(id, data)}
                 style={{ borderRadius: "10px" }}
-              />
+              /> */}
               <EditOutlined
                 style={{ marginLeft: 12 }}
                 onClick={() => {
@@ -347,12 +355,12 @@ const Discount = () => {
         } else if (data.status == "ACTIVE" || data.status == "INACTIVE") {
           return (
             <>
-              <UnlockOutlined
+              {/* <UnlockOutlined
                 className="mt-2"
                 type="dashed"
                 onClick={() => changeStatusItem(id, data)}
                 style={{ borderRadius: "10px" }}
-              />
+              /> */}
               <EditOutlined
                 style={{ marginLeft: 12 }}
                 onClick={() => {
@@ -367,13 +375,17 @@ const Discount = () => {
     {
       title: "Thao tác",
       dataIndex: "id",
-      width: "10%",
+      width: "20%",
       render: (id, data) => {
         if (data.status == "ACTIVE") {
           return (
+            <>
             <Button type="danger" style={{ borderRadius: "7px" }} onClick={() => { showDataProduct(id) }}>Áp dụng</Button>
+            </>
+            
           )
         }
+
       }
     }
   ];
@@ -443,12 +455,23 @@ const Discount = () => {
   };
   //loadFormEdit
   const showModalEdit = (id) => {
-    axios.get(urlStaff + "/" + id)
+    var haveDiscount=false;
+    dataProduct?.forEach((pro) => {
+      if (pro?.discount?.id === id) {
+        console.log("have Discount");
+        haveDiscount=true;
+      }
+    })
+    if(haveDiscount){
+      notifyError("Mã giảm giá đang được áp dụng, không thể sửa")
+    }else{
+      axios.get(urlStaff + "/" + id)
       .then(res => {
         console.log(res.data.data);
         setValues(res.data.data);
       })
-    setEditing(true);
+      setEditing(true);
+    }
   };
 
   const onView = (record) => {
@@ -476,8 +499,14 @@ const Discount = () => {
     }, 2000);
   };
   function submitAdd(e) {
-    if (form.ratio < 0 || form.ratio > 100) {
-      notifyError('Tỉ lệ phải từ 0-100!');
+    if(form.name==null || form.name==""){
+      notifyError('Tiêu đề giảm giá không được để trống!');
+    } else if (form.ratio==null) {
+      notifyError('Tỉ lệ không được để trống!');
+    } else if(form.ratio < 1 || form.ratio > 100){
+      notifyError('Tỉ lệ phải từ 1-100!');
+    } else if(form.startDate==null || form.endDate==null){
+      notifyError('Thời gian giảm giá không được để trống!');
     } else {
       e.preventDefault();
       axios.post(urlStaff, form)
@@ -505,8 +534,14 @@ const Discount = () => {
     }, 2000);
   };
   function submitEdit(e) {
-    if (form.ratio < 0 || form.ratio > 100) {
-      notifyError('Tỉ lệ phải từ 0-100!');
+    if(form.name==null || form.name==""){
+      notifyError('Tiêu đề giảm giá không được để trống!');
+    } else if (form.ratio==null) {
+      notifyError('Tỉ lệ không được để trống!');
+    } else if(form.ratio < 1 || form.ratio > 100){
+      notifyError('Tỉ lệ phải từ 1-100!');
+    } else if(form.startDate==null || form.endDate==null){
+      notifyError('Thời gian giảm giá không được để trống!');
     } else {
       e.preventDefault();
       axios.put(urlStaff + "/" + form.id, form)
@@ -603,6 +638,7 @@ const Discount = () => {
     setEditing(false);
     setValues(formDefault);
     setView(false);
+    setViewCancel(false);
   };
 
 
@@ -651,6 +687,48 @@ const Discount = () => {
   }
 
   // Call API DiscountProduct
+  const handNoDiscountProduct = () => {
+    Modal.confirm({
+      title: "Hủy áp dụng giảm giá",
+      content: "Bạn có muốn huỷ áp dụng giảm giá các bản ghi này không?",
+      onOk() {
+            const checkbox1 = document.querySelectorAll('input[name="ck"]');
+            checkbox1.forEach((checkbox) => {
+              if (checkbox.checked == true) {
+                dataProduct.forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "");
+              }
+              setChecked(checked);
+            })
+            console.log(checked);
+            // huy giam gia san pham
+            checked.forEach((pro) => {
+              if(pro.discount!=null){
+                axios.put(url_Pro + "/noDiscountProduct/" + pro.discount?.id + "/" + pro.id)
+                .then((res) => {
+                  console.log("DataNoDiscount", res.data.data);
+                  notifySuccess('Hủy áp dụng giảm giá thành công!');
+                  const checkboxes = document.querySelectorAll('input[name="ck"]');
+                  checkboxes.forEach((checkbox) => {
+                    checkbox.checked = false;
+                  })
+                  handleCancel();
+                  if (res.data.data) {
+                    loadProduct();
+                    getData();
+                  }
+                });
+              }
+            })
+            setChecked([]);
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+    
+  }
+
+  // Call API DiscountProduct
   const handDiscountProduct = () => {
     const checkbox1 = document.querySelectorAll('input[name="ck"]');
     checkbox1.forEach((checkbox) => {
@@ -673,6 +751,7 @@ const Discount = () => {
       if (res.data.data) {
         loadProduct();
         getData();
+        setChecked([]);
       }
     });
 
@@ -820,13 +899,67 @@ const Discount = () => {
                       // console.log("item", item);
                       return (
                         <tr key={item.id}>
-                          <td>{item.discount ? "" : <input type={"checkbox"} name="ck" value={item.id} ></input>}</td>
+                          <td>{item.discount?"" :<input type={"checkbox"} name="ck" value={item.id} ></input>}</td>
                           <td>{item.name}</td>
                           <td>{item.price}</td>
                           <td>{item.quantity}</td>
                           <td>{item.discount?item.discount.name+" ("+item.discount.ratio+"%)":""}</td>
                           {/* <td>{item.price - (item.price * item.discount)}</td> */}
                         </tr>
+                      );
+                    }) : ""}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Modal>
+          {/* Modal Hủy Áp dụng mã giảm giá */}
+          <Modal
+            title="Hủy áp dụng mã giảm giá"
+            open={isViewCancel}
+            width={850}
+            // onOk={handleAdd}
+            confirmLoading={confirmLoading}
+            onCancel={handleCancel}
+            footer={[
+              <Button key="back" onClick={handleCancel} style={{ borderRadius: "7px" }}>
+                Hủy
+              </Button>,
+              <Button type="danger" onClick={handNoDiscountProduct}
+                style={{ borderRadius: "7px" }}>
+                Hủy giảm giá
+              </Button>
+            ]}
+          >
+            {/* console.log(id); */}
+            <div className="row">
+              <div className="col-12">
+                {/* <h1>abc{dataDiscount?.id}</h1> */}
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th scope="col"><input type={"checkbox"}
+                        id="checkall"
+                        // checked={isCheckedAll[product]}
+                        onChange={() => handleCheckAll(checked)} /></th>
+                      <th scope="col">Tên sản phẩm</th>
+                      <th scope="col">Giá tiền</th>
+                      <th scope="col">Số lượng</th>
+                      <th scope="col">Giảm giá</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataProduct ? dataProduct.map(item => {
+                      // console.log("item", item);
+                      return (
+                        item.discount ?
+                        <tr key={item.id}>
+                          <td><input type={"checkbox"} name="ck" value={item.id} ></input></td>
+                          <td>{item.name}</td>
+                          <td>{item.price}</td>
+                          <td>{item.quantity}</td>
+                          <td>{item.discount?item.discount.name+" ("+item.discount.ratio+"%)":""}</td>
+                        </tr>:""
                       );
                     }) : ""}
                   </tbody>
@@ -848,7 +981,11 @@ const Discount = () => {
                 <PlusOutlined />
                 Thêm mới
               </Button>
-
+              <Button className="offset-11 mt-1" 
+              type="danger" 
+              style={{ borderRadius: "7px" }} 
+              onClick={() => { showDataProductCancel() }}>Hủy áp dụng
+              </Button>
               <Modal
                 title="Tạo mới"
                 visible={isAdd}
