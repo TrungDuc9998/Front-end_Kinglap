@@ -220,6 +220,8 @@ function Information() {
                 <Modal
                     title="Cập nhật"
                     open={isEditing}
+                    okText={"Cập nhật"}
+                    cancelText={"Huỷ"}
                     onCancel={() => {
                         setEditing(false);
                     }}
