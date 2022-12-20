@@ -261,6 +261,16 @@ function Checkout() {
         localStorage.setItem("valueDistrict", valueDistrict);
         localStorage.setItem("value", value);
 
+        let diachi;
+        let tongGia;
+        if (type == 0) {
+          diachi = "Tại cửa hàng"
+          tongGia = parseInt(getTotal(carts));
+        } else {
+          diachi = address + ", " + valueDistrict + ", " + value;
+          tongGia = parseInt(getTotal(carts)) + parseInt(shipping)
+        }
+
         // Tạo hóa đơn
         try {
           fetch("http://localhost:8080/api/orders", {
@@ -270,7 +280,7 @@ function Checkout() {
               payment: payment,
               userId: localStorage.getItem("id"),
               total: parseInt(getTotal(carts)) + parseInt(shipping),
-              address: address,
+              address: diachi,
               note: "",
               customerName: localStorage.getItem("customerName"),
               phone: localStorage.getItem("phone"),

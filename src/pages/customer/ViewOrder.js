@@ -79,17 +79,20 @@ function ViewOrder() {
 
   // modal thanh toán
   const [isModalOpen1, setIsModalOpen1] = useState(false);
-  const showModal1 = () => {
+  const showModal1 = (data) => {
     setIsModalOpen1(true);
+    console.log(data)
+    setOrder1(data)
   };
-  const handleOk1 = (data) => {
+  const [order1, setOrder1] = useState()
+  const handleOk1 = () => {
     setIsModalOpen1(false);
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     var raw = JSON.stringify({
       "name": image,
       "exchange_id": null,
-      "order_id": data.id,
+      "order_id": order1.id,
       "product": null
     });
     var requestOptions = {
@@ -103,8 +106,7 @@ function ViewOrder() {
       .then(result => {
         console.log(result);
         toastSuccess("Thanh toán thành công!")
-        console.log(data);
-        updateStatusOrder(data);
+        updateStatusOrder(order1);
       }
       )
       .catch(error => console.log('error', error));
@@ -115,12 +117,12 @@ function ViewOrder() {
 
   const updateStatusOrder = (order) => {
     order.status = "CHO_XAC_NHAN"
+    order.money = order?.total;
     fetch(`http://localhost:8080/api/orders/` + order.id, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(order),
     }).then((res) => {
-      console.log("update thanh cong", res)
       getData();
     });
   }
@@ -526,10 +528,10 @@ function ViewOrder() {
       dataIndex: "id",
       dataIndex: "data",
       width: "15%",
-      render: (id, data, money) => {
+      render: (id, data) => {
         if (data.status == "CHUA_THANH_TOAN") {
           return (<>
-            <button className="btn btn-primary" style={{ height: "30px", fontSize: "12px" }} onClick={showModal1}>Thanh toán</button>
+            <button className="btn btn-primary" style={{ height: "30px", fontSize: "12px" }} onClick={() => showModal1(data)}>Thanh toán</button>
             <>
               <EyeOutlined
                 style={{ fontSize: "20px", marginLeft: "25%" }}
@@ -546,17 +548,19 @@ function ViewOrder() {
                 }}
               />
             </>
-            <Modal width={700} title="Chuyển tiền đến tài khoản" open={isModalOpen1} onOk={() => handleOk1(data)} onCancel={handleCancel1}>
+            <Modal width={700} title="Chuyển tiền đến tài khoản" open={isModalOpen1} onOk={handleOk1} onCancel={handleCancel1}>
               <div className="container row">
                 <div className="col-6">
                   <img src={qr} style={{ width: '300px' }} />
                 </div>
                 <div className="col-6 mt-3">
                   <p>Chuyển đến số tài khoản với nội dung là số điện thoại của bạn!</p>
-                  <h5 className="mt-4">Tổng tiền : <span className="text-danger" style={{ fontSize: '25px', fontWeight: '600' }}>{data.total?.toLocaleString("it-IT", {
-                    style: "currency",
-                    currency: "VND",
-                  })}</span></h5>
+                  <h5 className="mt-4">Tổng tiền : <span className="text-danger" style={{ fontSize: '25px', fontWeight: '600' }}>
+                    {order1?.total?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </span></h5>
                   <h4>Hình ảnh giao dịch thành công!</h4>
                   <Upload {...props}
                     listType="picture"
