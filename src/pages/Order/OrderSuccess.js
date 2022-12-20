@@ -422,7 +422,7 @@ const OrderSuccess = () => {
               <Button
                 className="ms-2"
                 danger
-                onClick={() => navigate(`/admin/order/exchange/${id}`)}
+                onClick={() => navigate(`/admin/order/exchange/${data.id}`)}
               >
                 Đổi hàng
               </Button>
