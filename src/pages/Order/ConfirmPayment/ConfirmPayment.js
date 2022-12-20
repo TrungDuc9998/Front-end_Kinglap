@@ -523,7 +523,7 @@ const ConfirmPayment = () => {
     selectedRowKeys.forEach((item) => {
       dataOrder.push({
         id: item,
-        status:  isPut === true ? "CHO_LAY_HANG" : "DA_HUY",
+        status: isPut === true ? "CHO_LAY_HANG" : "DA_HUY",
       });
     });
     fetch(`http://localhost:8080/api/orders/confirm`, {
@@ -670,7 +670,40 @@ const ConfirmPayment = () => {
             }}
             width={800}
           >
-            <div className="row text-center">
+            <div className="row ">
+              <div className="row">
+                <div className="col-6">
+                  <p>Khách hàng: {dataO?.customerName} </p>
+                  <p>Số điện thoại: {dataO?.phone} </p>
+                  <p>
+                    Tổng tiền:{" "}
+                    {dataO?.total.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                </div>
+                <div className="col-6">
+                  <p>
+                    Phí vận chuyển:{" "}
+                    {dataO?.shippingFree.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p>
+                    Đặt cọc:{" "}
+                    {dataO?.money.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p>
+                    Địa chỉ nhận hàng:
+                    {dataO?.address}
+                  </p>
+                </div>
+              </div>
               <div className="col-12 text-center mb-2">
                 <h6 className="text-danger fw-bold">Hình ảnh đơn thanh toán</h6>
                 <Image width={250} src={dataO?.images[0]?.name} />

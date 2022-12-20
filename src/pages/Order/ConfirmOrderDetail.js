@@ -25,26 +25,10 @@ const { Option } = Select;
 const ConfirmOrderDetail = () => {
   let { id } = useParams();
   const [order, setOrder] = useState();
-  const [reason, setReason] = useState();
-  const [note, setNote] = useState();
-  const [valueInputNumber, setValueInputNumber] = useState();
   const [orderHistory, setOrderHistory] = useState();
   const [dataOD, setDataOD] = useState();
   const [todos, setTodos] = useState([]);
   const [quantity, setQuantity] = useState();
-
-  const toastError = (message) => {
-    toast.error(message, {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
 
   useEffect(() => {
     loadDataOrder(id);
@@ -91,6 +75,19 @@ const ConfirmOrderDetail = () => {
       dataIndex: "status",
       width: "13%",
       render: (status) => {
+
+        if (status === "CHUA_THANH_TOAN") {
+          return (
+            <>
+              <div
+                className="bg-secondary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+               Chưa thanh toán
+              </div>
+            </>
+          );
+        }
         if (status === "CHO_XAC_NHAN") {
           return (
             <>

@@ -11,7 +11,7 @@ function Policy() {
             backgroundSize: "cover",
             width: "80%",
             marginLeft: "10%",
-            height: "650px",
+            height: "710px",
             borderRadius: "10px",
           }}
         >
@@ -19,7 +19,7 @@ function Policy() {
             <div className="row">
               <div className="col-4"></div>
               <div className="col-8 fw-bold px-5">
-                <h3>CHÍNH SÁCH ĐỔI TRẢ</h3>
+                <h3>CHÍNH SÁCH ĐỔI HÀNG</h3>
 
                 <p className="pt-2 fs-6">
                   <h6 className="fw-bold text-danger">1. Sản phẩm không lỗi</h6>
@@ -49,9 +49,13 @@ function Policy() {
                   </h6>
                   - Không áp dụng đổi trả với sản phẩm. <br />
                   <h6 className="fw-bold text-danger mt-2">4. Lưu ý</h6>
-                  <p  className="fs-6" style={{ lineHeight: "2" }}>
+                  <p className="fs-6" style={{ lineHeight: "2" }}>
                     - Khi đổi sản phẩm khác, khách hàng phải có đầy đủ các sản
                     phẩm đi kèm trước đó, nếu không thì sẽ không được đổi hàng.
+                    <br />
+                    - Khi khách hàng đã thanh toán, trong trường hợp khách
+                    hàng muốn huỷ hàng ở trạng thái chờ xác nhận, khách hàng sẽ
+                    nhận lại 90% tổng tiền đã thanh toán.
                   </p>
                 </p>
               </div>

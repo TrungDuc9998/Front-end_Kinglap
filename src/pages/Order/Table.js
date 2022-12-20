@@ -249,8 +249,8 @@ function CreateOrderAdmin() {
       if (typeOrder != "TẠI CỬA HÀNG" && addressDetail === undefined) {
         toastError("Nhập địa chỉ chi tiết!");
       } else {
-        if (Number(order.total) + Number(shipping) > 100000000) {
-          toastError("Giá trị đơn hàng không vượt quá 100 triệu !");
+        if (Number(order.total) + Number(shipping) > 200000000) {
+          toastError("Giá trị đơn hàng không vượt quá 200 triệu !");
         } else {
           try {
             fetch("http://localhost:8080/api/orders", {
