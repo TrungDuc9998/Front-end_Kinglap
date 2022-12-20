@@ -1,5 +1,16 @@
-import { Table, Slider, Select, Input, Button, Modal, DatePicker, Radio, Space, Statistic } from "antd";
-import { DatePickerProps, RangePickerProps } from 'antd/es/date-picker';
+import {
+  Table,
+  Slider,
+  Select,
+  Input,
+  Button,
+  Modal,
+  DatePicker,
+  Radio,
+  Space,
+  Statistic,
+} from "antd";
+import { DatePickerProps, RangePickerProps } from "antd/es/date-picker";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -8,44 +19,45 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  UnlockOutlined
+  UnlockOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 // import Product from "../Product/index";
 import moment from "moment";
 import axios from "axios";
-import 'toastr/build/toastr.min.css';
+import "toastr/build/toastr.min.css";
 import toastrs from "toastr";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Moment from 'react-moment';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Moment from "react-moment";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const url = 'http://localhost:8080/api/discount';
-const urlStaff = 'http://localhost:8080/api/staff/discount';
-const urlAdmin = 'http://localhost:8080/api/admin/discount';
-const url_Pro = 'http://localhost:8080/api/products';
+const url = "http://localhost:8080/api/staff/discount";
+const urlStaff = "http://localhost:8080/api/staff/discount";
+const urlAdmin = "http://localhost:8080/api/admin/discount";
+const url_Pro = "http://localhost:8080/api/products";
 const { Countdown } = Statistic;
 
 export function compareTime(endDate) {
   const now = new Date();
   if (new Date(endDate) > now) {
-    return "ACTIVE"
+    return "ACTIVE";
   }
-  return "INACTIVE"
+  return "INACTIVE";
 }
 
 const Discount = () => {
-  const [data, setData] = useState([{
-    id: "",
-    name: "",
-    ratio: null,
-    startDate: getDateTime(),
-    endDate: getDateTime(),
-    status: "ACTIVE",
-  }]
-  );
+  const [data, setData] = useState([
+    {
+      id: "",
+      name: "",
+      ratio: null,
+      startDate: getDateTime(),
+      endDate: getDateTime(),
+      status: "ACTIVE",
+    },
+  ]);
   const [formDefault, setValuesDefault] = useState({
     id: "",
     name: "",
@@ -53,8 +65,7 @@ const Discount = () => {
     startDate: getDateTime(),
     endDate: getDateTime(),
     status: "ACTIVE",
-  }
-  );
+  });
   const [form, setValues] = useState({
     id: "",
     name: "",
@@ -62,8 +73,7 @@ const Discount = () => {
     startDate: getDateTime(),
     endDate: getDateTime(),
     status: "ACTIVE",
-  }
-  );
+  });
   const [totalSet, setTotal] = useState(10);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -78,9 +88,9 @@ const Discount = () => {
   //const [dataProduct2, setDataProduct2] = useState([]);//hiển thị modal
   const [dataDiscount, setDataDiscount] = useState();
   const [checked, setChecked] = useState([]);
-  const [trueProDiscount, setTrueProDiscount] = useState(false);//dk interval
+  const [trueProDiscount, setTrueProDiscount] = useState(false); //dk interval
   const onFinishTime = () => {
-    console.log('finished!');
+    console.log("finished!");
   };
 
   const notifySuccess = (message) => {
@@ -94,7 +104,7 @@ const Discount = () => {
       progress: undefined,
       theme: "light",
     });
-  }
+  };
   const notifyError = (message) => {
     toast.error(message, {
       position: "top-right",
@@ -106,7 +116,7 @@ const Discount = () => {
       progress: undefined,
       theme: "light",
     });
-  }
+  };
 
   function getDateTime() {
     var now = new Date();
@@ -117,21 +127,22 @@ const Discount = () => {
     var minute = now.getMinutes();
     var second = now.getSeconds();
     if (month.toString().length == 1) {
-      month = '0' + month;
+      month = "0" + month;
     }
     if (day.toString().length == 1) {
-      day = '0' + day;
+      day = "0" + day;
     }
     if (hour.toString().length == 1) {
-      hour = '0' + hour;
+      hour = "0" + hour;
     }
     if (minute.toString().length == 1) {
-      minute = '0' + minute;
+      minute = "0" + minute;
     }
     if (second.toString().length == 1) {
-      second = '0' + second;
+      second = "0" + second;
     }
-    var dateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+    var dateTime =
+      year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
     return dateTime;
   }
   //loadParam getList
@@ -147,17 +158,23 @@ const Discount = () => {
       current: 1,
       pageSize: 10,
       searchStartDate: "",
-      searchEndDate: ""
+      searchEndDate: "",
     },
   });
 
   const [dateTimer, setDateTimer] = useState([]);
-  // Call API product 
+  // Call API product
   const loadProduct = () => {
-    axios.get(url_Pro + "/allProDiscount").then((res) => {
-      setDataProduct(res.data.data);
-    });
-  }
+    axios
+      .get(url_Pro + "/allProDiscount", {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
+      .then((res) => {
+        setDataProduct(res.data.data);
+      });
+  };
   if (trueProDiscount) {
     if (dateTimer != []) {
       var listProDiscount = [];
@@ -169,39 +186,60 @@ const Discount = () => {
           console.log("for noDiscount");
           listProDiscount.push(pro);
         }
-      })
-      console.log("listProDiscount1", listProDiscount)
+      });
+      console.log("listProDiscount1", listProDiscount);
       dateTimer.forEach((time) => {
-        console.log("listProDiscount2", dataProduct)
+        console.log("listProDiscount2", dataProduct);
         //clearInterval(myTimer);
         var myTimer = setInterval(() => {
-        time--;
-        if(time==0){
-          //clearInterval(myTimer);
-          console.log("dataProduct3",dataProduct)
-            if(dataProduct!==[]){
-              if(listProDiscount!=[]){
-                console.log("api noDiscount",dataProduct);
+          time--;
+          if (time == 0) {
+            //clearInterval(myTimer);
+            console.log("dataProduct3", dataProduct);
+            if (dataProduct !== []) {
+              if (listProDiscount != []) {
+                console.log("api noDiscount", dataProduct);
                 //setTrueProDiscount(false);
                 //clearInterval(myTimer);
                 dataProduct.forEach((pro) => {
                   if (pro.discount != null) {
                     console.log("pro.discount!=null");
-                    if (new Date(pro.discount.endDate).getTime() <= new Date().getTime()) {
+                    if (
+                      new Date(pro.discount.endDate).getTime() <=
+                      new Date().getTime()
+                    ) {
                       console.log("trong api noDiscount", pro);
-                      axios.put(url_Pro + "/noDiscountProduct/" + pro.discount?.id + "/" + pro.id).then((res) => {
-                        console.log("shownoDiscount", res.data.data);
-                        listProDiscount = listProDiscount.filter(p => p.id !== pro.id);
-                        setTrueProDiscount(false);
-                        time--;
-                        clearInterval(myTimer);
-                        var listProductNoDiscount = dataProduct.filter(p => p.id !== res.data.data.id);
-                        setDataProduct(listProductNoDiscount);
-                        getData();
-                      });
+                      axios
+                        .put(
+                          url_Pro +
+                            "/noDiscountProduct/" +
+                            pro.discount?.id +
+                            "/" +
+                            pro.id,
+                          {
+                            headers: {
+                              Authorization:
+                                "Bearer " + localStorage.getItem("token"),
+                            },
+                          }
+                        )
+                        .then((res) => {
+                          console.log("shownoDiscount", res.data.data);
+                          listProDiscount = listProDiscount.filter(
+                            (p) => p.id !== pro.id
+                          );
+                          setTrueProDiscount(false);
+                          time--;
+                          clearInterval(myTimer);
+                          var listProductNoDiscount = dataProduct.filter(
+                            (p) => p.id !== res.data.data.id
+                          );
+                          setDataProduct(listProductNoDiscount);
+                          getData();
+                        });
                     }
                   }
-                })
+                });
                 //setTrueProDiscount(false);
                 getData();
               } else {
@@ -214,7 +252,7 @@ const Discount = () => {
             }
           }
         }, 1000);
-      })
+      });
     }
   }
 
@@ -223,27 +261,31 @@ const Discount = () => {
   //   setView(true);
   // }
 
-
   // Get product by discount
   const showDataProduct = (id) => {
     console.log(id);
-    axios.get(urlStaff + "/" + id).then((res) => {
-      console.log("showDataProduct", res.data.data);
-      setDataDiscount(res.data.data);
-    });
+    axios
+      .get(urlStaff + "/" + id, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
+      .then((res) => {
+        console.log("showDataProduct", res.data.data);
+        setDataDiscount(res.data.data);
+      });
     // handAPIProduct();
     setView(true);
-  }
+  };
   const showDataProductCancel = () => {
     // axios.get(urlStaff + "/" + id).then((res) => {
     //   console.log("showDataProduct", res.data.data);
     //   setDataDiscount(res.data.data);
     // });
     setViewCancel(true);
-  }
+  };
   // const [currentCount, setCount] = useState(1);
   // const timer = () => setCount(currentCount + 1);
-
 
   const columns = [
     {
@@ -256,11 +298,7 @@ const Discount = () => {
       title: "Ngày bắt đầu",
       dataIndex: "startDate",
       render(startDate) {
-        return (
-          <Moment format="DD-MM-YYYY HH:mm:ss">
-            {startDate}
-          </Moment>
-        );
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{startDate}</Moment>;
       },
       width: "20%",
     },
@@ -268,11 +306,7 @@ const Discount = () => {
       title: "Ngày kết thúc",
       dataIndex: "endDate",
       render(endDate) {
-        return (
-          <Moment format="DD-MM-YYYY HH:mm:ss">
-            {endDate}
-          </Moment>
-        );
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{endDate}</Moment>;
       },
       width: "20%",
     },
@@ -369,7 +403,7 @@ const Discount = () => {
                 }}
               />
             </>
-          )
+          );
         }
       },
     },
@@ -381,28 +415,37 @@ const Discount = () => {
         if (data.status == "ACTIVE") {
           return (
             <>
-            <Button type="danger" style={{ borderRadius: "7px" }} onClick={() => { showDataProduct(id) }}>Áp dụng</Button>
+              <Button
+                type="danger"
+                style={{ borderRadius: "7px" }}
+                onClick={() => {
+                  showDataProduct(id);
+                }}
+              >
+                Áp dụng
+              </Button>
             </>
-            
-          )
+          );
         }
-
-      }
-    }
+      },
+    },
   ];
 
   //APILoadList
   const getData = () => {
     setLoading(true);
-    axios.get(url + `?${qs.stringify(
-      getRandomuserParams(tableParams)
-    )}`)
+    axios
+      .get(url + `?${qs.stringify(getRandomuserParams(tableParams))}`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
       // .then((res) => res.json())
       .then((results) => {
         if (results.data.data.data != null) {
           results.data.data.data.forEach((x) => {
-            x.status = x.status === "DRAFT" ? x.status : compareTime(x.endDate)
-          })
+            x.status = x.status === "DRAFT" ? x.status : compareTime(x.endDate);
+          });
           setData(results.data.data.data);
           setTotal(results.data.data.total);
           setLoading(false);
@@ -411,18 +454,20 @@ const Discount = () => {
             pagination: {
               ...tableParams.pagination,
               total: totalSet,
-            }
+            },
           });
           var listTime = [];
           results.data.data.data.forEach((discount) => {
             if (new Date(discount.endDate).getTime() >= new Date().getTime()) {
-              var totalTime = (new Date(discount.endDate).getTime() - new Date().getTime()) / (1000)
-              console.log("totalTime", Math.ceil(totalTime))
+              var totalTime =
+                (new Date(discount.endDate).getTime() - new Date().getTime()) /
+                1000;
+              console.log("totalTime", Math.ceil(totalTime));
               if (listTime.includes(Math.ceil(totalTime)) == false) {
                 listTime.push(Math.ceil(totalTime));
               }
             }
-          })
+          });
           axios.get(url_Pro + "/allProDiscount").then((res) => {
             if (listTime != []) {
               setDataProduct(res.data.data);
@@ -430,9 +475,8 @@ const Discount = () => {
               setDateTimer(listTime);
               setTrueProDiscount(true);
             }
-          })
+          });
         }
-
       });
   };
 
@@ -441,7 +485,6 @@ const Discount = () => {
     getData();
     // loadProduct();
   }, [JSON.stringify(tableParams)]);
-
 
   const handleTableChange = (pagination, filters, sorter) => {
     setTableParams({
@@ -456,21 +499,26 @@ const Discount = () => {
   };
   //loadFormEdit
   const showModalEdit = (id) => {
-    var haveDiscount=false;
+    var haveDiscount = false;
     dataProduct?.forEach((pro) => {
       if (pro?.discount?.id === id) {
         console.log("have Discount");
-        haveDiscount=true;
+        haveDiscount = true;
       }
-    })
-    if(haveDiscount){
-      notifyError("Mã giảm giá đang được áp dụng, không thể sửa")
-    }else{
-      axios.get(urlStaff + "/" + id)
-      .then(res => {
-        console.log(res.data.data);
-        setValues(res.data.data);
-      })
+    });
+    if (haveDiscount) {
+      notifyError("Mã giảm giá đang được áp dụng, không thể sửa");
+    } else {
+      axios
+        .get(urlStaff + "/" + id, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
+        .then((res) => {
+          console.log(res.data.data);
+          setValues(res.data.data);
+        });
       setEditing(true);
     }
   };
@@ -480,15 +528,20 @@ const Discount = () => {
   };
 
   const draft = () => {
-    axios.post(urlStaff + "/draft", form)
-      .then(res => {
-        notifySuccess('Lưu bản nháp thành công!')
+    axios
+      .post(urlStaff + "/draft", form, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
+      .then((res) => {
+        notifySuccess("Lưu bản nháp thành công!");
         setAdd(false);
         getData();
         setValues(formDefault);
         console.log(res.data);
-      })
-  }
+      });
+  };
 
   //btn Add
   const handleAdd = (e) => {
@@ -500,29 +553,34 @@ const Discount = () => {
     }, 2000);
   };
   function submitAdd(e) {
-    if(form.name==null || form.name==""){
-      notifyError('Tiêu đề giảm giá không được để trống!');
-    } else if (form.ratio==null) {
-      notifyError('Tỉ lệ không được để trống!');
-    } else if(form.ratio < 1 || form.ratio > 100){
-      notifyError('Tỉ lệ phải từ 1-100!');
-    } else if(form.startDate==null || form.endDate==null){
-      notifyError('Thời gian giảm giá không được để trống!');
+    if (form.name == null || form.name == "") {
+      notifyError("Tiêu đề giảm giá không được để trống!");
+    } else if (form.ratio == null) {
+      notifyError("Tỉ lệ không được để trống!");
+    } else if (form.ratio < 1 || form.ratio > 100) {
+      notifyError("Tỉ lệ phải từ 1-100!");
+    } else if (form.startDate == null || form.endDate == null) {
+      notifyError("Thời gian giảm giá không được để trống!");
     } else {
       e.preventDefault();
-      axios.post(urlStaff, form)
-        .then(res => {
-          notifySuccess('Thêm bản ghi thành công')
+      axios
+        .post(urlStaff, form, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
+        .then((res) => {
+          notifySuccess("Thêm bản ghi thành công");
           setAdd(false);
           getData();
           setValues(formDefault);
           console.log(res.data);
-        }).catch((error) => {
-          notifyError('Yêu cầu nhập đủ các trường!');
-          return;
         })
+        .catch((error) => {
+          notifyError("Yêu cầu nhập đủ các trường!");
+          return;
+        });
     }
-
   }
 
   //btn Edit
@@ -535,32 +593,36 @@ const Discount = () => {
     }, 2000);
   };
   function submitEdit(e) {
-    if(form.name==null || form.name==""){
-      notifyError('Tiêu đề giảm giá không được để trống!');
-    } else if (form.ratio==null) {
-      notifyError('Tỉ lệ không được để trống!');
-    } else if(form.ratio < 1 || form.ratio > 100){
-      notifyError('Tỉ lệ phải từ 1-100!');
-    } else if(form.startDate==null || form.endDate==null){
-      notifyError('Thời gian giảm giá không được để trống!');
+    if (form.name == null || form.name == "") {
+      notifyError("Tiêu đề giảm giá không được để trống!");
+    } else if (form.ratio == null) {
+      notifyError("Tỉ lệ không được để trống!");
+    } else if (form.ratio < 1 || form.ratio > 100) {
+      notifyError("Tỉ lệ phải từ 1-100!");
+    } else if (form.startDate == null || form.endDate == null) {
+      notifyError("Thời gian giảm giá không được để trống!");
     } else {
       e.preventDefault();
-      axios.put(urlStaff + "/" + form.id, form)
-        .then(res => {
-          notifySuccess('Sửa bản ghi thành công')
+      axios
+        .put(urlStaff + "/" + form.id, form, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
+        .then((res) => {
+          notifySuccess("Sửa bản ghi thành công");
           getData();
           setEditing(false);
           setValues(formDefault);
           console.log(res.data);
           loadProduct();
-        }).catch((error) => {
-          notifyError('Yêu cầu nhập đủ các trường!');
-          return;
         })
+        .catch((error) => {
+          notifyError("Yêu cầu nhập đủ các trường!");
+          return;
+        });
     }
-
   }
-
 
   //Delete
   const onDelete = (id) => {
@@ -568,18 +630,24 @@ const Discount = () => {
       title: "Xoá giảm giá",
       content: "Bạn có muốn xoá bản ghi này không?",
       onOk() {
-        axios.delete(urlAdmin + "/" + id)
-          .then(res => {
-            notifySuccess('Xóa bản ghi thành công!')
+        axios
+          .delete(urlAdmin + "/" + id, {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          })
+          .then((res) => {
+            notifySuccess("Xóa bản ghi thành công!");
             getData();
             console.log(res.data);
-          }).catch((errorMessage) => {
-            notifyError('Chỉ xóa bản nháp!');
-            return;
           })
+          .catch((errorMessage) => {
+            notifyError("Chỉ xóa bản nháp!");
+            return;
+          });
       },
       onCancel() {
-        console.log('Cancel');
+        console.log("Cancel");
       },
     });
   };
@@ -588,14 +656,14 @@ const Discount = () => {
   const handle = (e) => {
     setValues({
       ...form,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-  }
+  };
   //onChange status
   const handleChange = (e) => {
     setValues({
       ...form,
-      status: e
+      status: e,
     });
     console.log("status", e);
   };
@@ -604,14 +672,12 @@ const Discount = () => {
     setValues({
       ...form,
       startDate: dateStrings[0],
-      endDate: dateStrings[1]
+      endDate: dateStrings[1],
     });
   };
   const handleChangeDateSearch = (val, dateStrings) => {
-    if (dateStrings[0] != null)
-      setSearchStartDate(dateStrings[0]);
-    if (dateStrings[1] != null)
-      setSearchEndDate(dateStrings[1]);
+    if (dateStrings[0] != null) setSearchStartDate(dateStrings[0]);
+    if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
   };
   const onchangeSearch = (val, dateStrings) => {
     setSearchStartDate(dateStrings[0]);
@@ -624,12 +690,12 @@ const Discount = () => {
     if (dateStrings[0] != null)
       setValues({
         ...form,
-        startDate: dateStrings[0]
+        startDate: dateStrings[0],
       });
     if (dateStrings[1] != null)
       setValues({
         ...form,
-        endDate: dateStrings[1]
+        endDate: dateStrings[1],
       });
   };
 
@@ -642,7 +708,6 @@ const Discount = () => {
     setViewCancel(false);
   };
 
-
   //search
   const search = () => {
     tableParams.pagination.searchStartDate = searchStartDate;
@@ -650,10 +715,9 @@ const Discount = () => {
     tableParams.pagination.current = 1;
     tableParams.pagination.pageSize = 10;
     setLoading(true);
-    axios.get(url + `?${qs.stringify(
-      getRandomuserParams(tableParams)
-    )}`)
-      // .then((res) => res.json()) 
+    axios
+      .get(url + `?${qs.stringify(getRandomuserParams(tableParams))}`)
+      // .then((res) => res.json())
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -663,26 +727,26 @@ const Discount = () => {
           pagination: {
             ...tableParams.pagination,
             total: totalSet,
-          }
+          },
         });
       });
-  }
+  };
   //check all
   const [isCheckedAll, setIsCheckedAll] = useState(true);
   function handleCheckAll(check) {
     if (isCheckedAll) {
-      console.log("checkedAll")
+      console.log("checkedAll");
       const checkboxes = document.querySelectorAll('input[name="ck"]');
       checkboxes.forEach((checkbox) => {
         checkbox.checked = true;
       });
       setIsCheckedAll(false);
     } else {
-      console.log("not checkedAll")
+      console.log("not checkedAll");
       const checkboxes = document.querySelectorAll('input[name="ck"]');
       checkboxes.forEach((checkbox) => {
         checkbox.checked = false;
-      })
+      });
       setIsCheckedAll(true);
     }
   }
@@ -693,70 +757,85 @@ const Discount = () => {
       title: "Hủy áp dụng giảm giá",
       content: "Bạn có muốn huỷ áp dụng giảm giá các bản ghi này không?",
       onOk() {
-            const checkbox1 = document.querySelectorAll('input[name="ck"]');
-            checkbox1.forEach((checkbox) => {
-              if (checkbox.checked == true) {
-                dataProduct.forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "");
-              }
-              setChecked(checked);
-            })
-            console.log(checked);
-            // huy giam gia san pham
-            checked.forEach((pro) => {
-              if(pro.discount!=null){
-                axios.put(url_Pro + "/noDiscountProduct/" + pro.discount?.id + "/" + pro.id)
-                .then((res) => {
-                  console.log("DataNoDiscount", res.data.data);
-                  notifySuccess('Hủy áp dụng giảm giá thành công!');
-                  const checkboxes = document.querySelectorAll('input[name="ck"]');
-                  checkboxes.forEach((checkbox) => {
-                    checkbox.checked = false;
-                  })
-                  handleCancel();
-                  if (res.data.data) {
-                    loadProduct();
-                    getData();
-                  }
+        const checkbox1 = document.querySelectorAll('input[name="ck"]');
+        checkbox1.forEach((checkbox) => {
+          if (checkbox.checked == true) {
+            dataProduct.forEach((item) =>
+              item.id == checkbox.value ? checked.push(item) : ""
+            );
+          }
+          setChecked(checked);
+        });
+        console.log(checked);
+        // huy giam gia san pham
+        checked.forEach((pro) => {
+          if (pro.discount != null) {
+            axios
+              .put(
+                url_Pro +
+                  "/noDiscountProduct/" +
+                  pro.discount?.id +
+                  "/" +
+                  pro.id,
+                {
+                  headers: {
+                    Authorization: "Bearer " + localStorage.getItem("token"),
+                  },
+                }
+              )
+              .then((res) => {
+                console.log("DataNoDiscount", res.data.data);
+                notifySuccess("Hủy áp dụng giảm giá thành công!");
+                const checkboxes =
+                  document.querySelectorAll('input[name="ck"]');
+                checkboxes.forEach((checkbox) => {
+                  checkbox.checked = false;
                 });
-              }
-            })
-            setChecked([]);
+                handleCancel();
+                if (res.data.data) {
+                  loadProduct();
+                  getData();
+                }
+              });
+          }
+        });
+        setChecked([]);
       },
       onCancel() {
-        console.log('Cancel');
+        console.log("Cancel");
       },
     });
-    
-  }
+  };
 
   // Call API DiscountProduct
   const handDiscountProduct = () => {
     const checkbox1 = document.querySelectorAll('input[name="ck"]');
     checkbox1.forEach((checkbox) => {
       if (checkbox.checked == true) {
-        dataProduct.forEach((item) => (item.id == checkbox.value) ? checked.push(item.id) : "");
+        dataProduct.forEach((item) =>
+          item.id == checkbox.value ? checked.push(item.id) : ""
+        );
       }
       setChecked(checked);
-    })
+    });
     console.log(checked);
     // giam gia san pham
-    axios.put(url_Pro + "/discountProduct/" + dataDiscount.id,
-      checked
-    ).then((res) => {
-      console.log("DataDiscount", res.data.data);
-      const checkboxes = document.querySelectorAll('input[name="ck"]');
-      checkboxes.forEach((checkbox) => {
-        checkbox.checked = false;
-      })
-      handleCancel();
-      if (res.data.data) {
-        loadProduct();
-        getData();
-        setChecked([]);
-      }
-    });
-
-  }
+    axios
+      .put(url_Pro + "/discountProduct/" + dataDiscount.id, checked)
+      .then((res) => {
+        console.log("DataDiscount", res.data.data);
+        const checkboxes = document.querySelectorAll('input[name="ck"]');
+        checkboxes.forEach((checkbox) => {
+          checkbox.checked = false;
+        });
+        handleCancel();
+        if (res.data.data) {
+          loadProduct();
+          getData();
+          setChecked([]);
+        }
+      });
+  };
 
   const clearSearchForm = () => {
     setSearchStartDate(getDateTime());
@@ -764,45 +843,53 @@ const Discount = () => {
     setTableParams({
       ...tableParams,
       pagination: {
-        ...tableParams.pagination.current = 1,
-        ...tableParams.pagination.pageSize = 10,
-        ...tableParams.pagination.searchStartDate = "",
-        ...tableParams.pagination.searchEndDate = ""
-      }
+        ...(tableParams.pagination.current = 1),
+        ...(tableParams.pagination.pageSize = 10),
+        ...(tableParams.pagination.searchStartDate = ""),
+        ...(tableParams.pagination.searchEndDate = ""),
+      },
     });
     getData();
-  }
+  };
   const changeStatusItem = (id, data) => {
     Modal.confirm({
       title: "Chuyển trạng thái",
       content: "Bạn có muốn chuyển trạng thái",
       onOk() {
-        handleConfirmChangeStatus(id, data)
+        handleConfirmChangeStatus(id, data);
       },
       onCancel() {
-        console.log('Cancel');
+        console.log("Cancel");
       },
-    })
-  }
+    });
+  };
   const handleConfirmChangeStatus = (id, data) => {
     if (data.status == "INACTIVE" || data.status == "DRAFT") {
-      axios.put(urlAdmin + "/active/" + id)
-        .then(res => {
-          notifySuccess('Chuyển trạng thái hoạt động thành công!')
+      axios
+        .put(urlAdmin + "/active/" + id, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
+        .then((res) => {
+          notifySuccess("Chuyển trạng thái hoạt động thành công!");
           getData();
           console.log(res.data);
-        }
-        )
+        });
     } else if (data.status == "ACTIVE") {
-      axios.put(urlAdmin + "/inactive/" + id)
-        .then(res => {
-          notifySuccess('Chuyển trạng thái không hoạt động thành công!')
+      axios
+        .put(urlAdmin + "/inactive/" + id, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
+        .then((res) => {
+          notifySuccess("Chuyển trạng thái không hoạt động thành công!");
           getData();
           console.log(res.data);
-        }
-        )
+        });
     }
-  }
+  };
   return (
     <div>
       <ToastContainer />
@@ -825,7 +912,6 @@ const Discount = () => {
               background: "#fafafa",
             }}
           >
-
             {/* <div className="col-4 mt-3">
               <label>Từ khoá</label>
               <Input type="text" name="searchName" value={data.name} placeholder="Nhập tên tài khoản người dùng" onChange={onchangeSearch} />
@@ -833,13 +919,20 @@ const Discount = () => {
 
             <div className="col-4 mt-3 ">
               <label>Thời gian</label>
-              <Space direction="vertical" size={12} style={{ width: "472px", borderRadius: "5px" }}>
+              <Space
+                direction="vertical"
+                size={12}
+                style={{ width: "472px", borderRadius: "5px" }}
+              >
                 <RangePicker
-                  showTime={{ format: 'HH:mm:ss' }}
+                  showTime={{ format: "HH:mm:ss" }}
                   format={"yyyy-MM-DD HH:mm:ss"}
                   onChange={onchangeSearch}
                   onCalendarChange={handleChangeDateSearch}
-                  value={[moment(searchStartDate, "yyyy-MM-DD HH:mm:ss"), moment(searchEndDate, "yyyy-MM-DD HH:mm:ss")]}
+                  value={[
+                    moment(searchStartDate, "yyyy-MM-DD HH:mm:ss"),
+                    moment(searchEndDate, "yyyy-MM-DD HH:mm:ss"),
+                  ]}
                   type="datetime"
                 />
               </Space>
@@ -864,7 +957,6 @@ const Discount = () => {
                 <ReloadOutlined />
                 Đặt lại
               </Button>
-
             </div>
           </div>
 
@@ -877,13 +969,20 @@ const Discount = () => {
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
             footer={[
-              <Button key="back" onClick={handleCancel} style={{ borderRadius: "7px" }}>
+              <Button
+                key="back"
+                onClick={handleCancel}
+                style={{ borderRadius: "7px" }}
+              >
                 Hủy
               </Button>,
-              <Button type="danger" onClick={handDiscountProduct}
-                style={{ borderRadius: "7px" }}>
+              <Button
+                type="danger"
+                onClick={handDiscountProduct}
+                style={{ borderRadius: "7px" }}
+              >
                 Áp dụng
-              </Button>
+              </Button>,
             ]}
           >
             {/* console.log(id); */}
@@ -893,10 +992,14 @@ const Discount = () => {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th scope="col"><input type={"checkbox"}
-                        id="checkall"
-                        // checked={isCheckedAll[product]}
-                        onChange={() => handleCheckAll(checked)} /></th>
+                      <th scope="col">
+                        <input
+                          type={"checkbox"}
+                          id="checkall"
+                          // checked={isCheckedAll[product]}
+                          onChange={() => handleCheckAll(checked)}
+                        />
+                      </th>
                       <th scope="col">Tên sản phẩm</th>
                       <th scope="col">Giá tiền</th>
                       <th scope="col">Số lượng</th>
@@ -904,19 +1007,38 @@ const Discount = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {dataProduct ? dataProduct.map(item => {
-                      // console.log("item", item);
-                      return (
-                        <tr key={item.id}>
-                          <td>{item.discount?"" :<input type={"checkbox"} name="ck" value={item.id} ></input>}</td>
-                          <td>{item.name}</td>
-                          <td>{item.price}</td>
-                          <td>{item.quantity}</td>
-                          <td>{item.discount?item.discount.name+" ("+item.discount.ratio+"%)":""}</td>
-                          {/* <td>{item.price - (item.price * item.discount)}</td> */}
-                        </tr>
-                      );
-                    }) : ""}
+                    {dataProduct
+                      ? dataProduct.map((item) => {
+                          // console.log("item", item);
+                          return (
+                            <tr key={item.id}>
+                              <td>
+                                {item.discount ? (
+                                  ""
+                                ) : (
+                                  <input
+                                    type={"checkbox"}
+                                    name="ck"
+                                    value={item.id}
+                                  ></input>
+                                )}
+                              </td>
+                              <td>{item.name}</td>
+                              <td>{item.price}</td>
+                              <td>{item.quantity}</td>
+                              <td>
+                                {item.discount
+                                  ? item.discount.name +
+                                    " (" +
+                                    item.discount.ratio +
+                                    "%)"
+                                  : ""}
+                              </td>
+                              {/* <td>{item.price - (item.price * item.discount)}</td> */}
+                            </tr>
+                          );
+                        })
+                      : ""}
                   </tbody>
                 </table>
               </div>
@@ -931,13 +1053,20 @@ const Discount = () => {
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
             footer={[
-              <Button key="back" onClick={handleCancel} style={{ borderRadius: "7px" }}>
+              <Button
+                key="back"
+                onClick={handleCancel}
+                style={{ borderRadius: "7px" }}
+              >
                 Hủy
               </Button>,
-              <Button type="danger" onClick={handNoDiscountProduct}
-                style={{ borderRadius: "7px" }}>
+              <Button
+                type="danger"
+                onClick={handNoDiscountProduct}
+                style={{ borderRadius: "7px" }}
+              >
                 Hủy giảm giá
-              </Button>
+              </Button>,
             ]}
           >
             {/* console.log(id); */}
@@ -947,10 +1076,14 @@ const Discount = () => {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th scope="col"><input type={"checkbox"}
-                        id="checkall"
-                        // checked={isCheckedAll[product]}
-                        onChange={() => handleCheckAll(checked)} /></th>
+                      <th scope="col">
+                        <input
+                          type={"checkbox"}
+                          id="checkall"
+                          // checked={isCheckedAll[product]}
+                          onChange={() => handleCheckAll(checked)}
+                        />
+                      </th>
                       <th scope="col">Tên sản phẩm</th>
                       <th scope="col">Giá tiền</th>
                       <th scope="col">Số lượng</th>
@@ -958,25 +1091,40 @@ const Discount = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {dataProduct ? dataProduct.map(item => {
-                      // console.log("item", item);
-                      return (
-                        item.discount ?
-                        <tr key={item.id}>
-                          <td><input type={"checkbox"} name="ck" value={item.id} ></input></td>
-                          <td>{item.name}</td>
-                          <td>{item.price}</td>
-                          <td>{item.quantity}</td>
-                          <td>{item.discount?item.discount.name+" ("+item.discount.ratio+"%)":""}</td>
-                        </tr>:""
-                      );
-                    }) : ""}
+                    {dataProduct
+                      ? dataProduct.map((item) => {
+                          // console.log("item", item);
+                          return item.discount ? (
+                            <tr key={item.id}>
+                              <td>
+                                <input
+                                  type={"checkbox"}
+                                  name="ck"
+                                  value={item.id}
+                                ></input>
+                              </td>
+                              <td>{item.name}</td>
+                              <td>{item.price}</td>
+                              <td>{item.quantity}</td>
+                              <td>
+                                {item.discount
+                                  ? item.discount.name +
+                                    " (" +
+                                    item.discount.ratio +
+                                    "%)"
+                                  : ""}
+                              </td>
+                            </tr>
+                          ) : (
+                            ""
+                          );
+                        })
+                      : ""}
                   </tbody>
                 </table>
               </div>
             </div>
           </Modal>
-
 
           {/* Add */}
           <div className="row">
@@ -990,10 +1138,15 @@ const Discount = () => {
                 <PlusOutlined />
                 Thêm mới
               </Button>
-              <Button className="offset-11 mt-1" 
-              type="danger" 
-              style={{ borderRadius: "7px" }} 
-              onClick={() => { showDataProductCancel() }}>Hủy áp dụng
+              <Button
+                className="offset-11 mt-1"
+                type="danger"
+                style={{ borderRadius: "7px" }}
+                onClick={() => {
+                  showDataProductCancel();
+                }}
+              >
+                Hủy áp dụng
               </Button>
               <Modal
                 title="Tạo mới"
@@ -1008,7 +1161,12 @@ const Discount = () => {
                   <Button type="danger" onClick={draft}>
                     Nháp
                   </Button>,
-                  <Button key="submit" type="primary" loading={loading} onClick={handleAdd}>
+                  <Button
+                    key="submit"
+                    type="primary"
+                    loading={loading}
+                    onClick={handleAdd}
+                  >
                     Thêm mới
                   </Button>,
                 ]}
@@ -1016,24 +1174,50 @@ const Discount = () => {
                 <div className="form group">
                   <div className="row">
                     <div className="col-12 mt-1">
-                      <label>Tiêu đề<span className="text-danger"> *</span></label>
-                      <Input placeholder="Nhập tiêu đề"
-                        onChange={(e) => handle(e)} name="name" value={form.name} type="text" />
+                      <label>
+                        Tiêu đề<span className="text-danger"> *</span>
+                      </label>
+                      <Input
+                        placeholder="Nhập tiêu đề"
+                        onChange={(e) => handle(e)}
+                        name="name"
+                        value={form.name}
+                        type="text"
+                      />
                     </div>
                     <div className="col-12 mt-1">
-                      <label>Tỉ lệ (%)<span className="text-danger"> *</span></label>
-                      <Input placeholder="Nhập tỉ lệ"
-                        onChange={(e) => handle(e)} name="ratio" value={form.ratio} type="number" min="0" max="100" />
+                      <label>
+                        Tỉ lệ (%)<span className="text-danger"> *</span>
+                      </label>
+                      <Input
+                        placeholder="Nhập tỉ lệ"
+                        onChange={(e) => handle(e)}
+                        name="ratio"
+                        value={form.ratio}
+                        type="number"
+                        min="0"
+                        max="100"
+                      />
                     </div>
                     <div className="col-12 mt-1">
-                      <label>Thời gian giảm giá<span className="text-danger"> *</span></label>
-                      <Space direction="vertical" size={12} style={{ width: "472px", borderRadius: "5px" }}>
+                      <label>
+                        Thời gian giảm giá
+                        <span className="text-danger"> *</span>
+                      </label>
+                      <Space
+                        direction="vertical"
+                        size={12}
+                        style={{ width: "472px", borderRadius: "5px" }}
+                      >
                         <RangePicker
-                          showTime={{ format: 'HH:mm:ss' }}
+                          showTime={{ format: "HH:mm:ss" }}
                           format={"yyyy-MM-DD HH:mm:ss"}
                           onChange={handleChangeDate}
                           onCalendarChange={setDates}
-                          value={[moment(form.startDate, "yyyy-MM-DD HH:mm:ss"), moment(form.endDate, "yyyy-MM-DD HH:mm:ss")]}
+                          value={[
+                            moment(form.startDate, "yyyy-MM-DD HH:mm:ss"),
+                            moment(form.endDate, "yyyy-MM-DD HH:mm:ss"),
+                          ]}
                           type="datetime"
                         />
                       </Space>
@@ -1042,7 +1226,6 @@ const Discount = () => {
                 </div>
               </Modal>
             </div>
-
           </div>
         </div>
       </div>
@@ -1070,7 +1253,7 @@ const Discount = () => {
 
           <Modal
             title="Cập nhật"
-            visible={isEditing}
+            open={isEditing}
             onOk={handleEdit}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
@@ -1078,34 +1261,56 @@ const Discount = () => {
             <div className="form group">
               <div className="row">
                 <div className="col-12 mt-1">
-                  <label>Tiêu đề<span className="text-danger"> *</span></label>
-                  <Input placeholder="Nhập tiêu đề"
-                    onChange={(e) => handle(e)} name="name" value={form.name} type="text" />
+                  <label>
+                    Tiêu đề<span className="text-danger"> *</span>
+                  </label>
+                  <Input
+                    placeholder="Nhập tiêu đề"
+                    onChange={(e) => handle(e)}
+                    name="name"
+                    value={form.name}
+                    type="text"
+                  />
                 </div>
                 <div className="col-12 mt-1">
-                  <label>Tỉ lệ (%)<span className="text-danger"> *</span></label>
-                  <Input placeholder="Nhập tỉ lệ"
-                    onChange={(e) => handle(e)} name="ratio" value={form.ratio} type="number" min="0" max="100" />
+                  <label>
+                    Tỉ lệ (%)<span className="text-danger"> *</span>
+                  </label>
+                  <Input
+                    placeholder="Nhập tỉ lệ"
+                    onChange={(e) => handle(e)}
+                    name="ratio"
+                    value={form.ratio}
+                    type="number"
+                    min="0"
+                    max="100"
+                  />
                 </div>
                 <div className="col-12 mt-1">
-                  <label>Thời gian giảm giá<span className="text-danger"> *</span></label>
-                  <Space direction="vertical" size={12} style={{ width: "472px", borderRadius: "5px" }}>
+                  <label>
+                    Thời gian giảm giá<span className="text-danger"> *</span>
+                  </label>
+                  <Space
+                    direction="vertical"
+                    size={12}
+                    style={{ width: "472px", borderRadius: "5px" }}
+                  >
                     <RangePicker
-                      showTime={{ format: 'HH:mm:ss' }}
+                      showTime={{ format: "HH:mm:ss" }}
                       format={"yyyy-MM-DD HH:mm:ss"}
                       onChange={handleChangeDate}
                       onCalendarChange={setDates}
-                      value={[moment(form.startDate, "yyyy-MM-DD HH:mm:ss"), moment(form.endDate, "yyyy-MM-DD HH:mm:ss")]}
+                      value={[
+                        moment(form.startDate, "yyyy-MM-DD HH:mm:ss"),
+                        moment(form.endDate, "yyyy-MM-DD HH:mm:ss"),
+                      ]}
                       type="datetime"
                     />
                   </Space>
                 </div>
               </div>
-
             </div>
           </Modal>
-
-
         </div>
       </div>
     </div>
