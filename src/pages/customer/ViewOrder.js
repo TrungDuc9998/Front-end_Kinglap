@@ -1,15 +1,21 @@
 import {
   DeleteOutlined,
   EyeOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
-import { Button, Image, InputNumber, Modal, Table, Tabs } from "antd";
+import { Button, Image, InputNumber, Modal, Table, Tabs, Upload, message } from "antd";
 import axios from "axios";
 import qs from "qs";
-import React, { useContext,useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StoreContext from '../../store/Context';
+import qr from "../../image/QR.jpg"
+import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
+import { storage } from "../../image/firebase/firebase";
+import { v4 } from "uuid";
+
 
 const onChange = (key) => {
   console.log(key);
@@ -42,6 +48,84 @@ const toastError = (message) => {
 };
 
 function ViewOrder() {
+  const props = {
+    name: 'file',
+    headers: {
+      authorization: 'authorization-text',
+    },
+    onChange(info) {
+      if (info.file.status == "error") {
+        info.file.status = "done";
+      }
+      if (info.file.status !== 'removed') {
+        setImage({});
+      }
+      if (info.file.status === 'done') {
+        uploadFile(info.fileList[0].originFileObj);
+      }
+    },
+  };
+  const [image, setImage] = useState();
+  const uploadFile = (image) => {
+    if (image == null) return;
+    const imageRef = ref(storage, `images/${image.name + v4()}`);
+    uploadBytes(imageRef, image).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        setImage(url);
+        console.log("upload thanh cong");
+      });
+    });
+  };
+
+  // modal thanh toán
+  const [isModalOpen1, setIsModalOpen1] = useState(false);
+  const showModal1 = () => {
+    setIsModalOpen1(true);
+  };
+  const handleOk1 = (data) => {
+    setIsModalOpen1(false);
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    var raw = JSON.stringify({
+      "name": image,
+      "exchange_id": null,
+      "order_id": data.id,
+      "product": null
+    });
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+    };
+    fetch("http://localhost:8080/api/orders/image", requestOptions)
+      .then(response => response.text())
+      .then(result => {
+        console.log(result);
+        toastSuccess("Thanh toán thành công!")
+        console.log(data);
+        updateStatusOrder(data);
+      }
+      )
+      .catch(error => console.log('error', error));
+  };
+  const handleCancel1 = () => {
+    setIsModalOpen1(false);
+  };
+
+  const updateStatusOrder = (order) => {
+    order.status = "CHO_XAC_NHAN"
+    fetch(`http://localhost:8080/api/orders/` + order.id, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order),
+    }).then((res) => {
+      console.log("update thanh cong", res)
+      getData();
+    });
+  }
+
+
   let navigate = useNavigate();
   const [state, dispatch] = useContext(StoreContext);
   const [orders, setOrders] = useState([]);
@@ -68,7 +152,7 @@ function ViewOrder() {
   const getData = () => {
     let param = searchParams.get("vnp_ResponseCode");
     let userId = localStorage.getItem("username");
-    console.log("vnp_ResponseCode",param);
+    console.log("vnp_ResponseCode", param);
     if (param === "00") {
       let total = localStorage.getItem("total");
       let payment = localStorage.getItem("payment");
@@ -122,12 +206,12 @@ function ViewOrder() {
           orderDetails: JSON.parse(orderDetails),
         }),
       }).then(() => {
-        JSON.parse(localStorage.getItem("orderDetails"))?JSON.parse(localStorage.getItem("orderDetails")).forEach((ord)=>{
+        JSON.parse(localStorage.getItem("orderDetails")) ? JSON.parse(localStorage.getItem("orderDetails")).forEach((ord) => {
           dispatch({
             type: "REMOVE_CART_AFTER_CHECKOUT",
             payload: ord.productId
           })
-        }):console.log("null");
+        }) : console.log("null");
         localStorage.removeItem("total");
         localStorage.removeItem("payment");
         localStorage.removeItem("address");
@@ -141,7 +225,7 @@ function ViewOrder() {
         localStorage.removeItem("value");
         navigate("/user/order");
       });
-      
+
       //localStorage.removeItem("carts");
     }
     fetch(
@@ -299,7 +383,7 @@ function ViewOrder() {
       title: "Đã thanh toán",
       dataIndex: "money",
       width: "9%",
-      render(money) {
+      render(money, data) {
         return money.toLocaleString("it-IT", {
           style: "currency",
           currency: "VND",
@@ -311,6 +395,19 @@ function ViewOrder() {
       dataIndex: "payment",
       width: "15%",
       render: (payment) => {
+        if (payment === "NGAN_HANG") {
+          return (
+            <>
+              <ToastContainer></ToastContainer>
+              <div
+                className="bg-warning text-center text-light"
+                style={{ width: "80%", borderRadius: "5px", padding: "4px" }}
+              >
+                Thanh toán qua ngân hàng
+              </div>
+            </>
+          );
+        }
         if (payment === "VN_PAY") {
           return (
             <>
@@ -349,6 +446,18 @@ function ViewOrder() {
       width: "15%",
       style: "",
       render: (status) => {
+        if (status === "CHUA_THANH_TOAN") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chưa thanh toán
+              </div>
+            </>
+          );
+        }
         if (status === "CHO_XAC_NHAN") {
           return (
             <>
@@ -417,8 +526,50 @@ function ViewOrder() {
       dataIndex: "id",
       dataIndex: "data",
       width: "15%",
-      render: (id, data) => {
+      render: (id, data, money) => {
+        if (data.status == "CHUA_THANH_TOAN") {
+          return (<>
+            <button className="btn btn-primary" style={{ height: "30px", fontSize: "12px" }} onClick={showModal1}>Thanh toán</button>
+            <>
+              <EyeOutlined
+                style={{ fontSize: "20px", marginLeft: "25%" }}
+                onClick={() => {
+                  showModalData(data.id);
+                }}
+              />
+              <DeleteOutlined
+                className="ms-2"
+                style={{ fontSize: "20px", color: "red" }}
+                onClick={() => {
+                  showModalCancel(data.id);
+                  setIDCancel(data.id);
+                }}
+              />
+            </>
+            <Modal width={700} title="Chuyển tiền đến tài khoản" open={isModalOpen1} onOk={() => handleOk1(data)} onCancel={handleCancel1}>
+              <div className="container row">
+                <div className="col-6">
+                  <img src={qr} style={{ width: '300px' }} />
+                </div>
+                <div className="col-6 mt-3">
+                  <p>Chuyển đến số tài khoản với nội dung là số điện thoại của bạn!</p>
+                  <h5 className="mt-4">Tổng tiền : <span className="text-danger" style={{ fontSize: '25px', fontWeight: '600' }}>{data.total?.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}</span></h5>
+                  <h4>Hình ảnh giao dịch thành công!</h4>
+                  <Upload {...props}
+                    listType="picture"
+                  >
+                    <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
+                  </Upload>
+                </div>
+              </div>
+            </Modal>
+          </>)
+        }
         if (data.status === "CHO_XAC_NHAN") {
+          // if(data)
           return (
             <>
               <EyeOutlined
@@ -680,6 +831,23 @@ function ViewOrder() {
               onChange={onChange}
               items={[
                 {
+                  label: `Chưa thanh toán`,
+                  key: "CHUA_THANH_TOAN",
+                  children: (
+                    <Table
+                      columns={columns}
+                      rowKey={(record) => record.id}
+                      dataSource={orders.filter(
+                        (order) => order.status === "CHUA_THANH_TOAN"
+                      )
+                      }
+                      pagination={tableParams.pagination}
+                      loading={loading}
+                      onChange={handleTableChange}
+                    />
+                  ),
+                },
+                {
                   label: `Chờ xác nhận`,
                   key: "CHO_XAC_NHAN",
                   children: (
@@ -688,7 +856,8 @@ function ViewOrder() {
                       rowKey={(record) => record.id}
                       dataSource={orders.filter(
                         (order) => order.status === "CHO_XAC_NHAN"
-                      )}
+                      )
+                      }
                       pagination={tableParams.pagination}
                       loading={loading}
                       onChange={handleTableChange}
