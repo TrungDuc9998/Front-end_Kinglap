@@ -624,6 +624,8 @@ const ExchangeUser = () => {
           title="Chọn sản phẩm muốn đổi hàng"
           open={isModalOpen}
           onOk={handleOk}
+          okText={"Gửi yêu cầu"}
+          cancelText={"Đóng"}
           width={850}
           onCancel={handleCancel}
         >

@@ -139,7 +139,7 @@ const CancelOrder = () => {
       dataIndex: "payment",
       width: "20%",
       render: (payment) => {
-        if (payment != "TẠI CỬA HÀNG") {
+        if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
             <>
               <div
@@ -150,7 +150,18 @@ const CancelOrder = () => {
               </div>
             </>
           );
-        } else {
+        } if (payment == "NGAN_HANG") {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                {"Tài khoản ATM"}
+              </div>
+            </>
+          );
+        }else {
           return (
             <>
               <div

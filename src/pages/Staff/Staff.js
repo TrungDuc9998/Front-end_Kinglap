@@ -1,6 +1,7 @@
 import {
     DeleteOutlined,
     EditOutlined, LockOutlined,
+    MenuFoldOutlined,
     PlusOutlined,
     ReloadOutlined,
     SearchOutlined,
@@ -352,6 +353,14 @@ import {
   
     return (
       <div>
+        <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Quản lý nhân viên</h4>
+        </div>
+      </div>
         <div
           className="row"
           style={{

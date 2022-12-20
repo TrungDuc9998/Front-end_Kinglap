@@ -4,18 +4,13 @@ import {
   EditOutlined,
   EyeOutlined,
   LockOutlined,
+  MenuFoldOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  UnlockOutlined
+  UnlockOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Input,
-  Modal,
-  Select,
-  Table
-} from "antd";
+import { Button, Input, Modal, Select, Table } from "antd";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -23,8 +18,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import toastrs from "toastr";
 import "toastr/build/toastr.min.css";
-import * as XLSX from 'xlsx/xlsx.mjs';
-const EXTENSIONS = ['xlsx', 'xls', 'csv']
+import * as XLSX from "xlsx/xlsx.mjs";
+const EXTENSIONS = ["xlsx", "xls", "csv"];
 const { Option } = Select;
 
 const getRandomuserParams = (params) => ({
@@ -43,7 +38,7 @@ const Product = () => {
   const [isDelete, setDelete] = useState(false);
   const [id, setId] = useState();
   //import
-  
+
   const [fileImp, setFileImp] = useState();
   const [dataImport, setDataImport] = useState();
   const [battery, setBattery] = useState();
@@ -243,11 +238,14 @@ const Product = () => {
               style={{ color: "red", marginLeft: 12, fontSize: "20px" }}
               onClick={() => {
                 getProductById(data.id, 2);
-              }}     
+              }}
             />
-             <EyeOutlined  onClick={() => {
+            <EyeOutlined
+              onClick={() => {
                 getProductById(data.id, 3);
-              }}    style={{ color: "blue", marginLeft: 12, fontSize: "20px" }}/>
+              }}
+              style={{ color: "blue", marginLeft: 12, fontSize: "20px" }}
+            />
           </>
         );
       },
@@ -261,9 +259,9 @@ const Product = () => {
         localStorage.setItem("productEdit", JSON.stringify(res));
         if (check === 2) {
           navigate(`/admin/product/copy/${res.id}`);
-        }else if(check === 3) {
+        } else if (check === 3) {
           navigate(`/admin/product/view/${res.id}`);
-        }else {
+        } else {
           navigate(`/admin/product/edit/${res.id}`);
         }
       });
@@ -340,7 +338,7 @@ const Product = () => {
   const onSearch = (value) => {
     console.log("search:", value);
   };
-  const [importSuccess, setImportSuccess]=useState(false);
+  const [importSuccess, setImportSuccess] = useState(false);
   const [searchProductKey, setSearchProductKey] = useState();
   const [searchStatus, setSearchStatus] = useState();
   const [searchPrice, setSearchPrice] = useState();
@@ -439,31 +437,32 @@ const Product = () => {
   // }
 
   const getExention = (file) => {
-    const parts = file.name.split('.')
-    const extension = parts[parts.length - 1]
-    return EXTENSIONS.includes(extension) // return boolean
-  }
+    const parts = file.name.split(".");
+    const extension = parts[parts.length - 1];
+    return EXTENSIONS.includes(extension); // return boolean
+  };
 
   const convertToJson = (headers, data) => {
-    const rows = []
-    data.forEach(row => {
-      let rowData = {}
+    const rows = [];
+    data.forEach((row) => {
+      let rowData = {};
       row.forEach((element, index) => {
-        rowData[headers[index]] = element
-      })
-      rows.push(rowData)
+        rowData[headers[index]] = element;
+      });
+      rows.push(rowData);
     });
-    console.log("rows",rows)
-    return rows
-  }
+    console.log("rows", rows);
+    return rows;
+  };
 
   const loadDataManufacture = () => {
     fetch(
       `http://localhost:8080/api/staff/manufactures?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -485,9 +484,10 @@ const Product = () => {
     fetch(
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -652,9 +652,10 @@ const Product = () => {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -695,8 +696,8 @@ const Product = () => {
   //import
   const handleImport = (data, index) => {
     console.log(data);
-    const row=index+1;
-    var mess="Import thất bản ghi thứ "+row;
+    const row = index + 1;
+    var mess = "Import thất bản ghi thứ " + row;
     const quantity = Number(data.quantity);
     console.log(quantity);
     data.images = [data.images].map((item) => ({
@@ -705,45 +706,104 @@ const Product = () => {
       return_id: null,
       exchange_id: null,
     }));
-    category.forEach(item=>(item.name.trim())==data.category?data.category=item.id:"");
-    dataColor.forEach(item=>(item.name.trim())==data.productColors?data.color=item.id:"");
-    dataOrigin.forEach(item=>(item.name.trim())==data.origin?data.origin=item.id:"");
-    dataRam.forEach(item=>(item.ramCapacity.trim() +
-      " " +
-      item.typeOfRam.trim() +
-      " " +
-      item.ramSpeed.trim() +
-      " " +
-      item.maxRamSupport.trim())==data.ram?data.ram=item.id:"");
-    processors.forEach(item=>(item.cpuCompany.trim() +
-      " " +
-      item.cpuTechnology.trim() +
-      " " +
-      item.cpuType.trim() +
-      " " +
-      item.cpuSpeed.trim())==data.processor?data.processor=item.id:"");
-    dataScreen.forEach(item=>(item.size.trim() +
-      " " +
-      item.screenTechnology.trim() +
-      " " +
-      item.resolution.trim() +
-      " " +
-      item.screenType.trim())==data.screen?data.screen=item.id:"");
-    dataCard.forEach(item=>(item.trandemark.trim() + " " + item.model.trim() + " " + item.memory.trim())==data.card?data.card=item.id:"");
-    dataWin.forEach(item=>(item.name.trim() + " - " + item.version.trim())==data.win?data.win=item.id:"");
-    dataCard.forEach(item=>(item.trandemark.trim() + " " + item.model.trim() + " " + item.memory.trim())==data.cardOnboard?data.cardOnboard=item.id:"");
-    dataStorage.forEach(item=>(item.storageType.name.trim() +
-      " " +
-      item.type.trim() +
-      " " +
-      item.capacity.trim())==data.storage?data.storage=item.id:"");
-    battery.forEach(item=>(item.batteryType.trim() +
-      " " +
-      item.battery.trim() +
-      " " +
-      item.charger.trim())==data.battery?data.battery=item.id:"");
-    manufacture.forEach(item=>(item.name.trim())==data.manufacture?data.manufacture=item.id:"");
-    dataAccessory.forEach(item=>(item.name.trim())==data.accessoryProducts?data.accessoryId=item.id:"");
+    category.forEach((item) =>
+      item.name.trim() == data.category ? (data.category = item.id) : ""
+    );
+    dataColor.forEach((item) =>
+      item.name.trim() == data.productColors ? (data.color = item.id) : ""
+    );
+    dataOrigin.forEach((item) =>
+      item.name.trim() == data.origin ? (data.origin = item.id) : ""
+    );
+    dataRam.forEach((item) =>
+      item.ramCapacity.trim() +
+        " " +
+        item.typeOfRam.trim() +
+        " " +
+        item.ramSpeed.trim() +
+        " " +
+        item.maxRamSupport.trim() ==
+      data.ram
+        ? (data.ram = item.id)
+        : ""
+    );
+    processors.forEach((item) =>
+      item.cpuCompany.trim() +
+        " " +
+        item.cpuTechnology.trim() +
+        " " +
+        item.cpuType.trim() +
+        " " +
+        item.cpuSpeed.trim() ==
+      data.processor
+        ? (data.processor = item.id)
+        : ""
+    );
+    dataScreen.forEach((item) =>
+      item.size.trim() +
+        " " +
+        item.screenTechnology.trim() +
+        " " +
+        item.resolution.trim() +
+        " " +
+        item.screenType.trim() ==
+      data.screen
+        ? (data.screen = item.id)
+        : ""
+    );
+    dataCard.forEach((item) =>
+      item.trandemark.trim() +
+        " " +
+        item.model.trim() +
+        " " +
+        item.memory.trim() ==
+      data.card
+        ? (data.card = item.id)
+        : ""
+    );
+    dataWin.forEach((item) =>
+      item.name.trim() + " - " + item.version.trim() == data.win
+        ? (data.win = item.id)
+        : ""
+    );
+    dataCard.forEach((item) =>
+      item.trandemark.trim() +
+        " " +
+        item.model.trim() +
+        " " +
+        item.memory.trim() ==
+      data.cardOnboard
+        ? (data.cardOnboard = item.id)
+        : ""
+    );
+    dataStorage.forEach((item) =>
+      item.storageType.name.trim() +
+        " " +
+        item.type.trim() +
+        " " +
+        item.capacity.trim() ==
+      data.storage
+        ? (data.storage = item.id)
+        : ""
+    );
+    battery.forEach((item) =>
+      item.batteryType.trim() +
+        " " +
+        item.battery.trim() +
+        " " +
+        item.charger.trim() ==
+      data.battery
+        ? (data.battery = item.id)
+        : ""
+    );
+    manufacture.forEach((item) =>
+      item.name.trim() == data.manufacture ? (data.manufacture = item.id) : ""
+    );
+    dataAccessory.forEach((item) =>
+      item.name.trim() == data.accessoryProducts
+        ? (data.accessoryId = item.id)
+        : ""
+    );
 
     const product = {
       //id:data.id,
@@ -785,9 +845,9 @@ const Product = () => {
     })
       .then((response) => response.json())
       .then((response) => {
-        response.data?setImportSuccess(true):console.log(response);
+        response.data ? setImportSuccess(true) : console.log(response);
         console.log(importSuccess);
-        response.errors?notifyError(mess):console.log(response);
+        response.errors ? notifyError(mess) : console.log(response);
       })
       .catch((error) => {
         notifyError(mess);
@@ -795,61 +855,70 @@ const Product = () => {
       });
   };
   const uploadExcel = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
 
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (event) => {
       //parse data
 
-      const bstr = event.target.result
-      const workBook = XLSX.read(bstr, { type: "binary" })
+      const bstr = event.target.result;
+      const workBook = XLSX.read(bstr, { type: "binary" });
 
       //get first sheet
-      const workSheetName = workBook.SheetNames[0]
-      const workSheet = workBook.Sheets[workSheetName]
+      const workSheetName = workBook.SheetNames[0];
+      const workSheet = workBook.Sheets[workSheetName];
       //convert to array
-      const fileData = XLSX.utils.sheet_to_json(workSheet, { header: 1 })
+      const fileData = XLSX.utils.sheet_to_json(workSheet, { header: 1 });
       // console.log(fileData)
-      const headers = fileData[0]
-      const heads = headers.map(head => ({ title: head, field: head }))
+      const headers = fileData[0];
+      const heads = headers.map((head) => ({ title: head, field: head }));
       // setColDefs(heads)
 
       //removing header
-      fileData.splice(0, 1)
+      fileData.splice(0, 1);
 
-      setDataImport(convertToJson(headers, fileData))
-      
-    }
-
+      setDataImport(convertToJson(headers, fileData));
+    };
 
     if (file) {
       if (getExention(file)) {
-        reader.readAsBinaryString(file)
-      }
-      else {
-        notifyError("Định dạng file không hợp lệ, chọn Excel, CSV file")
+        reader.readAsBinaryString(file);
+      } else {
+        notifyError("Định dạng file không hợp lệ, chọn Excel, CSV file");
         //setDataImport([])
       }
     } else {
-      setDataImport([])
+      setDataImport([]);
       // setColDefs([])
     }
-  }
+  };
   const importExcel = (e) => {
-    console.log("dataImport",dataImport);
-    dataImport?dataImport.map((pro,index)=>
-      {handleImport(pro,index);}
-      ):notifyError("Hãy chọn file excel cần import");
-      setDataImport();
-      importSuccess==true?notifySuccess("Import thành công"):console.log("false");
+    console.log("dataImport", dataImport);
+    dataImport
+      ? dataImport.map((pro, index) => {
+          handleImport(pro, index);
+        })
+      : notifyError("Hãy chọn file excel cần import");
+    setDataImport();
+    importSuccess == true
+      ? notifySuccess("Import thành công")
+      : console.log("false");
     const file = document.querySelectorAll('input[name="file"]');
-    file[0].value=null;
+    file[0].value = null;
     setImportSuccess(false);
-  }
+  };
 
   return (
     <div>
       <ToastContainer />
+      <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Danh sách sản phẩm</h4>
+        </div>
+      </div>
       <div
         className="row"
         style={{
@@ -967,12 +1036,17 @@ const Product = () => {
             <PlusOutlined />
             Xuất Excel
           </Button> */}
-          <input type="file" name="file" value={fileImp} onChange={uploadExcel} />
+          <input
+            type="file"
+            name="file"
+            value={fileImp}
+            onChange={uploadExcel}
+          />
           <Button
             className="mx-2"
             type="primary"
             onClick={() => {
-              importExcel()
+              importExcel();
             }}
             style={{ borderRadius: "10px" }}
           >

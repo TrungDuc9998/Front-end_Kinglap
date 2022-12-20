@@ -24,7 +24,7 @@ const onChange = (key) => {
 const toastSuccess = (message) => {
   toast.success(message, {
     position: "top-right",
-    autoClose: 5000,
+    autoClose: 2000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
@@ -548,7 +548,7 @@ function ViewOrder() {
                 }}
               />
             </>
-            <Modal width={700} title="Chuyển tiền đến tài khoản" open={isModalOpen1} onOk={handleOk1} onCancel={handleCancel1}>
+            <Modal width={700} okText={"Hoàn thành"} cancelText={"Đóng"} title="Chuyển tiền đến tài khoản" open={isModalOpen1} onOk={() => handleOk1(data)} onCancel={handleCancel1}>
               <div className="container row">
                 <div className="col-6">
                   <img src={qr} style={{ width: '300px' }} />
@@ -959,8 +959,10 @@ function ViewOrder() {
             </Modal>
 
             <Modal
-              title="Xác nhận"
+              title="Huỷ đơn hàng"
               open={isEditing}
+              okText={"Có"}
+              cancelText={"Không"}
               onCancel={() => {
                 setEditing(false);
               }}
@@ -975,8 +977,7 @@ function ViewOrder() {
               }}
             >
               <label>
-                Bạn thực sự muốn hủy đơn hàng này
-                <span className="text-danger"> !!!!!</span>
+                Bạn có muốn huỷ đơn hàng này không ?        
               </label>
             </Modal>
 
@@ -986,7 +987,13 @@ function ViewOrder() {
               onCancel={() => {
                 setView(false);
               }}
-              width={850}
+              okButtonProps={{
+                  style: {
+                    display: "none",
+                  },
+                }}
+              cancelText={"Đóng"}
+              width={900}
               onOk={() => {
                 // setView(false);
                 // loadDataOrder();

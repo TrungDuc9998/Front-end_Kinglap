@@ -14,6 +14,7 @@ import {
   ReloadOutlined,
   SearchOutlined,
   PrinterOutlined,
+  MenuFoldOutlined,
 } from "@ant-design/icons";
 import "../Order/order.css";
 import Moment from "react-moment";
@@ -373,13 +374,13 @@ const Order = () => {
     // createQRCode();
     setCheckId(
       `SỐ ĐIỆN THOẠI: 0338861522` +
-      `\nEMAIL: ptung539@gmail.com` +
-      `\nĐỊA CHỈ: Lạng Giang - Bắc Giang` +
-      `\nNGÂN HÀNG: NCB - Số tài khoản: 899983869999` +
-      `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A` +
-      `\nHOÁ ĐƠN MUA HÀNG` +
-      `\nMÃ HOÁ ĐƠN: ${id}` +
-      `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A`
+        `\nEMAIL: ptung539@gmail.com` +
+        `\nĐỊA CHỈ: Lạng Giang - Bắc Giang` +
+        `\nNGÂN HÀNG: NCB - Số tài khoản: 899983869999` +
+        `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A` +
+        `\nHOÁ ĐƠN MUA HÀNG` +
+        `\nMÃ HOÁ ĐƠN: ${id}` +
+        `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A`
     );
     loadDataOrderHistoryById(id);
     setView(true);
@@ -451,7 +452,7 @@ const Order = () => {
       dataIndex: "payment",
       width: "13%",
       render: (payment) => {
-        if (payment != "TẠI CỬA HÀNG") {
+        if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
             <>
               <div
@@ -459,6 +460,17 @@ const Order = () => {
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
                 {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+              </div>
+            </>
+          );
+        } else if (payment == "NGAN_HANG") {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+               Tài khoản ATM
               </div>
             </>
           );
@@ -784,6 +796,14 @@ const Order = () => {
   return (
     <div>
       <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Danh sách đơn hàng</h4>
+        </div>
+      </div>
+      <div className="row">
         <div className="col-12">
           <div className="row mb-3">
             <div className="col-2 ">
@@ -943,7 +963,6 @@ const Order = () => {
             <SearchOutlined />
             Tìm kiếm
           </Button>
-
         </div>
       </div>
       <div className="row">
@@ -1085,15 +1104,22 @@ const Order = () => {
             onCancel={() => {
               setOrder(false);
             }}
-            width={700}
+            width={850}
           >
             <div>
               <div className="order" ref={componentRef}>
                 <div className="qrcode ">
                   {qrImageUrl && (
                     <div className="mt-4">
-                      <a href={qrImageUrl} download={`HoaDon` + dataO?.id + '.png'}>
-                        <img src={qrImageUrl} style={{ width: "140px", height: "140px" }} alt="QR CODE" />
+                      <a
+                        href={qrImageUrl}
+                        download={`HoaDon` + dataO?.id + ".png"}
+                      >
+                        <img
+                          src={qrImageUrl}
+                          style={{ width: "140px", height: "140px" }}
+                          alt="QR CODE"
+                        />
                       </a>
                     </div>
                   )}
