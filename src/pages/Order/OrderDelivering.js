@@ -109,6 +109,18 @@ const OrderDelivering = () => {
       dataIndex: "status",
       width: "30%",
       render: (status) => {
+        if (status === "CHUA_THANH_TOAN") {
+          return (
+            <>
+              <div
+                className="bg-secondary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chưa thanh toán
+              </div>
+            </>
+          );
+        }
         if (status === "CHO_XAC_NHAN") {
           return (
             <>
@@ -361,7 +373,7 @@ const OrderDelivering = () => {
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-               Tài khoản ATM
+                Tài khoản ATM
               </div>
             </>
           );
@@ -411,25 +423,6 @@ const OrderDelivering = () => {
             >
               Hiển thị
             </Button>
-            <Button
-              className="ms-2"
-              type="primary"
-              onClick={() => {
-                onConfirm(record);
-              }}
-              danger
-            >
-              Nhận hàng
-            </Button>
-            {/* <RollbackOutlined
-              style={{ marginLeft: 14, fontSize: "20px" }}
-              onClick={() => navigate(`/admin/return/${id}`)}
-            />
-            <RetweetOutlined
-              className="ms-3"
-              style={{ fontSize: "20px", color: "red" }}
-              onClick={() => navigate(`/admin/order/exchange/${id}`)}
-            /> */}
           </>
         );
       },

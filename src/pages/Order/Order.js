@@ -498,6 +498,18 @@ const Order = () => {
       dataIndex: "status",
       width: "13%",
       render: (status) => {
+        if (status === "CHUA_THANH_TOAN") {
+          return (
+            <>
+              <div
+                className="bg-secondary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chưa thanh toán
+              </div>
+            </>
+          );
+        }
         if (status === "CHO_XAC_NHAN") {
           return (
             <>

@@ -64,13 +64,10 @@ function Menu() {
         getProductById(value);
         setValues('');
     };
-
-
-    const [total, setTotal] = useState();
-    const [totalSet, setTotalSet] = useState(10);
     const getRandomuserParams = (params) => ({
         limit: params.pagination?.pageSize,
         page: params.pagination?.current,
+        searchStatus: params.pagination?.searchStatus
     });
     const [tableParams, setTableParams] = useState({
         pagination: {

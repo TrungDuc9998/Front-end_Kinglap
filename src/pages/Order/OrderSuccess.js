@@ -39,7 +39,7 @@ const getRandomOrderParams = (params) => ({
 
 const OrderSuccess = () => {
   let navigate = useNavigate();
-  const [data, setData] = useState([]);
+  const [dataO, setDataO] = useState([]);
   const [dataOD, setDataOD] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -61,33 +61,32 @@ const OrderSuccess = () => {
     },
   });
 
-  function compareDates(d1,d2) {
-    let date1 = new Date(d1).getTime();
-    let date2 = new Date(d2).getTime();
+  function compareDates(d2) {
+    console.log("thời gian truyền vào: ", d2);
 
-    console.log("date 1");
-    console.log(date1);
-    const date = new Date(d1);
+    const currentDate = new Date().getTime();
+    console.log("thời gian hiện tại:", new Date());
+    console.log("current date", currentDate);
+    const date = new Date(d2);
     date.setDate(date.getDate() + 10);
-    console.log('data:', date);
     let date3 = new Date(date).getTime();
-    console.log("d3:", date3);
-
-    if (date2 < date3) {
+    console.log(date3);
+    if (date3 < currentDate) {
       console.log(`Thời gian hiện tại nhỏ hơn`);
-    } else if (date2 > date3) {
-      console.log(`Thời gian hiện tại lớn hơn`);
+      return true;
+    } else if (date3 > currentDate) {
+      // console.log(`Thời gian hiện tại lớn hơn`);
+      return false;
     } else {
       console.log(`Bằng nhau`);
+      return true;
     }
   }
 
   useEffect(() => {
     loadDataOrder();
-    compareDates("2022-12-25 23:01:07", "2023-12-25 23:01:07");
-
+    // compareDates("2022-12-25 23:01:07", "2023-12-15 23:01:07");
   }, [dataOrder != undefined]);
-
 
   const search = () => {
     if (searchStartDate != undefined && searchEndDate != undefined) {
@@ -119,7 +118,9 @@ const OrderSuccess = () => {
   };
 
   const showModalData = (id) => {
-    console.log("id hoá đơn:", id);
+    axios.get(url + "/get/" + id).then((res) => {
+      setDataO(res.data);
+    });
     axios.get(url + "/" + id).then((res) => {
       console.log(res.data);
       setDataOD(res.data);
@@ -234,6 +235,18 @@ const OrderSuccess = () => {
       dataIndex: "status",
       width: "25%",
       render: (status) => {
+        if (status === "CHUA_THANH_TOAN") {
+          return (
+            <>
+              <div
+                className="bg-secondary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chưa thanh toán
+              </div>
+            </>
+          );
+        }
         if (status === "CHO_XAC_NHAN") {
           return (
             <>
@@ -310,6 +323,11 @@ const OrderSuccess = () => {
       width: "15%",
     },
     {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      width: "15%",
+    },
+    {
       title: "Tổng tiền",
       dataIndex: "total",
       width: "15%",
@@ -340,7 +358,7 @@ const OrderSuccess = () => {
               </div>
             </>
           );
-        }else  if(payment == "NGAN_HANG") {
+        } else if (payment == "NGAN_HANG") {
           return (
             <>
               <div
@@ -351,7 +369,7 @@ const OrderSuccess = () => {
               </div>
             </>
           );
-        }else {
+        } else {
           return (
             <>
               <div
@@ -386,24 +404,29 @@ const OrderSuccess = () => {
       title: "Thao tác",
       width: "40%",
       dataIndex: "id",
-      render: (id, record) => {
+      dataIndex: "data",
+      render: (id, data) => {
         return (
           <>
             <Button
               onClick={() => {
-                showModalData(id);
+                showModalData(data.id);
               }}
             >
               Hiển thị
             </Button>
             {/* {dataOD} */}
-            <Button
-              className="ms-2"
-              danger
-              onClick={() => navigate(`/admin/order/exchange/${id}`)}
-            >
-              Đổi hàng
-            </Button>
+            {compareDates(data.createdAt) == true ? (
+              ""
+            ) : (
+              <Button
+                className="ms-2"
+                danger
+                onClick={() => navigate(`/admin/order/exchange/${id}`)}
+              >
+                Đổi hàng
+              </Button>
+            )}
           </>
         );
       },
@@ -573,18 +596,36 @@ const OrderSuccess = () => {
               <div className="col-12">
                 <div className="row">
                   <div className="col-6">
-                    <p>Khách hàng: </p>
-                    <p>Số điện thoại: </p>
+                    <p>Khách hàng: {dataO?.customerName}</p>
+                    <p>Số điện thoại: {dataO?.phone} </p>
+                    <p>Tổng tiền: {dataO?.total?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}</p>
                   </div>
                   <div className="col-6">
                     <p>Ngày nhận: </p>
-                    <p>Tổng tiền: </p>
-                    <p>Trạng thái: </p>
+                   
+                    <p>
+                    Phí vận chuyển:{" "}
+                    {dataO?.shippingFree?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+
+                    <p>
+                      Đặt cọc:{" "}
+                      {dataO?.money?.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </p>
                   </div>
                 </div>
               </div>
               <div className="col-12">
-                <table class="table">
+                <table className="table">
                   <thead>
                     <tr>
                       <th scope="col">Mã HDCT</th>
