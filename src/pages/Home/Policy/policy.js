@@ -51,7 +51,7 @@ function Policy() {
                   <h6 className="fw-bold text-danger mt-2">4. Lưu ý</h6>
                   <p  className="fs-6" style={{ lineHeight: "2" }}>
                     - Khi đổi sản phẩm khác, khách hàng phải có đầy đủ các sản
-                    phẩm đi kèm trước đố, nếu không thì sẽ không được đổi hàng.
+                    phẩm đi kèm trước đó, nếu không thì sẽ không được đổi hàng.
                   </p>
                 </p>
               </div>

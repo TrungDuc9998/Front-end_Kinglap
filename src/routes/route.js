@@ -39,6 +39,7 @@ import Find from "../pages/customer/find";
 import CopyProduct from "../pages/Product/CopyProduct";
 import CreateOrderAdmin from "../pages/Order/Table";
 import ViewProductAdmin from "../pages/Product/ViewProduct";
+import ConfirmPayment from "../pages/Order/ConfirmPayment/ConfirmPayment";
 const publicRoutes = [
   {
     path: "/",
@@ -195,6 +196,10 @@ const publicRoutes = [
   {
     path: "/admin/product/view/:id",
     component: ViewProductAdmin
+  },
+  {
+    path: "/admin/order/confirm/payment",
+    component: ConfirmPayment
   }
 ];
 
