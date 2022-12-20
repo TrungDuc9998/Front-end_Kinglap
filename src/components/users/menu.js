@@ -138,10 +138,18 @@ function Menu() {
     const chinhSachBH = () => {
         navigate('/policy')
     }
+
+    const info = () => {
+        navigate('/auth/information')
+    }
+
     useEffect(() => {
         // getData();
         loadDataProduct();
     }, [])
+
+    const idUser = localStorage.getItem("id");
+
 
     return (
         <>
@@ -163,11 +171,16 @@ function Menu() {
                             </li>
                         </ul>
                         <ul className="nav justify-content-end">
-                        <li className="nav-item">
+                            <li className="nav-item">
                                 <a style={{ color: "white" }} onClick={chinhSachBH}>
                                     Chính sách
                                 </a>
                             </li>
+                            {idUser == null ? "" : (<li className="nav-item">
+                                <a style={{ color: "white" }} onClick={info}>
+                                    Thông tin
+                                </a>
+                            </li>)}
                             <li className="nav-item">
                                 <a style={{ color: "ưhite" }} onClick={toAdmin}>
                                     <DollarSign size={12} color="red"></DollarSign>

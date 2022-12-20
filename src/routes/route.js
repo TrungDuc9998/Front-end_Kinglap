@@ -35,6 +35,7 @@ import Compare from "../pages/customer/compareProduct/Compare";
 import Inventory from "../pages/Product/Inventory";
 import Test from "../pages/Home/qr";
 import Policy from "../pages/Home/Policy/policy";
+import Information from "../pages/customer/information/index"
 import Find from "../pages/customer/find";
 import CopyProduct from "../pages/Product/CopyProduct";
 import CreateOrderAdmin from "../pages/Order/Table";
@@ -184,6 +185,10 @@ const publicRoutes = [
   {
     path: "/policy",
     component: Policy
+  },
+  {
+    path: "/auth/information",
+    component: Information
   },
   {
     path: "user/find",
