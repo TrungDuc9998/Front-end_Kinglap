@@ -579,6 +579,12 @@ const Screen = () => {
             // onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+            cancelText={"Đóng"}
             width={900}
           >
             <Form

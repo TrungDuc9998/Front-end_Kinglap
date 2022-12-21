@@ -321,9 +321,14 @@ const Storage = () => {
           <Modal
             title="Tạo mới"
             open={open}
-            onOk={handleOk}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+            cancelText={"Đóng"}
             width={750}
           >
             <Form

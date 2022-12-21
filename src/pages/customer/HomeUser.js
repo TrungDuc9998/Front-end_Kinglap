@@ -119,6 +119,21 @@ function HomeUser() {
 
   const url = "http://localhost:8080/api/products";
   const [totalSet, setTotal] = useState(10);
+  const [product_discount, setDataProduct_Discount] = useState([
+    {
+      id: "",
+      name: "",
+      price: null,
+      quantity: null,
+      active: 1,
+      imei: null,
+      weight: null,
+      size: null,
+      debut: null,
+      categoryId: null,
+      images: null,
+    },
+  ]);
   const [products, setData] = useState([
     {
       id: "",
@@ -166,12 +181,26 @@ function HomeUser() {
       });
   };
 
+  const allProWithDiscount = () => {
+    fetch(`http://localhost:8080/api/products/allProWithDiscount`)
+      .then((response) => response.json())
+      .then((results) => {
+        setDataProduct_Discount(results.data)
+      })
+  }
+
+
   //LoadList
   useEffect(() => {
     getData();
   }, [JSON.stringify(tableParams)]);
   const carts = JSON.parse(localStorage.getItem("carts"));
-  console.log("c:", carts);
+  // console.log("c:", carts);
+  useEffect(() => {
+    allProWithDiscount();
+  }, []);
+
+  console.log(product_discount);
 
   // const products = useSelector(state => state.productReducer);
   // const showProducts = (products) => {
@@ -267,6 +296,117 @@ function HomeUser() {
             <div className="col-md-12">
               <div className="row">
                 <div className="products-tabs">
+                  <div id="tab2" className="tab-pane fade in active">
+                    <div className="products-slick" data-nav="#slick-nav-2">
+                      {products
+                        ? products.map((pro) => (
+                          <div className="product" key={pro.id}>
+                            <div className="product-img sp">
+                              <img
+                                src={
+                                  pro.images ? pro.images[0]?.name : product1
+                                }
+                                alt=""
+                              />
+                              <div className="product-label">
+                                {pro.discount ? (<span className="sale">{pro.discount.ratio}%</span>) : ""}
+                                <span className="new">NEW</span>
+                              </div>
+                            </div>
+                            <div className="product-body">
+                              <h3
+                                className="product-name"
+                                onClick={() => handelCLickProduct(pro)}
+                              >
+                                <a href="/user/product">{pro.name}</a>
+                              </h3>
+                              <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
+                            </div>
+                            {
+                              // carts?carts.some(p=>p.id===pro.id)?
+                              // (<div className="add-to-cart">
+                              // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
+                              //  </div>):
+                              // (<div className="add-to-cart">
+                              // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                              //  </div>):
+                              <div className="add-to-cart">
+                                <button
+                                  className="add-to-cart-btn"
+                                  onClick={() => handleClickAddToCart(pro)}
+                                >
+                                  <ShoppingCart size={18}></ShoppingCart> Thêm
+                                  vào giỏ hàng
+                                </button>
+                              </div>
+                            }
+                          </div>
+                        ))
+                        : ""}
+                    </div>
+                    <div id="slick-nav-2" className="products-slick-nav"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div id="hot-deal" className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="hot-deal">
+                <ul className="hot-deal-countdown">
+                  <li>
+                    <div>
+                      <h3>02</h3>
+                      <span>Ngày</span>
+                    </div>
+                  </li>
+                  <li>
+                    <div>
+                      <h3>10</h3>
+                      <span>Giờ</span>
+                    </div>
+                  </li>
+                  <li>
+                    <div>
+                      <h3>34</h3>
+                      <span>Phút</span>
+                    </div>
+                  </li>
+                  <li>
+                    <div>
+                      <h3>60</h3>
+                      <span>Giây</span>
+                    </div>
+                  </li>
+                </ul>
+                <h2 className="text-uppercase">HOT DEAL TUẦN NÀY</h2>
+                <p>Bộ sưu tập mới GIẢM GIÁ tới 50%</p>
+                <a className="primary-btn cta-btn" href="#">
+                  Mua ngay
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="section-title">
+                <h3 className="title">Sản phẩm</h3>
+              </div>
+            </div>
+            <div className="col-md-12">
+              <div className="row">
+                <div className="products-tabs">
                   <div id="tab1" className="tab-pane active">
                     <div className="products-slick" data-nav="#slick-nav-1">
                       <Row gutter={10}>
@@ -334,48 +474,7 @@ function HomeUser() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <div id="hot-deal" className="section">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-12">
-              <div className="hot-deal">
-                <ul className="hot-deal-countdown">
-                  <li>
-                    <div>
-                      <h3>02</h3>
-                      <span>Ngày</span>
-                    </div>
-                  </li>
-                  <li>
-                    <div>
-                      <h3>10</h3>
-                      <span>Giờ</span>
-                    </div>
-                  </li>
-                  <li>
-                    <div>
-                      <h3>34</h3>
-                      <span>Phút</span>
-                    </div>
-                  </li>
-                  <li>
-                    <div>
-                      <h3>60</h3>
-                      <span>Giây</span>
-                    </div>
-                  </li>
-                </ul>
-                <h2 className="text-uppercase">HOT DEAL TUẦN NÀY</h2>
-                <p>Bộ sưu tập mới GIẢM GIÁ tới 50%</p>
-                <a className="primary-btn cta-btn" href="#">
-                  Mua ngay
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -385,247 +484,80 @@ function HomeUser() {
           <div className="row">
             <div className="col-md-12">
               <div className="section-title">
-                <h3 className="title">Sản phẩm</h3>
+                <h3 className="title">Sản phẩm giảm giá</h3>
               </div>
             </div>
-
             <div className="col-md-12">
               <div className="row">
                 <div className="products-tabs">
-                  <div id="tab2" className="tab-pane fade in active">
-                    <div className="products-slick" data-nav="#slick-nav-2">
-                      {products
-                        ? products.map((pro) => (
-                          <div className="product" key={pro.id}>
-                            <div className="product-img sp">
-                              <img
-                                src={
-                                  pro.images ? pro.images[0]?.name : product1
+                  <div id="tab1" className="tab-pane active">
+                    <div className="products-slick" data-nav="#slick-nav-1">
+                      <Row gutter={10}>
+                        {product_discount
+                          ? product_discount.map((pro) => (
+                            <Col
+                              xs={{ span: 24 }}
+                              lg={{ span: 6 }}
+                              md={{ span: 8 }}
+                              sm={{ span: 12 }}
+                            >
+                              <div className="product" style={{ marginBottom: "20%" }} key={pro.id}>
+                                <div className="product-img">
+                                  <img
+                                    src={
+                                      pro.images
+                                        ? pro.images[0]?.name
+                                        : product1
+                                    }
+                                    alt=""
+                                  />
+                                  <div className="product-label">
+                                    {pro.discount ? (<span className="sale">{pro.discount.ratio}%</span>) : ""}
+                                    <span className="new">NEW</span>
+                                  </div>
+                                </div>
+                                <div className="product-body">
+                                  <h3
+                                    className="product-name"
+                                    onClick={() => handelCLickProduct(pro)}
+                                  >
+                                    <a>{pro.name}</a>
+                                  </h3>
+                                  <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
+
+                                </div>
+                                {
+                                  // carts?carts.some(p=>p.id===pro.id)?
+                                  // (<div className="add-to-cart">
+                                  // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
+                                  //  </div>):
+                                  // (<div className="add-to-cart">
+                                  // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
+                                  //  </div>):
+                                  <div className="add-to-cart">
+                                    <button
+                                      className="add-to-cart-btn"
+                                      onClick={() =>
+                                        handleClickAddToCart(pro)
+                                      }
+                                    >
+                                      <ShoppingCart size={18}></ShoppingCart>{" "}
+                                      Thêm vào giỏ hàng
+                                    </button>
+                                  </div>
                                 }
-                                alt=""
-                              />
-                              <div className="product-label">
-                                {pro.discount ? (<span className="sale">{pro.discount.ratio}%</span>) : ""}
-                                <span className="new">NEW</span>
                               </div>
-                            </div>
-                            <div className="product-body">
-                              <h3
-                                className="product-name"
-                                onClick={() => handelCLickProduct(pro)}
-                              >
-                                <a href="/user/product">{pro.name}</a>
-                              </h3>
-                              <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
-                            </div>
-                            {
-                              // carts?carts.some(p=>p.id===pro.id)?
-                              // (<div className="add-to-cart">
-                              // <button className="add-to-cart-btn" onClick={() => handleClickRemoveFromCart(pro)} ><DeleteOutlined size={18}></DeleteOutlined> remove from cart</button>
-                              //  </div>):
-                              // (<div className="add-to-cart">
-                              // <button className="add-to-cart-btn" onClick={() => handleClickAddToCart(pro)} ><ShoppingCart size={18}></ShoppingCart> add to cart</button>
-                              //  </div>):
-                              <div className="add-to-cart">
-                                <button
-                                  className="add-to-cart-btn"
-                                  onClick={() => handleClickAddToCart(pro)}
-                                >
-                                  <ShoppingCart size={18}></ShoppingCart> Thêm
-                                  vào giỏ hàng
-                                </button>
-                              </div>
-                            }
-                          </div>
-                        ))
-                        : ""}
+                            </Col>
+                          ))
+                          : ""}
+                      </Row>
                     </div>
-                    <div id="slick-nav-2" className="products-slick-nav"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="section">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-4 col-xs-6">
-              <div className="section-title">
-                <h4 className="title">Top selling</h4>
-                <div className="section-nav">
-                  <div id="slick-nav-3" className="products-slick-nav"></div>
-                </div>
-              </div>
-
-              <div className="products-widget-slick" data-nav="#slick-nav-3">
-                <div>
-                  <div className="product-widget">
-                    <div className="product-img">
-                      <img src={product1} alt="" />
-                    </div>
-                    <div className="product-body">
-                      <p className="product-category">Category</p>
-                      <h3 className="product-name">
-                        <a href="#">product name goes here</a>
-                      </h3>
-                      <h4 className="product-price">
-                        $980.00 <del className="product-old-price">$990.00</del>
-                      </h4>
-                    </div>
-                  </div>
-y
-
-                  <div className="product-widget">
-                    <div className="product-img">
-                      <img src={product8} alt="" />
-                    </div>
-                    <div className="product-body">
-                      <p className="product-category">Category</p>
-                      <h3 className="product-name">
-                        <a href="#">product name goes here</a>
-                      </h3>
-                      <h4 className="product-price">
-                        $980.00 <del className="product-old-price">$990.00</del>
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="product-widget">
-                    <div className="product-img">
-                      <img src={product2} alt="" />
-                    </div>
-                    <div className="product-body">
-                      <p className="product-category">Category</p>
-                      <h3 className="product-name">
-                        <a href="#">product name goes here</a>
-                      </h3>
-                      <h4 className="product-price">
-                        $980.00 <del className="product-old-price">$990.00</del>
-                      </h4>
-                    </div>
+                    <div id="slick-nav-1" className="products-slick-nav"></div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="col-md-4 col-xs-6">
-              <div className="section-title">
-                <h4 className="title">Top selling</h4>
-                <div className="section-nav">
-                  <div id="slick-nav-4" className="products-slick-nav"></div>
-                </div>
-              </div>
-
-              <div className="products-widget-slick" data-nav="#slick-nav-4">
-                <div>
-                  <div className="product-widget">
-                    <div className="product-img">
-                      <img src={product4} alt="" />
-                    </div>
-                    <div className="product-body">
-                      <p className="product-category">Category</p>
-                      <h3 className="product-name">
-                        <a href="#">product name goes here</a>
-                      </h3>
-                      <h4 className="product-price">
-                        $980.00 <del className="product-old-price">$990.00</del>
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="product-widget">
-                    <div className="product-img">
-                      <img src={product5} alt="" />
-                    </div>
-                    <div className="product-body">
-                      <p className="product-category">Category</p>
-                      <h3 className="product-name">
-                        <a href="#">product name goes here</a>
-                      </h3>
-                      <h4 className="product-price">
-                        $980.00 <del className="product-old-price">$990.00</del>
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="product-widget">
-                    <div className="product-img">
-                      <img src={product6} alt="" />
-                    </div>
-                    <div className="product-body">
-                      <p className="product-category">Category</p>
-                      <h3 className="product-name">
-                        <a href="#">product name goes here</a>
-                      </h3>
-                      <h4 className="product-price">
-                        $980.00 <del className="product-old-price">$990.00</del>
-                      </h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-4 col-xs-6">
-              <div className="section-title">
-                <h4 className="title">Top selling</h4>
-                <div className="section-nav">
-                  <div id="slick-nav-5" className="products-slick-nav"></div>
-                </div>
-              </div>
-
-              <div className="products-widget-slick" data-nav="#slick-nav-5">
-                <div>
-                  <div className="product-widget">
-                    <div className="product-img">
-                      <img src={product1} alt="" />
-                    </div>
-                    <div className="product-body">
-                      <p className="product-category">Category</p>
-                      <h3 className="product-name">
-                        <a href="#">product name goes here</a>
-                      </h3>
-                      <h4 className="product-price">
-                        $980.00 <del className="product-old-price">$990.00</del>
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="product-widget">
-                    <div className="product-img">
-                      <img src={product2} alt="" />
-                    </div>
-                    <div className="product-body">
-                      <p className="product-category">Category</p>
-                      <h3 className="product-name">
-                        <a href="#">product name goes here</a>
-                      </h3>
-                      <h4 className="product-price">
-                        $980.00 <del className="product-old-price">$990.00</del>
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="product-widget">
-                    <div className="product-img">
-                      <img src={product3} alt="" />
-                    </div>
-                    <div className="product-body">
-                      <p className="product-category">Category</p>
-                      <h3 className="product-name">
-                        <a href="#">product name goes here</a>
-                      </h3>
-                      <h4 className="product-price">
-                        $980.00 <del className="product-old-price">$990.00</del>
-                      </h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

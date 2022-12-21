@@ -347,10 +347,15 @@ function Card() {
                     <Modal
                         title="Tạo mới"
                         open={open}
-                        onOk={handleOk}
                         confirmLoading={confirmLoading}
                         onCancel={handleCancel}
                         width={650}
+                        okButtonProps={{
+                            style: {
+                                display: "none",
+                            },
+                        }}
+                        cancelText={"Đóng"}
                     >
                         <Form
                             initialValues={{
@@ -443,10 +448,12 @@ function Card() {
                         onCancel={() => {
                             setEditing(false);
                         }}
-                        onOk={() => {
-                            Update(cardEdit);
-                            setEditing(false);
+                        okButtonProps={{
+                            style: {
+                                display: "none",
+                            },
                         }}
+                        cancelText={"Đóng"}
                         width={650}
                     >
                         <Form

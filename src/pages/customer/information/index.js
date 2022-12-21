@@ -67,6 +67,7 @@ function Information() {
     };
 
     const loadDataByID = () => {
+        console.log(information[0]?.id);
         fetch(`http://localhost:8080/api/information/` + information[0]?.id)
             .then((res) => res.json())
             .then((res) => {
@@ -88,6 +89,7 @@ function Information() {
             email: email,
             address: address,
         };
+        console.log(information[0]?.id);
         fetch("http://localhost:8080/api/auth/information/" + information[0]?.id, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -98,7 +100,9 @@ function Information() {
                 if (results.data == null) {
                     toastError(results.message);
                 } else {
+                    localStorage.removeItem("information");
                     toastSuccess("Cập nhật thông tin thành công!");
+                    localStorage.setItem("information", JSON.stringify([results.data]));
                     loadDataByID();
                 }
             })
@@ -239,7 +243,7 @@ function Information() {
                                         if (results.data == null) {
                                             toastError(results.message);
                                         } else {
-                                            toastSuccess("Cập nhật thành công!");
+                                            toastSuccess("Đổi mật khẩu thành công!");
                                             setUsername("");
                                             setPassword3("");
                                             setPassword1("");
