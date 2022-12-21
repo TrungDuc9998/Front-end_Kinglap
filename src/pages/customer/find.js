@@ -103,7 +103,7 @@ const Find = () => {
     });
     const loadDataTrandemark = () => {
         fetch(
-            `http://localhost:8080/api/staff/manufactures?${qs.stringify(
+            `http://localhost:8080/api/auth/manufactures?${qs.stringify(
                 getRandomMuserParams(tableParams)
             )}`, {
                 headers: {
@@ -250,7 +250,7 @@ const Find = () => {
                                     <div className="product-img">
                                         <img src={item.images ? item.images[0]?.name : product1} alt="" />
                                         <div className="product-label">
-                                            <span className="sale">-30%</span>
+                                        {item.discount ? (<span className="sale">{item.discount.ratio}%</span>) : ""}
                                         </div>
                                     </div>
                                     <div className="product-body">

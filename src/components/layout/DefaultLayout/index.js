@@ -4,8 +4,6 @@ import logo from "../../../asset/images/logo_kinglap.png";
 
 import {
   AppstoreOutlined,
-  BarChartOutlined,
-  DesktopOutlined,
   FileDoneOutlined,
   FileOutlined,
   OrderedListOutlined,
@@ -21,6 +19,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Header1 } from "./Header";
 const { Header, Content, Footer, Sider } = Layout;
+const roles = localStorage.getItem("roles");
+
 function getItem(label, key, icon, children) {
   return {
     key: key,
@@ -29,10 +29,11 @@ function getItem(label, key, icon, children) {
     children: children,
   };
 }
+
 const items = [
   getItem("Trang chủ", "/admin/statistical", <PieChartOutlined />),
   getItem("Quản lý dịch vụ", "/admin/discount", <FileDoneOutlined />),
-  getItem("Quản lý sản phẩm", "sub1",<AppstoreOutlined />, [
+  getItem("Quản lý sản phẩm", "sub1", <AppstoreOutlined />, [
     getItem("Quản lý thể loại", "/admin/category"),
     getItem("Danh sách sản phẩm", "/admin/product"),
     getItem("Tạo sản phẩm", "/admin/product/create"),
@@ -70,8 +71,7 @@ const DefaultLayout = ({ children }) => {
     }
   }, []);
   return (
-    <Layout
-    >
+    <Layout>
       <Sider
         style={{
           overflow: "auto",
@@ -109,7 +109,7 @@ const DefaultLayout = ({ children }) => {
           }}
         >
           <div className="d-flex justify-content-end me-5">
-            <Link to={"login"} className="acc">
+            <Link to={"/auth/information"} className="acc">
               <UserSwitchOutlined
                 className="me-2 ic text-light"
                 style={{ fontSize: "22px" }}

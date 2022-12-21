@@ -1,38 +1,54 @@
 import { EyeOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import { render } from "@testing-library/react";
-import { Input, InputNumber, Modal, Select, Table, Button, message, Upload } from "antd";
+import {
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+  Table,
+  Button,
+  message,
+  Upload,
+} from "antd";
 import { Option } from "antd/lib/mentions";
 import axios from "axios";
-import qs from 'qs';
+import qs from "qs";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StoreContext from "../../store/Context";
-import "./css/checkout.css"
-
+import "./css/checkout.css";
 
 function Checkout() {
-
+  const [wardCodeChange, setWardCodeChange] = useState();
 
   const onChangeInputNumber = (value, event) => {
-    console.log('changed', value);
-    console.log('event', event);
+    console.log("changed", value);
+    console.log("event", event);
+    value.quantity = event;
+
+    if (type == 1) {
+      console.log("vào submit 2");
+      SubmitShipping2(wardCodeChange);
+      value.quantity = event;
+      loadInfo(carts);
+    }
 
     value.quantity = event;
     loadInfo(carts);
   };
 
   const onclickDeleteCart = (pro) => {
-    setCarts(carts.filter(item => item.id != pro.id));
-  }
+    setCarts(carts.filter((item) => item.id != pro.id));
+  };
   // modal
   const onClickShow = (value) => {
     console.log(value.images[0]);
-  }
+  };
   const onclickDelete = (value) => {
-    setProductAdd(productAdd.filter(item => item != value))
-  }
+    setProductAdd(productAdd.filter((item) => item != value));
+  };
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
     setIsModalOpen(true);
@@ -48,34 +64,34 @@ function Checkout() {
     setIsModalOpen(false);
   };
 
-
   // add product
   const [productAdd, setProductAdd] = useState([]);
   const columns = [
     {
-      title: 'Hình ảnh',
-      dataIndex: 'image',
-      width: '25%',
+      title: "Hình ảnh",
+      dataIndex: "image",
+      width: "25%",
       render: (id, data) => {
         return (
           <>
             <img width={150} src={data?.images[0]?.name} />
-          </>)
-      }
+          </>
+        );
+      },
     },
     {
-      title: 'Tên sản phẩm',
-      dataIndex: 'name',
-      width: '45%'
+      title: "Tên sản phẩm",
+      dataIndex: "name",
+      width: "45%",
     },
     {
-      title: 'Giá',
-      dataIndex: 'price',
-      width: '15%'
+      title: "Giá",
+      dataIndex: "price",
+      width: "15%",
     },
     {
-      title: 'Thao tác',
-      dataIndex: '',
+      title: "Thao tác",
+      dataIndex: "",
       render: (id, data) => {
         return (
           <>
@@ -86,31 +102,27 @@ function Checkout() {
               }}
             />
             <DeleteOutlined
-              style={{ fontSize: "18px", marginLeft: "20%", color: 'red' }}
+              style={{ fontSize: "18px", marginLeft: "20%", color: "red" }}
               onClick={() => {
                 onclickDelete(data);
               }}
             />
           </>
-        )
-      }
+        );
+      },
     },
   ];
-
-
-
 
   const onSearchProduct = (searchItem) => {
     getData();
   };
   const [valueProduct, setValueProduct] = useState("");
   const onChangeProduct = (value) => {
-    console.log(value)
-    const a = products.filter((item) =>
-      value == item.id)[0];
+    console.log(value);
+    const a = products.filter((item) => value == item.id)[0];
     a.quantity = 1;
     if (a != undefined) {
-      setProductAdd([...productAdd, a])
+      setProductAdd([...productAdd, a]);
     }
     // carts.push(a);
   };
@@ -120,37 +132,39 @@ function Checkout() {
   //   console.log("new", pro);
   // }
 
-  const url = 'http://localhost:8080/api/products';
+  const url = "http://localhost:8080/api/products";
   const [totalSet, setTotalSet] = useState(10);
-  const [products, setData] = useState([{
-    id: "",
-    name: "",
-    price: null,
-    quantity: null,
-    active: 1,
-    imei: null,
-    weight: null,
-    size: null,
-    debut: null,
-    categoryId: null,
-    images: null
-  }]
-  );
+  const [products, setData] = useState([
+    {
+      id: "",
+      name: "",
+      price: null,
+      quantity: null,
+      active: 1,
+      imei: null,
+      weight: null,
+      size: null,
+      debut: null,
+      categoryId: null,
+      images: null,
+    },
+  ]);
   const getRandomuserParams = (params) => ({
     limit: params.pagination?.pageSize,
     page: params.pagination?.current,
+    searchStatus: params.pagination?.searchStatus,
   });
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize: 8
+      pageSize: 8,
+      searchStatus: "ACTIVE",
     },
   });
   //APILoadList
   const getData = () => {
-    axios.get(url + `?${qs.stringify(
-      getRandomuserParams(tableParams)
-    )}`)
+    axios
+      .get(url + `?${qs.stringify(getRandomuserParams(tableParams))}`)
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -159,11 +173,10 @@ function Checkout() {
           pagination: {
             ...tableParams.pagination,
             total: totalSet,
-          }
+          },
         });
       });
   };
-
 
   const navigate = useNavigate();
   const [state, dispath] = useContext(StoreContext);
@@ -203,140 +216,155 @@ function Checkout() {
       toastError("Vui lòng nhập đầy đủ số điện thoại!");
     } else if (type === "" || type == null) {
       toastError("Vui lòng chọn hình thức lấy hàng!");
-    } else if (type == "1" && (ProvinceID === "" || ProvinceID == null || districtId === "" || districtId == null || wardCode === "" || wardCode == null || address === "" || address == null)) {
+    } else if (
+      type == "1" &&
+      (ProvinceID === "" ||
+        ProvinceID == null ||
+        districtId === "" ||
+        districtId == null ||
+        wardCode === "" ||
+        wardCode == null ||
+        address === "" ||
+        address == null)
+    ) {
       toastError("Vui lòng nhập đầy đủ địa chỉ giao hàng!");
     } else if (payment === "" || payment == null) {
       toastError("Vui lòng chọn hình thức thanh toán!");
     } else {
-      if (payment === "DAT_COC") {
-        localStorage.setItem(
-          "total",
-          parseInt(getTotal(carts)) + parseInt(shipping)
-        );
-        localStorage.setItem("payment", payment);
-        localStorage.setItem("address", address);
-        localStorage.setItem("type", type);
-        localStorage.setItem("phone", phone);
-        localStorage.setItem("customerName", name);
-        localStorage.setItem("status", status);
-        localStorage.setItem(
-          "orderDetails",
-          JSON.stringify(getListSetListOrderDetails(carts))
-        );
-        localStorage.setItem("valueWard", valueWard);
-        localStorage.setItem("valueDistrict", valueDistrict);
-        localStorage.setItem("value", value);
-        fetch(`http://localhost:8080/api/vnpay`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            vnp_OrderInfo: "Đặt cọc qua VnPay cho khách hàng " + name,
-            orderType: "other",
-            amount: (parseInt(getTotal(carts)) + parseInt(shipping)) * 0.1,
-            bankCode: "NCB",
-            language: "vn",
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            window.location = data.paymentUrl;
-          });
-      } else if (payment === "NGAN_HANG") {
-        console.log("Chuyển khoản qua ngân hàng");
-        localStorage.setItem(
-          "total",
-          parseInt(getTotal(carts)) + parseInt(shipping)
-        );
-        localStorage.setItem("payment", payment);
-        localStorage.setItem("address", address);
-        localStorage.setItem("type", type);
-        localStorage.setItem("phone", phone);
-        localStorage.setItem("customerName", name);
-        localStorage.setItem("status", status);
-        localStorage.setItem(
-          "orderDetails",
-          JSON.stringify(getListSetListOrderDetails(carts))
-        );
-        localStorage.setItem("valueWard", valueWard);
-        localStorage.setItem("valueDistrict", valueDistrict);
-        localStorage.setItem("value", value);
-
-        let diachi;
-        let tongGia;
-        if (type == 0) {
-          diachi = "Tại cửa hàng"
-          tongGia = parseInt(getTotal(carts));
-        } else {
-          diachi = address + ", " + valueDistrict + ", " + value;
-          tongGia = parseInt(getTotal(carts)) + parseInt(shipping)
-        }
-
-        // Tạo hóa đơn
-        try {
-          fetch("http://localhost:8080/api/orders", {
+      if (parseInt(getTotal(carts)) > 200000000) {
+        toastError("Số tiền đặt hàng không vượt quá 200 triệu");
+      } else {
+        if (payment === "DAT_COC") {
+          localStorage.setItem(
+            "total",
+            parseInt(getTotal(carts)) + parseInt(shipping)
+          );
+          localStorage.setItem("payment", payment);
+          localStorage.setItem("address", address);
+          localStorage.setItem("type", type);
+          localStorage.setItem("phone", phone);
+          localStorage.setItem("customerName", name);
+          localStorage.setItem("status", status);
+          localStorage.setItem(
+            "orderDetails",
+            JSON.stringify(getListSetListOrderDetails(carts))
+          );
+          localStorage.setItem("valueWard", valueWard);
+          localStorage.setItem("valueDistrict", valueDistrict);
+          localStorage.setItem("valueProvince", valueProvince);
+          localStorage.setItem("value", value);
+          fetch(`http://localhost:8080/api/vnpay`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              payment: payment,
-              userId: localStorage.getItem("id"),
-              total: parseInt(getTotal(carts)) + parseInt(shipping),
-              address: diachi,
-              note: "",
-              customerName: localStorage.getItem("customerName"),
-              phone: localStorage.getItem("phone"),
-              status: "CHUA_THANH_TOAN",
-              money: 0,
-              shippingFree: shipping,
-              orderDetails: getListSetListOrderDetails(carts),
+              vnp_OrderInfo: "Đặt cọc qua VnPay cho khách hàng " + name,
+              orderType: "other",
+              amount: (parseInt(getTotal(carts)) + parseInt(shipping)) * 0.1,
+              bankCode: "NCB",
+              language: "vn",
             }),
           })
-            .then((res) => res.json())
-            .then((results) => {
-              if (results.status === 200) {
-                toastSuccess("Thêm hoá đơn thành công");
-                navigate('/user/order')
-                // resetInputField();
-              } else {
-                toastError("Thêm hoá đơn thất bại");
-              }
+            .then((response) => response.json())
+            .then((data) => {
+              window.location = data.paymentUrl;
             });
-        } catch (err) {
-          toastError("Thêm hoá đơn thất bại");
-        }
+        } else if (payment === "NGAN_HANG") {
+          console.log("Chuyển khoản qua ngân hàng");
+          localStorage.setItem(
+            "total",
+            parseInt(getTotal(carts)) + parseInt(shipping)
+          );
+          localStorage.setItem("payment", payment);
+          localStorage.setItem("address", address);
+          localStorage.setItem("type", type);
+          localStorage.setItem("phone", phone);
+          localStorage.setItem("customerName", name);
+          localStorage.setItem("status", status);
+          localStorage.setItem(
+            "orderDetails",
+            JSON.stringify(getListSetListOrderDetails(carts))
+          );
+          localStorage.setItem("valueWard", valueWard);
+          localStorage.setItem("valueDistrict", valueDistrict);
+          localStorage.setItem("value", value);
 
-      } else {
-        localStorage.setItem(
-          "total",
-          parseInt(getTotal(carts)) + parseInt(shipping)
-        );
-        localStorage.setItem("payment", payment);
-        localStorage.setItem("address", address);
-        localStorage.setItem("type", type);
-        localStorage.setItem("phone", phone);
-        localStorage.setItem("customerName", name);
-        localStorage.setItem("status", status);
-        localStorage.setItem(
-          "orderDetails",
-          JSON.stringify(getListSetListOrderDetails(carts))
-        );
-        localStorage.setItem("valueWard", valueWard);
-        localStorage.setItem("valueDistrict", valueDistrict);
-        localStorage.setItem("value", value);
-        fetch(`http://localhost:8080/api/vnpay`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            vnp_OrderInfo: "Đặt cọc qua VnPay cho khách hàng " + name,
-            orderType: "other",
-            amount: (parseInt(getTotal(carts)) + parseInt(shipping)),
-            bankCode: "NCB",
-            language: "vn",
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            window.location = data.paymentUrl;
-          });
+          let diachi;
+          let tongGia;
+          if (type == 0) {
+            diachi = "Tại cửa hàng";
+            tongGia = parseInt(getTotal(carts));
+          } else {
+            diachi = address + ", " + valueWard +", " + valueDistrict + ", " + valueProvince;
+            tongGia = parseInt(getTotal(carts)) + parseInt(shipping);
+          }
+
+          // Tạo hóa đơn
+          try {
+            fetch("http://localhost:8080/api/orders", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                payment: payment,
+                userId: localStorage.getItem("id"),
+                total: parseInt(getTotal(carts)) + parseInt(shipping),
+                address: diachi,
+                note: "",
+                customerName: localStorage.getItem("customerName"),
+                phone: localStorage.getItem("phone"),
+                status: "CHUA_THANH_TOAN",
+                money: 0,
+                shippingFree: shipping,
+                orderDetails: getListSetListOrderDetails(carts),
+              }),
+            })
+              .then((res) => res.json())
+              .then((results) => {
+                if (results.status === 200) {
+                  toastSuccess("Thêm hoá đơn thành công");
+                  navigate("/user/order");
+                  // resetInputField();
+                } else {
+                  toastError("Thêm hoá đơn thất bại");
+                }
+              });
+          } catch (err) {
+            toastError("Thêm hoá đơn thất bại");
+          }
+        } else {
+          localStorage.setItem(
+            "total",
+            parseInt(getTotal(carts)) + parseInt(shipping)
+          );
+          localStorage.setItem("payment", payment);
+          localStorage.setItem("address", address);
+          localStorage.setItem("type", type);
+          localStorage.setItem("phone", phone);
+          localStorage.setItem("customerName", name);
+          localStorage.setItem("status", status);
+          localStorage.setItem(
+            "orderDetails",
+            JSON.stringify(getListSetListOrderDetails(carts))
+          );
+          localStorage.setItem("valueWard", valueWard);
+          localStorage.setItem("valueDistrict", valueDistrict);
+          localStorage.setItem("valueProvince", valueProvince);
+          localStorage.setItem("value", value);
+          fetch(`http://localhost:8080/api/vnpay`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              vnp_OrderInfo: "Đặt cọc qua VnPay cho khách hàng " + name,
+              orderType: "other",
+              amount: parseInt(getTotal(carts)) + parseInt(shipping),
+              bankCode: "NCB",
+              language: "vn",
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              window.location = data.paymentUrl;
+            });
+        }
       }
     }
   };
@@ -374,13 +402,13 @@ function Checkout() {
     setProvinceID(information[0].address.split(",")[0]);
     setDistrictId(information[0].address.split(",")[1]);
     setWardCode(information[0].address.split(",")[2]);
-    setValue(information[0].address.split(",")[0])
+    setValue(information[0].address.split(",")[0]);
     setValueDistrict(information[0].address.split(",")[1]);
     setValueWard(information[0].address.split(",")[2]);
     setAddRess(information[0].address.split(",")[3]);
-    setName(information[0].fullName)
-    setPhone(information[0].phoneNumber)
-    localStorage.getItem("")
+    setName(information[0].fullName);
+    setPhone(information[0].phoneNumber);
+    localStorage.getItem("");
     setTotal(getTotal(carts));
     loadInfo(carts);
   }, []);
@@ -417,12 +445,12 @@ function Checkout() {
   };
 
   const changeType = (event) => {
-    console.log(event.target.value)
+    console.log(event.target.value);
     setType(event.target.value);
     if (event.target.value == 1) {
       loadDataProvince();
     } else {
-      setShipping(0)
+      setShipping(0);
     }
   };
 
@@ -431,12 +459,12 @@ function Checkout() {
   };
 
   const changeName = (event) => {
-    console.log(event.target.value)
+    console.log(event.target.value);
     setName(event.target.value);
   };
 
   const changePhone = (event) => {
-    console.log(event.target.value)
+    console.log(event.target.value);
     setPhone(event.target.value);
   };
 
@@ -475,7 +503,6 @@ function Checkout() {
     setProvinceID(value);
     loadDataDistrict(value);
   };
-
 
   const onSearchDistrict = (searchTerm, value) => {
     setValueDistrict(searchTerm);
@@ -531,6 +558,7 @@ function Checkout() {
 
   const SubmitShipping2 = (value) => {
     if (value != null) {
+      setWardCodeChange(value);
       console.log(serviceId);
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
@@ -544,7 +572,7 @@ function Checkout() {
           },
           body: JSON.stringify({
             service_id: serviceId,
-            insurance_value: total,
+            insurance_value: parseInt(getTotal(carts)),
             coupon: null,
             from_district_id: 3440,
             to_district_id: districtId,
@@ -558,7 +586,7 @@ function Checkout() {
       )
         .then((response) => response.json())
         .then((data) => {
-          console.log(data.data.total)
+          console.log(data.data.total);
           setShipping(data.data.total);
         });
     }
@@ -627,10 +655,12 @@ function Checkout() {
                   console.log("Success ward:", data.data);
                   setWard(data.data);
                   data.data.forEach((element) => {
-                    if (element.WardName === information[0].address.split(",")[2]) {
-                      SubmitShipping(element.WardCode, checkValue)
+                    if (
+                      element.WardName === information[0].address.split(",")[2]
+                    ) {
+                      SubmitShipping(element.WardCode, checkValue);
                     }
-                  })
+                  });
                 }
               });
           }
@@ -659,7 +689,7 @@ function Checkout() {
       .then((result) => {
         console.log(result.data);
         setArray(result.data);
-        result.data.forEach(element => {
+        result.data.forEach((element) => {
           if (element.ProvinceName === information[0].address.split(",")[0]) {
             loadDataDistrict(element.ProvinceID);
           }
@@ -671,8 +701,8 @@ function Checkout() {
   };
 
   const toOtherProduct = () => {
-    navigate('/user')
-  }
+    navigate("/user");
+  };
 
   const loadDataDistrict = (value) => {
     fetch(
@@ -702,26 +732,27 @@ function Checkout() {
           result.data.splice(0, 1);
           dataDis = result.data;
           setDistrict(dataDis);
-        } if (value === 202) {
+        }
+        if (value === 202) {
           result.data.splice(1, 1);
           result.data.splice(1, 1);
           result.data.splice(2, 1);
           dataDis = result.data;
           setDistrict(dataDis);
-        } if (value === 268) {
+        }
+        if (value === 268) {
           result.data.splice(0, 1);
           dataDis = result.data;
           setDistrict(dataDis);
           console.log(dataDis);
-        }
-        else {
+        } else {
           setDistrict(result.data);
         }
         result.data.forEach((element) => {
           if (element.DistrictName === information[0].address.split(",")[1]) {
-            loadDataWard(element.DistrictID)
+            loadDataWard(element.DistrictID);
           }
-        })
+        });
       });
   };
 
@@ -787,7 +818,7 @@ function Checkout() {
     let price = 0;
     let total = 0;
     for (let i = 0; i < cartList.length; i++) {
-      price = price + (cartList[i].price * cartList[i].quantity);
+      price = price + cartList[i].price * cartList[i].quantity;
       total += cartList[i].total;
     }
     return price;
@@ -796,34 +827,45 @@ function Checkout() {
   const information = JSON.parse(localStorage.getItem("information"));
 
   const showCarts = (carts) => {
-    console.log(carts)
+    console.log(carts);
     let cartList = carts;
     if (cartList.length > 0) {
       // for(i=0;i<cartList.length;i++){
       const listItems = cartList.map((cart) => (
         <div className="row d-flex">
           <div className="col-3 img mt-2">
-            <img alt="Ảnh sản phẩm" src={cart.images[0]?.name} className="img-content"></img>
+            <img
+              alt="Ảnh sản phẩm"
+              src={cart.images[0]?.name}
+              className="img-content"
+            ></img>
           </div>
           <div className="col-1 mt-5">
-            <InputNumber style={{ width: '50px' }} min={1} max={10} defaultValue={cart.quantity} onChange={(event) => onChangeInputNumber(cart, event)} />
+            <InputNumber
+              style={{ width: "50px" }}
+              min={1}
+              max={10}
+              defaultValue={cart.quantity}
+              onChange={(event) => onChangeInputNumber(cart, event)}
+            />
           </div>
           <div className="col-4 mt-5 d-block ">
             <div>
-              <p className="text-name1 ">
-                {cart.name}
-              </p>
+              <p className="text-name1 ">{cart.name}</p>
             </div>
           </div>
           <div className="col-3 mt-5">
-            <p className="text-name1 text-center">{formatCash(cart.price * cart.quantity + "")} VND</p>
+            <p className="text-name1 text-center">
+              {formatCash(cart.price * cart.quantity + "")} VND
+            </p>
           </div>
           <div className="col-1 mt-5">
             <DeleteOutlined
-              style={{ fontSize: "18px", marginLeft: "20%", color: 'red' }}
+              style={{ fontSize: "18px", marginLeft: "20%", color: "red" }}
               onClick={() => {
                 onclickDeleteCart(cart);
-              }} />
+              }}
+            />
           </div>
         </div>
       ));
@@ -908,16 +950,22 @@ function Checkout() {
                             onChange={onChange}
                             onClick={onSearch}
                             filterOption={(input, option) =>
-                              option.children.toLowerCase().includes(input.toLowerCase())
+                              option.children
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
                             }
                           >
                             {array.map((item) => (
-                              <Option key={item.ProvinceID} value={item.ProvinceID}>
+                              <Option
+                                key={item.ProvinceID}
+                                value={item.ProvinceID}
+                              >
                                 {item.ProvinceName}
                               </Option>
                             ))}
                           </Select>
-                        </div></div>
+                        </div>
+                      </div>
                       <div className="search-container mb-2">
                         <div className="search-inner">
                           <label>Tên quận huyện</label>
@@ -940,7 +988,10 @@ function Checkout() {
                             }
                           >
                             {district.map((item) => (
-                              <Option key={item.DistrictID} value={item.DistrictID}>
+                              <Option
+                                key={item.DistrictID}
+                                value={item.DistrictID}
+                              >
                                 {item.DistrictName}
                               </Option>
                             ))}
@@ -1015,24 +1066,31 @@ function Checkout() {
             <div className="form-group">
               <label>Phí vận chuyển</label>
               {/* <div className="input-group"> */}
-              {shipping ? <Input
-                style={{ borderRadius: "16px" }}
-                type="text"
-                value={formatCash(shipping + "") + " VND"}
-                onChange={(e) => setShipping(e.target.value)}
-                className="form-control fw-bold text-danger"
-                placeholder="0"
-                disabled
-              /> : <Input
-                style={{ borderRadius: "16px" }}
-                type="text"
-                value={"0" + " VND"}
-                onChange={(e) => setShipping(e.target.value)}
-                className="form-control fw-bold text-danger"
-                placeholder="0"
-                disabled
-              />}
-              <img style={{ width: "200px", height: "150px", marginLeft: "130px" }} src="https://inkythuatso.com/uploads/images/2021/12/thiet-ke-khong-ten-04-13-29-21.jpg"></img>
+              {shipping ? (
+                <Input
+                  style={{ borderRadius: "16px" }}
+                  type="text"
+                  value={formatCash(shipping + "") + " VND"}
+                  onChange={(e) => setShipping(e.target.value)}
+                  className="form-control fw-bold text-danger"
+                  placeholder="0"
+                  disabled
+                />
+              ) : (
+                <Input
+                  style={{ borderRadius: "16px" }}
+                  type="text"
+                  value={"0" + " VND"}
+                  onChange={(e) => setShipping(e.target.value)}
+                  className="form-control fw-bold text-danger"
+                  placeholder="0"
+                  disabled
+                />
+              )}
+              <img
+                style={{ width: "200px", height: "150px", marginLeft: "130px" }}
+                src="https://inkythuatso.com/uploads/images/2021/12/thiet-ke-khong-ten-04-13-29-21.jpg"
+              ></img>
               {/* <span className="input-group-text">VNĐ</span>
                             </div> */}
             </div>
@@ -1087,7 +1145,8 @@ function Checkout() {
               </button>
             </div>
             <div className="col-12 mt-2">
-              <button className="btn btn-primary form-control btn-ck "
+              <button
+                className="btn btn-primary form-control btn-ck "
                 onClick={showModal}
               >
                 Thêm sản phẩm
@@ -1116,7 +1175,15 @@ function Checkout() {
                   </Select>
                 </div>
               </div> */}
-              <Modal width={800} title="Thêm sản phẩm" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+              <Modal
+                width={800}
+                title="Thêm sản phẩm"
+                open={isModalOpen}
+                onOk={handleOk}
+                okText={"Thêm sản phẩm"}
+                cancelText={"Đóng"}
+                onCancel={handleCancel}
+              >
                 <Select
                   allowClear
                   showSearch
@@ -1128,22 +1195,22 @@ function Checkout() {
                   filterOption={(input, option) =>
                     option.children.toLowerCase().includes(input.toLowerCase())
                   }
-
                 >
                   {products != undefined
                     ? products.map((item, index) => (
-                      <Option key={index} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))
+                        <Option key={index} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))
                     : ""}
-
                 </Select>
 
-                <Table dataSource={productAdd} columns={columns} pagination={{ position: ["none", "none"] }} />
+                <Table
+                  dataSource={productAdd}
+                  columns={columns}
+                  pagination={{ position: ["none", "none"] }}
+                />
               </Modal>
-
-
             </div>
             {/* <div className="col-6 mt-2">
               <button className="btn btn-success form-control btn-ck">

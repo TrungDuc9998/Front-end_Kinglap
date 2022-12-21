@@ -3,7 +3,8 @@ import Context from "../../store/Context";
 import { addToCart, setCheckoutCart, viewProduct } from "../../store/Actions";
 import "./css/home.css";
 import anh1 from "../../asset/images/products/shop01.png";
-import anh3 from "../../asset/images/products/shop02.png";
+import anh2 from "../../asset/images/products/shop04.png";
+import anh3 from "../../asset/images/products/shop03.png";
 
 import product1 from "../../asset/images/products/product01.png";
 import product2 from "../../asset/images/products/product02.png";
@@ -136,11 +137,13 @@ function HomeUser() {
   const getRandomuserParams = (params) => ({
     limit: params.pagination?.pageSize,
     page: params.pagination?.current,
+    searchStatus: params.pagination?.searchStatus
   });
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 8,
+      searchStatus: "ACTIVE"
     },
   });
   //APILoadList
@@ -225,7 +228,7 @@ function HomeUser() {
             <div className="col-md-4 col-xs-6">
               <div className="shop">
                 <div className="shop-img">
-                  <img src={anh1} alt="" />
+                  <img src={anh2} alt="" />
                 </div>
                 <div className="shop-body">
                   <h3>

@@ -47,6 +47,7 @@ function CopyProduct() {
   const [dataStorage, setDataStorage] = useState([]);
   const [dataAccessory, setDataAccessory] = useState([]);
   const [dataColor, setDataColor] = useState([]);
+  const navigate = useNavigate();
   const set = new Set();
   const props = {
     name: "file",
@@ -216,7 +217,7 @@ function CopyProduct() {
   const loadDataManufacture = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/staff/manufactures?${qs.stringify(
+      `http://localhost:8080/api/auth/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
         headers: {
@@ -487,6 +488,7 @@ function CopyProduct() {
           console.log(results);
           onReset();
           toastSuccess("Thêm mới thành công !");
+          navigate("/admin/product")
         } else {
           toastError("Thêm mới sản phẩm thất bại !");
         }
