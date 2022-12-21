@@ -166,8 +166,10 @@ function ViewOrder() {
       let orderDetails = localStorage.getItem("orderDetails");
       let valueWard = localStorage.getItem("valueWard");
       let valueDistrict = localStorage.getItem("valueDistrict");
+      let valueProvince = localStorage.getItem("valueProvince");
       let value = localStorage.getItem("value");
 
+      console.log('địa chỉ khi thanh toán vnpay');
       console.log(
         total,
         payment,
@@ -179,8 +181,12 @@ function ViewOrder() {
         orderDetails,
         valueWard,
         valueDistrict,
-        value
+        value,
+        valueProvince
       );
+
+     
+
 
       fetch(`http://localhost:8080/api/orders/user`, {
         method: "POST",
@@ -194,13 +200,13 @@ function ViewOrder() {
           address:
             type == 0
               ? "TẠI CỬA HÀNG"
-              : value +
+              : address +
               ", " +
               valueWard +
               ", " +
               valueDistrict +
               ", " +
-              address,
+              valueProvince,
           phone: phone,
           customerName: customerName,
           // email: email,

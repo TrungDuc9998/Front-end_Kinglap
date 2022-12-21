@@ -351,12 +351,13 @@ const Processor = () => {
         },
         body: JSON.stringify(data),
       })
-        .then((response) => loadDataProcessor())
+        .then((response) => response.json())
         .then((results) => {
           if (results.status === 200) {
             toastSuccessProcessor("Thêm mới bộ xử lý thành công !");
             onReset();
             setLoading(false);
+            loadDataProcessor();
           }
           setOpen(false);
         })

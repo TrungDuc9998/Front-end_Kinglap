@@ -361,7 +361,7 @@ function CreateProduct() {
 
   const loadDataManufacture = () => {
     fetch(
-      `http://localhost:8080/api/staff/manufactures?${qs.stringify(
+      `http://localhost:8080/api/auth/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
         headers: {

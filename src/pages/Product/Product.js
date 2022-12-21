@@ -10,7 +10,7 @@ import {
   SearchOutlined,
   UnlockOutlined,
 } from "@ant-design/icons";
-import { Button, Input, Modal, Select, Table } from "antd";
+import { Button, Input, Modal, Select, Table, Image } from "antd";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -105,8 +105,8 @@ const Product = () => {
       render: (id, data) => {
         return (
           <>
-            {data?.images.length}
-            {/* <Image width={100} src={data?.images[} /> */}
+            {/* {data?.images.length} */}
+            <Image width={100} src={data?.images[0]?.name} />
           </>
         );
       },
@@ -377,14 +377,11 @@ const Product = () => {
   };
 
   const clearSearchForm = () => {
-    searchProductKey("");
-    searchStatus("");
-    searchImei("");
-    searchPrice("");
-  };
-
-  const showModal = () => {
-    setOpen(true);
+    load();
+    setSearchProductKey("");
+    setSearchStatus("");
+    setSearchImei("");
+    setSearchPrice("");
   };
 
   const changeSearchProductKey = (event) => {
@@ -845,6 +842,8 @@ const Product = () => {
     })
       .then((response) => response.json())
       .then((response) => {
+        console.log('data response');
+        console.log(response.data);
         response.data ? setImportSuccess(true) : console.log(response);
         console.log(importSuccess);
         response.errors ? notifyError(mess) : console.log(response);
@@ -900,11 +899,18 @@ const Product = () => {
         })
       : notifyError("Hãy chọn file excel cần import");
     setDataImport();
-    importSuccess == true
-      ? notifySuccess("Import thành công")
-      : console.log("false");
+
+    if(importSuccess === true) {
+      notifySuccess('Import thành công !')
+    }else {
+      notifyError('import thất bại !')
+    }
+    // importSuccess == true
+    //   ? notifySuccess("Import thành công !")
+    //   : console.log("false");
     const file = document.querySelectorAll('input[name="file"]');
     file[0].value = null;
+    load();
     setImportSuccess(false);
   };
 
@@ -939,7 +945,7 @@ const Product = () => {
               onChange={changeSearchProductKey}
             />
           </div>
-          <div className="col-3 mt-1">
+          {/* <div className="col-3 mt-1">
             <label>Imei</label>
             <br />
             <Input
@@ -949,7 +955,7 @@ const Product = () => {
               placeholder="Nhập imei"
               onChange={changeSearchImei}
             />
-          </div>
+          </div> */}
           <div className="col-3 mt-1">
             <label>Trạng thái</label>
             <br />

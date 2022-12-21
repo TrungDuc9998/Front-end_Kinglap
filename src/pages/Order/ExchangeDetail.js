@@ -131,7 +131,7 @@ function exchangeDetail() {
     console.log(dataExchange);
 
     dataExchange.forEach((element) => {
-      if (element.select === true) {
+      if(element.select === true) {
         console.log('vào kiểm tra selected === true');
         orderDetail.push({
           id: element.orderDetail.id,
@@ -140,9 +140,9 @@ function exchangeDetail() {
           quantity: element.quantity,
           total: 0,
           isBoolean: element.select,
-          exchangeStatus: 3,
+          exchangeStatus: data.isCheck,
         });
-      }
+      } 
     });
 
     const exchangeDetails = [];
@@ -186,7 +186,7 @@ function exchangeDetail() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderDetail),
           }
-        ).then((res) => { });
+        ).then((res) => {});
         toastSuccess("Xác nhận yêu cầu thành công !");
       } else {
         toastSuccess("Huỷ yêu cầu thành công !");
@@ -196,143 +196,6 @@ function exchangeDetail() {
     }
   };
 
-  const columns = [
-    {
-      title: "Id",
-      dataIndex: "id",
-      width: "10%",
-    },
-    {
-      title: "Hình ảnh",
-      dataIndex: "id",
-      dataIndex: "data",
-      width: "7%",
-      render: (id, data) => {
-        return (
-          <>
-            <Image
-              width={100}
-              src={data?.orderDetail.product?.images[0]?.name}
-            />
-          </>
-        );
-      },
-    },
-
-    {
-      title: "Sản phẩm trước đó",
-      dataIndex: "id",
-      dataIndex: "data",
-      width: "20%",
-      render: (id, data) => {
-        return <>{data.orderDetail.product.name}</>;
-      },
-    },
-
-    {
-      title: "Giá tiền",
-      dataIndex: "id",
-      dataIndex: "data",
-      width: "20%",
-      render: (id, data) => {
-        return (
-          <>
-            {data.orderDetail.product.price.toLocaleString("it-IT", {
-              style: "currency",
-              currency: "VND",
-            })}
-          </>
-        );
-      },
-    },
-    {
-      title: "Hình ảnh",
-      dataIndex: "id",
-      dataIndex: "data",
-      width: "20%",
-      render: (id, data) => {
-        return (
-          <>
-            <Image width={100} src={data?.productId?.images[0]?.name} />
-          </>
-        );
-      },
-    },
-    {
-      title: "Đổi sang",
-      dataIndex: "id",
-      dataIndex: "data",
-      width: "20%",
-      render: (id, data) => {
-        return <>{data.productId.name}</>;
-      },
-    },
-    {
-      title: "Giá tiền",
-      dataIndex: "id",
-      dataIndex: "data",
-      width: "20%",
-      render: (id, data) => {
-        return (
-          <>
-            {data.productId.price.toLocaleString("it-IT", {
-              style: "currency",
-              currency: "VND",
-            })}
-          </>
-        );
-      },
-    },
-
-    {
-      title: "Trạng thái",
-      dataIndex: "id",
-      dataIndex: "data",
-      width: "20%",
-      render: (id, data) => {
-        return (
-          <>
-            {data.status != "YEU_CAU" ? (
-              data.status === "DA_XAC_NHAN" ? (
-                <div
-                  className="bg-success text-center text-light"
-                  style={{
-                    width: "150px",
-                    borderRadius: "5px",
-                    padding: "4px",
-                  }}
-                >
-                  Đã xác nhận
-                </div>
-              ) : (
-                <div
-                  className="bg-danger text-center text-light"
-                  style={{
-                    width: "150px",
-                    borderRadius: "5px",
-                    padding: "4px",
-                  }}
-                >
-                  Huỷ
-                </div>
-              )
-            ) : (
-              <div
-                className="bg-warning text-center text-light"
-                style={{
-                  width: "150px",
-                  borderRadius: "5px",
-                  padding: "4px",
-                }}
-              >
-                Yêu cầu xác nhận
-              </div>
-            )}
-          </>
-        );
-      },
-    },
-  ];
 
   const onSelectChange = (newSelectedRowKeys) => {
     console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -443,7 +306,7 @@ function exchangeDetail() {
                         onChangeStudent1(event.target.checked, d);
                       }}
                       type="checkbox"
-                      checked={d.status === "YEU_CAU" ? d.select : ""}
+                      checked={d.status === "YEU_CAU" ?  d.select : ""}
                     ></input>
                   </th>
                   <td>{d.id}</td>

@@ -74,8 +74,10 @@ function ViewProduct() {
   //LoadList
   useEffect(() => {
     getData();
-
-  }, [JSON.stringify(tableParams), JSON.parse(localStorage.getItem("product_detail"))]);
+  }, [
+    JSON.stringify(tableParams),
+    JSON.parse(localStorage.getItem("product_detail")),
+  ]);
 
   console.log("pro", products);
 
@@ -170,11 +172,13 @@ function ViewProduct() {
                 ></button>
               </div>
               <div className="carousel-inner">
-                {JSON.parse(localStorage.getItem("product_detail")).images.map((image) => (
-                  <div className="carousel-item active">
-                    <img className="d-block w-100" src={image.name} alt="" />
-                  </div>
-                ))}
+                {JSON.parse(localStorage.getItem("product_detail")).images.map(
+                  (image) => (
+                    <div className="carousel-item active">
+                      <img className="d-block w-100" src={image.name} alt="" />
+                    </div>
+                  )
+                )}
               </div>
               <button
                 className="carousel-control-prev"
@@ -387,6 +391,12 @@ function ViewProduct() {
                   onCancel={handleCancel}
                   style={{ padding: "0 !impotant" }}
                   width={800}
+                  okButtonProps={{
+                    style: {
+                      display: "none",
+                    },
+                  }}
+                  cancelText={"Đóng"}
                 >
                   <div className="card">
                     <div className="card-header" style={{ textAlign: "left" }}>
@@ -394,12 +404,10 @@ function ViewProduct() {
                     </div>
                     <div className="card-body row">
                       <div className="col-6">
-                        <li>P/N: </li>
-                        <li>Xuất xứ: </li>
-                        <li>Thời gian bảo hành: </li>
+                        <li>Xuất xứ: {product.origin.name}</li>
+                        <li>Thương hiệu: {product.manufacture.name} </li>
                       </div>
                       <div className="col-6">
-                        <li>Thương hiệu: </li>
                         <li>Thời điểm ra mắt:{product.debut} </li>
                         <li>Hướng dẫn bảo quản: Để nơi khô ráo, nhẹ tay</li>
                       </div>
@@ -546,7 +554,10 @@ function ViewProduct() {
                   {products.map((pro) => (
                     <div className="product col-2" key={pro.id}>
                       <div className="product-img">
-                        <img src={pro.images ? pro.images[0]?.name : product1} alt="" />
+                        <img
+                          src={pro.images ? pro.images[0]?.name : product1}
+                          alt=""
+                        />
                         <div className="product-label">
                           <span className="new">NEW</span>
                         </div>
@@ -559,11 +570,26 @@ function ViewProduct() {
                         >
                           <a href="/user/product">{pro.name}</a>
                         </h3>
-                        <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
+                        <h4 className="product-price">
+                          {formatCash(Math.ceil(pro.price) + "")} VNĐ{" "}
+                          {pro.discount ? (
+                            <del className="product-old-price">
+                              {formatCash(
+                                Math.ceil(
+                                  pro.price / ((100 - pro.discount.ratio) / 100)
+                                ) + ""
+                              )}{" "}
+                              VNĐ
+                            </del>
+                          ) : (
+                            ""
+                          )}
+                        </h4>
                       </div>
                       <div className="add-to-cart">
                         <button className="add-to-cart-btn">
-                          <ShoppingCart size={18}></ShoppingCart> thêm vào giỏ hàng
+                          <ShoppingCart size={18}></ShoppingCart> thêm vào giỏ
+                          hàng
                         </button>
                       </div>
                     </div>

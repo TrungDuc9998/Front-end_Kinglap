@@ -175,12 +175,15 @@ function CreateOrderAdmin() {
           } else {
             toastSuccess("Thêm mới thành công!");
             setUsername("");
+            setPhoneNumberForm("");
+            setPhoneClient("");
             setPassword1("");
             setPassword2("");
             setFullName("");
             setEmail("");
             setPhoneNumber("");
             setAddRess("");
+            setValueUser("");
             setOpen(false);
           }
         });
@@ -473,27 +476,29 @@ function CreateOrderAdmin() {
       .then((result) => {
         let dataDis = [];
 
-        if (value === 201) {
-          result.data.splice(0, 1);
-          result.data.splice(0, 1);
-          dataDis = result.data;
-          setDistrict(dataDis);
-        }
-        if (value === 202) {
-          result.data.splice(1, 1);
-          result.data.splice(1, 1);
-          result.data.splice(2, 1);
-          dataDis = result.data;
-          setDistrict(dataDis);
-        }
-        if (value === 268) {
-          result.data.splice(0, 1);
-          dataDis = result.data;
-          setDistrict(dataDis);
-          console.log(dataDis);
-        } else {
-          setDistrict(result.data);
-        }
+        // if (value === 201) {
+        //   // result.data.splice(0, 1);
+        //   // result.data.splice(0, 1);
+        //   // dataDis = result.data;
+        //   // setDistrict(dataDis);
+        // }
+        // if (value === 202) {
+        //   // result.data.splice(1, 1);
+        //   // result.data.splice(1, 1);
+        //   // result.data.splice(2, 1);
+        //   // dataDis = result.data;
+        //   // setDistrict(dataDis);
+        // }
+        // if (value === 268) {
+        //   // result.data.splice(0, 1);
+        //   // dataDis = result.data;
+        //   // setDistrict(dataDis);
+        //   // console.log(dataDis);
+        // } else {
+          
+        // }
+
+        setDistrict(result.data);
       })
       .catch((error) => {
         console.log("err", error);
@@ -915,6 +920,7 @@ function CreateOrderAdmin() {
                     style={{ width: 200 }}
                     onChange={(event) => onChangeSearchClient(event)}
                     options={dataClient}
+                    value={phoneClient}
                     onSelect={(event) => onSelectAutoClient(event)}
                     placeholder="Nhập số điện thoại khách hàng"
                     filterOption={(inputValue, option) =>
@@ -1338,6 +1344,8 @@ function CreateOrderAdmin() {
                 onCancel={() => {
                   setDelete(false);
                 }}
+                okText={"Có"}
+                cancelText={"Không"}
                 onOk={() => {
                   fetch(`http://localhost:8080/api/carts/${id}`, {
                     method: "DELETE",
