@@ -277,14 +277,8 @@ const Discount = () => {
     setView(true);
   };
   const showDataProductCancel = () => {
-    // axios.get(urlStaff + "/" + id).then((res) => {
-    //   console.log("showDataProduct", res.data.data);
-    //   setDataDiscount(res.data.data);
-    // });
     setViewCancel(true);
   };
-  // const [currentCount, setCount] = useState(1);
-  // const timer = () => setCount(currentCount + 1);
 
   const columns = [
     {
@@ -699,7 +693,11 @@ const Discount = () => {
     tableParams.pagination.pageSize = 10;
     setLoading(true);
     axios
-      .get(url + `?${qs.stringify(getRandomuserParams(tableParams))}`)
+      .get(url + `?${qs.stringify(getRandomuserParams(tableParams))}`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
       // .then((res) => res.json())
       .then((results) => {
         setData(results.data.data.data);

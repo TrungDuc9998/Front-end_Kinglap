@@ -331,7 +331,11 @@ const Screen = () => {
     axios
       .get(
         url + `/auth/screens?${qs.stringify(getRandomuserParams(tableParams))}`
-      )
+        , {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -388,7 +392,11 @@ const Screen = () => {
       status: "ACTIVE",
     };
     axios
-      .post(url + "/staff/screens", form)
+      .post(url + "/staff/screens", form, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
       .then((res) => {
         notifySuccess("Thêm bản ghi màn hình thành công");
         // setAdd(false);
@@ -398,7 +406,7 @@ const Screen = () => {
         formE.setFieldsValue(formDefault);
       })
       .catch((error) => {
-        notifyError("Yêu cầu nhập đủ các trường!");
+        notifyError("Thêm bản ghi màn hình thất bại!");
         return;
       });
   };
@@ -426,7 +434,11 @@ const Screen = () => {
       status: form.status,
     };
     axios
-      .put(url + "/staff/screens/" + dataEdit.id, dataEdit)
+      .put(url + "/staff/screens/" + dataEdit.id, dataEdit, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
       .then((res) => {
         notifySuccess("Sửa bản ghi thành công");
         getData();
@@ -435,7 +447,7 @@ const Screen = () => {
         formE.setFieldsValue(formDefault);
       })
       .catch((error) => {
-        notifyError("Yêu cầu nhập đủ các trường!");
+        notifyError("Sửa bản ghi thất bại!");
         return;
       });
   };
@@ -447,7 +459,11 @@ const Screen = () => {
       content: "Bạn có muốn xoá bản ghi này không?",
       onOk() {
         axios
-          .delete(url + "/admin/screens/" + id)
+          .delete(url + "/admin/screens/" + id, {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          })
           .then((res) => {
             notifySuccess("Xóa bản ghi thành công!");
             getData();
