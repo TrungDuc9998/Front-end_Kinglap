@@ -549,7 +549,7 @@ function ViewOrder() {
                 className="ms-2"
                 style={{ fontSize: "20px", color: "red" }}
                 onClick={() => {
-                  showModalCancel(data.id);
+                  showModalCancel1(data.id);
                   setIDCancel(data.id);
                 }}
               />
@@ -663,6 +663,7 @@ function ViewOrder() {
   ];
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
+  const [isEditing1, setEditing1] = useState(false);
   const [isConfirm, setConfirm] = useState(false);
   const [isView, setView] = useState(false);
   const [order, setOrder] = useState();
@@ -671,6 +672,9 @@ function ViewOrder() {
 
   const showModalCancel = () => {
     setEditing(true);
+  };
+  const showModalCancel1 = () => {
+    setEditing1(true);
   };
   const showModalConfirm = () => {
     setConfirm(true);
@@ -683,7 +687,7 @@ function ViewOrder() {
       console.log(res.data);
     });
 
-    console.log(orderId);
+    console.log("ororderID", orderId);
     setView(true);
     loadDataOrderHistoryById(id);
     loadDataOrder(id);
@@ -983,7 +987,30 @@ function ViewOrder() {
               }}
             >
               <label>
-                Bạn có muốn huỷ đơn hàng này không ?        
+                Bạn có muốn huỷ đơn hàng này không?
+                <p className="text-danger">Nếu bạn hủy đơn này bạn sẽ mất 10% số tiền đã thanh toán hoặc số tiền đã đặt cọc!!</p>
+              </label>
+            </Modal>
+            <Modal
+              title="Huỷ đơn hàng"
+              open={isEditing1}
+              okText={"Có"}
+              cancelText={"Không"}
+              onCancel={() => {
+                setEditing1(false);
+              }}
+              onOk={() => {
+                fetch(
+                  `http://localhost:8080/api/orders/cancelled/${idCancel}`,
+                  { method: "PUT" }
+                ).then(() => load());
+                toastSuccess("Hủy thành công!");
+                setEditing1(false);
+                setLoading(true);
+              }}
+            >
+              <label>
+                Bạn có muốn huỷ đơn hàng này không?
               </label>
             </Modal>
 
@@ -994,10 +1021,10 @@ function ViewOrder() {
                 setView(false);
               }}
               okButtonProps={{
-                  style: {
-                    display: "none",
-                  },
-                }}
+                style: {
+                  display: "none",
+                },
+              }}
               cancelText={"Đóng"}
               width={900}
               onOk={() => {
@@ -1006,6 +1033,10 @@ function ViewOrder() {
                 handleUpdateOrderDetail();
               }}
             >
+              {/* <div className="col-12 text-center mb-2">
+                <h6 className="text-danger fw-bold">Hình ảnh đơn thanh toán</h6>
+                <Image width={250} src={order?.images[0]?.name} />
+              </div> */}
               <table className="table">
                 <thead>
                   <tr>
@@ -1080,7 +1111,7 @@ function ViewOrder() {
             </Modal>
           </div>
         </div>
-      </div>
+      </div >
     </>
   );
 }
