@@ -138,7 +138,11 @@ const Color = () => {
     setLoading(true);
     axios.get(url + `/auth/colors?${qs.stringify(
       getRandomuserParams(tableParams)
-    )}`)
+    )}`, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -184,7 +188,11 @@ const Color = () => {
       name: value.name,
       status: "ACTIVE"
     }
-    axios.post(url + "/staff/color", form)
+    axios.post(url + "/staff/color", form, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
       .then(res => {
         notifySuccess('Thêm bản ghi thành công')
         // setAdd(false);
@@ -193,7 +201,7 @@ const Color = () => {
         setValues(formDefault);
         formE.setFieldsValue(formDefault);
       }).catch((error) => {
-        notifyError('Yêu cầu nhập đủ các trường!');
+        notifyError('Thêm bản ghi thất bại!');
         return;
       })
 
@@ -212,7 +220,11 @@ const Color = () => {
       name: value.name,
       status: form.status,
     }
-    axios.put(url + "/staff/color/" + dataEdit.id, dataEdit)
+    axios.put(url + "/staff/color/" + dataEdit.id, dataEdit, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
       .then(res => {
         notifySuccess('Sửa bản ghi thành công')
         getData();
@@ -220,7 +232,7 @@ const Color = () => {
         setValues(formDefault);
         formE.setFieldsValue(formDefault);
       }).catch((error) => {
-        notifyError('Yêu cầu nhập đủ các trường!');
+        notifyError('Sửa bản ghi thất bại!');
         return;
       })
   }
@@ -232,7 +244,11 @@ const Color = () => {
       title: "Xoá giảm giá",
       content: "Bạn có muốn xoá bản ghi này không?",
       onOk() {
-        axios.delete(url + "/staff/color/" + id)
+        axios.delete(url + "/staff/color/" + id, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
           .then(res => {
             notifySuccess('Xóa bản ghi thành công!')
             getData();

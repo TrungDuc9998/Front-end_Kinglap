@@ -319,7 +319,11 @@ const BatteryCharger = () => {
         `/auth/batteryCharger?${qs.stringify(
           getRandomuserParams(tableParams)
         )}`
-      )
+        , {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -418,7 +422,11 @@ const BatteryCharger = () => {
       content: "Bạn có muốn xoá bản ghi này không?",
       onOk() {
         axios
-          .delete(url + "/admin/batteryCharger/" + id)
+          .delete(url + "/admin/batteryCharger/" + id, {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          })
           .then((res) => {
             if (res.status == 200) {
               notifySuccess("Xóa bản ghi thành công!");
