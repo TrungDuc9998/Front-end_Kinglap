@@ -30,6 +30,33 @@ function getItem(label, key, icon, children) {
   };
 }
 
+const item2 = [
+  getItem("Quản lý dịch vụ", "/admin/discount", <FileDoneOutlined />),
+  getItem("Quản lý sản phẩm", "sub1", <AppstoreOutlined />, [
+    getItem("Quản lý thể loại", "/admin/category"),
+    getItem("Danh sách sản phẩm", "/admin/product"),
+    getItem("Tạo sản phẩm", "/admin/product/create"),
+    getItem("Quản lý linh kiện", "/admin/accessories"),
+    getItem("Sản phẩm tồn kho", "/admin/product/inventory"),
+  ]),
+  getItem("Quản đơn hàng", "sub2", <OrderedListOutlined />, [
+    getItem("Đặt hàng", "/admin/order/create"),
+    getItem("Xác nhận thanh toán", "/admin/order/confirm/payment"),
+    getItem("Quản lý đơn đặt hàng", "/admin/order"),
+    getItem("Xác nhận đơn hàng", "/admin/order/confirm"),
+    getItem("Đơn hàng chờ lấy hàng", "/admin/order/wait"),
+    getItem("Đơn hàng đang giao", "/admin/order/delivering"),
+    getItem("Đơn hàng đã nhận", "/admin/order/success"),
+    getItem("Đơn hàng đã huỷ", "/admin/order/cancel"),
+  ]),
+  getItem("Quản lý hệ thống", "sub3", <TeamOutlined />, [
+    getItem("Quản lý người dùng", "/admin/user"),
+  ]),
+  getItem("Yêu cầu hỗ trợ", "sub4", <ReloadOutlined />, [
+    getItem("Yêu cầu đổi hàng", "/admin/order/exchange"),
+  ]),
+];
+
 const items = [
   getItem("Trang chủ", "/admin/statistical", <PieChartOutlined />),
   getItem("Quản lý dịch vụ", "/admin/discount", <FileDoneOutlined />),
@@ -94,7 +121,7 @@ const DefaultLayout = ({ children }) => {
           theme="dark"
           defaultValue={[items.label]}
           mode="inline"
-          items={items}
+          items={localStorage.getItem("roles") == "ADMIN" ? items: item2}
           onClick={({ key }) => {
             navigate(key);
           }}
