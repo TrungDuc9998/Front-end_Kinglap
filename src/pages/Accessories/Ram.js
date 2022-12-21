@@ -654,6 +654,7 @@ const Ram = () => {
                 display: "none",
               },
             }}
+            cancelText={"Đóng"}
             width={650}
           >
             <Form

@@ -333,10 +333,15 @@ const Color = () => {
           <Modal
             title="Tạo mới"
             open={open}
-            onOk={handleAdd}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
             width={650}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+            cancelText={"Đóng"}
           >
             <Form
               form={formE}
@@ -401,10 +406,13 @@ const Color = () => {
             title="Cập nhật"
             open={isEditing}
             onCancel={handleCancel}
-            onOk={(e) => {
-              handleEdit(e);
-            }}
             width={650}
+            okButtonProps={{
+              style: {
+                display: "none",
+              },
+            }}
+            cancelText={"Đóng"}
           >
             <Form
               form={formE}

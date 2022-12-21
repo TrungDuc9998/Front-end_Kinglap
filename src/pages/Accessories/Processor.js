@@ -682,6 +682,7 @@ const Processor = () => {
                 display: "none",
               },
             }}
+            cancelText={"Đóng"}
             width={700}
           >
             <Form
