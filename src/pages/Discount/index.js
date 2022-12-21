@@ -10,7 +10,6 @@ import {
   Space,
   Statistic,
 } from "antd";
-import { DatePickerProps, RangePickerProps } from "antd/es/date-picker";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -38,6 +37,7 @@ const urlStaff = "http://localhost:8080/api/staff/discount";
 const urlAdmin = "http://localhost:8080/api/admin/discount";
 const url_Pro = "http://localhost:8080/api/products";
 const { Countdown } = Statistic;
+import CurrencyFormat from "react-currency-format";
 
 export function compareTime(endDate) {
   const now = new Date();
@@ -83,7 +83,6 @@ const Discount = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [searchStartDate, setSearchStartDate] = useState(getDateTime());
   const [searchEndDate, setSearchEndDate] = useState(getDateTime());
-  const [modalText, setModalText] = useState("Content of the modal");
   const [dataProduct, setDataProduct] = useState([]);
   //const [dataProduct2, setDataProduct2] = useState([]);//hiển thị modal
   const [dataDiscount, setDataDiscount] = useState();
@@ -545,14 +544,6 @@ const Discount = () => {
 
   //btn Add
   const handleAdd = (e) => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    submitAdd(e);
-    setTimeout(() => {
-      setConfirmLoading(false);
-    }, 2000);
-  };
-  function submitAdd(e) {
     if (form.name == null || form.name == "") {
       notifyError("Tiêu đề giảm giá không được để trống!");
     } else if (form.ratio == null) {
@@ -577,7 +568,7 @@ const Discount = () => {
           console.log(res.data);
         })
         .catch((error) => {
-          notifyError("Yêu cầu nhập đủ các trường!");
+          notifyError("Thêm bản ghi thất bại!");
           return;
         });
     }
@@ -585,14 +576,6 @@ const Discount = () => {
 
   //btn Edit
   const handleEdit = (e) => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    submitEdit(e);
-    setTimeout(() => {
-      setConfirmLoading(false);
-    }, 2000);
-  };
-  function submitEdit(e) {
     if (form.name == null || form.name == "") {
       notifyError("Tiêu đề giảm giá không được để trống!");
     } else if (form.ratio == null) {
@@ -618,7 +601,7 @@ const Discount = () => {
           loadProduct();
         })
         .catch((error) => {
-          notifyError("Yêu cầu nhập đủ các trường!");
+          notifyError("Sửa bản ghi thất bại!");
           return;
         });
     }
@@ -660,13 +643,13 @@ const Discount = () => {
     });
   };
   //onChange status
-  const handleChange = (e) => {
-    setValues({
-      ...form,
-      status: e,
-    });
-    console.log("status", e);
-  };
+  // const handleChange = (e) => {
+  //   setValues({
+  //     ...form,
+  //     status: e,
+  //   });
+  //   console.log("status", e);
+  // };
 
   const handleChangeDate = (val, dateStrings) => {
     setValues({
@@ -751,7 +734,27 @@ const Discount = () => {
     }
   }
 
-  // Call API DiscountProduct
+  //check all cancel discount
+  const [isCheckedAllCancel, setIsCheckedAllCancel] = useState(true);
+  function handleCheckAllCancel(check) {
+    if (isCheckedAllCancel) {
+      console.log("checkedAll");
+      const checkboxes = document.querySelectorAll('input[name="ck"]');
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = true;
+      });
+      setIsCheckedAllCancel(false);
+    } else {
+      console.log("not checkedAll");
+      const checkboxes = document.querySelectorAll('input[name="ck"]');
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+      setIsCheckedAllCancel(true);
+    }
+  }
+
+  // Call API NoDiscountProduct
   const handNoDiscountProduct = () => {
     Modal.confirm({
       title: "Hủy áp dụng giảm giá",
@@ -823,6 +826,7 @@ const Discount = () => {
     axios
       .put(url_Pro + "/discountProduct/" + dataDiscount.id, checked)
       .then((res) => {
+        notifySuccess("Áp dụng thành công");
         console.log("DataDiscount", res.data.data);
         const checkboxes = document.querySelectorAll('input[name="ck"]');
         checkboxes.forEach((checkbox) => {
@@ -851,45 +855,45 @@ const Discount = () => {
     });
     getData();
   };
-  const changeStatusItem = (id, data) => {
-    Modal.confirm({
-      title: "Chuyển trạng thái",
-      content: "Bạn có muốn chuyển trạng thái",
-      onOk() {
-        handleConfirmChangeStatus(id, data);
-      },
-      onCancel() {
-        console.log("Cancel");
-      },
-    });
-  };
-  const handleConfirmChangeStatus = (id, data) => {
-    if (data.status == "INACTIVE" || data.status == "DRAFT") {
-      axios
-        .put(urlAdmin + "/active/" + id, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        })
-        .then((res) => {
-          notifySuccess("Chuyển trạng thái hoạt động thành công!");
-          getData();
-          console.log(res.data);
-        });
-    } else if (data.status == "ACTIVE") {
-      axios
-        .put(urlAdmin + "/inactive/" + id, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        })
-        .then((res) => {
-          notifySuccess("Chuyển trạng thái không hoạt động thành công!");
-          getData();
-          console.log(res.data);
-        });
-    }
-  };
+  // const changeStatusItem = (id, data) => {
+  //   Modal.confirm({
+  //     title: "Chuyển trạng thái",
+  //     content: "Bạn có muốn chuyển trạng thái",
+  //     onOk() {
+  //       handleConfirmChangeStatus(id, data);
+  //     },
+  //     onCancel() {
+  //       console.log("Cancel");
+  //     },
+  //   });
+  // };
+  // const handleConfirmChangeStatus = (id, data) => {
+  //   if (data.status == "INACTIVE" || data.status == "DRAFT") {
+  //     axios
+  //       .put(urlAdmin + "/active/" + id, {
+  //         headers: {
+  //           Authorization: "Bearer " + localStorage.getItem("token"),
+  //         },
+  //       })
+  //       .then((res) => {
+  //         notifySuccess("Chuyển trạng thái hoạt động thành công!");
+  //         getData();
+  //         console.log(res.data);
+  //       });
+  //   } else if (data.status == "ACTIVE") {
+  //     axios
+  //       .put(urlAdmin + "/inactive/" + id, {
+  //         headers: {
+  //           Authorization: "Bearer " + localStorage.getItem("token"),
+  //         },
+  //       })
+  //       .then((res) => {
+  //         notifySuccess("Chuyển trạng thái không hoạt động thành công!");
+  //         getData();
+  //         console.log(res.data);
+  //       });
+  //   }
+  // };
   return (
     <div>
       <ToastContainer />
@@ -912,10 +916,6 @@ const Discount = () => {
               background: "#fafafa",
             }}
           >
-            {/* <div className="col-4 mt-3">
-              <label>Từ khoá</label>
-              <Input type="text" name="searchName" value={data.name} placeholder="Nhập tên tài khoản người dùng" onChange={onchangeSearch} />
-            </div> */}
 
             <div className="col-4 mt-3 ">
               <label>Thời gian</label>
@@ -1003,7 +1003,7 @@ const Discount = () => {
                       <th scope="col">Tên sản phẩm</th>
                       <th scope="col">Giá tiền</th>
                       <th scope="col">Số lượng</th>
-                      <th scope="col">Giảm giá</th>
+                      {/* <th scope="col">Giảm giá</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -1011,30 +1011,33 @@ const Discount = () => {
                       ? dataProduct.map((item) => {
                           // console.log("item", item);
                           return (
+                            item.discount ?"":
                             <tr key={item.id}>
                               <td>
-                                {item.discount ? (
-                                  ""
-                                ) : (
                                   <input
                                     type={"checkbox"}
                                     name="ck"
                                     value={item.id}
                                   ></input>
-                                )}
                               </td>
                               <td>{item.name}</td>
-                              <td>{item.price}</td>
-                              <td>{item.quantity}</td>
                               <td>
+                              <CurrencyFormat
+                                        style={{ fontSize: "14px" }}
+                                        value={item.price}
+                                        displayType={"text"}
+                                        thousandSeparator={true}
+                                    /> VNĐ
+                              </td>
+                              <td>{item.quantity}</td>
+                              {/* <td>
                                 {item.discount
                                   ? item.discount.name +
                                     " (" +
                                     item.discount.ratio +
                                     "%)"
                                   : ""}
-                              </td>
-                              {/* <td>{item.price - (item.price * item.discount)}</td> */}
+                              </td> */}
                             </tr>
                           );
                         })
@@ -1081,7 +1084,7 @@ const Discount = () => {
                           type={"checkbox"}
                           id="checkall"
                           // checked={isCheckedAll[product]}
-                          onChange={() => handleCheckAll(checked)}
+                          onChange={() => handleCheckAllCancel(checked)}
                         />
                       </th>
                       <th scope="col">Tên sản phẩm</th>
@@ -1104,7 +1107,14 @@ const Discount = () => {
                                 ></input>
                               </td>
                               <td>{item.name}</td>
-                              <td>{item.price}</td>
+                              <td>
+                              <CurrencyFormat
+                                        style={{ fontSize: "14px" }}
+                                        value={item.price}
+                                        displayType={"text"}
+                                        thousandSeparator={true}
+                                    /> VNĐ
+                              </td>
                               <td>{item.quantity}</td>
                               <td>
                                 {item.discount
