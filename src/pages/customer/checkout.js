@@ -9,6 +9,8 @@ import {
   Button,
   message,
   Upload,
+  Image,
+  AutoComplete,
 } from "antd";
 import { Option } from "antd/lib/mentions";
 import axios from "axios";
@@ -21,6 +23,40 @@ import StoreContext from "../../store/Context";
 import "./css/checkout.css";
 
 function Checkout() {
+  const renderItem = (id, title, count, price) => ({
+    value: id,
+    label: (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: 'flex-start'
+        }}
+      >
+        <span>
+          <Image width={85} src={count} />
+        </span>
+        {title}
+      </div >
+    ),
+    price: price,
+  });
+  const [values, setValues] = useState();
+  const onChangeSearch = (event) => {
+    setValues(event);
+  };
+  const onSelectAuto = (value) => {
+    setValueProduct(value);
+    console.log("ádasjd", value);
+    const a = products.filter((item) => value == item.id)[0];
+    a.quantity = 1;
+    if (a != undefined) {
+      setProductAdd([...productAdd, a]);
+    }
+    setValues("");
+  };
+
+
+
   const [wardCodeChange, setWardCodeChange] = useState();
 
   const onChangeInputNumber = (value, event) => {
@@ -95,12 +131,12 @@ function Checkout() {
       render: (id, data) => {
         return (
           <>
-            <EyeOutlined
+            {/* <EyeOutlined
               style={{ fontSize: "18px", marginLeft: "20%" }}
               onClick={() => {
                 onClickShow(data);
               }}
-            />
+            /> */}
             <DeleteOutlined
               style={{ fontSize: "18px", marginLeft: "20%", color: "red" }}
               onClick={() => {
@@ -162,10 +198,18 @@ function Checkout() {
     },
   });
   //APILoadList
+  const [cherang, setCherang] = useState([]);
   const getData = () => {
     axios
       .get(url + `?${qs.stringify(getRandomuserParams(tableParams))}`)
       .then((results) => {
+        const dataResult = [];
+        results.data.data.data.forEach((item) => {
+          dataResult.push(
+            renderItem(item.id, item.name, item?.images[0]?.name, item.price)
+          );
+          setCherang(dataResult);
+        });
         setData(results.data.data.data);
         setTotal(results.data.data.total);
         setTableParams({
@@ -294,7 +338,7 @@ function Checkout() {
             diachi = "Tại cửa hàng";
             tongGia = parseInt(getTotal(carts));
           } else {
-            diachi = address + ", " + valueWard +", " + valueDistrict + ", " + valueProvince;
+            diachi = address + ", " + valueWard + ", " + valueDistrict + ", " + valueProvince;
             tongGia = parseInt(getTotal(carts)) + parseInt(shipping);
           }
 
@@ -411,6 +455,8 @@ function Checkout() {
     localStorage.getItem("");
     setTotal(getTotal(carts));
     loadInfo(carts);
+    getData();
+
   }, []);
 
   const _handleKeyDown = (e) => {
@@ -1184,7 +1230,7 @@ function Checkout() {
                 cancelText={"Đóng"}
                 onCancel={handleCancel}
               >
-                <Select
+                {/* <Select
                   allowClear
                   showSearch
                   size="large"
@@ -1198,12 +1244,29 @@ function Checkout() {
                 >
                   {products != undefined
                     ? products.map((item, index) => (
-                        <Option key={index} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))
+                      <Option key={index} value={item.id}>
+                        <Image src={""}></Image>{item.name}
+                      </Option>
+                    ))
                     : ""}
-                </Select>
+                </Select> */}
+
+                <AutoComplete
+                  style={{
+                    width: '100%',
+                  }}
+                  size="large"
+                  options={cherang}
+                  onChange={(event) => onChangeSearch(event)}
+                  onSelect={onSelectAuto}
+                  placeholder="Chọn sản phẩm"
+                  value={values}
+                  filterOption={(inputValue, option) =>
+                    option.label.props.children[1]
+                      .toUpperCase()
+                      .indexOf(inputValue.toUpperCase()) !== -1
+                  }
+                />
 
                 <Table
                   dataSource={productAdd}

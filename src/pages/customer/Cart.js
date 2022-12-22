@@ -137,14 +137,14 @@ function Cart() {
                                         thousandSeparator={true}
                                     /> VNĐ
                                     {/* {formatCash(product.price*product.quantity+"")} */}
-                                </span> 
-                                {product.discount?<span className="price ms-3"><CurrencyFormat
+                                </span>
+                                    {product.discount ? <span className="price ms-3"><CurrencyFormat
                                         style={{ fontSize: "14px" }}
-                                        value={Math.ceil(product.price/((100- product.discount.ratio) / 100))} 
+                                        value={Math.ceil(product.price / ((100 - product.discount.ratio) / 100))}
                                         displayType={"text"}
                                         thousandSeparator={true}
-                                        /> VNĐ</span>:""}
-                                    {product.discount?<button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm {product.discount.ratio}%</button>:""}
+                                    /> VNĐ</span> : ""}
+                                    {product.discount ? <button className="btn btn-danger ms-3" style={{ fontSize: '13px', fontWeight: 'bold' }}>Giảm {product.discount.ratio}%</button> : ""}
                                 </p>
                                 <DeleteOutlined
                                     onClick={() =>
