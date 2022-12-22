@@ -338,7 +338,7 @@ const Product = () => {
   const onSearch = (value) => {
     console.log("search:", value);
   };
-  const [importSuccess, setImportSuccess] = useState(false);
+  const [importSuccess, setImportSuccess] = useState(true);
   const [searchProductKey, setSearchProductKey] = useState();
   const [searchStatus, setSearchStatus] = useState();
   const [searchPrice, setSearchPrice] = useState();
@@ -844,7 +844,11 @@ const Product = () => {
       .then((response) => {
         console.log('data response');
         console.log(response.data);
-        response.data ? setImportSuccess(true) : console.log(response);
+        if(response.data) {
+          console.log('vào set image success');
+          setImportSuccess(true);
+        }
+        // response.data ?  : console.log(response);
         console.log(importSuccess);
         response.errors ? notifyError(mess) : console.log(response);
       })
@@ -899,11 +903,11 @@ const Product = () => {
         })
       : notifyError("Hãy chọn file excel cần import");
     setDataImport();
-
-    if(importSuccess == true) {
+    console.log(importSuccess);
+    if(importSuccess == true && dataImport != undefined) {
       notifySuccess('Import thành công !')
     }else {
-      notifyError('import thất bại !')
+      // notifyError('import thất bại !')
     }
     // importSuccess == true
     //   ? notifySuccess("Import thành công !")

@@ -255,7 +255,10 @@ function CreateOrderAdmin() {
       if (phoneClient != undefined && phoneClient.length != 10) {
         toastError("Số điện thoại không đúng định dạng !");
       }
-      if (typeOrder != "TẠI CỬA HÀNG" && addressDetail === undefined) {
+      if (
+        (typeOrder != "TẠI CỬA HÀNG" && addressDetail === undefined) ||
+        addressDetail == ""
+      ) {
         toastError("Nhập địa chỉ chi tiết!");
       } else {
         if (Number(order.total) + Number(shipping) > 200000000) {
@@ -303,7 +306,8 @@ function CreateOrderAdmin() {
     setPhoneClient("");
     setValueUser("");
     setShipping("0 VND");
-    setAddressDetail("Địa chỉ chi tiết");
+    setAddressDetail("");
+    setTypeOrder("");
     // SetRestSelect("");
   };
 
@@ -970,7 +974,7 @@ function CreateOrderAdmin() {
                 onCancel={handleCancel}
               >
                 <Form
-                 form={form}
+                  form={form}
                   autoComplete="off"
                   layout="vertical"
                   onFinish={(values) => {
@@ -993,7 +997,7 @@ function CreateOrderAdmin() {
                             message: "Tài khoản khách hàng không được để trống",
                           },
                           { whitespace: true },
-                          { min: 3 ,message: "Tài khoản từ 3 ký tự trở lên"},
+                          { min: 3, message: "Tài khoản từ 3 ký tự trở lên" },
                         ]}
                         hasFeedback
                       >
@@ -1023,7 +1027,10 @@ function CreateOrderAdmin() {
                         ]}
                         hasFeedback
                       >
-                        <Input placeholder="Xác nhận mật khẩu" type="password"/>
+                        <Input
+                          placeholder="Xác nhận mật khẩu"
+                          type="password"
+                        />
                       </Form.Item>
                     </div>
                     <div className="col-6">
@@ -1116,13 +1123,13 @@ function CreateOrderAdmin() {
                 </label>
                 <br />
                 <Select
-                key={1}
+                  key={1}
                   combobox="true"
                   placeholder="Hình thức mua hàng"
                   style={{
                     width: 240,
                   }}
-                  value={resetSelect}
+                  value={typeOrder}
                   onChange={handleChangePayment}
                 >
                   <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">
@@ -1139,16 +1146,20 @@ function CreateOrderAdmin() {
             <div className="col-6">
               <label>Tỉnh/ Thành Phố</label>
               <Select
-              key={2}
+                key={2}
                 combobox="true"
-                disabled={disableCountry || dataCart?.length === 0}
+                disabled={
+                  disableCountry === true
+                    ? disableCountry
+                    : dataCart?.length === 0
+                }
                 showSearch
                 placeholder="Tỉnh/thành phố"
                 optionFilterProp="children"
                 style={{
                   width: 240,
                 }}
-                value={resetSelect}
+                defaultValue={resetSelect}
                 onChange={onChange}
                 onClick={onSearch}
                 filterOption={(input, option) =>
@@ -1165,7 +1176,7 @@ function CreateOrderAdmin() {
                 <div className="search-inner">
                   <label>Tên quận huyện</label>
                   <Select
-                  key={3}
+                    key={3}
                     combobox="true"
                     showSearch
                     disabled={disableCountry || dataCart?.length === 0}
@@ -1195,7 +1206,7 @@ function CreateOrderAdmin() {
                 <div className="search-inner">
                   <label>Tên phường xã</label>
                   <Select
-                  key={4}
+                    key={4}
                     combobox="true"
                     showSearch
                     placeholder="Phường/xã"
