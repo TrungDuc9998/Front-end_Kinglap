@@ -2,14 +2,7 @@ import { UploadOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { storage } from "../../image/firebase/firebase";
 import { v4 } from "uuid";
-import {
-  Button,
-  Input,
-  Select,
-  DatePicker,
-  Form,
-  Upload,
-} from "antd";
+import { Button, Input, Select, DatePicker, Form, Upload } from "antd";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -144,7 +137,7 @@ function CreateProduct() {
     loadDataStorage();
     loadDataColor();
     loadDataWin();
-    console.log('vào useEffect');
+    console.log("vào useEffect");
     console.log(images);
     console.log(imageUrls);
   }, [images || images.length == 0]);
@@ -257,9 +250,10 @@ function CreateProduct() {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -363,9 +357,10 @@ function CreateProduct() {
     fetch(
       `http://localhost:8080/api/auth/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -387,9 +382,10 @@ function CreateProduct() {
     fetch(
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -420,10 +416,10 @@ function CreateProduct() {
     });
     console.log("image");
     console.log(images);
-    imageUrls.forEach((item,index) => {
+    imageUrls.forEach((item, index) => {
       imageUrls.splice(index, imageUrls.length);
-    })
-    imageUpload.forEach((item,index) => {
+    });
+    imageUpload.forEach((item, index) => {
       imageUpload.splice(index, imageUpload.length);
     });
     console.log(imageUrls);
@@ -551,7 +547,7 @@ function CreateProduct() {
                       message: "Tên sản phẩm không được để trống",
                     },
                     { whitespace: true },
-                    { min: 3 ,message: "Giá trị lớn hơn 3 ký tự"},
+                    { min: 3, message: "Giá trị lớn hơn 3 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -581,7 +577,6 @@ function CreateProduct() {
                     style={{ width: "100%" }}
                     placeholder="Nhập mã máy"
                     value={imei}
-                   
                   />
                 </Form.Item>
               </div>
@@ -618,7 +613,7 @@ function CreateProduct() {
                       message: "Giá tiền không được để trống",
                     },
                     { whitespace: true },
-                    { min: 7,message: "Giá trị lớn hơn 6 ký tự" },
+                    { min: 7, message: "Giá trị lớn hơn 6 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -692,7 +687,6 @@ function CreateProduct() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Chiều dài"
-                    type="number"
                     value={length}
                     min={100}
                   />
@@ -716,7 +710,6 @@ function CreateProduct() {
                     placeholder="Chiều rộng"
                     value={width}
                     min={100}
-                    type="number"
                   />
                 </Form.Item>
               </div>
@@ -736,7 +729,6 @@ function CreateProduct() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Chiều cao"
-                    type="number"
                     min={1}
                   />
                 </Form.Item>
@@ -757,7 +749,6 @@ function CreateProduct() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Cân nặng"
-                    type="number"
                     min={1}
                   />
                 </Form.Item>
@@ -808,7 +799,7 @@ function CreateProduct() {
                       message: "Chất liệu không được để trống",
                     },
                     { whitespace: true },
-                    { min: 3,message: "Giá trị lớn hơn 3 ký tự" },
+                    { min: 3, message: "Giá trị lớn hơn 3 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -1046,7 +1037,7 @@ function CreateProduct() {
                       message: "Bảo mật không được để trống",
                     },
                     { whitespace: true },
-                    { min: 3,message: "Giá trị lớn hơn 3 ký tự" },
+                    { min: 3, message: "Giá trị lớn hơn 3 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -1092,7 +1083,7 @@ function CreateProduct() {
                         },
                       ]}
                     >
-                      <Upload {...props} listType="picture"  maxCount={5}>
+                      <Upload {...props} listType="picture" maxCount={5}>
                         <Button icon={<UploadOutlined />}>
                           {" "}
                           Chọn hình ảnh (Tối đa: 5)
@@ -1105,7 +1096,7 @@ function CreateProduct() {
               <div></div>
             </div>
             <Form.Item className="text-center mt-4">
-              {(images.length > 0 || imageUrls.length >0 )  ? (
+              {images.length > 0 || imageUrls.length > 0 ? (
                 <Button
                   block
                   type="primary"

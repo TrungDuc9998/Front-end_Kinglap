@@ -219,9 +219,10 @@ function CopyProduct() {
     fetch(
       `http://localhost:8080/api/auth/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -264,9 +265,10 @@ function CopyProduct() {
     fetch(
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -352,9 +354,10 @@ function CopyProduct() {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -435,7 +438,7 @@ function CopyProduct() {
   const dateFormat = "YYYY";
 
   const handleSubmit = (data) => {
-    console.log('image url');
+    console.log("image url");
     console.log(imageUrls);
     data.images = imageUrls;
     data.status = "ACTIVE";
@@ -488,7 +491,7 @@ function CopyProduct() {
           console.log(results);
           onReset();
           toastSuccess("Thêm mới thành công !");
-          navigate("/admin/product")
+          navigate("/admin/product");
         } else {
           toastError("Thêm mới sản phẩm thất bại !");
         }
@@ -673,7 +676,6 @@ function CopyProduct() {
                       required: true,
                       message: "Giá tiền không được để trống",
                     },
-                    { min: 6, message: "Giá trị lớn hơn 6 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -736,7 +738,6 @@ function CopyProduct() {
                 <Form.Item
                   name="length"
                   label="Chiều dài"
-               
                   initialValue={form.length}
                   rules={[
                     {
@@ -750,7 +751,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều dài"
                     type="number"
-                    readOnly= {true}
+                    readOnly={true}
                     value={length}
                   />
                 </Form.Item>
@@ -772,7 +773,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều rộng"
                     value={width}
-                    readOnly= {true}
+                    readOnly={true}
                     type="number"
                   />
                 </Form.Item>
@@ -794,7 +795,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều cao"
                     type="number"
-                    readOnly= {true}
+                    readOnly={true}
                   />
                 </Form.Item>
               </div>
@@ -874,7 +875,7 @@ function CopyProduct() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Nhập chất liệu"
-                    readOnly= {true}
+                    readOnly={true}
                   />
                 </Form.Item>
               </div>
