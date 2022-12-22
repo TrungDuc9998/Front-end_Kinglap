@@ -84,6 +84,11 @@ const OrderDelivering = () => {
       },
     },
     {
+      title: "Người xác nhận",
+      dataIndex: "verifier",
+      width: "20%",
+    },
+    {
       title: "Thời gian",
       dataIndex: "createdAt",
       width: "25%",
@@ -515,7 +520,10 @@ const OrderDelivering = () => {
     });
     fetch(`http://localhost:8080/api/orders/confirm`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       clearSearchForm();

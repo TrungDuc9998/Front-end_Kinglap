@@ -1,21 +1,25 @@
+import { DeleteOutlined, EyeOutlined, UploadOutlined } from "@ant-design/icons";
 import {
-  DeleteOutlined,
-  EyeOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import { Button, Image, InputNumber, Modal, Table, Tabs, Upload, message } from "antd";
+  Button,
+  Image,
+  InputNumber,
+  Modal,
+  Table,
+  Tabs,
+  Upload,
+  message,
+} from "antd";
 import axios from "axios";
 import qs from "qs";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import StoreContext from '../../store/Context';
-import qr from "../../image/QR.jpg"
+import StoreContext from "../../store/Context";
+import qr from "../../image/QR.jpg";
 import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
 import { storage } from "../../image/firebase/firebase";
 import { v4 } from "uuid";
-
 
 const onChange = (key) => {
   console.log(key);
@@ -49,18 +53,18 @@ const toastError = (message) => {
 
 function ViewOrder() {
   const props = {
-    name: 'file',
+    name: "file",
     headers: {
-      authorization: 'authorization-text',
+      authorization: "authorization-text",
     },
     onChange(info) {
       if (info.file.status == "error") {
         info.file.status = "done";
       }
-      if (info.file.status !== 'removed') {
+      if (info.file.status !== "removed") {
         setImage({});
       }
-      if (info.file.status === 'done') {
+      if (info.file.status === "done") {
         uploadFile(info.fileList[0].originFileObj);
       }
     },
@@ -81,42 +85,41 @@ function ViewOrder() {
   const [isModalOpen1, setIsModalOpen1] = useState(false);
   const showModal1 = (data) => {
     setIsModalOpen1(true);
-    console.log(data)
-    setOrder1(data)
+    console.log(data);
+    setOrder1(data);
   };
-  const [order1, setOrder1] = useState()
+  const [order1, setOrder1] = useState();
   const handleOk1 = () => {
     setIsModalOpen1(false);
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     var raw = JSON.stringify({
-      "name": image,
-      "exchange_id": null,
-      "order_id": order1.id,
-      "product": null
+      name: image,
+      exchange_id: null,
+      order_id: order1.id,
+      product: null,
     });
     var requestOptions = {
-      method: 'POST',
+      method: "POST",
       headers: myHeaders,
       body: raw,
-      redirect: 'follow'
+      redirect: "follow",
     };
     fetch("http://localhost:8080/api/orders/image", requestOptions)
-      .then(response => response.text())
-      .then(result => {
+      .then((response) => response.text())
+      .then((result) => {
         console.log(result);
-        toastSuccess("Thanh toán thành công!")
+        toastSuccess("Thanh toán thành công!");
         updateStatusOrder(order1);
-      }
-      )
-      .catch(error => console.log('error', error));
+      })
+      .catch((error) => console.log("error", error));
   };
   const handleCancel1 = () => {
     setIsModalOpen1(false);
   };
 
   const updateStatusOrder = (order) => {
-    order.status = "CHO_XAC_NHAN"
+    order.status = "CHO_XAC_NHAN";
     order.money = order?.total;
     fetch(`http://localhost:8080/api/orders/` + order.id, {
       method: "PUT",
@@ -125,8 +128,7 @@ function ViewOrder() {
     }).then((res) => {
       getData();
     });
-  }
-
+  };
 
   let navigate = useNavigate();
   const [state, dispatch] = useContext(StoreContext);
@@ -169,7 +171,7 @@ function ViewOrder() {
       let valueProvince = localStorage.getItem("valueProvince");
       let value = localStorage.getItem("value");
 
-      console.log('địa chỉ khi thanh toán vnpay');
+      console.log("địa chỉ khi thanh toán vnpay");
       console.log(
         total,
         payment,
@@ -185,12 +187,12 @@ function ViewOrder() {
         valueProvince
       );
 
-     
-
-
       fetch(`http://localhost:8080/api/orders/user`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
         body: JSON.stringify({
           userId: localStorage.getItem("id"),
           total: total,
@@ -201,12 +203,12 @@ function ViewOrder() {
             type == 0
               ? "TẠI CỬA HÀNG"
               : address +
-              ", " +
-              valueWard +
-              ", " +
-              valueDistrict +
-              ", " +
-              valueProvince,
+                ", " +
+                valueWard +
+                ", " +
+                valueDistrict +
+                ", " +
+                valueProvince,
           phone: phone,
           customerName: customerName,
           // email: email,
@@ -214,12 +216,14 @@ function ViewOrder() {
           orderDetails: JSON.parse(orderDetails),
         }),
       }).then(() => {
-        JSON.parse(localStorage.getItem("orderDetails")) ? JSON.parse(localStorage.getItem("orderDetails")).forEach((ord) => {
-          dispatch({
-            type: "REMOVE_CART_AFTER_CHECKOUT",
-            payload: ord.productId
-          })
-        }) : console.log("null");
+        JSON.parse(localStorage.getItem("orderDetails"))
+          ? JSON.parse(localStorage.getItem("orderDetails")).forEach((ord) => {
+              dispatch({
+                type: "REMOVE_CART_AFTER_CHECKOUT",
+                payload: ord.productId,
+              });
+            })
+          : console.log("null");
         localStorage.removeItem("total");
         localStorage.removeItem("payment");
         localStorage.removeItem("address");
@@ -548,47 +552,72 @@ function ViewOrder() {
       width: "15%",
       render: (id, data) => {
         if (data.status == "CHUA_THANH_TOAN") {
-          return (<>
-            <button className="btn btn-primary" style={{ height: "30px", fontSize: "12px" }} onClick={() => showModal1(data)}>Thanh toán</button>
+          return (
             <>
-              <EyeOutlined
-                style={{ fontSize: "20px", marginLeft: "25%" }}
-                onClick={() => {
-                  showModalData(data.id);
-                }}
-              />
-              <DeleteOutlined
-                className="ms-2"
-                style={{ fontSize: "20px", color: "red" }}
-                onClick={() => {
-                  showModalCancel1(data.id);
-                  setIDCancel(data.id);
-                }}
-              />
+              <button
+                className="btn btn-primary"
+                style={{ height: "30px", fontSize: "12px" }}
+                onClick={() => showModal1(data)}
+              >
+                Thanh toán
+              </button>
+              <>
+                <EyeOutlined
+                  style={{ fontSize: "20px", marginLeft: "25%" }}
+                  onClick={() => {
+                    showModalData(data.id);
+                  }}
+                />
+                <DeleteOutlined
+                  className="ms-2"
+                  style={{ fontSize: "20px", color: "red" }}
+                  onClick={() => {
+                    showModalCancel1(data.id);
+                    setIDCancel(data.id);
+                  }}
+                />
+              </>
+              <Modal
+                width={700}
+                okText={"Hoàn thành"}
+                cancelText={"Đóng"}
+                title="Chuyển tiền đến tài khoản"
+                open={isModalOpen1}
+                onOk={() => handleOk1(data)}
+                onCancel={handleCancel1}
+              >
+                <div className="container row">
+                  <div className="col-6">
+                    <img src={qr} style={{ width: "300px" }} />
+                  </div>
+                  <div className="col-6 mt-3">
+                    <p>
+                      Chuyển đến số tài khoản với nội dung là số điện thoại của
+                      bạn!
+                    </p>
+                    <h5 className="mt-4">
+                      Tổng tiền :{" "}
+                      <span
+                        className="text-danger"
+                        style={{ fontSize: "25px", fontWeight: "600" }}
+                      >
+                        {order1?.total?.toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </span>
+                    </h5>
+                    <h4>Hình ảnh giao dịch thành công!</h4>
+                    <Upload {...props} listType="picture">
+                      <Button icon={<UploadOutlined />}>
+                        Tải lên hình ảnh
+                      </Button>
+                    </Upload>
+                  </div>
+                </div>
+              </Modal>
             </>
-            <Modal width={700} okText={"Hoàn thành"} cancelText={"Đóng"} title="Chuyển tiền đến tài khoản" open={isModalOpen1} onOk={() => handleOk1(data)} onCancel={handleCancel1}>
-              <div className="container row">
-                <div className="col-6">
-                  <img src={qr} style={{ width: '300px' }} />
-                </div>
-                <div className="col-6 mt-3">
-                  <p>Chuyển đến số tài khoản với nội dung là số điện thoại của bạn!</p>
-                  <h5 className="mt-4">Tổng tiền : <span className="text-danger" style={{ fontSize: '25px', fontWeight: '600' }}>
-                    {order1?.total?.toLocaleString("it-IT", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
-                  </span></h5>
-                  <h4>Hình ảnh giao dịch thành công!</h4>
-                  <Upload {...props}
-                    listType="picture"
-                  >
-                    <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
-                  </Upload>
-                </div>
-              </div>
-            </Modal>
-          </>)
+          );
         }
         if (data.status === "CHO_XAC_NHAN") {
           // if(data)
@@ -865,8 +894,7 @@ function ViewOrder() {
                       rowKey={(record) => record.id}
                       dataSource={orders.filter(
                         (order) => order.status === "CHUA_THANH_TOAN"
-                      )
-                      }
+                      )}
                       pagination={tableParams.pagination}
                       loading={loading}
                       onChange={handleTableChange}
@@ -882,8 +910,7 @@ function ViewOrder() {
                       rowKey={(record) => record.id}
                       dataSource={orders.filter(
                         (order) => order.status === "CHO_XAC_NHAN"
-                      )
-                      }
+                      )}
                       pagination={tableParams.pagination}
                       loading={loading}
                       onChange={handleTableChange}
@@ -1000,7 +1027,10 @@ function ViewOrder() {
             >
               <label>
                 Bạn có muốn huỷ đơn hàng này không?
-                <p className="text-danger">Nếu bạn hủy đơn này bạn sẽ mất 10% số tiền đã thanh toán hoặc số tiền đã đặt cọc!!</p>
+                <p className="text-danger">
+                  Nếu bạn hủy đơn này bạn sẽ mất 10% số tiền đã thanh toán hoặc
+                  số tiền đã đặt cọc!!
+                </p>
               </label>
             </Modal>
             <Modal
@@ -1021,9 +1051,7 @@ function ViewOrder() {
                 setLoading(true);
               }}
             >
-              <label>
-                Bạn có muốn huỷ đơn hàng này không?
-              </label>
+              <label>Bạn có muốn huỷ đơn hàng này không?</label>
             </Modal>
 
             <Modal
@@ -1058,7 +1086,6 @@ function ViewOrder() {
                     <th scope="col">Giá</th>
                     <th scope="col">Số lượng</th>
                     <th scope="col">Tổng tiền</th>
-                    
                   </tr>
                 </thead>
                 <tbody>
@@ -1081,8 +1108,7 @@ function ViewOrder() {
                           })}
                         </td>
                         <td>
-
-                        {item.quantity}
+                          {item.quantity}
                           {/* <InputNumber
                             // style={{width: "20%"}}
                             disabled={
@@ -1125,7 +1151,7 @@ function ViewOrder() {
             </Modal>
           </div>
         </div>
-      </div >
+      </div>
     </>
   );
 }

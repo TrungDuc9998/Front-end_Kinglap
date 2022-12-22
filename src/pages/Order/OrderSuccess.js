@@ -210,6 +210,11 @@ const OrderSuccess = () => {
       },
     },
     {
+      title: "Người xác nhận",
+      dataIndex: "verifier",
+      width: "25%",
+    },
+    {
       title: "Thời gian",
       dataIndex: "createdAt",
       width: "25%",

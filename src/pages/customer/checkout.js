@@ -29,14 +29,14 @@ function Checkout() {
       <div
         style={{
           display: "flex",
-          justifyContent: 'flex-start'
+          justifyContent: "flex-start",
         }}
       >
         <span>
           <Image width={85} src={count} />
         </span>
         {title}
-      </div >
+      </div>
     ),
     price: price,
   });
@@ -54,8 +54,6 @@ function Checkout() {
     }
     setValues("");
   };
-
-
 
   const [wardCodeChange, setWardCodeChange] = useState();
 
@@ -339,7 +337,14 @@ function Checkout() {
             diachi = "Tại cửa hàng";
             tongGia = parseInt(getTotal(carts));
           } else {
-            diachi = address + ", " + valueWard + ", " + valueDistrict + ", " + valueProvince;
+            diachi =
+              address +
+              ", " +
+              valueWard +
+              ", " +
+              valueDistrict +
+              ", " +
+              valueProvince;
             tongGia = parseInt(getTotal(carts)) + parseInt(shipping);
           }
 
@@ -347,7 +352,10 @@ function Checkout() {
           try {
             fetch("http://localhost:8080/api/orders", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + localStorage.getItem("token"),
+              },
               body: JSON.stringify({
                 payment: payment,
                 userId: localStorage.getItem("id"),
@@ -457,7 +465,6 @@ function Checkout() {
     setTotal(getTotal(carts));
     loadInfo(carts);
     getData();
-
   }, []);
 
   const _handleKeyDown = (e) => {
@@ -598,7 +605,7 @@ function Checkout() {
       )
         .then((response) => response.json())
         .then((data) => {
-          console.log("ship",data.data.total);
+          console.log("ship", data.data.total);
           setShipping(data.data.total);
         });
     }
@@ -705,7 +712,8 @@ function Checkout() {
                   setWard(data.data);
                   data.data.forEach((element) => {
                     if (
-                      element.WardName.trim() === information[0].address.split(",")[2].trim()
+                      element.WardName.trim() ===
+                      information[0].address.split(",")[2].trim()
                     ) {
                       SubmitShipping(element.WardCode, checkValue);
                     }
@@ -781,7 +789,7 @@ function Checkout() {
           result.data.splice(0, 1);
           dataDis = result.data;
           setDistrict(dataDis);
-          console.log("h",result.data);
+          console.log("h", result.data);
         }
         if (value === 202) {
           result.data.splice(1, 1);
@@ -799,7 +807,10 @@ function Checkout() {
           setDistrict(result.data);
         }
         result.data.forEach((element) => {
-          if (element.DistrictName.trim() === information[0].address.split(",")[1].trim()) {
+          if (
+            element.DistrictName.trim() ===
+            information[0].address.split(",")[1].trim()
+          ) {
             loadDataWard(element.DistrictID);
           }
         });
@@ -1257,7 +1268,7 @@ function Checkout() {
 
                 <AutoComplete
                   style={{
-                    width: '100%',
+                    width: "100%",
                   }}
                   size="large"
                   options={cherang}
