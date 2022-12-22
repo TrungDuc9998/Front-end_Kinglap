@@ -549,7 +549,7 @@ function EditProduct() {
       height: Number(data.height),
       width: Number(data.width),
       length: Number(data.length),
-      debut: data.debut,
+      debut: moment(data.debut).format("yyyy"),
       categoryId: data.categoryId,
       manufactureId: data.manufactureId,
       images: (imageUrls.length > 0) ? data.images : [],

@@ -22,7 +22,7 @@ import "./css/checkout.css";
 
 function Checkout() {
   const [wardCodeChange, setWardCodeChange] = useState();
-
+  const [values, setValues] = useState();
   const onChangeInputNumber = (value, event) => {
     console.log("changed", value);
     console.log("event", event);
@@ -294,7 +294,14 @@ function Checkout() {
             diachi = "Tại cửa hàng";
             tongGia = parseInt(getTotal(carts));
           } else {
-            diachi = address + ", " + valueWard +", " + valueDistrict + ", " + valueProvince;
+            diachi =
+              address +
+              ", " +
+              valueWard +
+              ", " +
+              valueDistrict +
+              ", " +
+              valueProvince;
             tongGia = parseInt(getTotal(carts)) + parseInt(shipping);
           }
 
@@ -704,6 +711,10 @@ function Checkout() {
     navigate("/user");
   };
 
+  const onChangeSearch = (event) => {
+    setValues(event);
+  };
+
   const loadDataDistrict = (value) => {
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
@@ -873,6 +884,8 @@ function Checkout() {
       // };
     }
   };
+
+  const onSelectAuto = (value) => {};
   return (
     <>
       <ToastContainer></ToastContainer>
@@ -938,7 +951,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tỉnh/ Thành Phố</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[0]}
+                            defaultValue={information[0].address.split(",")[3]}
                             disabled={disableCountry}
                             showSearch
                             placeholder="Tỉnh/thành phố"
@@ -970,7 +983,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên quận huyện</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[1]}
+                            defaultValue={information[0].address.split(",")[2]}
                             showSearch
                             disabled={disableCountry}
                             placeholder="Quận/huyện"
@@ -1002,7 +1015,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên phường xã</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[2]}
+                            defaultValue={information[0].address.split(",")[1]}
                             showSearch
                             placeholder="Phường/xã"
                             optionFilterProp="children"
@@ -1031,7 +1044,7 @@ function Checkout() {
                     <div>
                       <label>Địa chỉ</label>
                       <input
-                        defaultValue={information[0].address.split(",")[3]}
+                        defaultValue={information[0].address.split(",")[0]}
                         style={{
                           width: 380,
                           marginLeft: "97px",
