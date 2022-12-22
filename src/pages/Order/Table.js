@@ -105,6 +105,8 @@ function CreateOrderAdmin() {
   const [discounts, setDiscounts] = useState();
   const [userNameLogin, setUserNameLogin] = useState();
   const [typeOrder, setTypeOrder] = useState();
+  const [form] = Form.useForm();
+  const [resetSelect, SetRestSelect] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -154,6 +156,11 @@ function CreateOrderAdmin() {
       });
   };
 
+  const onReset = () => {
+    form.resetFields();
+    loadDataClient();
+  };
+
   const handleOk = (value) => {
     if (password2 === password1) {
       fetch(`http://localhost:8080/api/orders/createUser`, {
@@ -173,17 +180,16 @@ function CreateOrderAdmin() {
           if (results.data == null) {
             toastError(results.message);
           } else {
-            toastSuccess("Thêm mới thành công!");
+            toastSuccess("Thêm mới khách hàng thành công!");
+            onReset();
             setUsername("");
             setPhoneNumberForm("");
-            setPhoneClient("");
             setPassword1("");
             setPassword2("");
             setFullName("");
             setEmail("");
             setPhoneNumber("");
             setAddRess("");
-            setValueUser("");
             setOpen(false);
           }
         });
@@ -295,6 +301,10 @@ function CreateOrderAdmin() {
 
   const onRest = () => {
     setPhoneNumberForm("");
+    setPhoneClient("");
+    setValueUser("");
+    setAddressDetail("")
+    SetRestSelect("");
   };
 
   const updateCart = (cart, id, quantity) => {
@@ -495,7 +505,7 @@ function CreateOrderAdmin() {
         //   // setDistrict(dataDis);
         //   // console.log(dataDis);
         // } else {
-          
+
         // }
 
         setDistrict(result.data);
@@ -690,7 +700,7 @@ function CreateOrderAdmin() {
               option.push({
                 value: element.phoneNumber,
                 id: element.id,
-                fullName: element.fullName
+                fullName: element.fullName,
               });
             }
           });
@@ -795,7 +805,11 @@ function CreateOrderAdmin() {
         <span>
           <Image width={85} src={count} />
         </span>
-        {title}
+        {title}{" "}
+        {price.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        })}
       </div>
     ),
     price: price,
@@ -804,13 +818,13 @@ function CreateOrderAdmin() {
   const onSelectAutoClient = (value) => {
     console.log("on select client");
     console.log(value);
-    dataClient.forEach(element => {
-      if(element.value === value) {
-        console.log('kiểm tra số điện thoại khách hàng để  hiển thị');
+    dataClient.forEach((element) => {
+      if (element.value === value) {
+        console.log("kiểm tra số điện thoại khách hàng để  hiển thị");
         console.log(element.fullName);
-        setValueUser(element.fullName)
+        setValueUser(element.fullName);
       }
-    })
+    });
   };
 
   const onSelectAuto = (value) => {
@@ -913,7 +927,8 @@ function CreateOrderAdmin() {
                 <div className="search-inner">
                   <label>
                     {" "}
-                    Số điện thoại khách hàng <span className="text-danger fs-6">*</span>
+                    Số điện thoại khách hàng{" "}
+                    <span className="text-danger fs-6">*</span>
                   </label>
                   <br />
                   <AutoComplete
@@ -929,7 +944,6 @@ function CreateOrderAdmin() {
                         .indexOf(inputValue.toUpperCase()) !== -1
                     }
                   />
-                  
                 </div>
               </div>
             </div>
@@ -956,6 +970,7 @@ function CreateOrderAdmin() {
                 onCancel={handleCancel}
               >
                 <Form
+                 form={form}
                   autoComplete="off"
                   layout="vertical"
                   onFinish={(values) => {
@@ -978,7 +993,7 @@ function CreateOrderAdmin() {
                             message: "Tài khoản khách hàng không được để trống",
                           },
                           { whitespace: true },
-                          { min: 3 },
+                          { min: 3 ,message: "Tài khoản từ 3 ký tự trở lên"},
                         ]}
                         hasFeedback
                       >
@@ -1008,7 +1023,7 @@ function CreateOrderAdmin() {
                         ]}
                         hasFeedback
                       >
-                        <Input placeholder="Xác nhận mật khẩu" />
+                        <Input placeholder="Xác nhận mật khẩu" type="password"/>
                       </Form.Item>
                     </div>
                     <div className="col-6">
@@ -1081,8 +1096,7 @@ function CreateOrderAdmin() {
             <div className="col-6">
               <div className="form-group">
                 <label>
-                  Tên khách hàng{" "}
-                  <span className="text-danger fs-6">*</span>
+                  Tên khách hàng <span className="text-danger fs-6">*</span>
                 </label>
                 <Input
                   onChange={(e) => setValueUser(e.target.value)}
@@ -1107,6 +1121,7 @@ function CreateOrderAdmin() {
                   style={{
                     width: 240,
                   }}
+                  value={resetSelect}
                   onChange={handleChangePayment}
                 >
                   <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">
@@ -1131,6 +1146,7 @@ function CreateOrderAdmin() {
                 style={{
                   width: 240,
                 }}
+                value={resetSelect}
                 onChange={onChange}
                 onClick={onSearch}
                 filterOption={(input, option) =>
@@ -1155,6 +1171,7 @@ function CreateOrderAdmin() {
                     style={{
                       width: 240,
                     }}
+                    value={resetSelect}
                     onChange={onChangeDistricts}
                     onClick={onSearchDistricts}
                     filterOption={(input, option) =>
@@ -1182,6 +1199,7 @@ function CreateOrderAdmin() {
                     style={{
                       width: 240,
                     }}
+                    value={resetSelect}
                     onChange={onChangeWards}
                     onClick={onSearchWards}
                     disabled={disableCountry || dataCart?.length === 0}
