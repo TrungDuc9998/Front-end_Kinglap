@@ -1092,7 +1092,7 @@ function CreateProduct() {
                         },
                       ]}
                     >
-                      <Upload {...props} listType="picture" maxCount={5}>
+                      <Upload {...props} listType="picture"  maxCount={5}>
                         <Button icon={<UploadOutlined />}>
                           {" "}
                           Chọn hình ảnh (Tối đa: 5)

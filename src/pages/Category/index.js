@@ -584,7 +584,7 @@ const Category = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) => record++}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -592,7 +592,7 @@ const Category = () => {
           />
           <Modal
             title="Cập nhật"
-            visible={isEditing}
+            open={isEditing}
             onCancel={() => {
               setEditing(false);
             }}
@@ -647,7 +647,7 @@ const Category = () => {
           </Modal>
           <Modal
             title="Xóa danh mục"
-            visible={isDelete}
+            open={isDelete}
             onCancel={() => {
               setDelete(false);
             }}

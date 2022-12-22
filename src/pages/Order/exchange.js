@@ -671,7 +671,7 @@ const Exchange = () => {
                     <td>{index}</td>
                     {/* <td>{item.images}</td> */}
                     <td>
-                      {item.images === undefined ? (
+                      {item.images[0].name === undefined ? (
                         <Image width={90} src={item.images} />
                       ) : (
                         <Image width={90} src={item.images[0].name} />

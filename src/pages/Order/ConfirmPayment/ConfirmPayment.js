@@ -613,7 +613,7 @@ const ConfirmPayment = () => {
                 type="primary"
                 shape="round"
                 icon={<CheckCircleOutlined />}
-                className="ms-5"
+                className="ms-3"
                 onClick={confirmCheckBox}
                 danger
               >

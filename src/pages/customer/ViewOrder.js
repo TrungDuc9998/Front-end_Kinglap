@@ -299,8 +299,20 @@ function ViewOrder() {
     {
       title: "Trạng thái đơn hàng",
       dataIndex: "status",
-      width: "13%",
+      width: "17%",
       render: (status) => {
+        if (status === "CHUA_THANH_TOAN") {
+          return (
+            <>
+              <div
+                className="bg-secondary text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              >
+                Chưa thanh toán
+              </div>
+            </>
+          );
+        }
         if (status === "CHO_XAC_NHAN") {
           return (
             <>
@@ -1046,7 +1058,7 @@ function ViewOrder() {
                     <th scope="col">Giá</th>
                     <th scope="col">Số lượng</th>
                     <th scope="col">Tổng tiền</th>
-                    <th scope="col">Thao tác</th>
+                    
                   </tr>
                 </thead>
                 <tbody>
@@ -1069,7 +1081,9 @@ function ViewOrder() {
                           })}
                         </td>
                         <td>
-                          <InputNumber
+
+                        {item.quantity}
+                          {/* <InputNumber
                             // style={{width: "20%"}}
                             disabled={
                               item.status != "CHO_XAC_NHAN" ? true : false
@@ -1087,7 +1101,7 @@ function ViewOrder() {
                                 quantity
                               )
                             }
-                          />
+                          /> */}
                         </td>
                         <td>
                           {item.total.toLocaleString("it-IT", {
