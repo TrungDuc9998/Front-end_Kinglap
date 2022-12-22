@@ -454,7 +454,7 @@ const Product = () => {
 
   const loadDataManufacture = () => {
     fetch(
-      `http://localhost:8080/api/staff/manufactures?${qs.stringify(
+      `http://localhost:8080/api/auth/manufactures?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`,
       {
@@ -694,7 +694,7 @@ const Product = () => {
   const handleImport = (data, index) => {
     console.log(data);
     const row = index + 1;
-    var mess = "Import thất bản ghi thứ " + row;
+    var mess = "Import thất bại bản ghi thứ " + row;
     const quantity = Number(data.quantity);
     console.log(quantity);
     data.images = [data.images].map((item) => ({
@@ -900,7 +900,7 @@ const Product = () => {
       : notifyError("Hãy chọn file excel cần import");
     setDataImport();
 
-    if(importSuccess === true) {
+    if(importSuccess == true) {
       notifySuccess('Import thành công !')
     }else {
       notifyError('import thất bại !')
