@@ -368,7 +368,6 @@ function Card() {
                                 handleSubmit(values, isUpdate);
                             }}
                             onFinishFailed={(error) => {
-                                console.log({ error });
                             }}
                         >
                             <Form.Item
@@ -466,7 +465,6 @@ function Card() {
                                 handleSubmitUpdate(values, isUpdate);
                             }}
                             onFinishFailed={(error) => {
-                                console.log({ error });
                             }}>
                             <Form.Item
                                 name="trandemark"

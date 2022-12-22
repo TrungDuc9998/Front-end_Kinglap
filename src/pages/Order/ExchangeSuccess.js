@@ -99,8 +99,6 @@ const ExchangeSuccess = () => {
   };
 
   const ConfirmReturn = (data, isPut) => {
-    console.log("data confirm");
-    console.log(data);
     const returnDetail = [];
     data.returnDetailEntities.forEach((element) => {
       returnDetail.push({
@@ -127,7 +125,6 @@ const ExchangeSuccess = () => {
   };
 
   const confirmUpdateStatus = (record, isPut) => {
-    console.log(record.orderDetail.id);
     fetch(`http://localhost:8080/api/${record.id}/updateReturnDetails`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -170,9 +167,7 @@ const ExchangeSuccess = () => {
   };
 
   const showModalData = (id, orderId) => {
-    // console.log("orderId: " + orderId);
     axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
       setDataOD(res.data);
     });
     fetch(`http://localhost:8080/api/orders/get/${orderId}`)
@@ -189,16 +184,13 @@ const ExchangeSuccess = () => {
       `http://localhost:8080/api/staff/returns?${qs.stringify(
         getRandomOrderParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log("result id");
-        console.log(results);
-        console.log(results.data.data);
         setDataExchange(results.data.data);
         setDataExchange1(results.data.data);
         setLoading(false);
@@ -293,7 +285,6 @@ const ExchangeSuccess = () => {
     setDataExchange(dataExchange1);
   }
   const onClickSearch = () => {
-    console.log(valueSearch);
     if (valueSearch == "TAT_CA") {
       setDataExchange(dataExchange1);
       return;
@@ -303,7 +294,6 @@ const ExchangeSuccess = () => {
   }
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
 
   const OrderDelivering = (record, IsPut) => {
@@ -343,7 +333,6 @@ const ExchangeSuccess = () => {
       .then((res) => res.json())
       .then((res) => {
         // setDataProduct(res.data);
-        console.log(res.name);
         return res.name;
       });
   };

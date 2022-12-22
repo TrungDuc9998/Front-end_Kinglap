@@ -368,7 +368,6 @@ const Color = () => {
                 handleAdd(values)
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item
@@ -439,7 +438,6 @@ const Color = () => {
                 handleEdit(values);
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
 

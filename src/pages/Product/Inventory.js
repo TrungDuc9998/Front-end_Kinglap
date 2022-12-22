@@ -24,11 +24,9 @@ function Inventory() {
     setInventory(inventory1);
   }
   const onSearchStatus = (value) => {
-    console.log(value);
     setSearchStatus(value);
   }
   const onSearchName = (value) => {
-    console.log(value);
     setSearchName(value);
   }
   const [searchStatus, setSearchStatus] = useState();
@@ -40,16 +38,13 @@ function Inventory() {
     setSearchStatus(value);
   }
   const onClickSearch = () => {
-    console.log("click", searchStatus, "name", searchName);
     if (searchName == undefined && searchStatus == undefined) {
       setInventory(inventory1)
     }
     if (searchName == undefined && searchStatus != undefined) {
-      console.log("name null");
       setInventory(inventory1.filter(item => item.manufacture == searchStatus));
     }
     if (searchName != undefined && searchStatus == undefined) {
-      console.log("hang null");
       setInventory(inventory1.filter(item => item.name == searchName));
     }
     if (searchName != undefined && searchStatus != undefined) {
@@ -159,7 +154,6 @@ function Inventory() {
   ];
 
   const showModalData = (id) => {
-    console.log("id truyền vào", id);
     fetch(
       `http://localhost:8080/api/products/${id}?${qs.stringify(
         getRandomuserParams(tableParams)

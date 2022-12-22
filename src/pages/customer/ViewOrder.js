@@ -18,7 +18,6 @@ import { v4 } from "uuid";
 
 
 const onChange = (key) => {
-  console.log(key);
 };
 
 const toastSuccess = (message) => {
@@ -72,7 +71,6 @@ function ViewOrder() {
     uploadBytes(imageRef, image).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
         setImage(url);
-        console.log("upload thanh cong");
       });
     });
   };
@@ -81,7 +79,6 @@ function ViewOrder() {
   const [isModalOpen1, setIsModalOpen1] = useState(false);
   const showModal1 = (data) => {
     setIsModalOpen1(true);
-    console.log(data)
     setOrder1(data)
   };
   const [order1, setOrder1] = useState()
@@ -104,12 +101,11 @@ function ViewOrder() {
     fetch("http://localhost:8080/api/orders/image", requestOptions)
       .then(response => response.text())
       .then(result => {
-        console.log(result);
         toastSuccess("Thanh toán thành công!")
         updateStatusOrder(order1);
       }
       )
-      .catch(error => console.log('error', error));
+      .catch();
   };
   const handleCancel1 = () => {
     setIsModalOpen1(false);
@@ -154,7 +150,6 @@ function ViewOrder() {
   const getData = () => {
     let param = searchParams.get("vnp_ResponseCode");
     let userId = localStorage.getItem("username");
-    console.log("vnp_ResponseCode", param);
     if (param === "00") {
       let total = localStorage.getItem("total");
       let payment = localStorage.getItem("payment");
@@ -168,25 +163,6 @@ function ViewOrder() {
       let valueDistrict = localStorage.getItem("valueDistrict");
       let valueProvince = localStorage.getItem("valueProvince");
       let value = localStorage.getItem("value");
-
-      console.log('địa chỉ khi thanh toán vnpay');
-      console.log(
-        total,
-        payment,
-        address,
-        type,
-        phone,
-        customerName,
-        status,
-        orderDetails,
-        valueWard,
-        valueDistrict,
-        value,
-        valueProvince
-      );
-
-     
-
 
       fetch(`http://localhost:8080/api/orders/user`, {
         method: "POST",
@@ -243,7 +219,6 @@ function ViewOrder() {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setOrders(results);
         setOrderDetails(results[0].orderDetails);
         setTotal(results.total);
@@ -680,26 +655,19 @@ function ViewOrder() {
     setConfirm(true);
   };
   const showModalData = (id) => {
-    console.log("id show modal: ", id);
     setOrderId(id);
     axios.get(url + "/" + id).then((res) => {
       setOrder(res.data);
-      console.log(res.data);
     });
-
-    console.log("ororderID", orderId);
     setView(true);
     loadDataOrderHistoryById(id);
     loadDataOrder(id);
   };
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
     // setLoading(true);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data order history");
-        console.log(res);
         setOrderHistory(res);
       });
   };
@@ -736,7 +704,6 @@ function ViewOrder() {
   };
 
   const onChangeInput = (value, id, proId, price) => {
-    console.log("changed", value, id, proId, price);
     const set = new Set();
 
     setCount(value);
@@ -755,7 +722,6 @@ function ViewOrder() {
       todos.forEach((item) => {
         set.add(item.id);
       });
-      console.log(set);
       if (set.has(id)) {
         let abc = -1;
         todos?.forEach((item, index) => {
@@ -776,20 +742,15 @@ function ViewOrder() {
       }
     }
     setTodos(todos);
-    console.log(todos);
-    console.log(order);
     let count = -1;
     order?.forEach((element, index) => {
       if (element.id == id) {
         count = index;
       }
     });
-    console.log("quantity: ", quantity, "price: ", price);
     const total = quantity * price;
-    console.log(total);
     order[count].total = Number(price * value);
     setOrder(order);
-    console.log(order);
     // handleUpdateOrderDetail();
   };
 
@@ -814,7 +775,6 @@ function ViewOrder() {
       user: dataOrder.user,
       orderDetails: todos,
     };
-    console.log(od);
     fetch(`http://localhost:8080/api/orders/${dataOrder.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -831,7 +791,6 @@ function ViewOrder() {
         orderDetails: todos,
       }),
     }).then((res) => {
-      console.log("thành công!");
     });
   };
 

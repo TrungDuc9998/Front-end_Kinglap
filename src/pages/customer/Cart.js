@@ -15,12 +15,10 @@ function Cart() {
     let navigate = useNavigate();
     const [total, setTotal] = useState(0);
     const [state, dispatch] = useContext(StoreContext);
-    console.log("list cart", state.cart)
     const carts = JSON.parse(localStorage.getItem('carts'));
     const getTotal = () => {
         let totalSum = 0;
         carts?.forEach((item) => (totalSum += item.price * item.quantity));
-        console.log("tổng tiền sau khi tính: " + totalSum);
         setTotal(totalSum);
     }
 
@@ -55,14 +53,12 @@ function Cart() {
     const [isCheckedAll, setIsCheckedAll] = useState(true);
     function handleCheckAll(check) {
         if (isCheckedAll) {
-            console.log("checkedAll")
             const checkboxes = document.querySelectorAll('input[name="ck"]');
             checkboxes.forEach((checkbox) => {
                 checkbox.checked = true;
             });
             setIsCheckedAll(false);
         } else {
-            console.log("not checkedAll")
             const checkboxes = document.querySelectorAll('input[name="ck"]');
             checkboxes.forEach((checkbox) => {
                 checkbox.checked = false;

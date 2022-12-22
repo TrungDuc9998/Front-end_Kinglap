@@ -126,13 +126,8 @@ function exchangeDetail() {
   const handleSubmit = (isPut) => {
     const orderDetail = [];
 
-
-    console.log('data exchange handle submit');
-    console.log(dataExchange);
-
     dataExchange.forEach((element) => {
-      if(element.select === true) {
-        console.log('vào kiểm tra selected === true');
+      if (element.select === true) {
         orderDetail.push({
           id: element.orderDetail.id,
           isCheck: element.orderChange,
@@ -142,7 +137,7 @@ function exchangeDetail() {
           isBoolean: element.select,
           exchangeStatus: data.isCheck,
         });
-      } 
+      }
     });
 
     const exchangeDetails = [];
@@ -152,7 +147,6 @@ function exchangeDetail() {
     dataExchange
       .filter((item) => item.select === true)
       .forEach((item) => {
-        console.log('vào if');
         check = true;
         exchangeDetails.push({
           id: item.id,
@@ -162,8 +156,6 @@ function exchangeDetail() {
           status: isPut === true ? "DA_XAC_NHAN" : "KHONG_XAC_NHAN",
         });
       });
-
-    console.log(orderDetail);
 
     if (check === true) {
       fetch(`http://localhost:8080/api/returns/${id}`, {
@@ -186,7 +178,7 @@ function exchangeDetail() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderDetail),
           }
-        ).then((res) => {});
+        ).then((res) => { });
         toastSuccess("Xác nhận yêu cầu thành công !");
       } else {
         toastSuccess("Huỷ yêu cầu thành công !");
@@ -198,7 +190,6 @@ function exchangeDetail() {
 
 
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -306,7 +297,7 @@ function exchangeDetail() {
                         onChangeStudent1(event.target.checked, d);
                       }}
                       type="checkbox"
-                      checked={d.status === "YEU_CAU" ?  d.select : ""}
+                      checked={d.status === "YEU_CAU" ? d.select : ""}
                     ></input>
                   </th>
                   <td>{d.id}</td>

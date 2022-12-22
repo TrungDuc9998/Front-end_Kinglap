@@ -83,7 +83,7 @@ const ConfirmOrderDetail = () => {
                 className="bg-secondary text-center text-light"
                 style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
-               Chưa thanh toán
+                Chưa thanh toán
               </div>
             </>
           );
@@ -198,7 +198,6 @@ const ConfirmOrderDetail = () => {
         orderDetails: todos,
       }),
     }).then((res) => {
-      console.log("thành công!");
       loadDataOrder(id);
     });
   };
@@ -232,13 +231,11 @@ const ConfirmOrderDetail = () => {
       todos.forEach((item) => {
         set.add(item.id);
       });
-      console.log(set);
       if (set.has(id)) {
         let abc = -1;
         todos?.forEach((item, index) => {
           if (item.id === id) {
             abc = index;
-            console.log(abc);
           }
         });
         todos[abc].quantity = value;

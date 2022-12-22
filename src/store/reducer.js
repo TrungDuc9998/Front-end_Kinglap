@@ -41,7 +41,6 @@ function reducer(state, action) {
                     ...state.cartCheckout,
                     cart: add_cart
                 }
-                console.log("Update")
             }
             localStorage.setItem('carts', JSON.stringify(state.cart));
             return state

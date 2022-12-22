@@ -15,7 +15,6 @@ const Find = () => {
     // click product
     const handelCLickProduct = (product) => {
         dispatch(viewProduct(product))
-        console.log('state', state)
     }
 
     // add to cart
@@ -48,7 +47,6 @@ const Find = () => {
         const findCart = (JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : []).find(value => {
             return value.id === product.id
         })
-        console.log("findCart", findCart)
         if (findCart != null) {
             if (findCart.quantity < 5) {
                 dispatch(addToCart(product))
@@ -106,10 +104,10 @@ const Find = () => {
             `http://localhost:8080/api/auth/manufactures?${qs.stringify(
                 getRandomMuserParams(tableParams)
             )}`, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem("token"),
-                  },
-            }
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem("token"),
+            },
+        }
         )
             .then((res) => res.json())
             .then((results) => {
@@ -127,7 +125,6 @@ const Find = () => {
 
 
     const onChangeTrandemark = (idTrandemark) => {
-        console.log('checked = ', idTrandemark);
         const id = idTrandemark;
         const fin = [];
         if (idTrandemark.length == 0) {
@@ -140,7 +137,6 @@ const Find = () => {
                 const fi = dataProducts.filter((pro) => pro.manufacture.id == item);
                 fin.push(...fi);
             });
-            console.log(fin);
             setDataProductsFind(fin);
             setDataProductsFind1(fin);
             findw(value, fin);
@@ -151,7 +147,6 @@ const Find = () => {
     const onChangeRadioPrice = (e) => {
         setValue(e.target.value);
         if (e.target.value == 0) {
-            console.log(dataProductsFind1);
             setDataProductsFind(dataProductsFind1);
         } else if (e.target.value == 1) {
             setDataProductsFind(dataProductsFind1.filter((pro) => pro.price < 10000000));
@@ -250,7 +245,7 @@ const Find = () => {
                                     <div className="product-img">
                                         <img src={item.images ? item.images[0]?.name : product1} alt="" />
                                         <div className="product-label">
-                                        {item.discount ? (<span className="sale">{item.discount.ratio}%</span>) : ""}
+                                            {item.discount ? (<span className="sale">{item.discount.ratio}%</span>) : ""}
                                         </div>
                                     </div>
                                     <div className="product-body">

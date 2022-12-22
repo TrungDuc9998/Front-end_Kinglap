@@ -15,7 +15,6 @@ import { MenuFoldOutlined } from "@ant-design/icons";
 import Accessory from "./Accessory";
 
 const onChange = (key) => {
-  console.log(key);
 };
 
 const toastError = (message) => {
@@ -36,7 +35,7 @@ function Accessories() {
     <div
       style={{
         display: "block",
-       
+
       }}
     >
       <div className="row">

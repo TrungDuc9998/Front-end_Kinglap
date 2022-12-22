@@ -49,7 +49,6 @@ const CancelOrder = () => {
 
   useEffect(() => {
     loadDataOrder();
-    console.log(dataOrder);
   }, [dataOrder != undefined]);
 
   const onCancel = (record) => {
@@ -66,20 +65,16 @@ const CancelOrder = () => {
 
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
       setDataOD(res.data);
     });
     loadDataOrderHistoryById(id);
     setView(true);
   };
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
     // setLoading(true);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data order history");
-        console.log(res);
         setOrderHistory(res);
       });
   };
@@ -161,7 +156,7 @@ const CancelOrder = () => {
               </div>
             </>
           );
-        }else {
+        } else {
           return (
             <>
               <div
@@ -221,11 +216,9 @@ const CancelOrder = () => {
   ];
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
 
   const resetEditing = () => {

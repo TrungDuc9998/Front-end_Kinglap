@@ -212,11 +212,9 @@ const User = () => {
   };
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
   const [searchUsername, setSearchUsername] = useState();
   const [searchStatus, setSearchStatus] = useState();
@@ -266,14 +264,16 @@ const User = () => {
     if (password2 === password1) {
       fetch(
         `http://localhost:8080/api/users`,
-         { 
-            method: "POST", 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ 
+        {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
             username: username,
-            newPassword: password1, 
-            status: 1 }) }
-        )
+            newPassword: password1,
+            status: 1
+          })
+        }
+      )
         .then((res) => res.json())
         .then((results) => {
           if (results.data == null) {

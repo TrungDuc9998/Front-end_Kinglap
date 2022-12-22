@@ -95,7 +95,6 @@ function Menu() {
       .then((res) => res.json())
       .then((res) => {
         // dispatch(viewProduct(res));
-        console.log("vào");
         localStorage.removeItem("product_detail");
         localStorage.setItem("product_detail", JSON.stringify(res));
         navigate("/user/product");

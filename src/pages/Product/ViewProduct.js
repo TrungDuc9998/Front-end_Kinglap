@@ -59,7 +59,6 @@ function ViewProductAdmin() {
         info.file.status = "done";
       }
       if (info.file.status == "removed") {
-        console.log("removed");
       }
       if (info.file.status === "done") {
         info.fileList.forEach((item) => {
@@ -149,11 +148,11 @@ function ViewProductAdmin() {
     height: data?.height,
     images: data?.images
       ? data.images.map((item) => ({
-          name: item.name,
-          product: null,
-          return_id: null,
-          exchange_id: null,
-        }))
+        name: item.name,
+        product: null,
+        return_id: null,
+        exchange_id: null,
+      }))
       : null,
     processor: data?.configuration.processor,
     ram: data?.configuration.ram,
@@ -219,10 +218,10 @@ function ViewProductAdmin() {
       `http://localhost:8080/api/staff/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -264,10 +263,10 @@ function ViewProductAdmin() {
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -352,10 +351,10 @@ function ViewProductAdmin() {
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -434,8 +433,6 @@ function ViewProductAdmin() {
   const dateFormat = "YYYY";
 
   const handleSubmit = (data) => {
-    console.log('image url');
-    console.log(imageUrls);
     data.images = imageUrls;
     data.status = "ACTIVE";
     data.debut = moment(data.debut).format("yyyy");
@@ -475,7 +472,6 @@ function ViewProductAdmin() {
       description: data.description,
       storageId: data.storageId,
     };
-    console.log(product);
     fetch(`http://localhost:8080/api/products/copy/${productEdit.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -484,7 +480,6 @@ function ViewProductAdmin() {
       .then((response) => response.json())
       .then((results) => {
         if (results.status === 200) {
-          console.log(results);
           onReset();
           toastSuccess("Thêm mới thành công !");
         } else {
@@ -546,8 +541,6 @@ function ViewProductAdmin() {
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data product get by id");
-        console.log(res);
         setDataProduct(res);
       });
   };
@@ -585,7 +578,6 @@ function ViewProductAdmin() {
               handleSubmit(values);
             }}
             onFinishFailed={(error) => {
-              console.log({ error });
             }}
           >
             <div className="row">
@@ -653,7 +645,7 @@ function ViewProductAdmin() {
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn thể loại"  mode="multiple">
+                  <Select placeholder="Chọn thể loại" mode="multiple">
                     {category.map((cate) => (
                       <Select.Option disabled value={cate.id}>{cate.name}</Select.Option>
                     ))}
@@ -725,7 +717,7 @@ function ViewProductAdmin() {
                     },
                   ]}
                 >
-                  <Select mode="multiple"  placeholder="Chọn màu">
+                  <Select mode="multiple" placeholder="Chọn màu">
                     {dataColor?.map((item) => (
                       <Select.Option disabled value={item.id}>{item.name}</Select.Option>
                     ))}
@@ -738,7 +730,7 @@ function ViewProductAdmin() {
                 <Form.Item
                   name="length"
                   label="Chiều dài"
-               
+
                   initialValue={form.length}
                   rules={[
                     {
@@ -752,7 +744,7 @@ function ViewProductAdmin() {
                     style={{ width: "100%" }}
                     placeholder="Chiều dài"
                     type="number"
-                    readOnly= {true}
+                    readOnly={true}
                     value={length}
                   />
                 </Form.Item>
@@ -774,7 +766,7 @@ function ViewProductAdmin() {
                     style={{ width: "100%" }}
                     placeholder="Chiều rộng"
                     value={width}
-                    readOnly= {true}
+                    readOnly={true}
                     type="number"
                   />
                 </Form.Item>
@@ -796,7 +788,7 @@ function ViewProductAdmin() {
                     style={{ width: "100%" }}
                     placeholder="Chiều cao"
                     type="number"
-                    readOnly= {true}
+                    readOnly={true}
                   />
                 </Form.Item>
               </div>
@@ -877,7 +869,7 @@ function ViewProductAdmin() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Nhập chất liệu"
-                    readOnly= {true}
+                    readOnly={true}
                   />
                 </Form.Item>
               </div>
@@ -1026,7 +1018,7 @@ function ViewProductAdmin() {
                 >
                   <Select placeholder="Chọn card onboard" >
                     {dataCard?.map((item) => (
-                      <Select.Option  disabled value={item.id}>
+                      <Select.Option disabled value={item.id}>
                         {item.trandemark + " " + item.model + " " + item.memory}
                       </Select.Option>
                     ))}
@@ -1201,7 +1193,7 @@ function ViewProductAdmin() {
               </div>
               <div></div>
             </div>
-            
+
           </Form>
         </div>
       </div>

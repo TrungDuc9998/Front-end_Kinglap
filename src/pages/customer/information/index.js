@@ -67,7 +67,6 @@ function Information() {
     };
 
     const loadDataByID = () => {
-        console.log(information[0]?.id);
         fetch(`http://localhost:8080/api/information/` + information[0]?.id)
             .then((res) => res.json())
             .then((res) => {
@@ -89,7 +88,6 @@ function Information() {
             email: email,
             address: address,
         };
-        console.log(information[0]?.id);
         fetch("http://localhost:8080/api/auth/information/" + information[0]?.id, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },

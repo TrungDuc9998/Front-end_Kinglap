@@ -337,7 +337,6 @@ const Ram = () => {
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
   const [open, setOpen] = useState(false);
   const [openE, setOpenE] = useState(false);
@@ -530,10 +529,8 @@ const Ram = () => {
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmit(values, isUpdate);
-                console.log({ values });
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item
@@ -667,7 +664,6 @@ const Ram = () => {
                 handleSubmitE(values, isUpdate);
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item

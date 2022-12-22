@@ -60,7 +60,6 @@ function CopyProduct() {
         info.file.status = "done";
       }
       if (info.file.status == "removed") {
-        console.log("removed");
       }
       if (info.file.status === "done") {
         info.fileList.forEach((item) => {
@@ -150,11 +149,11 @@ function CopyProduct() {
     height: data?.height,
     images: data?.images
       ? data.images.map((item) => ({
-          name: item.name,
-          product: null,
-          return_id: null,
-          exchange_id: null,
-        }))
+        name: item.name,
+        product: null,
+        return_id: null,
+        exchange_id: null,
+      }))
       : null,
     processor: data?.configuration.processor,
     ram: data?.configuration.ram,
@@ -220,10 +219,10 @@ function CopyProduct() {
       `http://localhost:8080/api/auth/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -265,10 +264,10 @@ function CopyProduct() {
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -353,10 +352,10 @@ function CopyProduct() {
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -435,8 +434,6 @@ function CopyProduct() {
   const dateFormat = "YYYY";
 
   const handleSubmit = (data) => {
-    console.log('image url');
-    console.log(imageUrls);
     data.images = imageUrls;
     data.status = "ACTIVE";
     data.debut = moment(data.debut).format("yyyy");
@@ -476,7 +473,6 @@ function CopyProduct() {
       description: data.description,
       storageId: data.storageId,
     };
-    console.log(product);
     fetch(`http://localhost:8080/api/products/copy/${productEdit.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -485,7 +481,6 @@ function CopyProduct() {
       .then((response) => response.json())
       .then((results) => {
         if (results.status === 200) {
-          console.log(results);
           onReset();
           toastSuccess("Thêm mới thành công !");
           navigate("/admin/product")
@@ -548,8 +543,6 @@ function CopyProduct() {
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data product get by id");
-        console.log(res);
         setDataProduct(res);
       });
   };
@@ -587,7 +580,6 @@ function CopyProduct() {
               handleSubmit(values);
             }}
             onFinishFailed={(error) => {
-              console.log({ error });
             }}
           >
             <div className="row">
@@ -736,7 +728,7 @@ function CopyProduct() {
                 <Form.Item
                   name="length"
                   label="Chiều dài"
-               
+
                   initialValue={form.length}
                   rules={[
                     {
@@ -750,7 +742,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều dài"
                     type="number"
-                    readOnly= {true}
+                    readOnly={true}
                     value={length}
                   />
                 </Form.Item>
@@ -772,7 +764,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều rộng"
                     value={width}
-                    readOnly= {true}
+                    readOnly={true}
                     type="number"
                   />
                 </Form.Item>
@@ -794,7 +786,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Chiều cao"
                     type="number"
-                    readOnly= {true}
+                    readOnly={true}
                   />
                 </Form.Item>
               </div>
@@ -874,7 +866,7 @@ function CopyProduct() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Nhập chất liệu"
-                    readOnly= {true}
+                    readOnly={true}
                   />
                 </Form.Item>
               </div>

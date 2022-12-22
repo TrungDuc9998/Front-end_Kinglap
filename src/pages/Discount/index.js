@@ -89,7 +89,6 @@ const Discount = () => {
   const [checked, setChecked] = useState([]);
   const [trueProDiscount, setTrueProDiscount] = useState(false); //dk interval
   const onFinishTime = () => {
-    console.log("finished!");
   };
 
   const notifySuccess = (message) => {
@@ -179,42 +178,31 @@ const Discount = () => {
       var listProDiscount = [];
       setTrueProDiscount(false);
       //loadProduct();
-      console.log("dataProduct", dataProduct);
       dataProduct?.forEach((pro) => {
         if (pro.discount !== null) {
-          console.log("for noDiscount");
           listProDiscount.push(pro);
         }
       });
-      console.log("listProDiscount1", listProDiscount);
       dateTimer.forEach((time) => {
-        console.log("listProDiscount2", dataProduct);
         //clearInterval(myTimer);
         var myTimer = setInterval(() => {
           time--;
           if (time == 0) {
-            //clearInterval(myTimer);
-            console.log("dataProduct3", dataProduct);
             if (dataProduct !== []) {
               if (listProDiscount != []) {
-                console.log("api noDiscount", dataProduct);
-                //setTrueProDiscount(false);
-                //clearInterval(myTimer);
                 dataProduct.forEach((pro) => {
                   if (pro.discount != null) {
-                    console.log("pro.discount!=null");
                     if (
                       new Date(pro.discount.endDate).getTime() <=
                       new Date().getTime()
                     ) {
-                      console.log("trong api noDiscount", pro);
                       axios
                         .put(
                           url_Pro +
-                            "/noDiscountProduct/" +
-                            pro.discount?.id +
-                            "/" +
-                            pro.id,
+                          "/noDiscountProduct/" +
+                          pro.discount?.id +
+                          "/" +
+                          pro.id,
                           {
                             headers: {
                               Authorization:
@@ -223,7 +211,6 @@ const Discount = () => {
                           }
                         )
                         .then((res) => {
-                          console.log("shownoDiscount", res.data.data);
                           listProDiscount = listProDiscount.filter(
                             (p) => p.id !== pro.id
                           );
@@ -262,7 +249,6 @@ const Discount = () => {
 
   // Get product by discount
   const showDataProduct = (id) => {
-    console.log(id);
     axios
       .get(urlStaff + "/" + id, {
         headers: {
@@ -270,7 +256,6 @@ const Discount = () => {
         },
       })
       .then((res) => {
-        console.log("showDataProduct", res.data.data);
         setDataDiscount(res.data.data);
       });
     // handAPIProduct();
@@ -455,7 +440,6 @@ const Discount = () => {
               var totalTime =
                 (new Date(discount.endDate).getTime() - new Date().getTime()) /
                 1000;
-              console.log("totalTime", Math.ceil(totalTime));
               if (listTime.includes(Math.ceil(totalTime)) == false) {
                 listTime.push(Math.ceil(totalTime));
               }
@@ -464,7 +448,6 @@ const Discount = () => {
           axios.get(url_Pro + "/allProDiscount").then((res) => {
             if (listTime != []) {
               setDataProduct(res.data.data);
-              console.log("giây", listTime);
               setDateTimer(listTime);
               setTrueProDiscount(true);
             }
@@ -495,7 +478,6 @@ const Discount = () => {
     var haveDiscount = false;
     dataProduct?.forEach((pro) => {
       if (pro?.discount?.id === id) {
-        console.log("have Discount");
         haveDiscount = true;
       }
     });
@@ -509,7 +491,6 @@ const Discount = () => {
           },
         })
         .then((res) => {
-          console.log(res.data.data);
           setValues(res.data.data);
         });
       setEditing(true);
@@ -532,7 +513,6 @@ const Discount = () => {
         setAdd(false);
         getData();
         setValues(formDefault);
-        console.log(res.data);
       });
   };
 
@@ -559,7 +539,6 @@ const Discount = () => {
           setAdd(false);
           getData();
           setValues(formDefault);
-          console.log(res.data);
         })
         .catch((error) => {
           notifyError("Thêm bản ghi thất bại!");
@@ -591,7 +570,6 @@ const Discount = () => {
           getData();
           setEditing(false);
           setValues(formDefault);
-          console.log(res.data);
           loadProduct();
         })
         .catch((error) => {
@@ -616,7 +594,6 @@ const Discount = () => {
           .then((res) => {
             notifySuccess("Xóa bản ghi thành công!");
             getData();
-            console.log(res.data);
           })
           .catch((errorMessage) => {
             notifyError("Chỉ xóa bản nháp!");
@@ -624,7 +601,6 @@ const Discount = () => {
           });
       },
       onCancel() {
-        console.log("Cancel");
       },
     });
   };
@@ -636,14 +612,6 @@ const Discount = () => {
       [e.target.name]: e.target.value,
     });
   };
-  //onChange status
-  // const handleChange = (e) => {
-  //   setValues({
-  //     ...form,
-  //     status: e,
-  //   });
-  //   console.log("status", e);
-  // };
 
   const handleChangeDate = (val, dateStrings) => {
     setValues({
@@ -663,7 +631,6 @@ const Discount = () => {
 
   //Calendar
   const setDates = (val, dateStrings) => {
-    console.log(dateStrings);
     if (dateStrings[0] != null)
       setValues({
         ...form,
@@ -677,7 +644,6 @@ const Discount = () => {
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setAdd(false);
     setEditing(false);
     setValues(formDefault);
@@ -716,14 +682,12 @@ const Discount = () => {
   const [isCheckedAll, setIsCheckedAll] = useState(true);
   function handleCheckAll(check) {
     if (isCheckedAll) {
-      console.log("checkedAll");
       const checkboxes = document.querySelectorAll('input[name="ck"]');
       checkboxes.forEach((checkbox) => {
         checkbox.checked = true;
       });
       setIsCheckedAll(false);
     } else {
-      console.log("not checkedAll");
       const checkboxes = document.querySelectorAll('input[name="ck"]');
       checkboxes.forEach((checkbox) => {
         checkbox.checked = false;
@@ -736,14 +700,12 @@ const Discount = () => {
   const [isCheckedAllCancel, setIsCheckedAllCancel] = useState(true);
   function handleCheckAllCancel(check) {
     if (isCheckedAllCancel) {
-      console.log("checkedAll");
       const checkboxes = document.querySelectorAll('input[name="ck"]');
       checkboxes.forEach((checkbox) => {
         checkbox.checked = true;
       });
       setIsCheckedAllCancel(false);
     } else {
-      console.log("not checkedAll");
       const checkboxes = document.querySelectorAll('input[name="ck"]');
       checkboxes.forEach((checkbox) => {
         checkbox.checked = false;
@@ -767,17 +729,16 @@ const Discount = () => {
           }
           setChecked(checked);
         });
-        console.log(checked);
         // huy giam gia san pham
         checked.forEach((pro) => {
           if (pro.discount != null) {
             axios
               .put(
                 url_Pro +
-                  "/noDiscountProduct/" +
-                  pro.discount?.id +
-                  "/" +
-                  pro.id,
+                "/noDiscountProduct/" +
+                pro.discount?.id +
+                "/" +
+                pro.id,
                 {
                   headers: {
                     Authorization: "Bearer " + localStorage.getItem("token"),
@@ -785,7 +746,6 @@ const Discount = () => {
                 }
               )
               .then((res) => {
-                console.log("DataNoDiscount", res.data.data);
                 notifySuccess("Hủy áp dụng giảm giá thành công!");
                 const checkboxes =
                   document.querySelectorAll('input[name="ck"]');
@@ -803,7 +763,6 @@ const Discount = () => {
         setChecked([]);
       },
       onCancel() {
-        console.log("Cancel");
       },
     });
   };
@@ -819,13 +778,11 @@ const Discount = () => {
       }
       setChecked(checked);
     });
-    console.log(checked);
     // giam gia san pham
     axios
       .put(url_Pro + "/discountProduct/" + dataDiscount.id, checked)
       .then((res) => {
         notifySuccess("Áp dụng thành công");
-        console.log("DataDiscount", res.data.data);
         const checkboxes = document.querySelectorAll('input[name="ck"]');
         checkboxes.forEach((checkbox) => {
           checkbox.checked = false;
@@ -861,7 +818,6 @@ const Discount = () => {
   //       handleConfirmChangeStatus(id, data);
   //     },
   //     onCancel() {
-  //       console.log("Cancel");
   //     },
   //   });
   // };
@@ -876,7 +832,6 @@ const Discount = () => {
   //       .then((res) => {
   //         notifySuccess("Chuyển trạng thái hoạt động thành công!");
   //         getData();
-  //         console.log(res.data);
   //       });
   //   } else if (data.status == "ACTIVE") {
   //     axios
@@ -888,7 +843,6 @@ const Discount = () => {
   //       .then((res) => {
   //         notifySuccess("Chuyển trạng thái không hoạt động thành công!");
   //         getData();
-  //         console.log(res.data);
   //       });
   //   }
   // };
@@ -983,7 +937,6 @@ const Discount = () => {
               </Button>,
             ]}
           >
-            {/* console.log(id); */}
             <div className="row">
               <div className="col-12">
                 {/* <h1>abc{dataDiscount?.id}</h1> */}
@@ -1007,25 +960,24 @@ const Discount = () => {
                   <tbody>
                     {dataProduct
                       ? dataProduct.map((item) => {
-                          // console.log("item", item);
-                          return (
-                            item.discount ?"":
+                        return (
+                          item.discount ? "" :
                             <tr key={item.id}>
                               <td>
-                                  <input
-                                    type={"checkbox"}
-                                    name="ck"
-                                    value={item.id}
-                                  ></input>
+                                <input
+                                  type={"checkbox"}
+                                  name="ck"
+                                  value={item.id}
+                                ></input>
                               </td>
                               <td>{item.name}</td>
                               <td>
-                              <CurrencyFormat
-                                        style={{ fontSize: "14px" }}
-                                        value={item.price}
-                                        displayType={"text"}
-                                        thousandSeparator={true}
-                                    /> VNĐ
+                                <CurrencyFormat
+                                  style={{ fontSize: "14px" }}
+                                  value={item.price}
+                                  displayType={"text"}
+                                  thousandSeparator={true}
+                                /> VNĐ
                               </td>
                               <td>{item.quantity}</td>
                               {/* <td>
@@ -1037,8 +989,8 @@ const Discount = () => {
                                   : ""}
                               </td> */}
                             </tr>
-                          );
-                        })
+                        );
+                      })
                       : ""}
                   </tbody>
                 </table>
@@ -1070,7 +1022,6 @@ const Discount = () => {
               </Button>,
             ]}
           >
-            {/* console.log(id); */}
             <div className="row">
               <div className="col-12">
                 {/* <h1>abc{dataDiscount?.id}</h1> */}
@@ -1094,39 +1045,38 @@ const Discount = () => {
                   <tbody>
                     {dataProduct
                       ? dataProduct.map((item) => {
-                          // console.log("item", item);
-                          return item.discount ? (
-                            <tr key={item.id}>
-                              <td>
-                                <input
-                                  type={"checkbox"}
-                                  name="ck"
-                                  value={item.id}
-                                ></input>
-                              </td>
-                              <td>{item.name}</td>
-                              <td>
+                        return item.discount ? (
+                          <tr key={item.id}>
+                            <td>
+                              <input
+                                type={"checkbox"}
+                                name="ck"
+                                value={item.id}
+                              ></input>
+                            </td>
+                            <td>{item.name}</td>
+                            <td>
                               <CurrencyFormat
-                                        style={{ fontSize: "14px" }}
-                                        value={item.price}
-                                        displayType={"text"}
-                                        thousandSeparator={true}
-                                    /> VNĐ
-                              </td>
-                              <td>{item.quantity}</td>
-                              <td>
-                                {item.discount
-                                  ? item.discount.name +
-                                    " (" +
-                                    item.discount.ratio +
-                                    "%)"
-                                  : ""}
-                              </td>
-                            </tr>
-                          ) : (
-                            ""
-                          );
-                        })
+                                style={{ fontSize: "14px" }}
+                                value={item.price}
+                                displayType={"text"}
+                                thousandSeparator={true}
+                              /> VNĐ
+                            </td>
+                            <td>{item.quantity}</td>
+                            <td>
+                              {item.discount
+                                ? item.discount.name +
+                                " (" +
+                                item.discount.ratio +
+                                "%)"
+                                : ""}
+                            </td>
+                          </tr>
+                        ) : (
+                          ""
+                        );
+                      })
                       : ""}
                   </tbody>
                 </table>
@@ -1250,7 +1200,6 @@ const Discount = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            //rowKey={(record) => console.log('record',record)}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}

@@ -29,8 +29,6 @@ function EditProduct() {
         info.file.status = "done";
       }
       if (info.file.status == "removed") {
-        console.log(info);
-        console.log("removed");
       }
       if (info.file.status === "done") {
         info.fileList.forEach((item) => {
@@ -84,22 +82,16 @@ function EditProduct() {
     uploadBytes(imageRef, image).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
         setImages((prev) => [...prev, url]);
-        console.log("url", url);
-        // console.log("snapshot.ref", snapshot.ref); //_service: {…}, _location: {…}
         setImageUrls((prev) => [...prev, url]); //set url ->all url
-        console.log("đi qua chỗ này");
       });
       setImageUpload((prev) => [...prev, image]);
-      console.log("đi xuống cuối cùng");
     });
   };
 
   //xử lú sau khi uploadfile
   useEffect(() => {
     listAll(imageUpload).then((response) => {
-      console.log("imagesListRef", imagesListRef);
       response.items.forEach((item) => {
-        console.log("item", item);
         getDownloadURL(item).then((url) => {
           setImageUrls((prev) => [...prev, url]);
           setImages((prev) => [...prev, url]);
@@ -186,11 +178,11 @@ function EditProduct() {
     height: data?.height,
     images: data?.images
       ? data.images.map((item) => ({
-          name: item.name,
-          product: null,
-          return_id: null,
-          exchange_id: null,
-        }))
+        name: item.name,
+        product: null,
+        return_id: null,
+        exchange_id: null,
+      }))
       : null,
     processor: data?.configuration.processor,
     ram: data?.configuration.ram,
@@ -259,10 +251,10 @@ function EditProduct() {
       `http://localhost:8080/api/auth/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -304,10 +296,10 @@ function EditProduct() {
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -392,10 +384,10 @@ function EditProduct() {
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -496,7 +488,6 @@ function EditProduct() {
 
   useEffect(() => {
     listAll(imageUpload).then((response) => {
-      // console.log("imagesListRef",imagesListRef)
       response.items.forEach((item) => {
         getDownloadURL(item).then((url) => {
           setImageUrls((prev) => [...prev, url]);
@@ -516,17 +507,9 @@ function EditProduct() {
     loadDataColor();
     loadDataCategory();
 
-    console.log("product edit");
-    console.log(productEdit);
-
-    console.log("dữ liệu set data");
-    console.log(data);
   }, [images]);
-  console.log("form", form);
 
   const handleClick = (data) => {
-    console.log("image url");
-    console.log(imageUrls);
 
     if (imageUrls.length > 0) {
       data.images = imageUrls;
@@ -569,24 +552,18 @@ function EditProduct() {
       description: data.description,
       storageId: data.storageId,
     };
-    console.log("product");
-    console.log(product);
-    console.log(productEdit.id);
     handleSubmit(product);
   };
 
   const handleSubmit = (product) => {
-    console.log("product handle submit");
-    console.log(product);
 
     fetch(`http://localhost:8080/api/products/${productEdit.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
     })
-      .then((response) => {})
+      .then((response) => { })
       .then((results) => {
-        console.log(results);
         onReset();
         localStorage.removeItem("productEdit");
         toastSuccess("Cập nhật sản phẩm thành công!");
@@ -637,7 +614,6 @@ function EditProduct() {
               handleClick(values);
             }}
             onFinishFailed={(error) => {
-              console.log({ error });
             }}
           >
             <div className="row">
@@ -683,8 +659,8 @@ function EditProduct() {
                   <Input
                     style={{ width: "100%" }}
                     placeholder="Nhập mã máy"
-                    // value={imei}
-                    // readOnly={true}
+                  // value={imei}
+                  // readOnly={true}
                   />
                 </Form.Item>
               </div>
@@ -1212,7 +1188,7 @@ function EditProduct() {
                     <Form.Item
                       name="upload"
                       label="Upload"
-                     
+
                     >
                       <Upload
                         {...props}

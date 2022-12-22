@@ -224,11 +224,9 @@ const ConfirmPayment = () => {
 
   const search = () => {
     if (searchStartDate != undefined && searchEndDate != undefined) {
-      console.log("vào");
       tableParams.pagination.searchStartDate = searchStartDate;
       tableParams.pagination.searchEndDate = searchEndDate;
     }
-    console.log(searchName);
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.current = 1;
     setLoading(true);
@@ -264,7 +262,6 @@ const ConfirmPayment = () => {
   };
 
   const confirmOrder = (record) => {
-    console.log("vào confirm order");
     const sdt = record.phone;
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
@@ -307,12 +304,9 @@ const ConfirmPayment = () => {
   };
 
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data order history");
-        console.log(res);
         setOrderHistory(res);
       });
   };
@@ -341,8 +335,6 @@ const ConfirmPayment = () => {
                 : "Không có hình ảnh thanh toán",
           });
         });
-        console.log(results.data.data);
-        console.log(data);
         setDataOrder(data);
         setLoading(false);
       });
@@ -442,11 +434,9 @@ const ConfirmPayment = () => {
   ];
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
   const OrderDelivering = (record, IsPut) => {
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
@@ -494,7 +484,6 @@ const ConfirmPayment = () => {
     setSearchName("");
   };
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
   const rowSelection = {
@@ -518,7 +507,6 @@ const ConfirmPayment = () => {
   };
 
   const handleConfirm = (isPut) => {
-    console.log("vào confirm order");
     const dataOrder = [];
     selectedRowKeys.forEach((item) => {
       dataOrder.push({
@@ -533,8 +521,6 @@ const ConfirmPayment = () => {
     }).then((res) => {
       clearSearchForm();
     });
-
-    console.log(dataOrder);
   };
   return (
     <div>

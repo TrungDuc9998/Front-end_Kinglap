@@ -343,7 +343,6 @@ const Storage = () => {
                 handleOk(values)
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item
@@ -458,7 +457,6 @@ const Storage = () => {
                 );
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item

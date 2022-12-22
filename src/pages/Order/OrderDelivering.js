@@ -211,11 +211,9 @@ const OrderDelivering = () => {
 
   const search = () => {
     if (searchStartDate != undefined && searchEndDate != undefined) {
-      console.log("vào");
       tableParams.pagination.searchStartDate = searchStartDate;
       tableParams.pagination.searchEndDate = searchEndDate;
     }
-    console.log(searchName);
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.current = 1;
     setLoading(true);
@@ -289,12 +287,9 @@ const OrderDelivering = () => {
   };
 
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data order history");
-        console.log(res);
         setOrderHistory(res);
       });
   };
@@ -430,11 +425,9 @@ const OrderDelivering = () => {
   ];
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
   const OrderDelivering = (record, IsPut) => {
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
@@ -482,7 +475,6 @@ const OrderDelivering = () => {
     setSearchName("");
   };
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
   const rowSelection = {
@@ -520,8 +512,6 @@ const OrderDelivering = () => {
     }).then((res) => {
       clearSearchForm();
     });
-
-    console.log(dataOrder);
   };
   return (
     <div>

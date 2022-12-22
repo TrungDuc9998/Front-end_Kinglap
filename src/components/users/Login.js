@@ -91,7 +91,6 @@ function Login() {
             },
             body: JSON.stringify(acc)
         }).then(response => {
-            console.log("response", response);
             if (response.ok) {
                 return response.json();
             }
@@ -114,7 +113,6 @@ function Login() {
                 window.location.href = '/user';
             }
         }).catch(error => {
-            console.log("err", error);
         })
     }
     return (

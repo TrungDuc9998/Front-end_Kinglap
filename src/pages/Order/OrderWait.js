@@ -103,7 +103,7 @@ const OrderWait = () => {
                 className="bg-secondary text-center text-light"
                 style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
-               Chưa thanh toán
+                Chưa thanh toán
               </div>
             </>
           );
@@ -381,7 +381,7 @@ const OrderWait = () => {
               </div>
             </>
           );
-        }else if(payment == "NGAN_HANG") {
+        } else if (payment == "NGAN_HANG") {
           return (
             <>
               <div
@@ -393,7 +393,7 @@ const OrderWait = () => {
             </>
           );
         }
-         else {
+        else {
           return (
             <>
               <div
@@ -527,7 +527,6 @@ const OrderWait = () => {
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
   const rowSelection = {

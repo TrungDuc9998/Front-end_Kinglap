@@ -62,23 +62,16 @@ const OrderSuccess = () => {
   });
 
   function compareDates(d2) {
-    console.log("thời gian truyền vào: ", d2);
 
     const currentDate = new Date().getTime();
-    console.log("thời gian hiện tại:", new Date());
-    console.log("current date", currentDate);
     const date = new Date(d2);
     date.setDate(date.getDate() + 10);
     let date3 = new Date(date).getTime();
-    console.log(date3);
     if (date3 < currentDate) {
-      console.log(`Thời gian hiện tại nhỏ hơn`);
       return true;
     } else if (date3 > currentDate) {
-      // console.log(`Thời gian hiện tại lớn hơn`);
       return false;
     } else {
-      console.log(`Bằng nhau`);
       return true;
     }
   }
@@ -90,11 +83,9 @@ const OrderSuccess = () => {
 
   const search = () => {
     if (searchStartDate != undefined && searchEndDate != undefined) {
-      console.log("vào");
       tableParams.pagination.searchStartDate = searchStartDate;
       tableParams.pagination.searchEndDate = searchEndDate;
     }
-    console.log(searchName);
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.current = 1;
     setLoading(true);
@@ -122,20 +113,16 @@ const OrderSuccess = () => {
       setDataO(res.data);
     });
     axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
       setDataOD(res.data);
     });
     loadDataOrderHistoryById(id);
     setView(true);
   };
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
     // setLoading(true);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data order history");
-        console.log(res);
         setOrderHistory(res);
       });
   };
@@ -194,8 +181,6 @@ const OrderSuccess = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log("data on init");
-        console.log(results.data.data);
         setDataOrder(results.data.data);
         setLoading(false);
       });
@@ -434,11 +419,9 @@ const OrderSuccess = () => {
   ];
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -605,14 +588,14 @@ const OrderSuccess = () => {
                   </div>
                   <div className="col-6">
                     <p>Ngày nhận: </p>
-                   
+
                     <p>
-                    Phí vận chuyển:{" "}
-                    {dataO?.shippingFree?.toLocaleString("it-IT", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
-                  </p>
+                      Phí vận chuyển:{" "}
+                      {dataO?.shippingFree?.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </p>
 
                     <p>
                       Đặt cọc:{" "}
