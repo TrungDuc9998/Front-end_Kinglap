@@ -300,11 +300,11 @@ function CreateOrderAdmin() {
   };
 
   const onRest = () => {
-    setPhoneNumberForm("");
     setPhoneClient("");
     setValueUser("");
-    setAddressDetail("")
-    SetRestSelect("");
+    setShipping("0 VND");
+    setAddressDetail("Địa chỉ chi tiết");
+    // SetRestSelect("");
   };
 
   const updateCart = (cart, id, quantity) => {
