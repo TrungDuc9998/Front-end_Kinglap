@@ -64,26 +64,7 @@ function Card() {
     const showModal = () => {
         setOpen(true);
     };
-    const handleOk = () => {
-        const form = {
-            trandemark: trandemark,
-            memory: memory,
-            model: model
-        }
-        fetch("http://localhost:8080/api/card", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(form),
-        }).then((results) => {
-            getData();
-            notifySuccess('Thêm mới card thành công');
-        })
-        setConfirmLoading(true);
-        setTimeout(() => {
-            setOpen(false);
-            getData();
-        }, 2000);
-    };
+
 
     const toastSuccess = (message) => {
         toast.success(message, {
@@ -147,8 +128,8 @@ function Card() {
     };
 
     const search = () => {
-        tableParams.pagination.memory = memorySearch;
-        tableParams.pagination.trandemark = trandemarkSearch;
+        tableParams.pagination.modelSearch = searchModel;
+        tableParams.pagination.trandemarkSearch = searchTrandemark;
         tableParams.pagination.current = 1;
         setLoading(true);
         fetch(
@@ -158,6 +139,7 @@ function Card() {
         )
             .then((res) => res.json())
             .then((results) => {
+                setData(results.data.data);
                 setLoading(false);
                 setTableParams({
                     pagination: {
@@ -172,22 +154,24 @@ function Card() {
     const getRandomuserParams = (params) => ({
         limit: params.pagination?.pageSize,
         page: params.pagination?.current,
-        trandemark: params.pagination?.trandemarkSearch,
-        memory: params.pagination?.memorySearch,
+        searchTrandemark: params.pagination?.trandemarkSearch,
+        searchModel: params.pagination?.modelSearch,
     });
 
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
             pageSize: 10,
-            memory: '',
-            trandemark: ''
+            searchTrandemark: '',
+            searchModel: ''
         },
     });
     const [totalSet, setTotal] = useState(10);
     const url = "http://localhost:8080/api/card";
 
     const getData = () => {
+        setModelSearch("");
+        setTrandemarkSearch("");
         axios.get(url + `?${qs.stringify(
             getRandomuserParams(tableParams)
         )}`)
@@ -204,7 +188,11 @@ function Card() {
     };
     useEffect(() => {
         getData();
-    }, [JSON.stringify(tableParams)]);
+    }, []);
+
+    const clearSearchForm = () => {
+        getData();
+      };
 
     const cardEdit = {
         id: '',
@@ -220,53 +208,35 @@ function Card() {
         formEdit.setFieldsValue(data);
     };
 
-    const Update = () => {
-        cardEdit.trandemark = trandemarkE;
-        cardEdit.memory = memoryE;
-        cardEdit.model = modelE;
-        cardEdit.id = cardId;
-        fetch(`http://localhost:8080/api/card/` + cardEdit.id, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(cardEdit),
-        }).then((results) => {
-            notifySuccess('Thêm card 1 mới thành công');
-            setLoading(true);
-        })
-    }
-
     const [isEditing, setEditing] = useState(false);
     const [isDelete, setDelete] = useState(false);
     const [isView, setView] = useState(false);
     const [loading, setLoading] = useState(false);
     const handleTableChange = (pagination, filters, sorter) => {
-        setTableParams({
-            pagination,
-            filters,
-            ...sorter,
-        });
+        tableParams.pagination = pagination;
+        tableParams.pagination.trandemarkSearch = searchTrandemark;
+        tableParams.pagination.modelSearch = searchModel;
+        fetch(
+            `http://localhost:8080/api/card?${qs.stringify(
+                getRandomuserParams(tableParams)
+            )}`
+        )
+            .then((res) => res.json())
+            .then((results) => {
+                setData(results.data.data);
+                setTableParams({
+                    pagination: {
+                        current: results.data.current_page,
+                        pageSize: 10,
+                        total: results.data.total,
+                    },
+                });
+            });
     };
 
-    const [trandemark, setTrandemark] = useState('')
-    const [model, setModel] = useState('')
-    const [price, setPrice] = useState()
-    const [memory, setMemory] = useState('')
-    const [cardId, setCardId] = useState('')
-    const [memorySearch, setMemorySearch] = useState('')
-    const [trandemarkSearch, setTrandemarkSearch] = useState('')
-    const onChangeInputTrandemark = (event) => {
-        setTrandemark(event.target.value);
-    }
-    const onChangeInputTrandemarkSearch = (event) => {
-        setTrandemarkSearch(event.target.value);
-    }
-    const onChangeInputMemorySearch = (event) => {
-        setMemorySearch(event.target.value);
-    }
-
-    const [trandemarkE, setTrandemarkE] = useState('')
-    const [modelE, setModelE] = useState('')
-    const [memoryE, setMemoryE] = useState('')
+    const [searchModel, setModelSearch] = useState('')
+    const [searchTrandemark, setTrandemarkSearch] = useState('')
+    
 
     const notifySuccess = (message) => {
         toast.success(message, {
@@ -311,15 +281,15 @@ function Card() {
                 }}
             >
                 <div className="col-4">
-                    <Input placeholder="Hãng" value={trandemarkSearch} onChange={onChangeInputTrandemarkSearch} />
+                    <Input placeholder="Hãng" value={searchTrandemark} onChange={(e) => setTrandemarkSearch(e.target.value)} />
                 </div>
                 <div className="col-4">
-                    <Input placeholder="Bộ nhớ" value={memorySearch} onChange={onChangeInputMemorySearch} />
+                    <Input placeholder="Model" value={searchModel} onChange={(e) => setModelSearch(e.target.value)} />
                 </div>
                 <div className="col-4">
                     <Button
                         type="primary-uotline"
-                        // onClick={showModal}
+                        onClick={clearSearchForm}
                         style={{ borderRadius: "10px" }}
                     >
                         <ReloadOutlined />Đặt lại
