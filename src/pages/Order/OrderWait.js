@@ -71,6 +71,11 @@ const OrderWait = () => {
       },
     },
     {
+      title: "Người xác nhận",
+      dataIndex: "verifier",
+      width: "20%",
+    },
+    {
       title: "Thời gian",
       dataIndex: "createdAt",
       width: "25%",
@@ -103,7 +108,7 @@ const OrderWait = () => {
                 className="bg-secondary text-center text-light"
                 style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
-               Chưa thanh toán
+                Chưa thanh toán
               </div>
             </>
           );
@@ -223,7 +228,10 @@ const OrderWait = () => {
     });
     fetch(`http://localhost:8080/api/orders/confirm`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       clearSearchForm();
@@ -381,7 +389,7 @@ const OrderWait = () => {
               </div>
             </>
           );
-        }else if(payment == "NGAN_HANG") {
+        } else if (payment == "NGAN_HANG") {
           return (
             <>
               <div
@@ -392,8 +400,7 @@ const OrderWait = () => {
               </div>
             </>
           );
-        }
-         else {
+        } else {
           return (
             <>
               <div
@@ -616,7 +623,6 @@ const OrderWait = () => {
                 icon={<CheckCircleOutlined />}
                 className="ms-5"
                 onClick={confirmCheckBox}
-
               >
                 Xác nhận
               </Button>

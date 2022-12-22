@@ -39,15 +39,20 @@ const ConfirmOrderDetail = () => {
     {
       title: "Mã lịch sử",
       dataIndex: "id",
-      width: "20%",
+      width: "10%",
     },
     {
       title: "Mã hoá đơn",
       dataIndex: "orderId",
-      width: "20%",
+      width: "10%",
       render(orderId) {
         return <>{orderId.id}</>;
       },
+    },
+    {
+      title: "Người xác nhận",
+      dataIndex: "verifier",
+      width: "20%",
     },
     {
       title: "Thời gian",

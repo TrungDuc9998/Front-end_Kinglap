@@ -358,7 +358,10 @@ const OrderConfirm = () => {
     });
     fetch(`http://localhost:8080/api/orders/confirm`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       clearSearchForm();
