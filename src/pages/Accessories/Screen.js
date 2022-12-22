@@ -611,7 +611,6 @@ const Screen = () => {
                 handleAdd(values);
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <div className="row">
@@ -844,7 +843,6 @@ const Screen = () => {
                 handleEdit(values);
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <div className="row">

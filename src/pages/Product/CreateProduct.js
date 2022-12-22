@@ -65,8 +65,6 @@ function CreateProduct() {
         info.file.status = "done";
       }
       if (info.file.status == "removed") {
-        console.log(info);
-        console.log("removed");
       }
       if (info.file.status === "done") {
         info.fileList.forEach((item) => {
@@ -113,8 +111,6 @@ function CreateProduct() {
     uploadBytes(imageRef, image).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
         setImages((prev) => [...prev, url]);
-        console.log("url", url);
-        // console.log("snapshot.ref", snapshot.ref); //_service: {…}, _location: {…}
         setImageUrls((prev) => [...prev, url]); //set url ->all url
       });
       setImageUpload((prev) => [...prev, image]);
@@ -144,9 +140,6 @@ function CreateProduct() {
     loadDataStorage();
     loadDataColor();
     loadDataWin();
-    console.log('vào useEffect');
-    console.log(images);
-    console.log(imageUrls);
   }, [images || images.length == 0]);
 
   const loadDataWin = () => {
@@ -258,10 +251,10 @@ function CreateProduct() {
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -364,10 +357,10 @@ function CreateProduct() {
       `http://localhost:8080/api/auth/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -388,10 +381,10 @@ function CreateProduct() {
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -418,16 +411,12 @@ function CreateProduct() {
     images.forEach((item, index) => {
       images.splice(index, images.length);
     });
-    console.log("image");
-    console.log(images);
-    imageUrls.forEach((item,index) => {
+    imageUrls.forEach((item, index) => {
       imageUrls.splice(index, imageUrls.length);
     })
-    imageUpload.forEach((item,index) => {
+    imageUpload.forEach((item, index) => {
       imageUpload.splice(index, imageUpload.length);
     });
-    console.log(imageUrls);
-    console.log(imageUpload);
     setImageUrls(imageUrls);
     setImageUrls(imageUpload);
     setImages(images);
@@ -474,7 +463,6 @@ function CreateProduct() {
       description: data.description,
       storageId: data.storageId,
     };
-    console.log(product);
     fetch("http://localhost:8080/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -483,7 +471,6 @@ function CreateProduct() {
       .then((response) => response.json())
       .then((results) => {
         if (results.status === 200) {
-          console.log(results);
           onReset();
           toastSuccess("Thêm mới thành công !");
         } else {
@@ -533,10 +520,8 @@ function CreateProduct() {
             autoComplete="off"
             onFinish={(values) => {
               handleSubmit(values);
-              console.log({ values });
             }}
             onFinishFailed={(error) => {
-              console.log({ error });
             }}
           >
             <div className="row">
@@ -551,7 +536,7 @@ function CreateProduct() {
                       message: "Tên sản phẩm không được để trống",
                     },
                     { whitespace: true },
-                    { min: 3 ,message: "Giá trị lớn hơn 3 ký tự"},
+                    { min: 3, message: "Giá trị lớn hơn 3 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -581,7 +566,7 @@ function CreateProduct() {
                     style={{ width: "100%" }}
                     placeholder="Nhập mã máy"
                     value={imei}
-                   
+
                   />
                 </Form.Item>
               </div>
@@ -618,7 +603,7 @@ function CreateProduct() {
                       message: "Giá tiền không được để trống",
                     },
                     { whitespace: true },
-                    { min: 7,message: "Giá trị lớn hơn 6 ký tự" },
+                    { min: 7, message: "Giá trị lớn hơn 6 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -808,7 +793,7 @@ function CreateProduct() {
                       message: "Chất liệu không được để trống",
                     },
                     { whitespace: true },
-                    { min: 3,message: "Giá trị lớn hơn 3 ký tự" },
+                    { min: 3, message: "Giá trị lớn hơn 3 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -1046,7 +1031,7 @@ function CreateProduct() {
                       message: "Bảo mật không được để trống",
                     },
                     { whitespace: true },
-                    { min: 3,message: "Giá trị lớn hơn 3 ký tự" },
+                    { min: 3, message: "Giá trị lớn hơn 3 ký tự" },
                   ]}
                   hasFeedback
                 >
@@ -1105,7 +1090,7 @@ function CreateProduct() {
               <div></div>
             </div>
             <Form.Item className="text-center mt-4">
-              {(images.length > 0 || imageUrls.length >0 )  ? (
+              {(images.length > 0 || imageUrls.length > 0) ? (
                 <Button
                   block
                   type="primary"

@@ -38,7 +38,6 @@ function Statistical() {
     })
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setDataProduct(results);
       });
   };
@@ -52,7 +51,6 @@ function Statistical() {
     })
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setSumPro(results.total);
       });
   };
@@ -66,7 +64,6 @@ function Statistical() {
     })
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setCountO(results.total);
       });
   };
@@ -80,17 +77,13 @@ function Statistical() {
     })
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setCountCus(results.total);
       });
   };
 
   const loadDataStaticalByOrder = (month, year) => {
-    console.log("month", month);
-    console.log("year", year);
     var now = moment();
     let today = now.format("YYYY-MM");
-    console.log(today);
     const myArray = today.split("-");
     if (year === undefined && month === undefined) {
       month = myArray[1];
@@ -104,7 +97,6 @@ function Statistical() {
     })
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setDataStaticalByOrder(results);
       });
   };
@@ -119,7 +111,6 @@ function Statistical() {
       })
         .then((res) => res.json())
         .then((results) => {
-          console.log(results);
           setDataStatical(results);
         });
     } else {
@@ -131,7 +122,6 @@ function Statistical() {
       })
         .then((res) => res.json())
         .then((results) => {
-          console.log(results);
           setDataStatical(results);
         });
     }
@@ -215,15 +205,11 @@ function Statistical() {
   };
 
   const onChangeDatePiker = (date, dateString) => {
-    console.log(date, dateString);
     loadDataStaticalByYear(dateString);
   };
 
   const onChangeMonth = (date, dateString) => {
-    console.log(date, dateString);
     const myArray = dateString.split("-");
-    console.log("my-array");
-    console.log(myArray);
     loadDataStaticalByOrder(myArray[1], myArray[0]);
   };
 

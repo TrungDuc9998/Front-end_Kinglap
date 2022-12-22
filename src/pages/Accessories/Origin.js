@@ -250,11 +250,11 @@ const Origin = () => {
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -277,11 +277,11 @@ const Origin = () => {
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -297,7 +297,6 @@ const Origin = () => {
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
 
   const [open, setOpen] = useState(false);
@@ -464,10 +463,8 @@ const Origin = () => {
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmit(values, isUpdate);
-                console.log({ values });
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item
@@ -542,10 +539,8 @@ const Origin = () => {
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmitUpdate(values, isUpdate);
-                console.log({ values });
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item

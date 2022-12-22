@@ -276,7 +276,6 @@ const Product = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results.data.data);
         setData(results.data.data);
         setLoading(false);
         setTableParams({
@@ -336,7 +335,6 @@ const Product = () => {
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
   const [importSuccess, setImportSuccess] = useState(false);
   const [searchProductKey, setSearchProductKey] = useState();
@@ -448,7 +446,6 @@ const Product = () => {
       });
       rows.push(rowData);
     });
-    console.log("rows", rows);
     return rows;
   };
 
@@ -692,11 +689,9 @@ const Product = () => {
 
   //import
   const handleImport = (data, index) => {
-    console.log(data);
     const row = index + 1;
     var mess = "Import thất bại bản ghi thứ " + row;
     const quantity = Number(data.quantity);
-    console.log(quantity);
     data.images = [data.images].map((item) => ({
       name: item,
       product: null,
@@ -720,7 +715,7 @@ const Product = () => {
         item.ramSpeed.trim() +
         " " +
         item.maxRamSupport.trim() ==
-      data.ram
+        data.ram
         ? (data.ram = item.id)
         : ""
     );
@@ -732,7 +727,7 @@ const Product = () => {
         item.cpuType.trim() +
         " " +
         item.cpuSpeed.trim() ==
-      data.processor
+        data.processor
         ? (data.processor = item.id)
         : ""
     );
@@ -744,7 +739,7 @@ const Product = () => {
         item.resolution.trim() +
         " " +
         item.screenType.trim() ==
-      data.screen
+        data.screen
         ? (data.screen = item.id)
         : ""
     );
@@ -754,7 +749,7 @@ const Product = () => {
         item.model.trim() +
         " " +
         item.memory.trim() ==
-      data.card
+        data.card
         ? (data.card = item.id)
         : ""
     );
@@ -769,7 +764,7 @@ const Product = () => {
         item.model.trim() +
         " " +
         item.memory.trim() ==
-      data.cardOnboard
+        data.cardOnboard
         ? (data.cardOnboard = item.id)
         : ""
     );
@@ -779,7 +774,7 @@ const Product = () => {
         item.type.trim() +
         " " +
         item.capacity.trim() ==
-      data.storage
+        data.storage
         ? (data.storage = item.id)
         : ""
     );
@@ -789,7 +784,7 @@ const Product = () => {
         item.battery.trim() +
         " " +
         item.charger.trim() ==
-      data.battery
+        data.battery
         ? (data.battery = item.id)
         : ""
     );
@@ -833,8 +828,6 @@ const Product = () => {
       storageId: data.storage,
     };
 
-    console.log(product);
-
     fetch("http://localhost:8080/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -842,15 +835,11 @@ const Product = () => {
     })
       .then((response) => response.json())
       .then((response) => {
-        console.log('data response');
-        console.log(response.data);
         response.data ? setImportSuccess(true) : console.log(response);
-        console.log(importSuccess);
         response.errors ? notifyError(mess) : console.log(response);
       })
       .catch((error) => {
         notifyError(mess);
-        console.log("Error:", error);
       });
   };
   const uploadExcel = (e) => {
@@ -868,7 +857,6 @@ const Product = () => {
       const workSheet = workBook.Sheets[workSheetName];
       //convert to array
       const fileData = XLSX.utils.sheet_to_json(workSheet, { header: 1 });
-      // console.log(fileData)
       const headers = fileData[0];
       const heads = headers.map((head) => ({ title: head, field: head }));
       // setColDefs(heads)
@@ -892,22 +880,19 @@ const Product = () => {
     }
   };
   const importExcel = (e) => {
-    console.log("dataImport", dataImport);
     dataImport
       ? dataImport.map((pro, index) => {
-          handleImport(pro, index);
-        })
+        handleImport(pro, index);
+      })
       : notifyError("Hãy chọn file excel cần import");
     setDataImport();
 
-    if(importSuccess == true) {
+    if (importSuccess == true) {
       notifySuccess('Import thành công !')
-    }else {
+    } else {
       notifyError('import thất bại !')
     }
-    // importSuccess == true
-    //   ? notifySuccess("Import thành công !")
-    //   : console.log("false");
+
     const file = document.querySelectorAll('input[name="file"]');
     file[0].value = null;
     load();

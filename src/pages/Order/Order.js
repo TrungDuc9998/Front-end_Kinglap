@@ -216,7 +216,7 @@ const Order = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        if (results.status) console.log(results);
+        if (results.status);
         if (results.status === 200) {
           setDataPedning(results.data.data);
           setLoading(false);
@@ -240,7 +240,6 @@ const Order = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setDataSuccess(results.data.data);
         setLoading(false);
         setTableParamsSuccess({
@@ -284,7 +283,6 @@ const Order = () => {
   }, [checkId != undefined, dataO != undefined]);
 
   const search = () => {
-    console.log(searchDate);
     if (searchDate != undefined && searchEndDate != undefined) {
       tableParams.pagination.searchStartDate = searchStartDate;
       tableParams.pagination.searchEndDate = searchEndDate;
@@ -314,7 +312,6 @@ const Order = () => {
 
   const searchDate = () => {
     setLoading(true);
-    console.log(dateOrder);
     fetch(`http://localhost:8080/api/orders/list/date/` + dateOrder)
       .then((res) => res.json())
       .then((results) => {
@@ -367,32 +364,27 @@ const Order = () => {
 
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
       setDataOD(res.data);
     });
-    console.log("tên khách hàng trong modal: ", dataO?.name);
     // createQRCode();
     setCheckId(
       `SỐ ĐIỆN THOẠI: 0338861522` +
-        `\nEMAIL: ptung539@gmail.com` +
-        `\nĐỊA CHỈ: Lạng Giang - Bắc Giang` +
-        `\nNGÂN HÀNG: NCB - Số tài khoản: 899983869999` +
-        `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A` +
-        `\nHOÁ ĐƠN MUA HÀNG` +
-        `\nMÃ HOÁ ĐƠN: ${id}` +
-        `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A`
+      `\nEMAIL: ptung539@gmail.com` +
+      `\nĐỊA CHỈ: Lạng Giang - Bắc Giang` +
+      `\nNGÂN HÀNG: NCB - Số tài khoản: 899983869999` +
+      `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A` +
+      `\nHOÁ ĐƠN MUA HÀNG` +
+      `\nMÃ HOÁ ĐƠN: ${id}` +
+      `\nCHỦ TÀI KHOẢN: NGUYỄN VĂN A`
     );
     loadDataOrderHistoryById(id);
     setView(true);
   };
 
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log("data order history");
-        console.log(res);
         setOrderHistory(res);
       });
   };
@@ -470,7 +462,7 @@ const Order = () => {
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-               Tài khoản ATM
+                Tài khoản ATM
               </div>
             </>
           );
@@ -589,14 +581,12 @@ const Order = () => {
               />
               {/* <EditOutlined
                 onClick={() => {
-                  console.log("key key");
                   navigate("update");
                 }}
               />
               <DeleteOutlined
                 onClick={() => {
                   showModalCancel(data.id);
-                  console.log(data.id);
                   setIDCancel(data.id);
                 }}
               /> */}
@@ -747,7 +737,6 @@ const Order = () => {
   };
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
   };
 
   const clearSearchForm = () => {
@@ -757,18 +746,14 @@ const Order = () => {
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
 
   const handleUploadFile = () => {
-    console.log("vào handle uploadFile");
     const check = "1";
     const imageRef = ref(storage, `images/${check + v4()}`);
-    // console.log("imageRef",imageRef)//_service: {…}, _location: {…}
     uploadBytes(imageRef, check).then((snapshot) => {
       getDownloadURL(snapshot.ref).then((url) => {
         setImages((prev) => [...prev, url]);
-        console.log("snapshot.ref", snapshot.ref); //_service: {…}, _location: {…}
         setImageUrls((prev) => [...prev, url]); //set url ->all url
       });
       // toastSuccess("upload ảnh thành công !");

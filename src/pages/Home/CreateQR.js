@@ -6,14 +6,12 @@ function CreateQR() {
   const [qrImageUrl, setQRImageUrl] = useState("");
 
   const handleSubmit = async (e) => {
-    console.log("vào handle submit");
     if (!qrValue) {
       return <h1 className="text-danger">chào</h1>;
     }
     // {qrValue ? (<h1 className="text-danger">có</h1>) : (<h1 className="text-danger">không</h1>)}
     e.preventDefault();
     if (!qrValue) {
-      console.log("not null");
       return alert("vào rồi");
     }
 
@@ -24,11 +22,10 @@ function CreateQR() {
     const b =
       `\nMÃ HOÁ ĐƠN: c` +
       `\nNGÀY MUA HÀNG:b` +
-      `\nTÊN KHÁCH HÀNG: a` 
-      
+      `\nTÊN KHÁCH HÀNG: a`
+
 
     const response = await QRCode.toDataURL(b);
-    console.log(response);
     setQRImageUrl(response);
   };
 

@@ -22,7 +22,6 @@ import qs from "qs";
 function ViewProduct() {
   const handelCLickProduct = (product) => {
     dispatch(viewProduct(product));
-    console.log("state", state);
   };
   const url = "http://localhost:8080/api/products";
   const [totalSet, setTotal] = useState(10);
@@ -58,7 +57,6 @@ function ViewProduct() {
       // .then((res) => res.json())
       .then((results) => {
         setData(results.data.data.data);
-        //console.log(products[0].images[0].name)
         setTotal(results.data.data.total);
         //localStorage.setItem("products",JSON.stringify(products))
         setTableParams({
@@ -79,8 +77,6 @@ function ViewProduct() {
     JSON.parse(localStorage.getItem("product_detail")),
   ]);
 
-
-  console.log("pro", products);
 
   function formatCash(str) {
     if (str.length > 1) {
@@ -126,9 +122,7 @@ function ViewProduct() {
     });
   };
   const [state, dispatch] = useContext(Context);
-  console.log("state", state.cartCheckout);
   const product = JSON.parse(localStorage.getItem("product_detail"));
-  console.log(product);
   const handleAddToCart = (product, quantity) => {
     dispatch(addToCartByView({ product, quantity }));
     notifySuccess("Thêm vào giỏ hàng thành công!");

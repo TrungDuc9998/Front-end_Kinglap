@@ -61,7 +61,6 @@ const ReturnConfirm = () => {
 
   useEffect(() => {
     loadDataExchange();
-    // console.log(dataExchange);
   }, [dataExchange != undefined]);
 
   const onConfirm = (record) => {
@@ -79,7 +78,6 @@ const ReturnConfirm = () => {
   };
 
   const confirmUpdateStatus = (record, isPut) => {
-    console.log(record);
     const returnDetail = [];
     record.returnDetailEntities.forEach((item) => {
       returnDetail.push({
@@ -90,7 +88,6 @@ const ReturnConfirm = () => {
         id: item.id,
       });
     });
-    console.log(returnDetail);
     fetch(`http://localhost:8080/api/returns/${record.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -138,7 +135,6 @@ const ReturnConfirm = () => {
 
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
       setDataOD(res.data);
     });
     setView(true);
@@ -150,10 +146,10 @@ const ReturnConfirm = () => {
       `http://localhost:8080/api/staff/returns?${qs.stringify(
         getRandomOrderParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -262,11 +258,9 @@ const ReturnConfirm = () => {
   ];
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);

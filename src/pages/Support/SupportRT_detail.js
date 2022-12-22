@@ -124,11 +124,9 @@ const SupportRT_detail = () => {
     };
 
     const onChange = (value) => {
-        console.log(`selected ${value}`);
     };
 
     const onSearch = (value) => {
-        console.log("search:", value);
     };
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
@@ -156,7 +154,6 @@ const SupportRT_detail = () => {
     };
 
     const handleCancel = () => {
-        console.log("Clicked cancel button");
         setOpen(false);
     };
 

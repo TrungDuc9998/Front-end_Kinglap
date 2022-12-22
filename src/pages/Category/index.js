@@ -127,11 +127,11 @@ const Category = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/staff/category/close/${data.id}`, {
-                      method: "PUT",
-                      headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
-                      },
-                    }).then(() => load());
+                    method: "PUT",
+                    headers: {
+                      Authorization: 'Bearer ' + localStorage.getItem("token"),
+                    },
+                  }).then(() => load());
                   toastrs.options = {
                     timeOut: 6000,
                   }
@@ -157,11 +157,11 @@ const Category = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/staff/category/open/${data.id}`, {
-                      method: "PUT",
-                      headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
-                      },
-                    }).then(() => load());
+                    method: "PUT",
+                    headers: {
+                      Authorization: 'Bearer ' + localStorage.getItem("token"),
+                    },
+                  }).then(() => load());
                   toastrs.options = {
                     timeOut: 6000
                   }
@@ -188,11 +188,11 @@ const Category = () => {
                   setLoading(true);
                   fetch(
                     `http://localhost:8080/api/staff/category/open/${data.id}`, {
-                      method: "PUT",
-                      headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
-                      },
-                    }).then(() => load());
+                    method: "PUT",
+                    headers: {
+                      Authorization: 'Bearer ' + localStorage.getItem("token"),
+                    },
+                  }).then(() => load());
                   toastrs.options = {
                     timeOut: 6000,
                   }
@@ -255,10 +255,10 @@ const Category = () => {
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -287,10 +287,10 @@ const Category = () => {
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -307,11 +307,9 @@ const Category = () => {
   };
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
   };
 
   const onSearch = (value) => {
-    console.log("search:", value);
   };
   const [searchName, setSearchName] = useState();
   const [searchStatus, setSearchStatus] = useState();
@@ -329,14 +327,13 @@ const Category = () => {
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`, {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      }
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    }
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setData(results.data.data);
         setLoading(false);
         setTableParams({
@@ -361,10 +358,12 @@ const Category = () => {
 
   const handleOk = () => {
     fetch(
-      `http://localhost:8080/api/staff/category`, { method: "POST", headers: {
-        "Content-Type": "application/json",
-        Authorization: 'Bearer ' + localStorage.getItem("token"),
-      }, body: JSON.stringify({ name: name, status: "ACTIVE" }) }).then((res) => res.json())
+      `http://localhost:8080/api/staff/category`, {
+        method: "POST", headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        }, body: JSON.stringify({ name: name, status: "ACTIVE" })
+    }).then((res) => res.json())
       .then((results) => {
         toastrs.options = {
           timeOut: 6000
@@ -402,10 +401,12 @@ const Category = () => {
 
   const handleNhap = () => {
     fetch(
-      `http://localhost:8080/api/staff/category/draft`, { method: "POST", headers: {
-        "Content-Type": "application/json",
-        Authorization: 'Bearer ' + localStorage.getItem("token"),
-      }, body: JSON.stringify({ name: name }) }).then((res) => res.json())
+      `http://localhost:8080/api/staff/category/draft`, {
+        method: "POST", headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + localStorage.getItem("token"),
+        }, body: JSON.stringify({ name: name })
+    }).then((res) => res.json())
       .then((results) => {
         toastrs.options = {
           timeOut: 6000
@@ -599,10 +600,12 @@ const Category = () => {
             onOk={() => {
               setLoading(true);
               fetch(
-                `http://localhost:8080/api/staff/category/${id}`, { method: "PUT", headers: {
-                  "Content-Type": "application/json",
-                  Authorization: 'Bearer ' + localStorage.getItem("token"),
-                }, body: JSON.stringify({ name: name }) }).then((res) => res.json())
+                `http://localhost:8080/api/staff/category/${id}`, {
+                  method: "PUT", headers: {
+                    "Content-Type": "application/json",
+                    Authorization: 'Bearer ' + localStorage.getItem("token"),
+                  }, body: JSON.stringify({ name: name })
+              }).then((res) => res.json())
                 .then((results) => {
                   toastrs.options = {
                     timeOut: 6000
@@ -653,9 +656,11 @@ const Category = () => {
             }}
             onOk={() => {
               fetch(
-                `http://localhost:8080/api/staff/category/${id}`, { method: 'DELETE', headers: {
-                  Authorization: 'Bearer ' + localStorage.getItem("token"),
-                }, }).then(() => load());
+                `http://localhost:8080/api/staff/category/${id}`, {
+                  method: 'DELETE', headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem("token"),
+                  },
+              }).then(() => load());
               setDelete(false);
               toastrs.options = {
                 timeOut: 6000

@@ -35,14 +35,12 @@ function HomeUser() {
   };
 
   const getProductById = (id) => {
-    console.log('productId:', id);
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
       .then((res) => {
         localStorage.setItem("product_detail", JSON.stringify(res));
         navigate("/user/product")
         // dispatch(viewProduct(res));
-        // console.log("state", state);
       });
   };
 
@@ -80,7 +78,6 @@ function HomeUser() {
     ).find((value) => {
       return value.id === product.id;
     });
-    console.log("findCart", findCart);
     if (findCart != null) {
       if (findCart.quantity < 10) {
         dispatch(addToCart(product));
@@ -168,7 +165,6 @@ function HomeUser() {
       // .then((res) => res.json())
       .then((results) => {
         setData(results.data.data.data);
-        //console.log(products[0].images[0].name)
         setTotal(results.data.data.total);
         //localStorage.setItem("products",JSON.stringify(products))
         setTableParams({
@@ -195,12 +191,9 @@ function HomeUser() {
     getData();
   }, [JSON.stringify(tableParams)]);
   const carts = JSON.parse(localStorage.getItem("carts"));
-  // console.log("c:", carts);
   useEffect(() => {
     allProWithDiscount();
   }, []);
-
-  console.log(product_discount);
 
   // const products = useSelector(state => state.productReducer);
   // const showProducts = (products) => {

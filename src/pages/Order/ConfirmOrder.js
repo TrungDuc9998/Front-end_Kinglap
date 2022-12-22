@@ -194,11 +194,9 @@ const OrderConfirm = () => {
 
   const search = () => {
     if (searchDate != undefined && searchEndDate != undefined) {
-      console.log("vào");
       tableParams.pagination.searchStartDate = searchStartDate;
       tableParams.pagination.searchEndDate = searchEndDate;
     }
-    console.log(searchName);
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.current = 1;
     setLoading(true);
@@ -316,10 +314,7 @@ const OrderConfirm = () => {
   const [modalText, setModalText] = useState("Content of the modal");
 
   const confirmOrder = (record, IsPut) => {
-    console.log(record);
-    console.log(Number(record.phone));
     const sdt = record.phone;
-    console.log(record.note);
     fetch(`http://localhost:8080/api/orders/${record.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -363,12 +358,9 @@ const OrderConfirm = () => {
     }).then((res) => {
       clearSearchForm();
     });
-
-    console.log(dataOrder);
   };
 
   const onChangeInputNumber = (value, id) => {
-    console.log("changed", value, id);
     const set = new Set();
     const orderDetail = {
       id: id,
@@ -380,13 +372,11 @@ const OrderConfirm = () => {
       todos.forEach((item) => {
         set.add(item.id);
       });
-      console.log(set);
       if (set.has(id)) {
         let abc = -1;
         todos?.forEach((item, index) => {
           if (item.id === id) {
             abc = index;
-            console.log(abc);
           }
         });
         todos[abc].quantity = value;
@@ -397,7 +387,6 @@ const OrderConfirm = () => {
         });
       }
     }
-    console.log(todos);
   };
 
   const onchangeSearch = (val, dateStrings) => {
@@ -428,7 +417,6 @@ const OrderConfirm = () => {
   };
 
   const handleUpdateOrderDetail = (item) => {
-    console.log(item);
   };
 
   const resetEditing = () => {
@@ -436,7 +424,6 @@ const OrderConfirm = () => {
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
   const rowSelection = {

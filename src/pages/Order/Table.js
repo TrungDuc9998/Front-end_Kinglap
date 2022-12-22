@@ -141,7 +141,6 @@ function CreateOrderAdmin() {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         if (results.status === 200) {
           setUsers(results.data.data);
           setLoading(false);
@@ -212,8 +211,6 @@ function CreateOrderAdmin() {
   };
 
   const handleSubmitOrder = () => {
-    console.log("địa chỉ chi tiết");
-    console.log(addressDetail);
     if (dataCart === undefined || dataCart.length === 0) {
       toastError("Vui lòng thêm sản phẩm vào giỏ hàng");
     } else if (
@@ -230,11 +227,11 @@ function CreateOrderAdmin() {
         address:
           valueProvince !== undefined
             ? (addressDetail === undefined ? "" : addressDetail + ",") +
-              valueWard +
-              ", " +
-              valueDistrict +
-              ", " +
-              valueProvince
+            valueWard +
+            ", " +
+            valueDistrict +
+            ", " +
+            valueProvince
             : "TẠI CỬA HÀNG",
         note: note,
         customerName: valueUser === undefined ? fullNameForm : valueUser,
@@ -308,8 +305,6 @@ function CreateOrderAdmin() {
   };
 
   const updateCart = (cart, id, quantity) => {
-    console.log("cart-update");
-    console.log(cart);
     let tong =
       cart.total === cart.price * quantity ? cart.total : cart.price * quantity;
     fetch(`http://localhost:8080/api/carts/${id}`, {
@@ -330,20 +325,15 @@ function CreateOrderAdmin() {
     fetch(`http://localhost:8080/api/products/${productId}?`)
       .then((res) => res.json())
       .then((results) => {
-        console.log("data product get by id");
-        console.log(results);
         cart.price = results.price;
         updateCart(cart, id);
       });
   };
 
   const onChangeInputNumber = (value, productId, price, id, useId) => {
-    console.log("productId:" + productId);
     setValueQuantity(value);
     let priceProduct = 0;
-    console.log(data);
 
-    console.log("product price:", priceProduct);
     const cart = {
       total: value * price,
       useId: useId,
@@ -410,7 +400,6 @@ function CreateOrderAdmin() {
   };
 
   const onSearchWards = (value) => {
-    console.log("shipping" + shipping);
     if (value.target.innerText !== "") {
       setValueWard(value.target.innerText);
       SubmitShipping();
@@ -418,21 +407,17 @@ function CreateOrderAdmin() {
   };
 
   const onChangePhoneNumber = (value) => {
-    console.log("changProduct: " + value);
   };
 
   const onSearchPhoneNumber = (value) => {
-    console.log("search product: " + value);
   };
 
   const onChangeClient = (event) => {
     setValueClient(event.target.value);
-    console.log("value client: " + event.target.value);
   };
 
   const onSearchClient = (searchItem) => {
     setValueClient(searchItem);
-    console.log("value client: " + searchItem);
   };
 
   const loadDataProvince = () => {
@@ -457,12 +442,10 @@ function CreateOrderAdmin() {
         setArray(result.data);
       })
       .catch((error) => {
-        console.log("err", error);
       });
   };
 
   const loadDataDistrict = (value) => {
-    console.log("provent id,", value);
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
       {
@@ -486,32 +469,9 @@ function CreateOrderAdmin() {
       .then((result) => {
         let dataDis = [];
 
-        // if (value === 201) {
-        //   // result.data.splice(0, 1);
-        //   // result.data.splice(0, 1);
-        //   // dataDis = result.data;
-        //   // setDistrict(dataDis);
-        // }
-        // if (value === 202) {
-        //   // result.data.splice(1, 1);
-        //   // result.data.splice(1, 1);
-        //   // result.data.splice(2, 1);
-        //   // dataDis = result.data;
-        //   // setDistrict(dataDis);
-        // }
-        // if (value === 268) {
-        //   // result.data.splice(0, 1);
-        //   // dataDis = result.data;
-        //   // setDistrict(dataDis);
-        //   // console.log(dataDis);
-        // } else {
-
-        // }
-
         setDistrict(result.data);
       })
       .catch((error) => {
-        console.log("err", error);
       });
   };
 
@@ -536,11 +496,8 @@ function CreateOrderAdmin() {
         .then((response) => response.json())
         .then((data) => {
           if (data.data === null) {
-            console.log("không có dữ liệu giao hàng phù hợp");
             setIsDisabled(true);
           } else {
-            console.log("Success service:", data.data);
-            console.log("data service id: " + data.data[0].service_id);
             const checkValue = data.data[0].service_id;
             setServiceId(checkValue);
             fetch(
@@ -560,7 +517,6 @@ function CreateOrderAdmin() {
               .then((response) => response.json())
               .then((data) => {
                 if (data.data === null) {
-                  console.log("không có dữ liệu phù hợp");
                 } else {
                   setWard(data.data);
                 }
@@ -615,9 +571,6 @@ function CreateOrderAdmin() {
   const url = "http://localhost:8080/api/orders";
 
   const SubmitShipping = (value) => {
-    console.log("submit shipping");
-    console.log("serviceId:", serviceId);
-    console.log("total,", total);
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
       {
@@ -667,7 +620,6 @@ function CreateOrderAdmin() {
   }, [(total != undefined) | (ProvinceID != 1)]);
 
   const loadDataUseLogin = () => {
-    console.log("load data login");
     const id = localStorage.getItem("id");
     fetch(
       `http://localhost:8080/api/users/find/${id}?${qs.stringify(
@@ -676,7 +628,6 @@ function CreateOrderAdmin() {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setDataLogin(results.data.data);
         setLoading(false);
       });
@@ -691,8 +642,6 @@ function CreateOrderAdmin() {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log("data client");
-        console.log(results.data.data);
         const option = [];
         results.data.data.forEach((item) => {
           item.information.forEach((element) => {
@@ -705,9 +654,6 @@ function CreateOrderAdmin() {
             }
           });
         });
-
-        console.log("option set data client");
-        console.log(option);
 
         setDataClient(option);
         setLoading(false);
@@ -759,7 +705,6 @@ function CreateOrderAdmin() {
   };
 
   const loadDataProduct = () => {
-    console.log("vào load data product");
     fetch(
       `http://localhost:8080/api/products?${qs.stringify(
         getRandomuserParams(tableParamPro)
@@ -816,12 +761,8 @@ function CreateOrderAdmin() {
   });
 
   const onSelectAutoClient = (value) => {
-    console.log("on select client");
-    console.log(value);
     dataClient.forEach((element) => {
       if (element.value === value) {
-        console.log("kiểm tra số điện thoại khách hàng để  hiển thị");
-        console.log(element.fullName);
         setValueUser(element.fullName);
       }
     });
@@ -869,10 +810,7 @@ function CreateOrderAdmin() {
   };
 
   const onChangeSearchClient = (event) => {
-    console.log("onchange search client");
-    console.log(event);
     setPhoneClient(event);
-    console.log("id event on change:");
   };
 
   return (
@@ -970,15 +908,13 @@ function CreateOrderAdmin() {
                 onCancel={handleCancel}
               >
                 <Form
-                 form={form}
+                  form={form}
                   autoComplete="off"
                   layout="vertical"
                   onFinish={(values) => {
                     handleOk(values);
-                    console.log({ values });
                   }}
                   onFinishFailed={(error) => {
-                    console.log({ error });
                   }}
                 >
                   <div className="row">
@@ -993,7 +929,7 @@ function CreateOrderAdmin() {
                             message: "Tài khoản khách hàng không được để trống",
                           },
                           { whitespace: true },
-                          { min: 3 ,message: "Tài khoản từ 3 ký tự trở lên"},
+                          { min: 3, message: "Tài khoản từ 3 ký tự trở lên" },
                         ]}
                         hasFeedback
                       >
@@ -1023,7 +959,7 @@ function CreateOrderAdmin() {
                         ]}
                         hasFeedback
                       >
-                        <Input placeholder="Xác nhận mật khẩu" type="password"/>
+                        <Input placeholder="Xác nhận mật khẩu" type="password" />
                       </Form.Item>
                     </div>
                     <div className="col-6">
@@ -1102,7 +1038,7 @@ function CreateOrderAdmin() {
                   onChange={(e) => setValueUser(e.target.value)}
                   value={valueUser}
                   placeholder="Tên khách hàng"
-                  // type="number"
+                // type="number"
                 />
               </div>
             </div>

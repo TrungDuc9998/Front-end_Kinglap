@@ -19,7 +19,7 @@ import {
 import qs from "qs";
 import React, { useEffect, useState, useRef } from "react";
 import "./Processor.css";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 const { Option } = Select;
 const getRandomParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -327,7 +327,7 @@ const Processor = () => {
     setOpen(true);
   };
 
-  const handleOk = () => {};
+  const handleOk = () => { };
 
   const handleCancel = () => {
     setOpen(false);
@@ -533,7 +533,6 @@ const Processor = () => {
                 handleSubmitProcessor(values, isUpdate);
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item
@@ -695,7 +694,6 @@ const Processor = () => {
                 handleSubmitUpdate(values, isUpdate);
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item

@@ -565,10 +565,8 @@ const BatteryCharger = () => {
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmit(values, isUpdate);
-                console.log({ values });
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item
@@ -671,10 +669,8 @@ const BatteryCharger = () => {
               onFinish={(values) => {
                 setIsUpdate(false);
                 handleSubmitUpdate(values, isUpdate);
-                console.log({ values });
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item

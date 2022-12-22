@@ -74,7 +74,6 @@ const ReturnUser = () => {
 
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
       setDataOD(res.data);
     });
     setView(true);
@@ -96,22 +95,18 @@ const ReturnUser = () => {
   };
 
   const loadDataOrder = (id) => {
-    console.log(id);
     setLoading(true);
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res.data);
         setOrder(res);
       });
   };
 
   const handleSubmitReturn = (item) => {
-    console.log(item);
 
     if (reason != undefined) {
       try {
-        console.log("vào fetch");
         fetch("http://localhost:8080/api/returns", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -128,7 +123,7 @@ const ReturnUser = () => {
               },
             ],
           }),
-        }).then((res) => {});
+        }).then((res) => { });
 
         fetch(`http://localhost:8080/api/orders/${item.id}/orderDetails`, {
           method: "PUT",
@@ -140,12 +135,11 @@ const ReturnUser = () => {
             status: item.status,
             isCheck: 2,
           }),
-        }).then((res) => {});
+        }).then((res) => { });
         toastSuccess("Gửi yêu cầu thành công!");
         loadDataOrder(id);
         // location.reload();
       } catch (err) {
-        console.log(err);
         toastError("Gửi yêu cầu thất bại!");
       }
     } else {
@@ -154,7 +148,6 @@ const ReturnUser = () => {
   };
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
     setValueInputNumber(value);
   };
 

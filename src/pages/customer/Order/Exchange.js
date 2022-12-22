@@ -102,14 +102,11 @@ const ExchangeUser = () => {
       })
         .then((response) => response.json())
         .then((results) => {
-          console.log(results);
           handleSubmitReturn(results.data, item);
         })
         .then((data) => {
-          console.log("Success:", data);
         })
         .catch((error) => {
-          console.error("Error:", error);
         });
     }
 
@@ -117,8 +114,6 @@ const ExchangeUser = () => {
   };
 
   const handleSubmitReturn = (data, dataOrderDetail) => {
-    console.log("data order detail handle submit");
-    console.log(dataOrderDetail);
 
     const ExchangeDetail = [];
     data?.forEach((element) => {
@@ -132,9 +127,6 @@ const ExchangeUser = () => {
       });
     });
 
-    console.log("data exchange");
-    console.log(ExchangeDetail);
-
     var date = new Date().getDate();
     var month = new Date().getMonth() + 1;
     var year = new Date().getFullYear();
@@ -144,9 +136,6 @@ const ExchangeUser = () => {
     setCurrentDate(date + "-" + month + "-" + year + " ");
     const event = new Date(order?.updatedAt);
     const event1 = new Date("2022-11-11 18:56:26");
-    console.log(
-      moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
-    );
     if (reason != undefined) {
       ///tạo đơn đổi
       try {
@@ -161,7 +150,7 @@ const ExchangeUser = () => {
             status: "CHUA_XU_LY",
             returnDetailEntities: ExchangeDetail,
           }),
-        }).then((res) => {});
+        }).then((res) => { });
         fetch(
           `http://localhost:8080/api/orders/${dataOrderDetail.id}/updateOrderDetail`,
           {
@@ -318,7 +307,6 @@ const ExchangeUser = () => {
   };
 
   const loadDataOrder = (id) => {
-    console.log(id);
     setLoading(true);
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
@@ -328,7 +316,6 @@ const ExchangeUser = () => {
   };
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
     setValueInputNumber(value);
   };
 
@@ -337,13 +324,11 @@ const ExchangeUser = () => {
     const dataPro = [];
     let productValue;
     setValueProduct(value);
-    console.log(dataProduct);
     let isUpdate = false;
     if (value !== undefined) {
       dataProduct
         .filter((item) => item.id === value)
         .map((product) => {
-          console.log("vào push");
           dataPro.push({
             id: product.id,
             images: product?.images[0].name,
@@ -399,7 +384,6 @@ const ExchangeUser = () => {
   };
 
   const onSearchProduct = (searchItem) => {
-    console.log("value product click" + searchItem);
   };
   const deleteProduct = (item) => {
     let total = 0;
@@ -441,7 +425,6 @@ const ExchangeUser = () => {
           });
           productValue = product;
         });
-      console.log(dataPro);
     }
     if (dataCart === undefined) {
       dataPro.forEach((element, index) => {
@@ -465,11 +448,7 @@ const ExchangeUser = () => {
               "Sản phẩm phải có giá tiền lớn hơn hoặc bằng sản phẩm trước đó"
             );
           } else {
-            console.log("vào else cuối cùng");
-            console.log(productValue);
-            console.log((t) => [...t, productValue]);
             setDataCart((t) => [...t, productValue]);
-            console.log(dataCart);
           }
         });
       }
@@ -665,9 +644,9 @@ const ExchangeUser = () => {
                   <i className="text-danger">
                     {totalProduct > 0
                       ? totalProduct.toLocaleString("it-IT", {
-                          style: "currency",
-                          currency: "VND",
-                        })
+                        style: "currency",
+                        currency: "VND",
+                      })
                       : "0 VND"}
                   </i>
                 </p>
@@ -676,9 +655,9 @@ const ExchangeUser = () => {
                   <i className="text-danger">
                     {totalProduct > 0
                       ? (totalProduct - item?.total).toLocaleString("it-IT", {
-                          style: "currency",
-                          currency: "VND",
-                        })
+                        style: "currency",
+                        currency: "VND",
+                      })
                       : "0 VND"}
                   </i>
                 </p>

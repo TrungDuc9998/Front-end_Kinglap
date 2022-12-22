@@ -518,7 +518,6 @@ const Screen = () => {
                 handleAdd(values)
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
               <Form.Item
@@ -604,7 +603,6 @@ const Screen = () => {
                 handleEdit(values);
               }}
               onFinishFailed={(error) => {
-                console.log({ error });
               }}
             >
 

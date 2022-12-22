@@ -46,7 +46,6 @@ function Checkout() {
   };
   const onSelectAuto = (value) => {
     setValueProduct(value);
-    console.log("ádasjd", value);
     const a = products.filter((item) => value == item.id)[0];
     a.quantity = 1;
     if (a != undefined) {
@@ -60,12 +59,9 @@ function Checkout() {
   const [wardCodeChange, setWardCodeChange] = useState();
 
   const onChangeInputNumber = (value, event) => {
-    console.log("changed", value);
-    console.log("event", event);
     value.quantity = event;
 
     if (type == 1) {
-      console.log("vào submit 2");
       SubmitShipping2(wardCodeChange);
       value.quantity = event;
       loadInfo(carts);
@@ -80,7 +76,6 @@ function Checkout() {
   };
   // modal
   const onClickShow = (value) => {
-    console.log(value.images[0]);
   };
   const onclickDelete = (value) => {
     setProductAdd(productAdd.filter((item) => item != value));
@@ -93,8 +88,6 @@ function Checkout() {
     setIsModalOpen(false);
     setProductAdd([]);
     setCarts(carts.concat(productAdd));
-    console.log("s", carts);
-    console.log("carts", carts);
   };
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -154,7 +147,6 @@ function Checkout() {
   };
   const [valueProduct, setValueProduct] = useState("");
   const onChangeProduct = (value) => {
-    console.log(value);
     const a = products.filter((item) => value == item.id)[0];
     a.quantity = 1;
     if (a != undefined) {
@@ -163,9 +155,7 @@ function Checkout() {
     // carts.push(a);
   };
   // const clickOptions = (pro) => {
-  //   console.log("click", pro);
   //   const ca = [...state.cartCheckout, pro];
-  //   console.log("new", pro);
   // }
 
   const url = "http://localhost:8080/api/products";
@@ -313,7 +303,6 @@ function Checkout() {
               window.location = data.paymentUrl;
             });
         } else if (payment === "NGAN_HANG") {
-          console.log("Chuyển khoản qua ngân hàng");
           localStorage.setItem(
             "total",
             parseInt(getTotal(carts)) + parseInt(shipping)
@@ -467,7 +456,6 @@ function Checkout() {
 
   const changePayment = (event) => {
     setPayment(event.target.value);
-    console.log(event.target.value);
     if (event.target.value === "DAT_COC") {
       setStatus("CHO_XAC_NHAN");
     } else {
@@ -491,7 +479,6 @@ function Checkout() {
   };
 
   const changeType = (event) => {
-    console.log(event.target.value);
     setType(event.target.value);
     if (event.target.value == 1) {
       loadDataProvince();
@@ -505,12 +492,10 @@ function Checkout() {
   };
 
   const changeName = (event) => {
-    console.log(event.target.value);
     setName(event.target.value);
   };
 
   const changePhone = (event) => {
-    console.log(event.target.value);
     setPhone(event.target.value);
   };
 
@@ -605,7 +590,6 @@ function Checkout() {
   const SubmitShipping2 = (value) => {
     if (value != null) {
       setWardCodeChange(value);
-      console.log(serviceId);
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
         {
@@ -632,7 +616,6 @@ function Checkout() {
       )
         .then((response) => response.json())
         .then((data) => {
-          console.log(data.data.total);
           setShipping(data.data.total);
         });
     }
@@ -674,7 +657,6 @@ function Checkout() {
         .then((response) => response.json())
         .then((data) => {
           if (data.data === null) {
-            console.log("không có dữ liệu giao hàng phù hợp");
             setIsDisabled(true);
           } else {
             const checkValue = data.data[0].service_id;
@@ -696,9 +678,7 @@ function Checkout() {
               .then((response) => response.json())
               .then((data) => {
                 if (data.data === null) {
-                  console.log("không có dữ liệu phù hợp");
                 } else {
-                  console.log("Success ward:", data.data);
                   setWard(data.data);
                   data.data.forEach((element) => {
                     if (
@@ -733,7 +713,6 @@ function Checkout() {
         throw Error(response.status);
       })
       .then((result) => {
-        console.log(result.data);
         setArray(result.data);
         result.data.forEach((element) => {
           if (element.ProvinceName === information[0].address.split(",")[0]) {
@@ -742,7 +721,6 @@ function Checkout() {
         });
       })
       .catch((error) => {
-        console.log("err", error);
       });
   };
 
@@ -790,7 +768,6 @@ function Checkout() {
           result.data.splice(0, 1);
           dataDis = result.data;
           setDistrict(dataDis);
-          console.log(dataDis);
         } else {
           setDistrict(result.data);
         }
@@ -873,7 +850,6 @@ function Checkout() {
   const information = JSON.parse(localStorage.getItem("information"));
 
   const showCarts = (carts) => {
-    console.log(carts);
     let cartList = carts;
     if (cartList.length > 0) {
       // for(i=0;i<cartList.length;i++){

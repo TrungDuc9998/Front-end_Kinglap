@@ -66,7 +66,6 @@ const Return = () => {
 
   const showModalData = (id) => {
     axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
       setDataOD(res.data);
     });
     setView(true);
@@ -88,18 +87,15 @@ const Return = () => {
   };
 
   const loadDataOrder = (id) => {
-    console.log(id);
     setLoading(true);
     fetch(`http://localhost:8080/api/orders/get/${id}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res.data);
         setOrder(res);
       });
   };
 
   const handleSubmitReturn = (item) => {
-    console.log(item);
 
     if (reason != undefined) {
       try {
@@ -120,7 +116,7 @@ const Return = () => {
               },
             ],
           }),
-        }).then((res) => {});
+        }).then((res) => { });
 
         fetch(`http://localhost:8080/api/orders/${item.id}/updateOrderDetail`, {
           method: "PUT",
@@ -135,7 +131,6 @@ const Return = () => {
         }).then((res) => loadDataOrder(id));
         toastSuccess("Gửi yêu cầu thành công!");
       } catch (err) {
-        console.log(err);
         toastError("Gửi yêu cầu thất bại!");
       }
     } else {
@@ -144,7 +139,6 @@ const Return = () => {
   };
 
   const onChange = (value) => {
-    console.log(`selected ${value}`);
     setValueInputNumber(value);
   };
 
@@ -155,8 +149,8 @@ const Return = () => {
     <div>
       <ToastContainer></ToastContainer>
       <div className="row">
-        <div className="col-1" style={{width: "10px"}}>
-          <MenuFoldOutlined style={{fontSize: "20px"}} />
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
         </div>
         <div className="col-11">
           <h4 className="text-danger fw-bold">Yêu cầu trả hàng/hoàn tiền</h4>

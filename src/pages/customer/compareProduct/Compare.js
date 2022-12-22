@@ -38,19 +38,9 @@ function Compare() {
   useEffect(() => {
     loadDataProduct();
     loadDataProductById(id);
-    console.log(def);
   }, [def]);
 
   const handelCLickProduct = (product) => {
-    // console.log("handleClickProduct:", product);
-    // if(product === undefined) {
-    //   console.log("handleClickProduct:", dataProduct);
-    //   dispatch(viewProduct(dataProduct));
-    //   console.log("state", state);
-    // }else {
-    //   dispatch(viewProduct(product));
-    //   console.log("state", state);
-    // }
   };
 
   const onChangeProduct = (value) => {
@@ -62,18 +52,14 @@ function Compare() {
   };
 
   const onSearchProduct = (searchItem) => {
-    console.log("value product click" + searchItem);
   };
 
   const onChangeProduct2 = (value) => {
     data.forEach((element) => {
       if (element.id === value) {
-        console.log("vào iff");
-        console.log(element);
         getProductById(element.id, false);
       }
     });
-    console.log(value);
   };
   const getProductById = (id, check) => {
     fetch(`http://localhost:8080/api/products/${id}`)
@@ -88,11 +74,9 @@ function Compare() {
   };
 
   const onSearchProduct2 = (searchItem) => {
-    console.log("value product click" + searchItem);
   };
 
   const loadDataProduct = () => {
-    console.log("vào load data product");
     fetch(
       `http://localhost:8080/api/products?${qs.stringify(
         getRandomuserParams(tableParams)
@@ -100,7 +84,6 @@ function Compare() {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setData(results.data.data);
       });
     setDef("B");
@@ -110,12 +93,11 @@ function Compare() {
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
       .then((results) => {
-        console.log(results);
         setDataProduct(results);
       });
   };
 
-  const onChangeCollapse = (key) => {};
+  const onChangeCollapse = (key) => { };
 
   return (
     <div className="container">
@@ -127,8 +109,8 @@ function Compare() {
               ? pro1?.name + " VS " + pro2?.name
               : pro1?.name + " VS ..."
             : pro2 === undefined
-            ? dataProduct?.name + " VS ..."
-            : dataProduct?.name + "VS" + pro2?.name}
+              ? dataProduct?.name + " VS ..."
+              : dataProduct?.name + "VS" + pro2?.name}
         </h4>
         <hr />
       </div>
@@ -152,14 +134,14 @@ function Compare() {
           >
             {data != undefined
               ? data.map((item, index) => (
-                  <Option key={index} value={item.id}>
-                    {item.name}
-                    {/* <Image
+                <Option key={index} value={item.id}>
+                  {item.name}
+                  {/* <Image
                       width={90}
                       src={item.images[0].name + " " + item.name}
                     />{" "} */}
-                  </Option>
-                ))
+                </Option>
+              ))
               : ""}
           </Select>
           <div className="text-center" style={{ width: "70%", height: "60%" }}>
@@ -235,14 +217,14 @@ function Compare() {
           >
             {data != undefined
               ? data.map((item, index) => (
-                  <Option key={index} value={item.id}>
-                    {item.name}
-                    {/* <Image
+                <Option key={index} value={item.id}>
+                  {item.name}
+                  {/* <Image
                       width={90}
                       src={item.images[0].name + " " + item.name}
                     />{" "} */}
-                  </Option>
-                ))
+                </Option>
+              ))
               : ""}
           </Select>
           <div className="text-center" style={{ width: "70%", height: "40%" }}>
@@ -331,25 +313,25 @@ function Compare() {
                     <i className="text-danger">
                       {pro1?.width != undefined
                         ? pro1?.width +
-                          " x " +
-                          pro1?.height +
-                          " x " +
-                          pro1?.length
+                        " x " +
+                        pro1?.height +
+                        " x " +
+                        pro1?.length
                         : ""}
 
                       {pro1 != undefined
                         ? pro1?.width != undefined
                           ? pro1?.width +
-                            " x " +
-                            pro1?.height +
-                            " x " +
-                            pro1?.length
+                          " x " +
+                          pro1?.height +
+                          " x " +
+                          pro1?.length
                           : ""
                         : dataProduct?.width +
-                          " x " +
-                          dataProduct?.height +
-                          " x " +
-                          dataProduct?.length}
+                        " x " +
+                        dataProduct?.height +
+                        " x " +
+                        dataProduct?.length}
                     </i>
                   </p>
                   <p>
@@ -375,10 +357,10 @@ function Compare() {
                     <i className="text-danger">
                       {pro2?.width != undefined
                         ? pro2?.width +
-                          " x " +
-                          pro2?.height +
-                          " x " +
-                          pro2?.length
+                        " x " +
+                        pro2?.height +
+                        " x " +
+                        pro2?.length
                         : ""}
                     </i>
                   </p>
