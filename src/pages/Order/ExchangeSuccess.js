@@ -72,7 +72,7 @@ const ExchangeSuccess = () => {
 
   useEffect(() => {
     loadDataExchange();
-  }, []);
+  }, [JSON.stringify(tableParams)]);
 
   const loadDataOrder = (data) => {
     setLoading(true);
@@ -202,6 +202,14 @@ const ExchangeSuccess = () => {
         setDataExchange(results.data.data);
         setDataExchange1(results.data.data);
         setLoading(false);
+        console.log("total",results.data.total);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: results.data.total,
+          },
+        });
       });
   };
 
@@ -351,6 +359,13 @@ const ExchangeSuccess = () => {
   const resetEditing = () => {
     setEditing(false);
   };
+  const handleTableChange = (pagination, filters, sorter) => {
+    setTableParams({
+      pagination,
+      filters,
+      ...sorter,
+    });
+  };
   return (
     <div>
       <ToastContainer></ToastContainer>
@@ -436,6 +451,7 @@ const ExchangeSuccess = () => {
             dataSource={dataExchange}
             pagination={tableParams.pagination}
             loading={loading}
+            onChange={handleTableChange}
           />
           <Modal
             title="Xác nhận đơn hàng"

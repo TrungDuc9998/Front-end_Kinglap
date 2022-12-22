@@ -69,6 +69,7 @@ function Checkout() {
       SubmitShipping2(wardCodeChange);
       value.quantity = event;
       loadInfo(carts);
+      loadDataProvince();
     }
 
     value.quantity = event;
@@ -443,12 +444,12 @@ function Checkout() {
   };
 
   useEffect(() => {
-    setProvinceID(information[0].address.split(",")[0]);
-    setDistrictId(information[0].address.split(",")[1]);
-    setWardCode(information[0].address.split(",")[2]);
-    setValue(information[0].address.split(",")[0]);
-    setValueDistrict(information[0].address.split(",")[1]);
-    setValueWard(information[0].address.split(",")[2]);
+    // setProvinceID(information[0].address.split(",")[0]);
+    // setDistrictId(information[0].address.split(",")[1]);
+    setWardCode(information[0].address.split(",")[2].trim());
+    setValue(information[0].address.split(",")[0].trim());
+    setValueDistrict(information[0].address.split(",")[1].trim());
+    setValueWard(information[0].address.split(",")[2].trim());
     setAddRess(information[0].address.split(",")[3]);
     setName(information[0].fullName);
     setPhone(information[0].phoneNumber);
@@ -485,7 +486,7 @@ function Checkout() {
 
   const onSearchDistricts = (value) => {
     if (value.target.innerText !== "") {
-      setValueDistrict(value.target.innerText);
+      setValueDistrict(value.target.innerText.trim());
       loadDataWard();
     }
   };
@@ -583,10 +584,10 @@ function Checkout() {
           },
           body: JSON.stringify({
             service_id: serviceId,
-            insurance_value: 500000,
+            insurance_value: parseInt(getTotal(carts)),
             coupon: null,
             from_district_id: 3440,
-            to_district_id: 1875,
+            to_district_id: districtId,
             height: Math.round(height * 0.1),
             length: Math.round(length * 0.1),
             weight: Math.round(weight * 1000),
@@ -597,6 +598,7 @@ function Checkout() {
       )
         .then((response) => response.json())
         .then((data) => {
+          console.log("ship",data.data.total);
           setShipping(data.data.total);
         });
     }
@@ -604,6 +606,7 @@ function Checkout() {
 
   const SubmitShipping2 = (value) => {
     if (value != null) {
+      console.log("xa", value);
       setWardCodeChange(value);
       console.log(serviceId);
       fetch(
@@ -702,7 +705,7 @@ function Checkout() {
                   setWard(data.data);
                   data.data.forEach((element) => {
                     if (
-                      element.WardName === information[0].address.split(",")[2]
+                      element.WardName.trim() === information[0].address.split(",")[2].trim()
                     ) {
                       SubmitShipping(element.WardCode, checkValue);
                     }
@@ -778,6 +781,7 @@ function Checkout() {
           result.data.splice(0, 1);
           dataDis = result.data;
           setDistrict(dataDis);
+          console.log("h",result.data);
         }
         if (value === 202) {
           result.data.splice(1, 1);
@@ -795,7 +799,7 @@ function Checkout() {
           setDistrict(result.data);
         }
         result.data.forEach((element) => {
-          if (element.DistrictName === information[0].address.split(",")[1]) {
+          if (element.DistrictName.trim() === information[0].address.split(",")[1].trim()) {
             loadDataWard(element.DistrictID);
           }
         });
@@ -957,14 +961,14 @@ function Checkout() {
                   <input
                     type={"radio"}
                     name="ip-rdo"
-                    value={"0"}
+                    value={0}
                     onChange={changeType}
                   ></input>{" "}
                   <label>Lấy tại cửa hàng</label>
                   <input
                     type={"radio"}
                     name="ip-rdo"
-                    value={"1"}
+                    value={1}
                     onChange={changeType}
                   ></input>{" "}
                   <label>Lấy tại nhà</label>
@@ -984,7 +988,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tỉnh/ Thành Phố</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[0]}
+                            defaultValue={information[0].address.split(",")[0].trim()}
                             disabled={disableCountry}
                             showSearch
                             placeholder="Tỉnh/thành phố"
@@ -1016,7 +1020,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên quận huyện</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[1]}
+                            defaultValue={information[0].address.split(",")[1].trim()}
                             showSearch
                             disabled={disableCountry}
                             placeholder="Quận/huyện"
@@ -1048,7 +1052,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên phường xã</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[2]}
+                            defaultValue={information[0].address.split(",")[2].trim()}
                             showSearch
                             placeholder="Phường/xã"
                             optionFilterProp="children"

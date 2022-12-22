@@ -753,6 +753,7 @@ const Discount = () => {
   }
 
   // Call API NoDiscountProduct
+  const [cancelSuccess, setCancelSuccess] = useState(true);
   const handNoDiscountProduct = () => {
     Modal.confirm({
       title: "Hủy áp dụng giảm giá",
@@ -786,7 +787,7 @@ const Discount = () => {
               )
               .then((res) => {
                 console.log("DataNoDiscount", res.data.data);
-                notifySuccess("Hủy áp dụng giảm giá thành công!");
+                res.data?.data ? setCancelSuccess(true) : setCancelSuccess(false);
                 const checkboxes =
                   document.querySelectorAll('input[name="ck"]');
                 checkboxes.forEach((checkbox) => {
@@ -800,6 +801,15 @@ const Discount = () => {
               });
           }
         });
+        if(checked.length==0||checked==[]){
+          notifyError('Chọn sản phẩm cần huỷ áp dụng giảm giá!')
+        }else{
+          if(cancelSuccess == true) {
+            notifySuccess('Huỷ áp dụng giảm giá thành công !')
+          }else {
+            notifyError('Huỷ áp dụng giảm giá thất bại !')
+          }
+        }
         setChecked([]);
       },
       onCancel() {
