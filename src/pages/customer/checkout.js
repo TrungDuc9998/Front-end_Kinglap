@@ -988,7 +988,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tỉnh/ Thành Phố</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[0].trim()}
+                            defaultValue={information[0].address.split(",")[3]}
                             disabled={disableCountry}
                             showSearch
                             placeholder="Tỉnh/thành phố"
@@ -1020,7 +1020,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên quận huyện</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[1].trim()}
+                            defaultValue={information[0].address.split(",")[2]}
                             showSearch
                             disabled={disableCountry}
                             placeholder="Quận/huyện"
@@ -1052,7 +1052,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên phường xã</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[2].trim()}
+                            defaultValue={information[0].address.split(",")[1]}
                             showSearch
                             placeholder="Phường/xã"
                             optionFilterProp="children"
@@ -1081,7 +1081,7 @@ function Checkout() {
                     <div>
                       <label>Địa chỉ</label>
                       <input
-                        defaultValue={information[0].address.split(",")[3]}
+                        defaultValue={information[0].address.split(",")[0]}
                         style={{
                           width: 380,
                           marginLeft: "97px",

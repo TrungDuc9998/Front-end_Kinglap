@@ -795,6 +795,7 @@ const Discount = () => {
                 });
                 handleCancel();
                 if (res.data.data) {
+                  console.log('------------------------- vào  rest');
                   loadProduct();
                   getData();
                 }

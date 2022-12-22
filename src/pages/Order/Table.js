@@ -1116,6 +1116,7 @@ function CreateOrderAdmin() {
                 </label>
                 <br />
                 <Select
+                key={1}
                   combobox="true"
                   placeholder="Hình thức mua hàng"
                   style={{
@@ -1138,6 +1139,7 @@ function CreateOrderAdmin() {
             <div className="col-6">
               <label>Tỉnh/ Thành Phố</label>
               <Select
+              key={2}
                 combobox="true"
                 disabled={disableCountry || dataCart?.length === 0}
                 showSearch
@@ -1163,6 +1165,7 @@ function CreateOrderAdmin() {
                 <div className="search-inner">
                   <label>Tên quận huyện</label>
                   <Select
+                  key={3}
                     combobox="true"
                     showSearch
                     disabled={disableCountry || dataCart?.length === 0}
@@ -1192,6 +1195,7 @@ function CreateOrderAdmin() {
                 <div className="search-inner">
                   <label>Tên phường xã</label>
                   <Select
+                  key={4}
                     combobox="true"
                     showSearch
                     placeholder="Phường/xã"

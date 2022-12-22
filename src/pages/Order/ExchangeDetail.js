@@ -140,7 +140,7 @@ function exchangeDetail() {
           quantity: element.quantity,
           total: 0,
           isBoolean: element.select,
-          exchangeStatus: data.isCheck,
+          status: data.isCheck,
         });
       } 
     });
