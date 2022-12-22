@@ -846,11 +846,11 @@ const Product = () => {
         console.log(response.data);
         if(response.data) {
           console.log('vào set image success');
-          setImportSuccess(true);
         }
-        // response.data ?  : console.log(response);
         console.log(importSuccess);
-        response.errors ? notifyError(mess) : console.log(response);
+        if(response.errors){
+          notifyError(mess);
+        } 
       })
       .catch((error) => {
         notifyError(mess);
@@ -909,13 +909,9 @@ const Product = () => {
     }else {
       // notifyError('import thất bại !')
     }
-    // importSuccess == true
-    //   ? notifySuccess("Import thành công !")
-    //   : console.log("false");
     const file = document.querySelectorAll('input[name="file"]');
     file[0].value = null;
     load();
-    setImportSuccess(false);
   };
 
   return (
