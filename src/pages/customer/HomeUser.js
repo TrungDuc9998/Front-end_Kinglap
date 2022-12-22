@@ -318,7 +318,7 @@ function HomeUser() {
                                 className="product-name"
                                 onClick={() => handelCLickProduct(pro)}
                               >
-                                <a href="/user/product">{pro.name}</a>
+                                <a>{pro.name}</a>
                               </h3>
                               <h4 className="product-price">{formatCash(Math.ceil(pro.price) + "")} VNĐ {pro.discount ? <del className="product-old-price">{formatCash(Math.ceil(pro.price / ((100 - pro.discount.ratio) / 100)) + "")} VNĐ</del> : ""}</h4>
                             </div>
