@@ -196,7 +196,7 @@ function Menu() {
                 </li>
               )}
               <li className="nav-item">
-                {localStorage.getItem("roles") != "CUSTOMER" ? (
+                { (localStorage.getItem("roles") == "STAFF") || ( localStorage.getItem("roles") == "ADMIN")  ? (
                   <a style={{ color: "white" }} onClick={toAdmin}>
                     <DollarSign size={12} color="red"></DollarSign>
                     Quản trị
