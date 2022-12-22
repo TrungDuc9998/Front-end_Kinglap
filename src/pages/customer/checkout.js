@@ -611,6 +611,51 @@ function Checkout() {
     }
   };
 
+  const SubmitShipping1 = (value, serviceId, idDistrict) => {
+    let cartList = carts;
+    let weight = 0;
+    let width = 0;
+    let height = 0;
+    let length = 0;
+    for (let i = 0; i < cartList.length; i++) {
+      weight += cartList[i].weight * cartList[i].quantity;
+      width += cartList[i].width * cartList[i].quantity;
+      height += cartList[i].height * cartList[i].quantity;
+      length += cartList[i].length * cartList[i].quantity;
+    }
+    if (value != null) {
+      fetch(
+        "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            service_id: serviceId,
+            token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+          },
+          body: JSON.stringify({
+            service_id: serviceId,
+            insurance_value: parseInt(getTotal(carts)),
+            coupon: null,
+            from_district_id: 3440,
+            to_district_id: idDistrict,
+            height: Math.round(height * 0.1),
+            length: Math.round(length * 0.1),
+            weight: Math.round(weight * 1000),
+            width: Math.round(width * 0.1),
+            to_ward_code: value,
+          }),
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("ship", data.data.total);
+          setShipping(data.data.total);
+        });
+    }
+  };
+
   const SubmitShipping2 = (value) => {
     if (value != null) {
       console.log("xa", value);
@@ -664,6 +709,7 @@ function Checkout() {
   };
 
   const loadDataWard = (value) => {
+    setDistrictId(value);
     if (value != null) {
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
@@ -715,7 +761,7 @@ function Checkout() {
                       element.WardName.trim() ===
                       information[0].address.split(",")[2].trim()
                     ) {
-                      SubmitShipping(element.WardCode, checkValue);
+                      SubmitShipping1(element.WardCode, checkValue,value);
                     }
                   });
                 }
@@ -812,8 +858,8 @@ function Checkout() {
             element.DistrictName.trim() ===
             information[0].address.split(",")[1].trim()
           ) {
-            loadDataWard(element.DistrictID);
             setDistrictId(element.DistrictID);
+            loadDataWard(element.DistrictID);
           }
         });
       });
