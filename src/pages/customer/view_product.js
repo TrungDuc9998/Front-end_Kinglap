@@ -79,6 +79,7 @@ function ViewProduct() {
     JSON.parse(localStorage.getItem("product_detail")),
   ]);
 
+
   console.log("pro", products);
 
   function formatCash(str) {
@@ -107,6 +108,9 @@ function ViewProduct() {
   };
   const [quantity, setQuantity] = useState(1);
   const onChangeInputQuantity = (event) => {
+    if (event.target.value <= 0) {
+      setQuantity(1);
+    }
     setQuantity(event.target.value);
   };
   const notifySuccess = (message) => {
@@ -323,7 +327,7 @@ function ViewProduct() {
                 style={{ width: "30%" }}
                 placeholder="Số lượng"
                 min={1}
-                max={product.quantity}
+                max={10}
               />
 
               <div className="add-to-cart">

@@ -1,4 +1,4 @@
-import { ADD_TO_CART, CHECK_OUT_CART, CHANGE_CART_QTY, REMOVE_CART, VIEW_PRODUCT, ADD_TO_CART_BY_VIEW, REMOVE_CART_AFTER_CHECKOUT} from './constants'
+import { ADD_TO_CART, CHECK_OUT_CART, CHANGE_CART_QTY, REMOVE_CART, VIEW_PRODUCT, ADD_TO_CART_BY_VIEW, REMOVE_CART_AFTER_CHECKOUT } from './constants'
 const initState = {
     cartCheckout: [],
     cart: JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : [],
@@ -49,14 +49,9 @@ function reducer(state, action) {
         }
 
         case ADD_TO_CART_BY_VIEW: {
-            // state = {
-            //     ...state.cartCheckout,
-            //     cart: [...state.cart, { ...action.payload.product, quantity: action.payload.quantity, total: 0 }],
-            // }
-            // localStorage.setItem('carts', JSON.stringify(state.cart));
-            // return state;
             let data_add_cart1 = action.payload.product
-            let data_quantity=Number(action.payload.quantity);
+            let data_quantity = Number(action.payload.quantity);
+            localStorage.setItem('quantity_cart', data_quantity);
             let add_cart1 = JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : []
             let indexCart = -1;
             if (add_cart1) {
@@ -65,7 +60,7 @@ function reducer(state, action) {
                 })
             }
             if (indexCart === -1) {
-                data_add_cart1.quantity=1;
+                data_add_cart1.quantity = data_quantity;
                 add_cart1.push(data_add_cart1)
                 state = {
                     ...state.cartCheckout,
@@ -77,7 +72,6 @@ function reducer(state, action) {
                     ...state.cartCheckout,
                     cart: add_cart1
                 }
-                console.log("Update")
             }
             localStorage.setItem('carts', JSON.stringify(state.cart));
             return state
