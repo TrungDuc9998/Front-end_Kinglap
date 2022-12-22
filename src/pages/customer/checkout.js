@@ -229,7 +229,7 @@ function Checkout() {
   const [valueDistrict, setValueDistrict] = useState("");
   const [array, setArray] = useState([{}]);
   const [district, setDistrict] = useState([{}]);
-  const [ProvinceID, setProvinceID] = useState();
+  const [ProvinceID, setProvinceID] = useState(1);
   const [value, setValue] = useState("");
   const [districtId, setDistrictId] = useState(1542);
   const [serviceId, setServiceId] = useState();
@@ -444,8 +444,8 @@ function Checkout() {
   };
 
   useEffect(() => {
-    // setProvinceID(information[0].address.split(",")[0]);
-    // setDistrictId(information[0].address.split(",")[1]);
+    //setProvinceID(information[0].address.split(",")[0].trim());
+    //setDistrictId(information[0].address.split(",")[1].trim());
     setWardCode(information[0].address.split(",")[2].trim());
     setValue(information[0].address.split(",")[0].trim());
     setValueDistrict(information[0].address.split(",")[1].trim());
@@ -739,8 +739,9 @@ function Checkout() {
         console.log(result.data);
         setArray(result.data);
         result.data.forEach((element) => {
-          if (element.ProvinceName === information[0].address.split(",")[0]) {
+          if (element.ProvinceName === information[0].address.split(",")[0].trim()) {
             loadDataDistrict(element.ProvinceID);
+            setProvinceID(element.ProvinceID);
           }
         });
       })
@@ -801,6 +802,7 @@ function Checkout() {
         result.data.forEach((element) => {
           if (element.DistrictName.trim() === information[0].address.split(",")[1].trim()) {
             loadDataWard(element.DistrictID);
+            setDistrictId(element.DistrictID);
           }
         });
       });
@@ -988,7 +990,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tỉnh/ Thành Phố</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[3]}
+                            defaultValue={information[0].address.split(",")[0].trim()}
                             disabled={disableCountry}
                             showSearch
                             placeholder="Tỉnh/thành phố"
@@ -1020,7 +1022,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên quận huyện</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[2]}
+                            defaultValue={information[0].address.split(",")[1].trim()}
                             showSearch
                             disabled={disableCountry}
                             placeholder="Quận/huyện"
@@ -1052,7 +1054,7 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên phường xã</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[1]}
+                            defaultValue={information[0].address.split(",")[2].trim()}
                             showSearch
                             placeholder="Phường/xã"
                             optionFilterProp="children"
@@ -1081,7 +1083,7 @@ function Checkout() {
                     <div>
                       <label>Địa chỉ</label>
                       <input
-                        defaultValue={information[0].address.split(",")[0]}
+                        defaultValue={information[0].address.split(",")[3].trim()}
                         style={{
                           width: 380,
                           marginLeft: "97px",
