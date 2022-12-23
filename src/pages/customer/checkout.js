@@ -253,25 +253,16 @@ function Checkout() {
   const [wardCode, setWardCode] = useState(1);
 
   const createOrder = () => {
+    console.log("create order");
+    console.log(districtId);
+
     if (name === "" || name == null) {
       toastError("Vui lòng nhập đầy đủ họ tên!");
     } else if (phone === "" || phone == null) {
       toastError("Vui lòng nhập đầy đủ số điện thoại!");
     } else if (type === "" || type == null) {
       toastError("Vui lòng chọn hình thức lấy hàng!");
-    } else if (
-      type == "1" &&
-      (ProvinceID === "" ||
-        ProvinceID == null ||
-        districtId === "" ||
-        districtId == null ||
-        wardCode === "" ||
-        wardCode == null ||
-        address === "" ||
-        address == null)
-    ) {
-      toastError("Vui lòng nhập đầy đủ địa chỉ giao hàng!");
-    } else if (payment === "" || payment == null) {
+    } else if (payment == "" || payment == null) {
       toastError("Vui lòng chọn hình thức thanh toán!");
     } else {
       if (parseInt(getTotal(carts)) > 200000000) {
@@ -761,7 +752,7 @@ function Checkout() {
                       element.WardName.trim() ===
                       information[0].address.split(",")[2].trim()
                     ) {
-                      SubmitShipping1(element.WardCode, checkValue,value);
+                      SubmitShipping1(element.WardCode, checkValue, value);
                     }
                   });
                 }
@@ -793,7 +784,9 @@ function Checkout() {
         console.log(result.data);
         setArray(result.data);
         result.data.forEach((element) => {
-          if (element.ProvinceName === information[0].address.split(",")[0].trim()) {
+          if (
+            element.ProvinceName === information[0].address.split(",")[0].trim()
+          ) {
             loadDataDistrict(element.ProvinceID);
             setProvinceID(element.ProvinceID);
           }
@@ -1047,7 +1040,9 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tỉnh/ Thành Phố</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[0].trim()}
+                            defaultValue={information[0].address
+                              .split(",")[0]
+                              .trim()}
                             disabled={disableCountry}
                             showSearch
                             placeholder="Tỉnh/thành phố"
@@ -1079,7 +1074,9 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên quận huyện</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[1].trim()}
+                            defaultValue={information[0].address
+                              .split(",")[1]
+                              .trim()}
                             showSearch
                             disabled={disableCountry}
                             placeholder="Quận/huyện"
@@ -1111,7 +1108,9 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên phường xã</label>
                           <Select
-                            defaultValue={information[0].address.split(",")[2].trim()}
+                            defaultValue={information[0].address
+                              .split(",")[2]
+                              .trim()}
                             showSearch
                             placeholder="Phường/xã"
                             optionFilterProp="children"
@@ -1140,7 +1139,9 @@ function Checkout() {
                     <div>
                       <label>Địa chỉ</label>
                       <input
-                        defaultValue={information[0].address.split(",")[3].trim()}
+                        defaultValue={information[0].address
+                          .split(",")[3]
+                          .trim()}
                         style={{
                           width: 380,
                           marginLeft: "97px",
