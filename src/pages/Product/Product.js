@@ -906,6 +906,7 @@ const Product = () => {
     console.log(importSuccess);
     if(importSuccess == true && dataImport != undefined) {
       notifySuccess('Import thành công !')
+      load();
     }else {
       // notifyError('import thất bại !')
     }

@@ -297,7 +297,7 @@ function Statistical() {
         </div>
         <div
           className="col-12 col-sm-6 text-center "
-          style={{ width: "38%", marginTop: "3%" }}
+          style={{ width: "40%", marginTop: "3%" }}
         >
           <Doughnut data={product} options={options} className="mt-5" />
           <h5 className=" fw-bold">Số lượng sản phẩm bán ra</h5>

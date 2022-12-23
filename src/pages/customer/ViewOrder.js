@@ -187,6 +187,22 @@ function ViewOrder() {
         valueProvince
       );
 
+      let dc;
+      if (localStorage.getItem("valueProvince") === "undefined") {
+        console.log("vào đầu");
+        dc =
+          address +
+          ", " +
+          valueWard +
+          ", " +
+          valueDistrict +
+          ", " +
+          value;
+      } else {
+        console.log("vào sau");
+        dc = address + ", " + valueWard + ", " + valueDistrict + ", " + valueProvince;
+      }
+
       fetch(`http://localhost:8080/api/orders/user`, {
         method: "POST",
         headers: {
@@ -199,16 +215,7 @@ function ViewOrder() {
           money: payment === "VN_PAY" ? total : total * 0.1,
           payment: payment,
           // type: type,
-          address:
-            type == 0
-              ? "TẠI CỬA HÀNG"
-              : address +
-                ", " +
-                valueWard +
-                ", " +
-                valueDistrict +
-                ", " +
-                valueProvince,
+          address: type == 0 ? "TẠI CỬA HÀNG" : dc,
           phone: phone,
           customerName: customerName,
           // email: email,
