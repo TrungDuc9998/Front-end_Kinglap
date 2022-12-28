@@ -60,7 +60,10 @@ function Login() {
     const roles = [];
 
     let handelSignUp = () => {
-        if (password3 !== password2) {
+        if (password2.length < 6) {
+            toastError("Mật khẩu phải lớn hơn hoặc bằng 6 ký tự!")
+        }
+        else if (password3 !== password2) {
             toastError("Xác nhận mật khẩu không chính xác!")
         } else {
             fetch('http://localhost:8080/api/users', {
@@ -73,7 +76,7 @@ function Login() {
             }).then((res) => res.json())
                 .then((results) => {
                     if (results.data == null) {
-                        toastError(results.message);
+                        toastError("Tên tài khoản đã được sử dụng. Hãy thử tên khác.");
                     } else {
                         signInButton();
                         toastSuccess("Đăng ký thành công!");
@@ -114,6 +117,7 @@ function Login() {
                 window.location.href = '/user';
             }
         }).catch(error => {
+            toastError("Tên người dùng hoặc mật khẩu bạn đã nhập không chính xác!");
             console.log("err", error);
         })
     }
