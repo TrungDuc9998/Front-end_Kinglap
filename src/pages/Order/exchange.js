@@ -78,6 +78,7 @@ const Exchange = () => {
 
     dataCart?.forEach((element, index) => {
       data.push({
+        index: index,
         orderId: id,
         productId: element.id,
         total: element.price,
@@ -85,6 +86,8 @@ const Exchange = () => {
         isCheck: item?.id,
       });
     });
+    console.log('data cart');
+    console.log(dataCart);
 
     if (reason != undefined) {
       fetch("http://localhost:8080/api/orders/exchanges", {
@@ -109,82 +112,85 @@ const Exchange = () => {
   };
 
   const handleSubmitReturn = (data, dataOrderDetail) => {
-    console.log("data order detail handle submit");
+    console.log('vào handle submit return');
+    console.log(data);
     console.log(dataOrderDetail);
+    // console.log("data order detail handle submit");
+    // console.log(dataOrderDetail);
 
-    const ExchangeDetail = [];
-    data?.forEach((element) => {
-      ExchangeDetail.push({
-        productId: element.product.id,
-        orderDetailId: item.id,
-        quantity: 1,
-        orderChange: element.id,
-        status: "YEU_CAU",
-        id: null,
-      });
-    });
+    // const ExchangeDetail = [];
+    // data?.forEach((element) => {
+    //   ExchangeDetail.push({
+    //     productId: element.product.id,
+    //     orderDetailId: item.id,
+    //     quantity: 1,
+    //     orderChange: element.id,
+    //     status: "YEU_CAU",
+    //     id: null,
+    //   });
+    // });
 
-    console.log("data exchange");
-    console.log(ExchangeDetail);
+    // console.log("data exchange");
+    // console.log(ExchangeDetail);
 
-    var date = new Date().getDate();
-    var month = new Date().getMonth() + 1;
-    var year = new Date().getFullYear();
-    var hours = new Date().getHours();
-    var min = new Date().getMinutes();
-    var sec = new Date().getSeconds();
-    setCurrentDate(date + "-" + month + "-" + year + " ");
-    const event = new Date(order?.updatedAt);
-    const event1 = new Date("2022-11-11 18:56:26");
-    console.log(
-      moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
-    );
-    if (reason != undefined) {
-      ///tạo đơn đổi
-      try {
-        fetch("http://localhost:8080/api/auth/returns", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId: order.id,
-            reason: reason,
-            description: note,
-            isCheck: checked === true ? "3" : "1",
-            status: "CHUA_XU_LY",
-            returnDetailEntities: ExchangeDetail,
-          }),
-        }).then((res) => {});
-        fetch(
-          `http://localhost:8080/api/orders/${dataOrderDetail.id}/updateOrderDetail`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              productId: dataOrderDetail.product.id,
-              total: dataOrderDetail.total,
-              quantity: dataOrderDetail.quantity,
-              status: dataOrderDetail.status,
-              isCheck: dataOrderDetail.id,
-              isUpdate: 1,
-            }),
-          }
-        ).then((res) => loadDataOrder(id));
-        toastSuccess("Gửi yêu cầu thành công!");
-        setReason('')
-        setChecked(false);
-        setIsModalOpen(false);
-        setNote('')
-        setLoading(false);
-      } catch (err) {
-        toastError("Gửi yêu cầu thất bại!");
-      }
-    } else {
-      toastError("Bạn chưa nhập lý do đổi hàng !");
-    }
+    // var date = new Date().getDate();
+    // var month = new Date().getMonth() + 1;
+    // var year = new Date().getFullYear();
+    // var hours = new Date().getHours();
+    // var min = new Date().getMinutes();
+    // var sec = new Date().getSeconds();
+    // setCurrentDate(date + "-" + month + "-" + year + " ");
+    // const event = new Date(order?.updatedAt);
+    // const event1 = new Date("2022-11-11 18:56:26");
+    // console.log(
+    //   moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
+    // );
+    // if (reason != undefined) {
+    //   ///tạo đơn đổi
+    //   try {
+    //     fetch("http://localhost:8080/api/auth/returns", {
+    //       method: "POST",
+    //       headers: { "Content-Type": "application/json" },
+    //       body: JSON.stringify({
+    //         orderId: order.id,
+    //         reason: reason,
+    //         description: note,
+    //         isCheck: checked === true ? "3" : "1",
+    //         status: "CHUA_XU_LY",
+    //         returnDetailEntities: ExchangeDetail,
+    //       }),
+    //     }).then((res) => {});
+    //     fetch(
+    //       `http://localhost:8080/api/orders/${dataOrderDetail.id}/updateOrderDetail`,
+    //       {
+    //         method: "PUT",
+    //         headers: { "Content-Type": "application/json" },
+    //         body: JSON.stringify({
+    //           productId: dataOrderDetail.product.id,
+    //           total: dataOrderDetail.total,
+    //           quantity: dataOrderDetail.quantity,
+    //           status: dataOrderDetail.status,
+    //           isCheck: dataOrderDetail.id,
+    //           isUpdate: 1,
+    //         }),
+    //       }
+    //     ).then((res) => loadDataOrder(id));
+    //     toastSuccess("Gửi yêu cầu thành công!");
+    //     setReason("");
+    //     setChecked(false);
+    //     setIsModalOpen(false);
+    //     setNote("");
+    //     setLoading(false);
+    //   } catch (err) {
+    //     toastError("Gửi yêu cầu thất bại!");
+    //   }
+    // } else {
+    //   toastError("Bạn chưa nhập lý do đổi hàng !");
+    // }
 
-    setChecked(false);
-    setDataCart([]);
-    loadDataOrder(id);
+    // setChecked(false);
+    // setDataCart([]);
+    // loadDataOrder(id);
   };
   const handleCancel = () => {
     setDataCart([]);
@@ -264,7 +270,12 @@ const Exchange = () => {
 
   const loadDataOrder = (id) => {
     setLoading(true);
-    fetch(`http://localhost:8080/api/orders/get/${id}`)
+    fetch(`http://localhost:8080/api/auth/orders/get/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
       .then((res) => res.json())
       .then((res) => {
         console.log("load data order by id");
@@ -298,16 +309,25 @@ const Exchange = () => {
     let isUpdate = false;
     if (value !== undefined) {
       dataProduct
-        .filter((item) => item.id === value)
-        .map((product) => {
+        .filter((item, index) => item.id === value)
+        .map((product, index) => {
           dataPro.push({
+            index: index,
             id: product.id,
             images: product?.images[0]?.name,
             name: product?.name,
             price: product?.price,
             debut: product?.debut,
           });
-          productValue = product;
+          // product= {
+          //   index: index,
+          //   id: product.id,
+          //   images: product?.images[0]?.name,
+          //   name: product?.name,
+          //   price: product?.price,
+          //   debut: product?.debut,
+          // }
+          // productValue = product;
         });
       console.log(dataPro);
     }
@@ -334,9 +354,18 @@ const Exchange = () => {
             );
           } else {
             console.log("vào else cuối cùng");
-            console.log(productValue);
-            console.log((t) => [...t, productValue]);
-            setDataCart((t) => [...t, productValue]);
+            console.log(dataCart[dataCart.length-1].index)
+            console.log(dataPro[0]);
+            const pro = {
+              index:Number(dataCart[dataCart.length-1].index) + 1,
+              id: dataPro[0].id,
+              images: dataPro[0].images,
+              name: dataPro[0].name,
+              price: dataPro[0].price,
+              debut: dataPro[0].debut,
+            }
+            // console.log((t) => [...t, dataPro[0]]);
+            setDataCart((t) => [...t, pro]);
             console.log(dataCart);
           }
         });
@@ -409,9 +438,31 @@ const Exchange = () => {
     setValues(event);
   };
 
-  const onChangeReason = (value) => {
+  const onChangeReason = (value, id) => {
+    console.log('dữ liệu lý do khi change:');
+    console.log(value);
+   
     setReason(value);
+    dataCart?.forEach( (element,index) => {
+      if(element.index == id){
+        element.reason = value;
+      }
+    })
+  };
+
+  const onChangeChecked = (value, id) => {
+    console.log('value checked');
+    console.log(value);
+    setChecked(value)
+    dataCart?.forEach( (element,index) => {
+      if(element.index == id){
+        element.checked = value;
+      }
+    })
+    console.log('data checked');
+    console.log(dataCart);
   }
+
 
   return (
     <div>
@@ -557,7 +608,7 @@ const Exchange = () => {
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
-          width={800}
+          width={1400}
           cancelText={"Đóng"}
           okText={"Gửi yêu cầu"}
         >
@@ -580,7 +631,7 @@ const Exchange = () => {
                     })}
                   </i>
                 </p>
-                <div className="mt-4">
+                {/* <div className="mt-4">
                   <TextArea
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
@@ -590,7 +641,7 @@ const Exchange = () => {
                     rows={3}
                     cols={2}
                   />
-                </div>
+                </div> */}
               </div>
               <div className="col-5">
                 <p>
@@ -618,13 +669,16 @@ const Exchange = () => {
                         })}
                   </i>
                 </p>
-                <p className="text-danger fw-bold mt-2">
+                {/* <p className="text-danger fw-bold mt-2">
                   Vui lòng tích chọn nếu sản phẩm lỗi
-                </p>
-                <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)}>
+                </p> */}
+                {/* <Checkbox
+                  checked={checked}
+                  onChange={(e) => setChecked(e.target.checked)}
+                >
                   Sản phẩm lỗi
-                </Checkbox>
-                <div className="mt-2">
+                </Checkbox> */}
+                {/* <div className="mt-2">
                   <TextArea
                     onChange={(e) => setNote(e.target.value)}
                     className="ms-2"
@@ -634,7 +688,7 @@ const Exchange = () => {
                     rows={3}
                     cols={4}
                   />
-                </div>
+                </div> */}
               </div>
             </div>
             <AutoComplete
@@ -656,12 +710,12 @@ const Exchange = () => {
           <table className="table">
             <thead>
               <tr>
-                <th>STT</th>
-                <th>Hình ảnh</th>
-                <th>Tên sản phẩm</th>
-                <th>Giá tiền</th>
-                <th>Năm sản xuất</th>
-                <th>Thao tác</th>
+                <th className="text-center" cols="1">STT</th>
+                <th className="text-center" cols="2">Hình ảnh</th>
+                <th className="text-center">Tên sản phẩm</th>
+                <th className="text-center">Lý do đổi hàng</th>
+                <th className="text-center">Sản phẩm lỗi ?</th>
+                <th className="text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -677,14 +731,21 @@ const Exchange = () => {
                         <Image width={90} src={item.images[0].name} />
                       )}
                     </td>
-                    <td>{item.name}</td>
                     <td>
+                      {item.name}{" "}
                       {item?.price.toLocaleString("it-IT", {
                         style: "currency",
                         currency: "VND",
                       })}
                     </td>
-                    <td>{item.debut}</td>
+
+                    <td>
+                      <TextArea rows={4} style={{width:"300px"}} onChange={(event) => 
+                     onChangeReason(event.target.value, index)} cols={4} placeholder="Nhập lý do" />
+                    </td>
+                    <td>
+                      <Checkbox onChange={(e) => onChangeChecked(e.target.checked, index)}/>
+                    </td>
                     <td>
                       <CloseCircleOutlined
                         onClick={() => deleteProduct(item)}

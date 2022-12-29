@@ -8,18 +8,22 @@ import {
   DatePicker,
   Image,
   Space,
+  Tag,
 } from "antd";
 import {
   CheckCircleOutlined,
   EyeOutlined,
   MenuFoldOutlined,
   ReloadOutlined,
+  RollbackOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
-import axios from "axios";
+import Moment from "react-moment";
 import React, { useEffect, useState } from "react";
-const url = "http://localhost:8080/api/orders";
+import "./OrderWait.css";
+import { ToastContainer, toast } from "react-toastify";
+import TextArea from "antd/lib/input/TextArea";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -30,11 +34,26 @@ const getRandomOrderParams = (params) => ({
   searchStatus: params.pagination?.searchStatus,
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
+  searchPhone: params.pagination?.searchPhone,
 });
+
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 2000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
 
 const OrderWait = () => {
   const [data, setData] = useState([]);
   const [dataOD, setDataOD] = useState();
+  const [dataO, setDataO] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
@@ -45,6 +64,7 @@ const OrderWait = () => {
   const [searchName, setSearchName] = useState();
   const [orderHistory, setOrderHistory] = useState();
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [note, setNote] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -54,6 +74,7 @@ const OrderWait = () => {
       search2: "",
       searchStartDate: "",
       searchEndDate: "",
+      searchPhone: ""
     },
   });
 
@@ -61,11 +82,59 @@ const OrderWait = () => {
     loadDataOrder();
   }, [dataOrder != undefined]);
 
+
+  const cancelCheckBox = () => {
+   
+    Modal.confirm({
+      icon: <CheckCircleOutlined />,
+      title: "Huỷ đơn hàng ",
+      content: `Bạn có muốn huỷ những đơn hàng này không?`,
+      okText: "Có",
+      cancelText: "Không",
+      okType: "primary",
+      onOk: () => {
+        handleCancel();
+      },
+    });
+  }
+  const updateNote =() => {
+    fetch(`http://localhost:8080/api/auth/orders/update/${dataO?.id}/note`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify(note),
+    }).then((res) => {
+      toastSuccess('Cập nhật ghi chú thành công !')
+    });
+  }
+
+  const handleCancel = (isPut) => {
+    const dataOrder = [];
+    selectedRowKeys.forEach((item) => {
+      dataOrder.push({
+        id: item,
+        status: "DA_HUY",
+      });
+    });
+    fetch(`http://localhost:8080/api/staff/orders/confirm`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify(dataOrder),
+    }).then((res) => {
+      clearSearchForm();
+    });
+  };
+
   const columnOrderHistory = [
     {
       title: "Mã hoá đơn",
       dataIndex: "orderId",
-      width: "20%",
+      width: "10%",
       render(orderId) {
         return <>{orderId.id}</>;
       },
@@ -78,6 +147,9 @@ const OrderWait = () => {
     {
       title: "Thời gian",
       dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{createdAt}</Moment>;
+      },
       width: "25%",
     },
     {
@@ -218,15 +290,30 @@ const OrderWait = () => {
     });
   };
 
+  const rollBackCheckbox = () => {
+    const isPut = false;
+    Modal.confirm({
+      icon: <CheckCircleOutlined />,
+      title: "Chuyển trạng về chờ xác nhận ",
+      content: `Bạn có muốn chuyển trạng thái đơn hàng về chờ xác nhận không?`,
+      okText: "Có",
+      cancelText: "Không",
+      okType: "primary",
+      onOk: () => {
+        handleConfirm(isPut);
+      },
+    })
+  }
+
   const handleConfirm = (isPut) => {
     const dataOrder = [];
     selectedRowKeys.forEach((item) => {
       dataOrder.push({
         id: item,
-        status: "DANG_GIAO",
+        status: isPut == true ? "DANG_GIAO" : "CHO_XAC_NHAN",
       });
     });
-    fetch(`http://localhost:8080/api/orders/confirm`, {
+    fetch(`http://localhost:8080/api/staff/orders/confirm`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -307,9 +394,38 @@ const OrderWait = () => {
   };
 
   const showModalData = (id) => {
-    axios.get(url + "/" + id).then((res) => {
-      setDataOD(res.data);
-    });
+    fetch(
+      `http://localhost:8080/api/auth/orders/get/${id}?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataO(results);
+        setNote(results.note);
+      });
+
+    fetch(
+      `http://localhost:8080/api/auth/orders/${id}?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOD(results);
+      });
     loadDataOrderHistoryById(id);
     setView(true);
   };
@@ -325,9 +441,15 @@ const OrderWait = () => {
   const loadDataOrder = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomOrderParams(tableParams)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -340,6 +462,8 @@ const OrderWait = () => {
             total: item.total,
             status: item.status,
             quantity: item.quantity,
+            createdAt: item.createdAt,
+            money: item.money
           });
         });
         setDataOrder(data);
@@ -351,6 +475,14 @@ const OrderWait = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
+      width: "8%",
+    },
+    {
+      title: "Thời gian đặt",
+      dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{createdAt}</Moment>;
+      },
       width: "20%",
     },
     {
@@ -374,7 +506,22 @@ const OrderWait = () => {
       width: "15%",
     },
     {
-      title: "Hình thức đặt",
+      title: "Đã thanh toán",
+      dataIndex: "money",
+      render(money) {
+        return (
+          <>
+            {money.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+      width: "10%",
+    },
+    {
+      title: "Hình thức thanh toán",
       dataIndex: "payment",
       width: "20%",
       render: (payment) => {
@@ -385,22 +532,34 @@ const OrderWait = () => {
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-                {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+                Thanh toán VNPAY
               </div>
             </>
           );
-        } else if (payment == "NGAN_HANG") {
+        } if (payment == "NGAN_HANG") {
           return (
             <>
               <div
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-                Tài khoản ATM
+                {"Tài khoản ATM"}
               </div>
             </>
           );
-        } else {
+        }if (payment == "DAT_COC") {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                Tại nhà
+              </div>
+            </>
+          );
+        }
+        else {
           return (
             <>
               <div
@@ -565,6 +724,7 @@ const OrderWait = () => {
           background: "#fafafa",
         }}
       >
+            <ToastContainer></ToastContainer>
         <div className="col-4 mt-3">
           <label>Từ khoá</label>
           <Input
@@ -621,10 +781,29 @@ const OrderWait = () => {
                 type="primary"
                 shape="round"
                 icon={<CheckCircleOutlined />}
-                className="ms-5"
+                className=""
                 onClick={confirmCheckBox}
               >
                 Xác nhận
+              </Button>
+              <Button
+                type="dashed"
+                shape="round"
+                icon={<CheckCircleOutlined />}
+                className="ms-2"
+                onClick={cancelCheckBox}
+              >
+              Huỷ đơn hàng
+              </Button>
+              <Button
+                type="primary"
+                shape="round"
+                icon={<RollbackOutlined />}
+                className="ms-2"
+                danger
+                onClick={rollBackCheckbox}
+              >
+                Chuyển về chờ xác nhận
               </Button>
             </div>
           ) : (
@@ -680,7 +859,59 @@ const OrderWait = () => {
             }}
             width={800}
           >
-            {/* <h6>Mã hoá đơn {orderHistory[0]?.id} </h6> */}
+            <div className="col-12">
+              <div className="row">
+                <div className="col-6">
+                  <p>Mã hoá đơn: {dataO?.id}</p>
+                  <p>Khách hàng: {dataO?.customerName}</p>
+                  <p>Số điện thoại: {dataO?.phone} </p>
+                  <p>
+                    Tổng tiền:{" "}
+                    {dataO?.total?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p >
+                    Ghi chú:
+                    <div className="row">
+                      <div className="col-9">
+                        <TextArea value={note} onChange={(e) => setNote(e.target.value)} rows={3} cols={9} />
+                      </div>
+                      <div className="col-3 mt-4" >
+                        <Button onClick={() => updateNote() } >Cập nhật ghi chú</Button>
+                      </div>
+                    </div>
+                  </p>
+                </div>
+                <div className="col-6">
+                  <p>
+                    Ngày đặt hàng:{" "}
+                    <Moment format="DD-MM-YYYY HH:mm:ss">
+                      {dataO?.createdAt}
+                    </Moment>
+                  </p>
+                  <p>
+                    Phí vận chuyển:{" "}
+                    {dataO?.shippingFree?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p>
+                    Đặt cọc:{" "}
+                    {dataO?.money?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p>
+                    Địa chỉ nhận hàng:{" "}
+                    {dataO?.address}
+                  </p>
+                </div>
+              </div>
+            </div>
             <table className="table">
               <thead>
                 <tr>

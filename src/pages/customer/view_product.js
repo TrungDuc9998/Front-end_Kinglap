@@ -74,13 +74,12 @@ function ViewProduct() {
   //LoadList
   useEffect(() => {
     getData();
+    DataConfigProductById();
   }, [
     JSON.stringify(tableParams),
     JSON.parse(localStorage.getItem("product_detail")),
+    JSON.parse(localStorage.getItem("product_view")),
   ]);
-
-
-  console.log("pro", products);
 
   function formatCash(str) {
     if (str.length > 1) {
@@ -133,14 +132,55 @@ function ViewProduct() {
     dispatch(addToCartByView({ product, quantity }));
     notifySuccess("Thêm vào giỏ hàng thành công!");
   };
+
   const handleClickAddToCart = (product, quantity) => {
-    handleAddToCart(product, quantity);
+    if (quantity > 10 || quantity < 1) {
+      toastError("Số lượng sản phẩm ít nhất là 1 và không được vượt quá 10 sản phẩm");
+    } else {
+      handleAddToCart(product, quantity);
+    }
+  };
+
+  const handleBuyNow = (product, quantity) => {
+    dispatch(addToCartByView({ product, quantity }));
+  };
+
+  const handleClickBuy = (product, quantity) => {
+    if (quantity > 10 || quantity < 1) {
+      toastError("Số lượng sản phẩm ít nhất là 1 và không được vượt quá 10 sản phẩm");
+    } else {
+      handleBuyNow(product, quantity);
+    }
   };
 
   const handleClickBuyNow = (product) => {
     product.quantity = quantity;
     dispatch(setCheckoutCart([product]));
   };
+
+  const productInfo = JSON.parse(localStorage.getItem("product_view"));
+
+  const DataConfigProductById = () => {
+    fetch(`http://localhost:8080/api/products/` + productInfo.id)
+      .then((res) => res.json())
+      .then((res) => {
+        localStorage.removeItem("product_detail");
+        localStorage.setItem("product_detail", JSON.stringify(res));
+      });
+  };
+
+  const toastError = (message) => {
+    toast.error(message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+    });
+}
 
   return (
     <>
@@ -188,7 +228,7 @@ function ViewProduct() {
                 ></button>
               </div>
               <div className="carousel-inner">
-                {JSON.parse(localStorage.getItem("product_detail")).images.map(
+                {JSON.parse(localStorage.getItem("product_view")).images.map(
                   (image) => (
                     <div className="carousel-item active">
                       <img className="d-block w-100" src={image.name} alt="" />
@@ -307,13 +347,13 @@ function ViewProduct() {
                   wordWrap: "break-word",
                 }}
               >
-                {product.name}
+                {productInfo.name}
               </p>
               <div>
                 <h3 className="product-price">
-                  {formatCash(Math.ceil(product.price) + "")} VNĐ
+                  {formatCash(Math.ceil(productInfo.price) + "")} VNĐ
                 </h3>
-                <Link to={"/user/compare/" + product.id}>
+                <Link to={"/user/compare/" + productInfo.id}>
                   <Tooltip title="So sánh sản phẩm">
                     <Button
                       className="ms-5"
@@ -327,9 +367,9 @@ function ViewProduct() {
               </div>
               <p className="text-danger fs-6">
                 Số lượng còn lại:{" "}
-                {product.quantity - quantity > 0
-                  ? product.quantity - quantity
-                  : 0}
+                {productInfo.quantity - quantity > 0
+                  ? productInfo.quantity - quantity : 0
+                  }
               </p>
               <Input
                 value={quantity}
@@ -345,7 +385,7 @@ function ViewProduct() {
               <div className="add-to-cart">
                 <button
                   className="btn-add-to-cart"
-                  onClick={() => handleClickAddToCart(product, quantity)}
+                  onClick={() => handleClickAddToCart(productInfo, quantity)}
                 >
                   {" "}
                   Thêm vào giỏ hàng
@@ -353,7 +393,9 @@ function ViewProduct() {
                 <Link to={"/user/checkout"}>
                   <button
                     className="btn-add-to-cart ms-2"
-                    onClick={() => handleClickBuyNow(product)}
+                    onClick={() => handleClickBuyNow(productInfo)}
+                    // onClick={() => handleClickBuy(productInfo, quantity)}
+                    handleClickBuy
                   >
                     Mua ngay
                   </button>
@@ -371,23 +413,23 @@ function ViewProduct() {
                     </tr>
                     <tr>
                       <th scope="row">CPU</th>
-                      <td>{product.processor.cpuTechnology}</td>
+                      <td>{product?.processor?.cpuTechnology}</td>
                     </tr>
                     <tr>
                       <th scope="row">RAM</th>
-                      <td>{product.ram.ramCapacity}</td>
+                      <td>{product?.ram?.ramCapacity}</td>
                     </tr>
                     <tr>
                       <th scope="row">Ổ cứng</th>
-                      <td>{product.storage.storageDetail.type}</td>
+                      <td>{product?.storage?.storageDetail.type}</td>
                     </tr>
                     <tr>
                       <th scope="row">Đồ họa</th>
-                      <td>{product.card.model}</td>
+                      <td>{product?.card?.model}</td>
                     </tr>
                     <tr>
                       <th scope="row">Hệ điều hành</th>
-                      <td>{product.win.version}</td>
+                      <td>{product?.win?.version}</td>
                     </tr>
                   </tbody>
                 </table>
