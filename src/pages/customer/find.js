@@ -9,6 +9,13 @@ import { addToCart, viewProduct } from "../../store/Actions";
 import { useContext } from "react";
 import Context from "../../store/Context";
 import { ToastContainer, toast } from 'react-toastify';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode, Pagination } from "swiper";
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/pagination";
+import "./css/find.css";
+
 
 
 const Find = () => {
@@ -106,10 +113,10 @@ const Find = () => {
             `http://localhost:8080/api/auth/manufactures?${qs.stringify(
                 getRandomMuserParams(tableParams)
             )}`, {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem("token"),
-                  },
-            }
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem("token"),
+            },
+        }
         )
             .then((res) => res.json())
             .then((results) => {
@@ -243,6 +250,80 @@ const Find = () => {
                     </Card>
                 </div>
                 <div className="col-9">
+                    <div className="row" style={{ marginTop: "20px" }}>
+                        <h3 style={{ fontWeight: 700 }}>LAPTOP</h3>
+                        <hr></hr>
+                        <>
+                            <Swiper
+                                slidesPerView={6}
+                                spaceBetween={10}
+                                freeMode={true}
+                                pagination={{
+                                    clickable: true,
+                                }}
+                                modules={[FreeMode, Pagination]}
+                                className="mySwiper"
+                            >
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/1/4/637769104385571970_Macbook-Apple@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/11/22/637732077455069770_Asus@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/7/15/637619564183327279_HP@2x.png" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340494668267616_Lenovo@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340493755614653_MSI@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/9/16/637674058450623615_Gigabyte@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340494666861275_Dell@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340494666704995_Acer@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/14/637987475787766575_LG.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/1/13/637461259692529909_Microsoft@2x.png" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/12/11/637748124762643705_Chuwi@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340491898901930_Masstel@2x.jpg" /></a></SwiperSlide>
+                            </Swiper>
+                        </>
+                    </div>
+                    <div className="row" style={{ margin: "50px 0px" }}>
+                        <h3 style={{ fontWeight: 700 }}>LAPTOP THEO YÊU CẦU</h3>
+                        <div className="d-flex justify-content-between">
+                            <div className="col-2" style={{ textAlign: "center" }}>
+                                <div className="categoryFind">
+                                    <a href="#">
+                                        <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991744177742277_img-gaming.png" />
+                                        <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Gaming</h6>
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="col-2" style={{ textAlign: "center" }}>
+                                <div className="categoryFind">
+                                    <a href="#">
+                                        <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/6/637980583313032986_SV-Văn phòng.png" />
+                                        <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Sinh viên - Văn phòng</h6>
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="col-2" style={{ textAlign: "center" }}>
+                                <div className="categoryFind">
+                                    <a href="#">
+                                        <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991745714018004_img-thietkedohoa.png" />
+                                        <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Thiết kế đồ họa</h6>
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="col-2" style={{ textAlign: "center" }}>
+                                <div className="categoryFind">
+                                    <a href="#">
+                                        <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991744678844250_img-mongnhe.png" />
+                                        <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Mỏng nhẹ</h6>
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="col-2" style={{ textAlign: "center" }}>
+                                <div className="categoryFind">
+                                    <a href="#">
+                                        <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991745141508369_img-doanhnhan.png" />
+                                        <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Doanh nhân</h6>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div className="row">
                         {dataProductsFind ? dataProductsFind.map((item) => (
                             <div className="col-md-3 col-xs-6" key={item.id}>
@@ -250,7 +331,7 @@ const Find = () => {
                                     <div className="product-img">
                                         <img src={item.images ? item.images[0]?.name : product1} alt="" />
                                         <div className="product-label">
-                                        {item.discount ? (<span className="sale">{item.discount.ratio}%</span>) : ""}
+                                            {item.discount ? (<span className="sale">{item.discount.ratio}%</span>) : ""}
                                         </div>
                                     </div>
                                     <div className="product-body">
