@@ -60,10 +60,13 @@ function Login() {
     const roles = [];
 
     let handelSignUp = () => {
-        if (password2.length < 6) {
+        if (username2.length == 0) {
+            toastError("Tài khoản không được để trống!")
+        } else if (password2.length == 0) {
+            toastError("Mật khẩu không được để trống!")
+        } else if (password2.length < 6) {
             toastError("Mật khẩu phải lớn hơn hoặc bằng 6 ký tự!")
-        }
-        else if (password3 !== password2) {
+        } else if (password3 !== password2) {
             toastError("Xác nhận mật khẩu không chính xác!")
         } else {
             fetch('http://localhost:8080/api/users', {
@@ -75,6 +78,7 @@ function Login() {
                 body: JSON.stringify(acc2)
             }).then((res) => res.json())
                 .then((results) => {
+                    console.log(results.data);
                     if (results.data == null) {
                         toastError("Tên tài khoản đã được sử dụng. Hãy thử tên khác.");
                     } else {
@@ -86,40 +90,46 @@ function Login() {
     }
 
     let handelSubmit = () => {
-        fetch('http://localhost:8080/auth/login', {
-            method: 'POST',
-            headers: {
-                "Content-Type": 'application/json',
-                "Accept": 'application/json'
-            },
-            body: JSON.stringify(acc)
-        }).then(response => {
-            console.log("response", response);
-            if (response.ok) {
-                return response.json();
-            }
+        if (username == "") {
+            toastError("Tài khoản đang được để trống!")
+        } else if (password == "") {
+            toastError("Mật khẩu đang để trống!")
+        } else {
+            fetch('http://localhost:8080/auth/login', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": 'application/json',
+                    "Accept": 'application/json'
+                },
+                body: JSON.stringify(acc)
+            }).then(response => {
+                console.log("response", response);
+                if (response.ok) {
+                    return response.json();
+                }
 
-            throw Error(response.status);
-        }).then(result => {
-            localStorage.setItem("id", result.data.id);
-            localStorage.setItem("token", result.data.token);
-            for (var i = 0; i < result.data.roles.length; i++) {
-                roles.push(result.data.roles[i].role);
-            }
-            localStorage.setItem("roles", roles);
-            localStorage.setItem("username", result.data.username);
-            localStorage.setItem("information", JSON.stringify(result.data.information))
-            setUsername('');
-            setPassword('');
-            if (localStorage.getItem("roles").includes("ADMIN") || localStorage.getItem("roles").includes("STAFF")) {
-                window.location.href = '/admin/order';
-            } else {
-                window.location.href = '/user';
-            }
-        }).catch(error => {
-            toastError("Tên người dùng hoặc mật khẩu bạn đã nhập không chính xác!");
-            console.log("err", error);
-        })
+                throw Error(response.status);
+            }).then(result => {
+                localStorage.setItem("id", result.data.id);
+                localStorage.setItem("token", result.data.token);
+                for (var i = 0; i < result.data.roles.length; i++) {
+                    roles.push(result.data.roles[i].role);
+                }
+                localStorage.setItem("roles", roles);
+                localStorage.setItem("username", result.data.username);
+                localStorage.setItem("information", JSON.stringify(result.data.information))
+                setUsername('');
+                setPassword('');
+                if (localStorage.getItem("roles").includes("ADMIN") || localStorage.getItem("roles").includes("STAFF")) {
+                    window.location.href = '/admin/order';
+                } else {
+                    window.location.href = '/user';
+                }
+            }).catch(error => {
+                toastError("Tên người dùng hoặc mật khẩu bạn đã nhập không chính xác!");
+                console.log("err", error);
+            })
+        }
     }
     return (
         <>
