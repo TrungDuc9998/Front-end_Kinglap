@@ -23,6 +23,38 @@ import StoreContext from "../../store/Context";
 import "./css/checkout.css";
 
 function Checkout() {
+  const navigate = useNavigate();
+  const [state, dispatch] = useContext(StoreContext);
+  //const [carts, setCarts] = useState(state.cartCheckout);
+  const carts= JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[];
+  //const [carts, setCarts] = useState(JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[]);
+  const [valueDistrict, setValueDistrict] = useState("");
+  const [array, setArray] = useState([{}]);
+  const [district, setDistrict] = useState([{}]);
+  const [ProvinceID, setProvinceID] = useState(1);
+  const [value, setValue] = useState("");
+  const [districtId, setDistrictId] = useState(1542);
+  const [serviceId, setServiceId] = useState();
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [Ward, setWard] = useState([{}]);
+  const [valueWard, setValueWard] = useState("");
+  const [shipping, setShipping] = useState(0);
+  const [address, setAddRess] = useState();
+  const [name, setName] = useState();
+  const [phone, setPhone] = useState();
+  const [email, setEmail] = useState();
+  const [type, setType] = useState();
+  const [payment, setPayment] = useState();
+  const [total, setTotal] = useState();
+  const [status, setStatus] = useState();
+  const [user, setUser] = useState();
+  const [totalHeight, setTotalHeight] = useState();
+  const [totalLength, setTotalLength] = useState();
+  const [totalWeight, setTotalWeight] = useState();
+  const [totalWith, setTotalWidth] = useState();
+  const [disableCountry, setDisableCountry] = useState(false);
+  const [valueProvince, setValueProvince] = useState();
+  const [wardCode, setWardCode] = useState(1);
   const renderItem = (id, title, count, price) => ({
     value: id,
     label: (
@@ -61,6 +93,13 @@ function Checkout() {
     console.log("changed", value);
     console.log("event", event);
     value.quantity = event;
+    dispatch({
+      type: "CHANGE_CART_CHECKOUT_QTY",
+      payload: {
+          id: value.id,
+          quantity: event,
+      }
+  })
 
     if (type == 1) {
       console.log("vào submit 2");
@@ -75,7 +114,10 @@ function Checkout() {
   };
 
   const onclickDeleteCart = (pro) => {
-    setCarts(carts.filter((item) => item.id != pro.id));
+      dispatch({
+          type: "REMOVE_CART_CHECKOUT",
+          payload: pro
+      })
   };
   // modal
   const onClickShow = (value) => {
@@ -89,11 +131,11 @@ function Checkout() {
     setIsModalOpen(true);
   };
   const handleOk = () => {
-    setIsModalOpen(false);
-    setProductAdd([]);
-    setCarts(carts.concat(productAdd));
-    console.log("s", carts);
-    console.log("carts", carts);
+    // setIsModalOpen(false);
+    // setProductAdd([]);
+    // setCarts(carts.concat(productAdd));
+    // console.log("s", carts);
+    // console.log("carts", carts);
   };
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -221,36 +263,7 @@ function Checkout() {
       });
   };
 
-  const navigate = useNavigate();
-  const [state, dispath] = useContext(StoreContext);
-  const [carts, setCarts] = useState(state.cartCheckout);
-  const [valueDistrict, setValueDistrict] = useState("");
-  const [array, setArray] = useState([{}]);
-  const [district, setDistrict] = useState([{}]);
-  const [ProvinceID, setProvinceID] = useState(1);
-  const [value, setValue] = useState("");
-  const [districtId, setDistrictId] = useState(1542);
-  const [serviceId, setServiceId] = useState();
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [Ward, setWard] = useState([{}]);
-  const [valueWard, setValueWard] = useState("");
-  const [shipping, setShipping] = useState(0);
-  const [address, setAddRess] = useState();
-  const [name, setName] = useState();
-  const [phone, setPhone] = useState();
-  const [email, setEmail] = useState();
-  const [type, setType] = useState();
-  const [payment, setPayment] = useState();
-  const [total, setTotal] = useState();
-  const [status, setStatus] = useState();
-  const [user, setUser] = useState();
-  const [totalHeight, setTotalHeight] = useState();
-  const [totalLength, setTotalLength] = useState();
-  const [totalWeight, setTotalWeight] = useState();
-  const [totalWith, setTotalWidth] = useState();
-  const [disableCountry, setDisableCountry] = useState(false);
-  const [valueProvince, setValueProvince] = useState();
-  const [wardCode, setWardCode] = useState(1);
+  
 
   const createOrder = () => {
     console.log("create order");
@@ -928,53 +941,54 @@ function Checkout() {
 
   const information = JSON.parse(localStorage.getItem("information"));
 
-  const showCarts = (carts) => {
-    console.log(carts);
-    let cartList = carts;
-    if (cartList.length > 0) {
-      // for(i=0;i<cartList.length;i++){
-      const listItems = cartList.map((cart) => (
-        <div className="row d-flex">
-          <div className="col-3 img mt-2">
-            <img
-              alt="Ảnh sản phẩm"
-              src={cart.images[0]?.name}
-              className="img-content"
-            ></img>
-          </div>
-          <div className="col-1 mt-5">
-            <InputNumber
-              style={{ width: "50px" }}
-              min={1}
-              max={10}
-              defaultValue={cart.quantity}
-              onChange={(event) => onChangeInputNumber(cart, event)}
-            />
-          </div>
-          <div className="col-4 mt-5 d-block ">
-            <div>
-              <p className="text-name1 ">{cart.name}</p>
-            </div>
-          </div>
-          <div className="col-3 mt-5">
-            <p className="text-name1 text-center">
-              {formatCash(cart.price * cart.quantity + "")} VND
-            </p>
-          </div>
-          <div className="col-1 mt-5">
-            <DeleteOutlined
-              style={{ fontSize: "18px", marginLeft: "20%", color: "red" }}
-              onClick={() => {
-                onclickDeleteCart(cart);
-              }}
-            />
-          </div>
-        </div>
-      ));
-      return listItems;
-      // };
-    }
-  };
+  // const showCarts = (carts) => {
+  //   console.log(carts);
+  //   let cartList = carts;
+  //   console.log("cartList",cartList);
+  //   if (cartList.length > 0) {
+  //     // for(i=0;i<cartList.length;i++){
+  //     const listItems = cartList?.map((cart) => (
+  //       <div className="row d-flex">
+  //         <div className="col-3 img mt-2">
+  //           <img
+  //             alt="Ảnh sản phẩm"
+  //             src={cart.images[0]?.name}
+  //             className="img-content"
+  //           ></img>
+  //         </div>
+  //         <div className="col-1 mt-5">
+  //           <InputNumber
+  //             style={{ width: "50px" }}
+  //             min={1}
+  //             max={10}
+  //             defaultValue={cart.quantity}
+  //             onChange={(event) => onChangeInputNumber(cart, event)}
+  //           />
+  //         </div>
+  //         <div className="col-4 mt-5 d-block ">
+  //           <div>
+  //             <p className="text-name1 ">{cart.name}</p>
+  //           </div>
+  //         </div>
+  //         <div className="col-3 mt-5">
+  //           <p className="text-name1 text-center">
+  //             {formatCash(cart.price * cart.quantity + "")} VND
+  //           </p>
+  //         </div>
+  //         <div className="col-1 mt-5">
+  //           <DeleteOutlined
+  //             style={{ fontSize: "18px", marginLeft: "20%", color: "red" }}
+  //             onClick={() => {
+  //               onclickDeleteCart(cart);
+  //             }}
+  //           />
+  //         </div>
+  //       </div>
+  //     ));
+  //     return listItems;
+  //     // };
+  //   }
+  // };
   return (
     <>
       <ToastContainer></ToastContainer>
@@ -1026,7 +1040,44 @@ function Checkout() {
                   <label>Lấy tại nhà</label>
                 </div>
               </form>
-              {showCarts(carts)}
+              {carts?.map((cart) => (
+              <div className="row d-flex">
+                <div className="col-3 img mt-2">
+                  <img
+                    alt="Ảnh sản phẩm"
+                    src={cart.images[0]?.name}
+                    className="img-content"
+                  ></img>
+                </div>
+                <div className="col-1 mt-5">
+                  <InputNumber
+                    style={{ width: "50px" }}
+                    min={1}
+                    max={10}
+                    defaultValue={cart.quantity}
+                    onChange={(event) => onChangeInputNumber(cart, event)}
+                  />
+                </div>
+                <div className="col-4 mt-5 d-block ">
+                  <div>
+                    <p className="text-name1 ">{cart.name}</p>
+                  </div>
+                </div>
+                <div className="col-3 mt-5">
+                  <p className="text-name1 text-center">
+                    {formatCash(cart.price * cart.quantity + "")} VND
+                  </p>
+                </div>
+                <div className="col-1 mt-5">
+                  <DeleteOutlined
+                    style={{ fontSize: "18px", marginLeft: "20%", color: "red" }}
+                    onClick={() => {
+                      onclickDeleteCart(cart);
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
             </div>
           </div>
           <div>

@@ -41,7 +41,9 @@ function Cart() {
                 }
                 setChecked(checked)
             });
-            dispatch(setCheckoutCart(checked))
+            checked.forEach(item=>{
+                dispatch(setCheckoutCart(item))
+            })
         }
     }
 
