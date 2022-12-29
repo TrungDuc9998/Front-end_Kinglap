@@ -24,7 +24,7 @@ import CurrencyFormat from "react-currency-format";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 const { TextArea } = Input;
-import moment from "moment";
+import Moment from "react-moment";
 import { useParams } from "react-router-dom";
 import { render } from "@testing-library/react";
 const { Option } = Select;
@@ -81,11 +81,42 @@ const ExchangeUser = () => {
     setIsModalOpen(true);
   };
 
+
+  const onChangeReason = (value, id) => {
+    let check = false;
+    console.log(value);
+    if(!isNaN(value)) {
+      console.log('--------------- vào rỗng --------------');
+      dataCart?.forEach( (element,index) => {
+        if(element.index == id){
+          console.log('rỗng đầu tiên');
+          element.reason = "null";
+          // setReason(count);
+        }
+      })
+      check = true;
+    }
+    let count = 0;
+    dataCart?.forEach( (element,index) => {
+      if(element.index == id && isNaN(value)){
+        console.log('rỗng: ', check);
+        console.log('vào đếm count');
+        count ++;
+        element.reason = value;
+        // setReason(count);
+      }
+    })
+  };
+
   const handleOk = () => {
+    console.log("item show modal");
+    console.log(item);
+
     const data = [];
 
     dataCart?.forEach((element, index) => {
       data.push({
+        index: index,
         orderId: id,
         productId: element.id,
         total: element.price,
@@ -94,10 +125,27 @@ const ExchangeUser = () => {
       });
     });
 
-    if (reason != undefined) {
-      fetch("http://localhost:8080/api/orders/exchanges", {
+    console.log('log dữ liệu data cart');
+    console.log(dataCart);
+
+    let count = 0;
+    dataCart.forEach(item => {
+      if(item.reason != undefined && item.reason != "null") {
+        console.log('vào trong đếm count');
+        count ++;
+      }
+    })
+
+    console.log('count:', count);
+    console.log('length data cart:', dataCart.length);
+
+    if (dataCart.length == count) {
+      fetch("http://localhost:8080/api/auth/orders/exchanges", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
         body: JSON.stringify(data),
       })
         .then((response) => response.json())
@@ -111,62 +159,80 @@ const ExchangeUser = () => {
         .catch((error) => {
           console.error("Error:", error);
         });
+      setIsModalOpen(false);
+    }else {
+      toastError("Bạn chưa nhập đầy đủ lý do !")
     }
-
-    setIsModalOpen(false);
+   
   };
 
-  const handleSubmitReturn = (data, dataOrderDetail) => {
-    console.log("data order detail handle submit");
-    console.log(dataOrderDetail);
+  const onChangeChecked = (value, id) => {
+    console.log('value checked');
+    console.log(value);
+    setChecked(value)
+    dataCart?.forEach( (element,index) => {
+      if(element.index == id){
+        element.checked = value;
+      }
+    })
+    console.log('data checked');
+    console.log(dataCart);
+  }
 
+  const handleSubmitReturn = (data, dataOrderDetail) => {
     const ExchangeDetail = [];
-    data?.forEach((element) => {
+    data?.forEach((element, index) => {
       ExchangeDetail.push({
         productId: element.product.id,
         orderDetailId: item.id,
         quantity: 1,
+        reason: dataCart[index].reason,
         orderChange: element.id,
         status: "YEU_CAU",
+        isCheck: dataCart[index].checked == true ? "1": "",
         id: null,
       });
     });
 
-    console.log("data exchange");
-    console.log(ExchangeDetail);
+    // console.log("data exchange");
+    // console.log(ExchangeDetail);
 
-    var date = new Date().getDate();
-    var month = new Date().getMonth() + 1;
-    var year = new Date().getFullYear();
-    var hours = new Date().getHours();
-    var min = new Date().getMinutes();
-    var sec = new Date().getSeconds();
-    setCurrentDate(date + "-" + month + "-" + year + " ");
-    const event = new Date(order?.updatedAt);
-    const event1 = new Date("2022-11-11 18:56:26");
-    console.log(
-      moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
-    );
-    if (reason != undefined) {
+    // var date = new Date().getDate();
+    // var month = new Date().getMonth() + 1;
+    // var year = new Date().getFullYear();
+    // var hours = new Date().getHours();
+    // var min = new Date().getMinutes();
+    // var sec = new Date().getSeconds();
+    // setCurrentDate(date + "-" + month + "-" + year + " ");
+    // const event = new Date(order?.updatedAt);
+    // const event1 = new Date("2022-11-11 18:56:26");
+    // console.log(
+    //   moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
+    // );
+    // if (reason != undefined) {
       ///tạo đơn đổi
-      try {
+      // try {
         fetch("http://localhost:8080/api/auth/returns", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
           body: JSON.stringify({
             orderId: order.id,
-            reason: reason,
-            description: note,
-            isCheck: checked === true ? "3" : "1",
+            description: "Ghi chú",
             status: "CHUA_XU_LY",
             returnDetailEntities: ExchangeDetail,
           }),
         }).then((res) => {});
         fetch(
-          `http://localhost:8080/api/orders/${dataOrderDetail.id}/updateOrderDetail`,
+          `http://localhost:8080/api/auth/orders/${dataOrderDetail.id}/updateOrderDetail`,
           {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
             body: JSON.stringify({
               productId: dataOrderDetail.product.id,
               total: dataOrderDetail.total,
@@ -178,20 +244,22 @@ const ExchangeUser = () => {
           }
         ).then((res) => loadDataOrder(id));
         toastSuccess("Gửi yêu cầu thành công!");
-        setIsModalOpen(false);
+        setReason("");
         setChecked(false);
-        setReason('');
-        setNote('')
+        setIsModalOpen(false);
+        setNote("");
         setLoading(false);
-      } catch (err) {
-        toastError("Gửi yêu cầu thất bại!");
-      }
-    } else {
-      toastError("Bạn chưa nhập lý do đổi hàng !");
-    }
+      // } catch (err) {
+      //   toastError("Gửi yêu cầu thất bại!");
+      // }
+    // } else {
+    //   toastError("Bạn chưa nhập lý do đổi hàng !");
+    // }
 
     setChecked(false);
     setDataCart([]);
+    console.log('data cart khi gửi yêu cầu:');
+    console.log(dataCart);
     loadDataOrder(id);
   };
   const handleCancel = () => {
@@ -320,7 +388,13 @@ const ExchangeUser = () => {
   const loadDataOrder = (id) => {
     console.log(id);
     setLoading(true);
-    fetch(`http://localhost:8080/api/orders/get/${id}`)
+    fetch(`http://localhost:8080/api/auth/orders/get/${id}`,
+   {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + localStorage.getItem("token"),
+    }
+   })
       .then((res) => res.json())
       .then((res) => {
         setOrder(res);
@@ -430,20 +504,20 @@ const ExchangeUser = () => {
     let isUpdate = false;
     if (value !== undefined) {
       dataProduct
-        .filter((item) => item.id === value)
-        .map((product) => {
+        .filter((item, index) => item.id === value)
+        .map((product, index) => {
           dataPro.push({
+            index: index,
             id: product.id,
             images: product?.images[0]?.name,
             name: product?.name,
             price: product?.price,
             debut: product?.debut,
           });
-          productValue = product;
         });
       console.log(dataPro);
     }
-    if (dataCart === undefined) {
+    if (dataCart === undefined ||dataCart === [] || dataCart.length == 0) {
       dataPro.forEach((element, index) => {
         if (Number(element.price) < Number(item.product.price)) {
           dataPro.splice(index, 1);
@@ -466,9 +540,18 @@ const ExchangeUser = () => {
             );
           } else {
             console.log("vào else cuối cùng");
-            console.log(productValue);
-            console.log((t) => [...t, productValue]);
-            setDataCart((t) => [...t, productValue]);
+            console.log(dataCart[dataCart.length-1].index)
+            console.log(dataPro[0]);
+            const pro = {
+              index:Number(dataCart[dataCart.length-1].index) + 1,
+              id: dataPro[0].id,
+              images: dataPro[0].images,
+              name: dataPro[0].name,
+              price: dataPro[0].price,
+              debut: dataPro[0].debut,
+            }
+            // console.log((t) => [...t, dataPro[0]]);
+            setDataCart((t) => [...t, pro]);
             console.log(dataCart);
           }
         });
@@ -490,7 +573,6 @@ const ExchangeUser = () => {
       }
     }
   };
-
   return (
     <div className="container mt-4">
       <ToastContainer></ToastContainer>
@@ -517,10 +599,15 @@ const ExchangeUser = () => {
               <div className="mt-2 ms-5">
                 Số điện thoại: <b>{order?.phone}</b>{" "}
               </div>
+              <div className="mt-2 ms-5">
+                Ghi chú: {order?.note}
+              </div>
             </div>
             <div className="col-6 mt-4 mb-5">
               <div className="mt-2">
-                Ngày mua: <b>{order?.updatedAt}</b>
+                Ngày mua: <b>  <Moment format="DD-MM-YYYY HH:mm:ss">
+                      {order?.createdAt}
+                    </Moment></b>
               </div>
               <div className="mt-2">
                 Tổng tiền:
@@ -530,6 +617,9 @@ const ExchangeUser = () => {
                     currency: "VND",
                   })}
                 </b>
+              </div>
+              <div className="mt-2">
+                Địa chỉ nhận hàng: <b>{order?.address}</b> 
               </div>
               <div className="mt-2">
                 Trạng thái: <b>Đã nhận hàng</b>{" "}
@@ -605,11 +695,7 @@ const ExchangeUser = () => {
                           />
                         )
                       ) : item.isCheck != 1 && item.isCheck !== null ? (
-                        <Alert
-                          message="Hoá đơn yêu cầu đổi hàng"
-                          type="error"
-                          showIcon
-                        />
+                        <i className="text-danger" >Đơn yêu cầu đổi hoá đơn {item.isCheck}</i>         
                       ) : (
                         ""
                       )}
@@ -624,10 +710,10 @@ const ExchangeUser = () => {
           title="Chọn sản phẩm muốn đổi hàng"
           open={isModalOpen}
           onOk={handleOk}
-          okText={"Gửi yêu cầu"}
-          cancelText={"Đóng"}
-          width={850}
           onCancel={handleCancel}
+          width={1400}
+          cancelText={"Đóng"}
+          okText={"Gửi yêu cầu"}
         >
           <div className="search-inner mb-2">
             <div className="row">
@@ -648,8 +734,20 @@ const ExchangeUser = () => {
                     })}
                   </i>
                 </p>
-                <div className="mt-4">
+                <div className="mt-2 mb-3">
                   <TextArea
+                    onChange={(e) => setNote(e.target.value)}
+                    className=""
+                    value={note}
+                    style={{ width: "100%" }}
+                    placeholder="Ghi chú đơn đổi"
+                    rows={3}
+                    cols={4}
+                  />
+                </div>
+                {/* <div className="mt-4">
+                  <TextArea
+                    value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     className="mb-2"
                     style={{ width: "80%" }}
@@ -657,53 +755,39 @@ const ExchangeUser = () => {
                     rows={3}
                     cols={2}
                   />
-                </div>
+                </div> */}
               </div>
               <div className="col-5">
                 <p>
                   Tổng tiền hiện tại:{" "}
                   <i className="text-danger">
                     {totalProduct > 0
-                      ? totalProduct.toLocaleString("it-IT", {
+                      ? totalProduct?.toLocaleString("it-IT", {
                           style: "currency",
                           currency: "VND",
                         })
-                      : "0 VND"}
+                      : "0 VND "}
                   </i>
                 </p>
                 <p>
                   Số tiền khách hàng phải trả thêm:{" "}
                   <i className="text-danger">
-                    {totalProduct > 0
+                    {totalProduct > item?.total
                       ? (totalProduct - item?.total).toLocaleString("it-IT", {
                           style: "currency",
                           currency: "VND",
                         })
-                      : "0 VND"}
+                      : (item?.total - totalProduct).toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
                   </i>
                 </p>
-                <p className="text-danger fw-bold mt-2">
-                  Vui lòng tích chọn nếu sản phẩm lỗi
-                </p>
-                <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)}>
-                  Sản phẩm lỗi
-                </Checkbox>
-                <div className="mt-2">
-                  <TextArea
-                    onChange={(e) => setNote(e.target.value)}
-                    className="ms-2"
-                    value={note}
-                    style={{ width: "100%" }}
-                    placeholder="Ghi chú"
-                    rows={3}
-                    cols={4}
-                  />
-                </div>
               </div>
             </div>
             <AutoComplete
               style={{
-                width: 800,
+                width: 760,
               }}
               value={values}
               options={data}
@@ -716,37 +800,16 @@ const ExchangeUser = () => {
                   .indexOf(inputValue.toUpperCase()) !== -1
               }
             />
-            {/* <Select
-              showSearch
-              placeholder="Tên sản phẩm"
-              optionFilterProp="children"
-              style={{
-                width: 400,
-              }}
-              onChange={onChangeProduct}
-              onClick={onSearchProduct}
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {dataProduct != undefined
-                ? dataProduct.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))
-                : ""}
-            </Select> */}
           </div>
           <table className="table">
             <thead>
               <tr>
-                <th>STT</th>
-                <th>Hình ảnh</th>
-                <th>Tên sản phẩm</th>
-                <th>Giá tiền</th>
-                <th>Năm sản xuất</th>
-                <th>Thao tác</th>
+                <th className="text-center" cols="1">STT</th>
+                <th className="text-center" cols="2">Hình ảnh</th>
+                <th className="text-center">Tên sản phẩm</th>
+                <th className="text-center">Lý do đổi hàng</th>
+                <th className="text-center">Sản phẩm lỗi ?</th>
+                <th className="text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -754,21 +817,29 @@ const ExchangeUser = () => {
                 return (
                   <tr key={index}>
                     <td>{index}</td>
+                    {/* <td>{item.images}</td> */}
                     <td>
-                      {item.images[0]?.name === undefined ? (
+                      {item.images[0].name === undefined ? (
                         <Image width={90} src={item.images} />
                       ) : (
                         <Image width={90} src={item.images[0].name} />
                       )}
                     </td>
-                    <td>{item.name}</td>
                     <td>
+                      {item.name}{" "}
                       {item?.price.toLocaleString("it-IT", {
                         style: "currency",
                         currency: "VND",
                       })}
                     </td>
-                    <td>{item.debut}</td>
+
+                    <td>
+                      <TextArea rows={4} style={{width:"300px"}} onChange={(event) => 
+                     onChangeReason(event.target.value, index)} cols={4} placeholder="Nhập lý do" />
+                    </td>
+                    <td>
+                      <Checkbox onChange={(e) => onChangeChecked(e.target.checked, index)}/>
+                    </td>
                     <td>
                       <CloseCircleOutlined
                         onClick={() => deleteProduct(item)}

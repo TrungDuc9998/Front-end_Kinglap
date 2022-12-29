@@ -80,7 +80,7 @@ const OrderWait = () => {
 
   useEffect(() => {
     loadDataOrder();
-  }, [dataOrder != undefined]);
+  }, []);
 
 
   const cancelCheckBox = () => {
@@ -97,6 +97,40 @@ const OrderWait = () => {
       },
     });
   }
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.searchStatus = "CHO_LAY_HANG";
+    tableParams.pagination.searchEndDate= "";
+    tableParams.pagination.searchPhone= "";
+    tableParams.pagination.searchStartDate= "";
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrder(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
   const updateNote =() => {
     fetch(`http://localhost:8080/api/auth/orders/update/${dataO?.id}/note`, {
       method: "PUT",
@@ -321,6 +355,13 @@ const OrderWait = () => {
       },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
+     
+      tableParams.pagination.search1 = searchName;
+      tableParams.pagination.searchStatus = "CHO_LAY_HANG";
+      tableParams.pagination.searchEndDate= "";
+      tableParams.pagination.searchPhone= "";
+      tableParams.pagination.searchStartDate= "";
+      loadDataOrder();
       clearSearchForm();
     });
   };
@@ -468,6 +509,13 @@ const OrderWait = () => {
         });
         setDataOrder(data);
         setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total
+          },
+        });
       });
   };
 
@@ -578,18 +626,7 @@ const OrderWait = () => {
       dataIndex: "status",
       width: "13%",
       render: (status) => {
-        if (status === "CHO_XAC_NHAN") {
-          return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
-              >
-                Chờ xác nhận
-              </div>
-            </>
-          );
-        }
+       
         if (status === "CHO_LAY_HANG") {
           return (
             <>
@@ -597,47 +634,14 @@ const OrderWait = () => {
                 className="bg-warning text-center text-light"
                 style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
               >
-                Chờ lấy hàng
+                {status}
               </div>
             </>
           );
         }
-        if (status === "DANG_GIAO") {
-          return (
-            <>
-              <div
-                className="bg-primary text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
-              >
-                Đang giao hàng
-              </div>
-            </>
-          );
-        }
-        if (status === "DA_NHAN") {
-          return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
-              >
-                Đã nhận hàng
-              </div>
-            </>
-          );
-        }
-        if (status === "DA_HUY") {
-          return (
-            <>
-              <div
-                className="bg-danger text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
-              >
-                Đã huỷ hàng
-              </div>
-            </>
-          );
-        }
+        
+       
+       
       },
     },
     {
@@ -828,6 +832,7 @@ const OrderWait = () => {
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
+            onChange={handleTableChange}
           />
           <Modal
             title="Xác nhận đơn hàng"

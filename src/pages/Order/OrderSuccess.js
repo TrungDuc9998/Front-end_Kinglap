@@ -88,7 +88,41 @@ const OrderSuccess = () => {
   useEffect(() => {
     loadDataOrder();
     // compareDates("2022-12-25 23:01:07", "2023-12-15 23:01:07");
-  }, [dataOrder != undefined]);
+  }, []);
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.searchStatus = "DA_NHAN";
+    tableParams.pagination.searchEndDate= "";
+    tableParams.pagination.searchPhone= "";
+    tableParams.pagination.searchStartDate= "";
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrder(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
 
   const search = () => {
     if (searchStartDate != undefined && searchEndDate != undefined) {
@@ -230,6 +264,13 @@ const OrderSuccess = () => {
         console.log(results.data.data);
         setDataOrder(results.data.data);
         setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total
+          },
+        });
       });
   };
   const columnOrderHistory = [
@@ -621,6 +662,7 @@ const OrderSuccess = () => {
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
+            onChange={handleTableChange}
           />
           <Modal
             title="Xác nhận đơn hàng"

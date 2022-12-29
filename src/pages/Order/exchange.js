@@ -86,13 +86,21 @@ const Exchange = () => {
         isCheck: item?.id,
       });
     });
-    console.log('data cart');
-    console.log(dataCart);
 
-    if (reason != undefined) {
-      fetch("http://localhost:8080/api/orders/exchanges", {
+    let count = 0;
+    dataCart.forEach(item => {
+      if(item.reason != undefined && item.reason != "null") {
+        count ++;
+      }
+    })
+
+    if (dataCart.length == count) {
+      fetch("http://localhost:8080/api/auth/orders/exchanges", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
         body: JSON.stringify(data),
       })
         .then((response) => response.json())
@@ -106,29 +114,28 @@ const Exchange = () => {
         .catch((error) => {
           console.error("Error:", error);
         });
+      setIsModalOpen(false);
+    }else {
+      toastError("Bạn chưa nhập đầy đủ lý do !")
     }
 
-    setIsModalOpen(false);
+   
   };
 
   const handleSubmitReturn = (data, dataOrderDetail) => {
-    console.log('vào handle submit return');
-    console.log(data);
-    console.log(dataOrderDetail);
-    // console.log("data order detail handle submit");
-    // console.log(dataOrderDetail);
-
-    // const ExchangeDetail = [];
-    // data?.forEach((element) => {
-    //   ExchangeDetail.push({
-    //     productId: element.product.id,
-    //     orderDetailId: item.id,
-    //     quantity: 1,
-    //     orderChange: element.id,
-    //     status: "YEU_CAU",
-    //     id: null,
-    //   });
-    // });
+    const ExchangeDetail = [];
+    data?.forEach((element, index) => {
+      ExchangeDetail.push({
+        productId: element.product.id,
+        orderDetailId: item.id,
+        quantity: 1,
+        reason: dataCart[index].reason,
+        orderChange: element.id,
+        status: "YEU_CAU",
+        isCheck: dataCart[index].checked == true ? "1": "",
+        id: null,
+      });
+    });
 
     // console.log("data exchange");
     // console.log(ExchangeDetail);
@@ -146,51 +153,57 @@ const Exchange = () => {
     //   moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
     // );
     // if (reason != undefined) {
-    //   ///tạo đơn đổi
-    //   try {
-    //     fetch("http://localhost:8080/api/auth/returns", {
-    //       method: "POST",
-    //       headers: { "Content-Type": "application/json" },
-    //       body: JSON.stringify({
-    //         orderId: order.id,
-    //         reason: reason,
-    //         description: note,
-    //         isCheck: checked === true ? "3" : "1",
-    //         status: "CHUA_XU_LY",
-    //         returnDetailEntities: ExchangeDetail,
-    //       }),
-    //     }).then((res) => {});
-    //     fetch(
-    //       `http://localhost:8080/api/orders/${dataOrderDetail.id}/updateOrderDetail`,
-    //       {
-    //         method: "PUT",
-    //         headers: { "Content-Type": "application/json" },
-    //         body: JSON.stringify({
-    //           productId: dataOrderDetail.product.id,
-    //           total: dataOrderDetail.total,
-    //           quantity: dataOrderDetail.quantity,
-    //           status: dataOrderDetail.status,
-    //           isCheck: dataOrderDetail.id,
-    //           isUpdate: 1,
-    //         }),
-    //       }
-    //     ).then((res) => loadDataOrder(id));
-    //     toastSuccess("Gửi yêu cầu thành công!");
-    //     setReason("");
-    //     setChecked(false);
-    //     setIsModalOpen(false);
-    //     setNote("");
-    //     setLoading(false);
-    //   } catch (err) {
-    //     toastError("Gửi yêu cầu thất bại!");
-    //   }
+      ///tạo đơn đổi
+      // try {
+        fetch("http://localhost:8080/api/auth/returns", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+          body: JSON.stringify({
+            orderId: order.id,
+            description: "Ghi chú",
+            status: "CHUA_XU_LY",
+            returnDetailEntities: ExchangeDetail,
+          }),
+        }).then((res) => {});
+        fetch(
+          `http://localhost:8080/api/auth/orders/${dataOrderDetail.id}/updateOrderDetail`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            body: JSON.stringify({
+              productId: dataOrderDetail.product.id,
+              total: dataOrderDetail.total,
+              quantity: dataOrderDetail.quantity,
+              status: dataOrderDetail.status,
+              isCheck: dataOrderDetail.id,
+              isUpdate: 1,
+            }),
+          }
+        ).then((res) => loadDataOrder(id));
+        toastSuccess("Gửi yêu cầu thành công!");
+        setReason("");
+        setChecked(false);
+        setIsModalOpen(false);
+        setNote("");
+        setLoading(false);
+      // } catch (err) {
+      //   toastError("Gửi yêu cầu thất bại!");
+      // }
     // } else {
     //   toastError("Bạn chưa nhập lý do đổi hàng !");
     // }
 
-    // setChecked(false);
-    // setDataCart([]);
-    // loadDataOrder(id);
+    setChecked(false);
+    setDataCart([]);
+    console.log('data cart khi gửi yêu cầu:');
+    console.log(dataCart);
+    loadDataOrder(id);
   };
   const handleCancel = () => {
     setDataCart([]);
@@ -331,7 +344,7 @@ const Exchange = () => {
         });
       console.log(dataPro);
     }
-    if (dataCart === undefined) {
+    if (dataCart === undefined ||dataCart === [] || dataCart.length == 0) {
       dataPro.forEach((element, index) => {
         if (Number(element.price) < Number(item.product.price)) {
           dataPro.splice(index, 1);
@@ -439,13 +452,27 @@ const Exchange = () => {
   };
 
   const onChangeReason = (value, id) => {
-    console.log('dữ liệu lý do khi change:');
+    let check = false;
     console.log(value);
-   
-    setReason(value);
+    if(!isNaN(value)) {
+      console.log('--------------- vào rỗng --------------');
+      dataCart?.forEach( (element,index) => {
+        if(element.index == id){
+          console.log('rỗng đầu tiên');
+          element.reason = "null";
+          // setReason(count);
+        }
+      })
+      check = true;
+    }
+    let count = 0;
     dataCart?.forEach( (element,index) => {
-      if(element.index == id){
+      if(element.index == id && isNaN(value)){
+        console.log('rỗng: ', check);
+        console.log('vào đếm count');
+        count ++;
         element.reason = value;
+        // setReason(count);
       }
     })
   };
@@ -497,6 +524,9 @@ const Exchange = () => {
               <div className="mt-2 ms-5 text-success">
                 Số điện thoại: <b>{order?.phone}</b>{" "}
               </div>
+              <div className="mt-2 ms-5 text-success">
+                Ghi chú đơn hàng: <b>{order?.note}</b>{" "}
+              </div>
             </div>
             <div className="col-6 mt-4 mb-5">
               <div className="mt-2 text-success">
@@ -511,6 +541,9 @@ const Exchange = () => {
                     currency: "VND",
                   })}
                 </b>
+              </div>
+              <div className="mt-2 text-success">
+                Địa chỉ nhận hàng: <b>{order?.address}</b>
               </div>
               <div className="mt-2 text-success">
                 Trạng thái: <b>Đã nhận hàng</b>{" "}
@@ -588,11 +621,7 @@ const Exchange = () => {
                           />
                         )
                       ) : item.isCheck != 1 && item.isCheck !== null ? (
-                        <Alert
-                          message="Hoá đơn yêu cầu đổi hàng"
-                          type="error"
-                          showIcon
-                        />
+                        <i className="text-danger" >Đơn yêu cầu đổi hoá đơn {item.isCheck}</i>         
                       ) : (
                         ""
                       )}
@@ -631,6 +660,17 @@ const Exchange = () => {
                     })}
                   </i>
                 </p>
+                <div className="mt-2 mb-3">
+                  <TextArea
+                    onChange={(e) => setNote(e.target.value)}
+                    className=""
+                    value={note}
+                    style={{ width: "100%" }}
+                    placeholder="Ghi chú đơn đổi"
+                    rows={3}
+                    cols={4}
+                  />
+                </div>
                 {/* <div className="mt-4">
                   <TextArea
                     value={reason}
@@ -678,17 +718,7 @@ const Exchange = () => {
                 >
                   Sản phẩm lỗi
                 </Checkbox> */}
-                {/* <div className="mt-2">
-                  <TextArea
-                    onChange={(e) => setNote(e.target.value)}
-                    className="ms-2"
-                    value={note}
-                    style={{ width: "100%" }}
-                    placeholder="Ghi chú"
-                    rows={3}
-                    cols={4}
-                  />
-                </div> */}
+               
               </div>
             </div>
             <AutoComplete
