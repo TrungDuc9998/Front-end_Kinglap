@@ -29,12 +29,6 @@ import Moment from "react-moment";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const onDelete = (record) => {
-  Modal.confirm({
-    title: "Xoá thể loại",
-    content: "Bạn có muón xoá bản ghi này không?",
-  });
-};
 
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -75,7 +69,7 @@ const OrderDelivering = () => {
 
   useEffect(() => {
     loadDataOrder();
-  }, [dataOrder != undefined]);
+  }, []);
 
   const columnOrderHistory = [
     {
@@ -365,6 +359,13 @@ const OrderDelivering = () => {
         });
         setDataOrder(data);
         setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total
+          },
+        });
       });
   };
 
@@ -479,7 +480,7 @@ const OrderDelivering = () => {
               className="bg-primary text-center text-light"
               style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
             >
-              Đang giao
+             {status}
             </div>
           </>
         );
@@ -613,10 +614,49 @@ const OrderDelivering = () => {
       },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
+      tableParams.pagination.search1 = searchName;
+      tableParams.pagination.searchStatus = "DANG_GIAO";
+      tableParams.pagination.searchEndDate= "";
+      tableParams.pagination.searchPhone= "";
+      tableParams.pagination.searchStartDate= "";
+      loadDataOrder();
       clearSearchForm();
     });
 
     console.log(dataOrder);
+  };
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.searchStatus = "DANG_GIAO";
+    tableParams.pagination.searchEndDate= "";
+    tableParams.pagination.searchPhone= "";
+    tableParams.pagination.searchStartDate= "";
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrder(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
   };
   return (
     <div>
@@ -727,6 +767,7 @@ const OrderDelivering = () => {
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
+            onChange = {handleTableChange}
           />
           <Modal
             id="a"

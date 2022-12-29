@@ -849,7 +849,7 @@ const Order = () => {
   const handleTableChange = (pagination, filters, sorter) => {
     tableParams.pagination = pagination;
     tableParams.pagination.search1 = searchName;
-    tableParams.pagination.search2 = searchStatus;
+    tableParams.pagination.searchStatus = searchStatus;
     tableParams.pagination.searchEndDate= "";
     tableParams.pagination.searchPhone= "";
     tableParams.pagination.searchStartDate= "";

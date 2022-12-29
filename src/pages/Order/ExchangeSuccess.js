@@ -225,11 +225,6 @@ const ExchangeSuccess = () => {
       width: "20%",
     },
     {
-      title: "Lý do",
-      dataIndex: "reason",
-      width: "25%",
-    },
-    {
       title: "Ghi chú",
       dataIndex: "description",
       width: "25%",

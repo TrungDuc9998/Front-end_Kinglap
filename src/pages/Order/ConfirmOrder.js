@@ -260,6 +260,39 @@ const OrderConfirm = () => {
     });
   };
 
+  const handleTableChange = (pagination, filters, sorter) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.searchStatus = "CHO_XAC_NHAN";
+    tableParams.pagination.searchEndDate= "";
+    tableParams.pagination.searchPhone= "";
+    tableParams.pagination.searchStartDate= "";
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrder(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
+
   const loadDataOrder = () => {
     console.log('vào lại log data');
 
@@ -296,6 +329,13 @@ const OrderConfirm = () => {
         console.log(data);
         setDataOrder(data);
         setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total
+          },
+        });
       });
   };
 
@@ -843,6 +883,7 @@ const OrderConfirm = () => {
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
+            onChange={handleTableChange}
           />
           <Modal
             id="a"

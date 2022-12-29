@@ -3,6 +3,7 @@ import { Button, Image, Modal, Table } from "antd";
 import { Link, useParams } from "react-router-dom";
 import { CheckCircleOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { toast, ToastContainer } from "react-toastify";
+import Moment from "react-moment";
 
 const toastSuccess = (message) => {
   toast.success(message, {
@@ -174,7 +175,7 @@ function exchangeDetail() {
           reason: "a",
           description: "a",
           isCheck: 1,
-          status: isPut === true ? "DA_XU_LY" : "KHONG_XU_LY",
+          status:  "DA_XU_LY",
           returnDetailEntities: exchangeDetails,
         }),
       }).then((res) => loadDataExchangeDetail(id));
@@ -237,16 +238,14 @@ function exchangeDetail() {
               <div className="mt-2 ms-5 text-success">
                 Mã hoá đơn: <b>{data?.orderId}</b>
               </div>
-              <div className="mt-2 ms-5 text-success">
-                Lý do: <b>{data?.reason}</b>{" "}
-              </div>
-              <div className="mt-2 ms-5 text-success">
-                Lý do: <b>{data?.isCheck}</b>{" "}
-              </div>
             </div>
             <div className="col-6 mt-4 mb-5 text-success">
               <div className="mt-2 text-success">
-                Ngày gửi yêu cầu: <b>{data?.createdAt}</b>
+                Ngày gửi yêu cầu: <b>
+                <Moment format="DD-MM-YYYY HH:mm:ss">
+                      {data?.createdAt}
+                    </Moment>
+               </b>
               </div>
               <div className="mt-2 text-success">
                 Trạng thái:{" "}
@@ -293,6 +292,7 @@ function exchangeDetail() {
                 <th>Hình ảnh</th>
                 <th scope="col">Đổi sang</th>
                 <th>Giá tiền</th>
+                <th>Lý do</th>
                 <td>Trạng thái</td>
               </tr>
             </thead>
@@ -333,6 +333,7 @@ function exchangeDetail() {
                       currency: "VND",
                     })}
                   </td>
+                  <td>{d.reason}</td>
                   <td>
                     {d.status != "YEU_CAU" ? (
                       d.status === "DA_XAC_NHAN" ? (
