@@ -7,6 +7,7 @@ import {
   DatePicker,
   Image,
   Space,
+  Tag,
 } from "antd";
 import {
   ReloadOutlined,
@@ -15,9 +16,8 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import qs from "qs";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-const url = "http://localhost:8080/api/orders";
+import Moment from "react-moment";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -35,6 +35,7 @@ const getRandomOrderParams = (params) => ({
   searchStatus: params.pagination?.searchStatus,
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
+  searchPhone: params.pagination?.searchPhone
 });
 
 const OrderSuccess = () => {
@@ -58,27 +59,28 @@ const OrderSuccess = () => {
       search2: "",
       searchStartDate: "",
       searchEndDate: "",
+      searchPhone: ""
     },
   });
 
   function compareDates(d2) {
-    console.log("thời gian truyền vào: ", d2);
+    // console.log("thời gian truyền vào: ", d2);
 
     const currentDate = new Date().getTime();
-    console.log("thời gian hiện tại:", new Date());
-    console.log("current date", currentDate);
+    // console.log("thời gian hiện tại:", new Date());
+    // console.log("current date", currentDate);
     const date = new Date(d2);
     date.setDate(date.getDate() + 10);
     let date3 = new Date(date).getTime();
     console.log(date3);
     if (date3 < currentDate) {
-      console.log(`Thời gian hiện tại nhỏ hơn`);
+      // console.log(`Thời gian hiện tại nhỏ hơn`);
       return true;
     } else if (date3 > currentDate) {
       // console.log(`Thời gian hiện tại lớn hơn`);
       return false;
     } else {
-      console.log(`Bằng nhau`);
+      // console.log(`Bằng nhau`);
       return true;
     }
   }
@@ -118,13 +120,37 @@ const OrderSuccess = () => {
   };
 
   const showModalData = (id) => {
-    axios.get(url + "/get/" + id).then((res) => {
-      setDataO(res.data);
-    });
-    axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
-      setDataOD(res.data);
-    });
+    fetch(
+      `http://localhost:8080/api/auth/orders/get/${id}?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataO(results);
+      });
+
+    fetch(
+      `http://localhost:8080/api/auth/orders/${id}?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOD(results);
+      });
     loadDataOrderHistoryById(id);
     setView(true);
   };
@@ -188,9 +214,15 @@ const OrderSuccess = () => {
   const loadDataOrder = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomOrderParams(tableParams)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -204,7 +236,7 @@ const OrderSuccess = () => {
     {
       title: "Mã hoá đơn",
       dataIndex: "orderId",
-      width: "20%",
+      width: "10%",
       render(orderId) {
         return <>{orderId.id}</>;
       },
@@ -212,11 +244,14 @@ const OrderSuccess = () => {
     {
       title: "Người xác nhận",
       dataIndex: "verifier",
-      width: "25%",
+      width: "15%",
     },
     {
       title: "Thời gian",
       dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{createdAt}</Moment>;
+      },
       width: "25%",
     },
     {
@@ -323,6 +358,14 @@ const OrderSuccess = () => {
       width: "10%",
     },
     {
+      title: "Thời gian đặt",
+      dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{createdAt}</Moment>;
+      },
+      width: "15%",
+    },
+    {
       title: "Người đặt",
       dataIndex: "customerName",
       width: "15%",
@@ -330,7 +373,7 @@ const OrderSuccess = () => {
     {
       title: "Số điện thoại",
       dataIndex: "phone",
-      width: "15%",
+      width: "10%",
     },
     {
       title: "Tổng tiền",
@@ -348,9 +391,9 @@ const OrderSuccess = () => {
       },
     },
     {
-      title: "Hình thức đặt",
+      title: "Hình thức thanh toán",
       dataIndex: "payment",
-      width: "20%",
+      width: "16%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
@@ -359,22 +402,34 @@ const OrderSuccess = () => {
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-                {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+                Thanh toán VNPAY
               </div>
             </>
           );
-        } else if (payment == "NGAN_HANG") {
+        } if (payment == "NGAN_HANG") {
           return (
             <>
               <div
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-                Tài khoản ATM
+                {"Tài khoản ATM"}
               </div>
             </>
           );
-        } else {
+        }if (payment == "DAT_COC") {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                Tại nhà
+              </div>
+            </>
+          );
+        }
+        else {
           return (
             <>
               <div
@@ -388,23 +443,23 @@ const OrderSuccess = () => {
         }
       },
     },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      with: "45%",
-      render: (status) => {
-        return (
-          <>
-            <div
-              className="bg-success text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-              Đã nhận hàng
-            </div>
-          </>
-        );
-      },
-    },
+    // {
+    //   title: "Trạng thái",
+    //   dataIndex: "status",
+    //   with: "45%",
+    //   render: (status) => {
+    //     return (
+    //       <>
+    //         <div
+    //           className="bg-success text-center text-light"
+    //           style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+    //         >
+    //           Đã nhận hàng
+    //         </div>
+    //       </>
+    //     );
+    //   },
+    // },
     {
       title: "Thao tác",
       width: "40%",
@@ -601,23 +656,34 @@ const OrderSuccess = () => {
               <div className="col-12">
                 <div className="row">
                   <div className="col-6">
+                    <p>Mã khách hàng: {dataO?.id}</p>
                     <p>Khách hàng: {dataO?.customerName}</p>
                     <p>Số điện thoại: {dataO?.phone} </p>
-                    <p>Tổng tiền: {dataO?.total?.toLocaleString("it-IT", {
-                      style: "currency",
-                      currency: "VND",
-                    })}</p>
+                    <p>
+                      Tổng tiền:{" "}
+                      {dataO?.total?.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </p>
+                    <p>Ghi chú: {dataO?.note}</p>
                   </div>
                   <div className="col-6">
-                    <p>Ngày nhận: </p>
-                   
                     <p>
-                    Phí vận chuyển:{" "}
-                    {dataO?.shippingFree?.toLocaleString("it-IT", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
-                  </p>
+                      Ngày đặt hàng:{" "}
+                      <Moment format="DD-MM-YYYY HH:mm:ss">
+                        {dataO?.createdAt}
+                      </Moment>
+                    </p>
+                    <p>Ngày nhận: </p>
+
+                    <p>
+                      Phí vận chuyển:{" "}
+                      {dataO?.shippingFree?.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </p>
 
                     <p>
                       Đặt cọc:{" "}

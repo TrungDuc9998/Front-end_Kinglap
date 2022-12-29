@@ -20,7 +20,10 @@ import CurrencyFormat from "react-currency-format";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../ConfirmOrder.css";
+import { ToastContainer, toast } from "react-toastify";
+import TextArea from "antd/lib/input/TextArea";
 const url = "http://localhost:8080/api/orders";
+import Moment from "react-moment";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -39,7 +42,21 @@ const getRandomOrderParams = (params) => ({
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
   searchPayment: params.pagination?.searchPayment,
+  searchPhone: params.pagination?.searchPhone,
 });
+
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 2000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
 
 const ConfirmPayment = () => {
   let navigate = useNavigate();
@@ -51,6 +68,7 @@ const ConfirmPayment = () => {
   const [isView, setView] = useState(false);
   const [dataOrder, setDataOrder] = useState();
   const [put, setPut] = useState();
+  const [note, setNote] =  useState();
   const [dataO, setDataO] = useState();
   const [searchStartDate, setSearchStartDate] = useState();
   const [searchEndDate, setSearchEndDate] = useState();
@@ -65,6 +83,7 @@ const ConfirmPayment = () => {
       search2: "",
       searchStartDate: "",
       searchEndDate: "",
+      searchPhone: "",
     },
   });
 
@@ -295,13 +314,38 @@ const ConfirmPayment = () => {
   };
 
   const showModalData = (id) => {
-    axios.get(url + "/get/" + id).then((res) => {
-      setDataO(res.data);
-    });
+    fetch(
+      `http://localhost:8080/api/auth/orders/get/${id}?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataO(results);
+        setNote(results.note);
+      });
 
-    axios.get(url + "/" + id).then((res) => {
-      setDataOD(res.data);
-    });
+    fetch(
+      `http://localhost:8080/api/auth/orders/${id}?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOD(results);
+      });
     loadDataOrderHistoryById(id);
     setView(true);
   };
@@ -320,9 +364,15 @@ const ConfirmPayment = () => {
   const loadDataOrder = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomOrderParams(tableParams)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -335,6 +385,8 @@ const ConfirmPayment = () => {
             total: item.total,
             status: item.status,
             quantity: item.quantity,
+            createdAt: item.createdAt,
+            money: item.money,
             images:
               item.images != undefined
                 ? item?.images[0]?.name
@@ -348,11 +400,32 @@ const ConfirmPayment = () => {
       });
   };
 
+  const updateNote =() => {
+    fetch(`http://localhost:8080/api/auth/orders/update/${dataO?.id}/note`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify(note),
+    }).then((res) => {
+      toastSuccess('Cập nhật ghi chú thành công !')
+    });
+  }
+
   const columns = [
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
       width: "10%",
+    },
+    {
+      title: "Thời gian đặt",
+      dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{createdAt}</Moment>;
+      },
+      width: "20%",
     },
     {
       title: "Người đặt",
@@ -367,6 +440,21 @@ const ConfirmPayment = () => {
         return (
           <>
             {total.toLocaleString("it-IT", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </>
+        );
+      },
+    },
+    {
+      title: "Đã thanh toán",
+      dataIndex: "money",
+      width: "13%",
+      render(money) {
+        return (
+          <>
+            {money.toLocaleString("it-IT", {
               style: "currency",
               currency: "VND",
             })}
@@ -526,9 +614,12 @@ const ConfirmPayment = () => {
         status: isPut === true ? "CHO_LAY_HANG" : "DA_HUY",
       });
     });
-    fetch(`http://localhost:8080/api/orders/confirm`, {
+    fetch(`http://localhost:8080/api/staff/orders/confirm`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       clearSearchForm();
@@ -672,37 +763,58 @@ const ConfirmPayment = () => {
           >
             <div className="row ">
               <div className="row">
+              <ToastContainer></ToastContainer>
+              <div className="col-12">
+              <div className="row">
                 <div className="col-6">
-                  <p>Khách hàng: {dataO?.customerName} </p>
+                  <p>Mã hoá đơn: {dataO?.id}</p>
+                  <p>Khách hàng: {dataO?.customerName}</p>
                   <p>Số điện thoại: {dataO?.phone} </p>
                   <p>
                     Tổng tiền:{" "}
-                    {dataO?.total.toLocaleString("it-IT", {
+                    {dataO?.total?.toLocaleString("it-IT", {
                       style: "currency",
                       currency: "VND",
                     })}
                   </p>
+                  <p>
+                    Ghi chú:
+                    <div className="row">
+                      <div className="col-9">
+                        <TextArea value={note} onChange={(e) => setNote(e.target.value)} rows={3} cols={9} />
+                      </div>
+                      <div className="col-3" >
+                        <Button onClick={() => updateNote() } >Cập nhật ghi chú</Button>
+                      </div>
+                    </div>
+                  </p>
                 </div>
                 <div className="col-6">
                   <p>
+                    Ngày đặt hàng:{" "}
+                    <Moment format="DD-MM-YYYY HH:mm:ss">
+                      {dataO?.createdAt}
+                    </Moment>
+                  </p>
+                  <p>Ngày nhận: </p>
+
+                  <p>
                     Phí vận chuyển:{" "}
-                    {dataO?.shippingFree.toLocaleString("it-IT", {
+                    {dataO?.shippingFree?.toLocaleString("it-IT", {
                       style: "currency",
                       currency: "VND",
                     })}
                   </p>
                   <p>
                     Đặt cọc:{" "}
-                    {dataO?.money.toLocaleString("it-IT", {
+                    {dataO?.money?.toLocaleString("it-IT", {
                       style: "currency",
                       currency: "VND",
                     })}
                   </p>
-                  <p>
-                    Địa chỉ nhận hàng:
-                    {dataO?.address}
-                  </p>
                 </div>
+              </div>
+            </div>
               </div>
               <div className="col-12 text-center mb-2">
                 <h6 className="text-danger fw-bold">Hình ảnh đơn thanh toán</h6>

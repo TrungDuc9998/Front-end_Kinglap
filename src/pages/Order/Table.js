@@ -265,7 +265,7 @@ function CreateOrderAdmin() {
           toastError("Giá trị đơn hàng không vượt quá 200 triệu !");
         } else {
           try {
-            fetch("http://localhost:8080/api/orders", {
+            fetch("http://localhost:8080/api/auth/orders", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -645,7 +645,7 @@ function CreateOrderAdmin() {
           height: Math.round(totalHeight * 0.1),
           length: Math.round(totalLength * 0.1),
           weight: Math.round(totalWeight * 1000),
-          width: Math.round(totalLength * 0.1),
+          width: Math.round(totalWith * 0.1),
           to_ward_code: value,
         }),
       }
@@ -712,10 +712,6 @@ function CreateOrderAdmin() {
             }
           });
         });
-
-        console.log("option set data client");
-        console.log(option);
-
         setDataClient(option);
         setLoading(false);
         setTableParams({
