@@ -17,9 +17,12 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StoreContext from "../../store/Context";
 import qr from "../../image/QR.jpg";
+import Moment from "react-moment";
+
 import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
 import { storage } from "../../image/firebase/firebase";
 import { v4 } from "uuid";
+import TextArea from "antd/lib/input/TextArea";
 
 const onChange = (key) => {
   console.log(key);
@@ -29,19 +32,6 @@ const toastSuccess = (message) => {
   toast.success(message, {
     position: "top-right",
     autoClose: 2000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "light",
-  });
-};
-
-const toastError = (message) => {
-  toast.error(message, {
-    position: "top-right",
-    autoClose: 5000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
@@ -83,6 +73,7 @@ function ViewOrder() {
 
   // modal thanh toán
   const [isModalOpen1, setIsModalOpen1] = useState(false);
+  const [dataO, setDataO] = useState([]);
   const showModal1 = (data) => {
     setIsModalOpen1(true);
     console.log(data);
@@ -190,6 +181,9 @@ function ViewOrder() {
       let dc;
       if (localStorage.getItem("valueProvince") === "undefined") {
         console.log("vào đầu");
+        dc = address + ", " + valueWard + ", " + valueDistrict + ", " + value;
+      } else {
+        console.log("vào sau");
         dc =
           address +
           ", " +
@@ -197,10 +191,7 @@ function ViewOrder() {
           ", " +
           valueDistrict +
           ", " +
-          value;
-      } else {
-        console.log("vào sau");
-        dc = address + ", " + valueWard + ", " + valueDistrict + ", " + valueProvince;
+          valueProvince;
       }
 
       fetch(`http://localhost:8080/api/orders/user`, {
@@ -248,7 +239,7 @@ function ViewOrder() {
       //localStorage.removeItem("carts");
     }
     fetch(
-      `http://localhost:8080/api/orders/list/${userId}?${qs.stringify(
+      `http://localhost:8080/api/auth/orders/list/${userId}?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`
     )
@@ -429,7 +420,6 @@ function ViewOrder() {
         if (payment === "NGAN_HANG") {
           return (
             <>
-              <ToastContainer></ToastContainer>
               <div
                 className="bg-warning text-center text-light"
                 style={{ width: "80%", borderRadius: "5px", padding: "4px" }}
@@ -442,7 +432,6 @@ function ViewOrder() {
         if (payment === "VN_PAY") {
           return (
             <>
-              <ToastContainer></ToastContainer>
               <div
                 className="bg-success text-center text-light"
                 style={{ width: "80%", borderRadius: "5px", padding: "4px" }}
@@ -717,6 +706,7 @@ function ViewOrder() {
   const [order, setOrder] = useState();
   const [idCancel, setIDCancel] = useState();
   const [count, setCount] = useState();
+  const [note, setNote] = useState();
 
   const showModalCancel = () => {
     setEditing(true);
@@ -728,12 +718,39 @@ function ViewOrder() {
     setConfirm(true);
   };
   const showModalData = (id) => {
-    console.log("id show modal: ", id);
+    fetch(
+      `http://localhost:8080/api/auth/orders/get/${id}?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataO(results);
+        setNote(results.note);
+      });
+
+    fetch(
+      `http://localhost:8080/api/auth/orders/${id}?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setOrder(results);
+      });
     setOrderId(id);
-    axios.get(url + "/" + id).then((res) => {
-      setOrder(res.data);
-      console.log(res.data);
-    });
 
     console.log("ororderID", orderId);
     setView(true);
@@ -784,7 +801,7 @@ function ViewOrder() {
   };
 
   const onChangeInput = (value, id, proId, price) => {
-    console.log("changed", value, id, proId, price);
+   
     const set = new Set();
 
     setCount(value);
@@ -883,10 +900,24 @@ function ViewOrder() {
     });
   };
 
+  const updateNote = () => {
+    fetch(`http://localhost:8080/api/auth/orders/update/${dataO?.id}/note`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify(note),
+    }).then((res) => {
+      toastSuccess("Cập nhật ghi chú thành công !");
+    });
+  };
+
   return (
     <>
       <div className="container mt-3">
         <div className="row">
+          <ToastContainer></ToastContainer>
           <div className="col-12">
             <Tabs
               defaultActiveKey="1"
@@ -1084,6 +1115,68 @@ function ViewOrder() {
                 <h6 className="text-danger fw-bold">Hình ảnh đơn thanh toán</h6>
                 <Image width={250} src={order?.images[0]?.name} />
               </div> */}
+              <div className="col-12">
+                <div className="row">
+                  <div className="col-6">
+                    <p>Mã hoá đơn: {dataO?.id}</p>
+                    <p>Khách hàng: {dataO?.customerName}</p>
+                    <p>Số điện thoại: {dataO?.phone} </p>
+                    <p>
+                      Tổng tiền:{" "}
+                      {dataO?.total?.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </p>
+                    <p>
+                      Ghi chú:
+                      {(dataO?.status == "CHO_LAY_HANG" ||
+                        dataO?.status == "CHO_XAC_NHAN" ||
+                        dataO?.status == "CHUA_THANH_TOAN"
+                        ) ? (<div className="row">
+                        <div className="col-9">
+                          <TextArea
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            rows={3}
+                            cols={9}
+                          />
+                        </div>
+                        <div className="col-3">
+                          <Button onClick={() => updateNote()}>
+                            Cập nhật ghi chú
+                          </Button>
+                        </div>
+                      </div>) : dataO?.note}
+                      
+                    </p>
+                  </div>
+                  <div className="col-6">
+                    <p>
+                      Ngày đặt hàng:{" "}
+                      <Moment format="DD-MM-YYYY HH:mm:ss">
+                        {dataO?.createdAt}
+                      </Moment>
+                    </p>
+                    <p>Ngày nhận: </p>
+
+                    <p>
+                      Phí vận chuyển:{" "}
+                      {dataO?.shippingFree?.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </p>
+                    <p>
+                      Đặt cọc:{" "}
+                      {dataO?.money?.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
               <table className="table">
                 <thead>
                   <tr>
@@ -1115,8 +1208,8 @@ function ViewOrder() {
                           })}
                         </td>
                         <td>
-                          {item.quantity}
-                          {/* <InputNumber
+                          {/* {item.quantity} */}
+                          <InputNumber
                             // style={{width: "20%"}}
                             disabled={
                               item.status != "CHO_XAC_NHAN" ? true : false
@@ -1134,7 +1227,7 @@ function ViewOrder() {
                                 quantity
                               )
                             }
-                          /> */}
+                          />
                         </td>
                         <td>
                           {item.total.toLocaleString("it-IT", {

@@ -16,10 +16,9 @@ import {
   MenuFoldOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
-import axios from "axios";
-import CurrencyFormat from "react-currency-format";
+
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import Moment from "react-moment";
 const url = "http://localhost:8080/api/orders";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -29,10 +28,14 @@ const getRandomOrderParams = (params) => ({
   page: params.pagination?.current,
   searchUsername: params.pagination?.search1,
   searchStatus: params.pagination?.searchStatus,
+  searchStartDate: params.pagination?.searchStartDate,
+  searchEndDate: params.pagination?.searchEndDate,
+  searchPhone: params.pagination?.searchPhone,
 });
 
 const CancelOrder = () => {
   const [data, setData] = useState([]);
+  const [dataO, setDataO] = useState([]);
   const [dataOD, setDataOD] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -44,6 +47,9 @@ const CancelOrder = () => {
       current: 1,
       pageSize: 10,
       searchStatus: "DA_HUY",
+      searchStartDate: "",
+      searchEndDate: "",
+      searchPhone: "",
     },
   });
 
@@ -54,7 +60,8 @@ const CancelOrder = () => {
 
   const onCancel = (record) => {
     Modal.confirm({
-      title: `Bạn có muốn xoá đơn hàng ${record.id}  không?`,
+      title: 'Xoá đơn hàng',
+      content: `Bạn có muốn xoá đơn hàng ${record.id}  không?`,
       okText: "Có",
       cancelText: "Không",
       okType: "primary",
@@ -65,10 +72,37 @@ const CancelOrder = () => {
   };
 
   const showModalData = (id) => {
-    axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
-      setDataOD(res.data);
-    });
+    fetch(
+      `http://localhost:8080/api/auth/orders/get/${id}?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataO(results);
+      });
+
+    fetch(
+      `http://localhost:8080/api/auth/orders/${id}?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOD(results);
+      });
     loadDataOrderHistoryById(id);
     setView(true);
   };
@@ -85,9 +119,12 @@ const CancelOrder = () => {
   };
 
   const deleteOrder = (record) => {
-    fetch(`http://localhost:8080/api/orders/${record.id}`, {
+    fetch(`http://localhost:8080/api/auth/orders/${record.id}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
       body: JSON.stringify({}),
     }).then((res) => {
       loadDataOrder();
@@ -97,9 +134,15 @@ const CancelOrder = () => {
   const loadDataOrder = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomOrderParams(tableParams)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -112,17 +155,25 @@ const CancelOrder = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
-      width: "15%",
+      width: "10%",
+    },
+    {
+      title: "Thời gian đặt",
+      dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{createdAt}</Moment>;
+      },
+      width: "18%",
     },
     {
       title: "Người đặt",
       dataIndex: "customerName",
-      width: "20%",
+      width: "16%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
-      width: "15%",
+      width: "10%",
       render(total) {
         return (
           <>
@@ -135,9 +186,9 @@ const CancelOrder = () => {
       },
     },
     {
-      title: "Hình thức đặt",
+      title: "Hình thức thanh toán",
       dataIndex: "payment",
-      width: "20%",
+      width: "17%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
@@ -146,7 +197,7 @@ const CancelOrder = () => {
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-                {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
+                Thanh toán VNPAY
               </div>
             </>
           );
@@ -161,7 +212,19 @@ const CancelOrder = () => {
               </div>
             </>
           );
-        }else {
+        }if (payment == "DAT_COC") {
+          return (
+            <>
+              <div
+                className="bg-info text-center text-light"
+                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
+              >
+                Tại nhà
+              </div>
+            </>
+          );
+        }
+        else {
           return (
             <>
               <div
@@ -183,7 +246,7 @@ const CancelOrder = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
-      with: "45%",
+      with: "25%",
       render: (status) => {
         return (
           <>
@@ -240,6 +303,11 @@ const CancelOrder = () => {
       render(orderId) {
         return <>{orderId.id}</>;
       },
+    },
+    {
+      title: "Người xác nhận",
+      dataIndex: "verifier",
+      width: "25%",
     },
     {
       title: "Thời gian",
@@ -385,6 +453,47 @@ const CancelOrder = () => {
             }}
             width={850}
           >
+            <div className="col-12">
+              <div className="row">
+                <div className="col-6">
+                  <p>Mã hoá đơn: {dataO?.id}</p>
+                  <p>Khách hàng: {dataO?.customerName}</p>
+                  <p>Số điện thoại: {dataO?.phone} </p>
+                  <p>
+                    Tổng tiền:{" "}
+                    {dataO?.total?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p>Ghi chú: {dataO?.note}</p>
+                </div>
+                <div className="col-6">
+                  <p>
+                    Ngày đặt hàng:{" "}
+                    <Moment format="DD-MM-YYYY HH:mm:ss">
+                      {dataO?.createdAt}
+                    </Moment>
+                  </p>
+                  <p>Ngày nhận: </p>
+
+                  <p>
+                    Phí vận chuyển:{" "}
+                    {dataO?.shippingFree?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p>
+                    Đặt cọc:{" "}
+                    {dataO?.money?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
             <table className="table">
               <thead>
                 <tr>

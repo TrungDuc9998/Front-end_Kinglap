@@ -29,7 +29,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactToPrint from "react-to-print";
 import QRCode from "qrcode";
-import { async } from "@firebase/util";
 
 const { Option } = Select;
 const url = "http://localhost:8080/api/orders";
@@ -39,9 +38,10 @@ const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
   searchName: params.pagination?.search1,
-  searchStatus: params.pagination?.search2,
+  searchStatus: params.pagination?.searchStatus,
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
+  searchPhone: params.pagination?.searchPhone,
 });
 //date
 const { RangePicker } = DatePicker;
@@ -53,6 +53,8 @@ const Order = () => {
   const [dataDelivering, setDataDelivering] = useState([]);
   const [dataOD, setDataOD] = useState();
   const [dataO, setDataO] = useState();
+  const [dataO1, setDataO1] = useState();
+  const [dataOD1, setDataOD1] = useState();
   const [dateOrder, setDateOrder] = useState(getDateTime);
   const [searchStatus, setSearchStatus] = useState();
   const [searchName, setSearchName] = useState();
@@ -77,10 +79,12 @@ const Order = () => {
     pagination: {
       current: 1,
       pageSize: 10,
+      searchStatus: "",
       search1: "",
       search2: "",
       searchStartDate: "",
       searchEndDate: "",
+      searchPhone: "",
     },
   });
   const [tableParamsPending, setTableParamsPending] = useState({
@@ -88,7 +92,10 @@ const Order = () => {
       current: 1,
       pageSize: 10,
       search1: "",
-      search2: "CHO_XAC_NHAN",
+      searchStatus: "CHO_XAC_NHAN",
+      searchStartDate: "",
+      searchEndDate: "",
+      searchPhone: "",
     },
   });
 
@@ -97,7 +104,10 @@ const Order = () => {
       current: 1,
       pageSize: 10,
       search1: "",
-      search2: "CHO_LAY_HANG",
+      searchStatus: "CHO_LAY_HANG",
+      searchStartDate: "",
+      searchEndDate: "",
+      searchPhone: "",
     },
   });
 
@@ -106,7 +116,10 @@ const Order = () => {
       current: 1,
       pageSize: 10,
       search1: "",
-      search2: "DA_HUY",
+      searchStatus: "DA_HUY",
+      searchStartDate: "",
+      searchEndDate: "",
+      searchPhone: "",
     },
   });
 
@@ -125,7 +138,10 @@ const Order = () => {
       current: 1,
       pageSize: 10,
       search1: "",
-      search2: "DANG_GIAO",
+      searchStatus: "DANG_GIAO",
+      searchStartDate: "",
+      searchEndDate: "",
+      searchPhone: "",
     },
   });
   const [tableParamsSuccess, setTableParamsSuccess] = useState({
@@ -133,7 +149,10 @@ const Order = () => {
       current: 1,
       pageSize: 10,
       search1: "",
-      search2: "DA_NHAN",
+      searchStatus: "DA_NHAN",
+      searchStartDate: "",
+      searchEndDate: "",
+      searchPhone: "",
     },
   });
   const [idCancel, setIDCancel] = useState();
@@ -147,9 +166,15 @@ const Order = () => {
   const loadDataOrderWait = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomuserParams(tableParamsWait)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -168,9 +193,15 @@ const Order = () => {
   const loadDataOrderCancel = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomuserParams(tableParamsCancel)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -189,12 +220,20 @@ const Order = () => {
   const loadDataOrderDelivering = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomuserParams(tableParamsDelivering)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log("orderDelivering");
+        console.log(results);
         setDataDelivering(results.data.data);
         setLoading(false);
         setTableParamsDelivering({
@@ -210,9 +249,15 @@ const Order = () => {
   const loadDataOrderStatusPending = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomuserParams(tableParamsPending)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -234,9 +279,15 @@ const Order = () => {
   const loadDataOrderStatusSuccess = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomuserParams(tableParamsSuccess)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -256,19 +307,27 @@ const Order = () => {
   const load = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log("load data order");
+        console.log(results);
         setData(results.data.data);
         setLoading(false);
         setTableParams({
           pagination: {
             current: results.data.current_page,
             pageSize: 10,
-            total: results.data.total,
+            total: results.data.total
           },
         });
       });
@@ -281,7 +340,7 @@ const Order = () => {
     loadDataOrderDelivering();
     loadDataOrderCancel();
     loadDataOrderWait();
-  }, [checkId != undefined, dataO != undefined]);
+  }, []);
 
   const search = () => {
     console.log(searchDate);
@@ -294,7 +353,7 @@ const Order = () => {
     tableParams.pagination.current = 1;
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomuserParams(tableParams)
       )}`
     )
@@ -366,10 +425,37 @@ const Order = () => {
   };
 
   const showModalData = (id) => {
-    axios.get(url + "/" + id).then((res) => {
-      console.log(res.data);
-      setDataOD(res.data);
-    });
+    fetch(
+      `http://localhost:8080/api/auth/orders/get/${id}?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataO(results);
+      });
+
+    fetch(
+      `http://localhost:8080/api/auth/orders/${id}?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOD(results);
+      });
     console.log("tên khách hàng trong modal: ", dataO?.name);
     // createQRCode();
     setCheckId(
@@ -398,14 +484,43 @@ const Order = () => {
   };
 
   const showModalOrder = (id) => {
+    fetch(
+      `http://localhost:8080/api/auth/orders/get/${id}?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        console.log(results);
+        setDataO1(results);
+        createQRCode(results);
+      });
+
     let dataOrder = "";
-    axios.get(url + "/get/" + id).then((res) => {
-      setDataO(res.data);
-      createQRCode(res.data);
-    });
-    axios.get(url + "/" + id).then((res) => {
-      setDataOD(res.data);
-    });
+    fetch(
+      `http://localhost:8080/api/auth/orders/${id}?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOD1(results);
+      });
+    // axios.get(url + "/" + id).then((res) => {
+    //   setDataOD1(res.data);
+    // });
     setOrder(true);
   };
 
@@ -417,7 +532,16 @@ const Order = () => {
     {
       title: "Mã HD",
       dataIndex: "id",
-      width: "7%",
+      width: "5%",
+    },
+    {
+      title: "Thời gian đặt",
+      dataIndex: "createdAt",
+
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{createdAt}</Moment>;
+      },
+      width: "20%",
     },
     {
       title: "Người đặt",
@@ -425,15 +549,7 @@ const Order = () => {
       width: "15%",
     },
     {
-      title: "Ngày tạo",
-      dataIndex: "createdAt",
-      render(createdAt) {
-        return <Moment format="DD-MM-YYYY">{createdAt}</Moment>;
-      },
-      width: "10%",
-    },
-    {
-      title: "Tổng tiền(VNĐ)",
+      title: "Tổng tiền",
       dataIndex: "total",
       width: "10%",
       render(total) {
@@ -448,7 +564,7 @@ const Order = () => {
       },
     },
     {
-      title: "Hình thức thanh toán",
+      title: "Thanh toán",
       dataIndex: "payment",
       width: "13%",
       render: (payment) => {
@@ -470,7 +586,7 @@ const Order = () => {
                 className="bg-info text-center text-light"
                 style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
               >
-               Tài khoản ATM
+                Tài khoản ATM
               </div>
             </>
           );
@@ -633,8 +749,16 @@ const Order = () => {
       },
     },
     {
+      title: "Người xác nhận",
+      dataIndex: "verifier",
+      width: "15%",
+    },
+    {
       title: "Thời gian",
       dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{createdAt}</Moment>;
+      },
       width: "25%",
     },
     {
@@ -726,11 +850,20 @@ const Order = () => {
     tableParams.pagination = pagination;
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
+    tableParams.pagination.searchEndDate= "";
+    tableParams.pagination.searchPhone= "";
+    tableParams.pagination.searchStartDate= "";
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -1056,8 +1189,58 @@ const Order = () => {
             onOk={() => {
               setView(false);
             }}
-            width={850}
+            width={800}
           >
+            <div className="col-12">
+              <div className="row">
+                <div className="col-6">
+                  <p>Mã hoá đơn: {dataO?.id}</p>
+                  <p>Khách hàng: {dataO?.customerName}</p>
+                  <p>Số điện thoại: {dataO?.phone} </p>
+                  <p>
+                    Tổng tiền:{" "}
+                    {dataO?.total?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p>
+                    Ghi chú:
+                    <div className="row">
+                      {/* <div className="col-9">
+                        <TextArea value={note} onChange={(e) => setNote(e.target.value)} rows={3} cols={9} />
+                      </div> */}
+                      {/* <div className="col-3 mt-4" >
+                        <Button onClick={() => updateNote() } >Cập nhật ghi chú</Button>
+                      </div> */}
+                    </div>
+                  </p>
+                </div>
+                <div className="col-6">
+                  <p>
+                    Ngày đặt hàng:{" "}
+                    <Moment format="DD-MM-YYYY HH:mm:ss">
+                      {dataO?.createdAt}
+                    </Moment>
+                  </p>
+                  <p>
+                    Phí vận chuyển:{" "}
+                    {dataO?.shippingFree?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p>
+                    Đặt cọc:{" "}
+                    {dataO?.money?.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </p>
+                  <p>Địa chỉ nhận hàng: {dataO?.address}</p>
+                </div>
+              </div>
+            </div>
             <table className="table">
               <thead>
                 <tr>
@@ -1067,6 +1250,7 @@ const Order = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
+                  {/* <th scope="col">Trạng thái</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -1075,15 +1259,11 @@ const Order = () => {
                     <tr key={index}>
                       <td>{item.id}</td>
                       <td>
-                        {" "}
-                        <Image
-                          width={100}
-                          src={item.product?.images[0]?.name}
-                        />{" "}
+                        <Image width={100} src={item.product.images[0]?.name} />{" "}
                       </td>
-                      <td>{item.product?.name}</td>
+                      <td>{item.product.name}</td>
                       <td>
-                        {item.product?.price.toLocaleString("it-IT", {
+                        {item.product.price.toLocaleString("it-IT", {
                           style: "currency",
                           currency: "VND",
                         })}
@@ -1095,12 +1275,13 @@ const Order = () => {
                           currency: "VND",
                         })}
                       </td>
+                      {/* <td>{item.status}</td> */}
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-            <h6 className="text-danger ms-1">Lịch sử đơn hàng</h6>
+            <h6 className="text-danger mt-5">Lịch sử đơn hàng</h6>
             <Table
               columns={columnOrderHistory}
               rowKey={(record) => record.id}
@@ -1147,16 +1328,16 @@ const Order = () => {
                   <h2 className="fw-bold">HOÁ ĐƠN MUA HÀNG</h2>
                 </div>
                 <div className="">
-                  <p className="fw-bold">Mã hóa đơn: {dataO?.id}</p>
+                  <p className="fw-bold">Mã hóa đơn: {dataO1?.id}</p>
                   <p className="fw-bold">
                     Ngày mua hàng:{" "}
-                    <Moment format="DD-MM-YYYY">{dataO?.createdAt}</Moment>
+                    <Moment format="DD-MM-YYYY">{dataO1?.createdAt}</Moment>
                   </p>
                   <p className="fw-bold">
-                    Tên khách hàng: {dataO?.customerName}
+                    Tên khách hàng: {dataO1?.customerName}
                   </p>
-                  <p className="fw-bold">Địa chỉ: {dataO?.address}</p>
-                  <p className="fw-bold">Số điện thoại: {dataO?.phone}</p>
+                  <p className="fw-bold">Địa chỉ: {dataO1?.address}</p>
+                  <p className="fw-bold">Số điện thoại: {dataO1?.phone}</p>
                   <table className="table table-bordered">
                     <thead>
                       <tr>
@@ -1170,7 +1351,7 @@ const Order = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {dataOD?.map((item, index) => {
+                      {dataOD1?.map((item, index) => {
                         return (
                           <tr key={index}>
                             <td>{item.id}</td>
@@ -1194,7 +1375,7 @@ const Order = () => {
                       <tr>
                         <td colSpan={4}>Tổng tiền</td>
                         <td>
-                          {dataO?.total.toLocaleString("it-IT", {
+                          {dataO1?.total.toLocaleString("it-IT", {
                             style: "currency",
                             currency: "VND",
                           })}
@@ -1206,7 +1387,7 @@ const Order = () => {
                     Phí ship :{" "}
                     <i className="text-danger fw-bold">
                       {" "}
-                      {dataO?.shippingFree.toLocaleString("it-IT", {
+                      {dataO1?.shippingFree.toLocaleString("it-IT", {
                         style: "currency",
                         currency: "VND",
                       })}
@@ -1216,7 +1397,7 @@ const Order = () => {
                     Đã đặt cọc :{" "}
                     <i className="text-danger fw-bold">
                       {" "}
-                      {dataO?.money.toLocaleString("it-IT", {
+                      {dataO1?.money.toLocaleString("it-IT", {
                         style: "currency",
                         currency: "VND",
                       })}
@@ -1225,7 +1406,7 @@ const Order = () => {
                   <p className="fw-bold">
                     Tổng số tiền phải thanh toán:{" "}
                     <i className="text-danger">
-                      {(dataO?.total - dataO?.money).toLocaleString("it-IT", {
+                      {(dataO1?.total - dataO1?.money).toLocaleString("it-IT", {
                         style: "currency",
                         currency: "VND",
                       })}
