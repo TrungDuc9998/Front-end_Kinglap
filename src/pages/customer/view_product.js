@@ -26,6 +26,7 @@ function ViewProduct() {
   };
   const url = "http://localhost:8080/api/products";
   const [totalSet, setTotal] = useState(10);
+  const [productCate, setProductCate] = useState([]);
   const [products, setData] = useState([
     {
       id: "",
@@ -75,11 +76,32 @@ function ViewProduct() {
   useEffect(() => {
     getData();
     DataConfigProductById();
-  }, [
-    JSON.stringify(tableParams),
-    JSON.parse(localStorage.getItem("product_detail")),
-    JSON.parse(localStorage.getItem("product_view")),
-  ]);
+    loadProductByCategory();
+  }, [JSON.stringify(tableParams)]);
+
+  const loadProductByCategory = () => {
+
+    fetch(
+      `http://localhost:8080/api/auth/product/${
+        product.categoryProducts[0].category.id
+      }/category?${qs.stringify(getRandomuserParams(tableParams))}`,
+      {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        console.log("sản phẩm cùng loại");
+        console.log(results);
+        results.forEach((element) => {
+          if (element.id != product.id) {
+            setProductCate(results);
+          }
+        });
+      });
+  };
 
   function formatCash(str) {
     if (str.length > 1) {
@@ -135,7 +157,9 @@ function ViewProduct() {
 
   const handleClickAddToCart = (product, quantity) => {
     if (quantity > 10 || quantity < 1) {
-      toastError("Số lượng sản phẩm ít nhất là 1 và không được vượt quá 10 sản phẩm");
+      toastError(
+        "Số lượng sản phẩm ít nhất là 1 và không được vượt quá 10 sản phẩm"
+      );
     } else {
       handleAddToCart(product, quantity);
     }
@@ -147,18 +171,22 @@ function ViewProduct() {
 
   const handleClickBuy = (product, quantity) => {
     if (quantity > 10 || quantity < 1) {
-      toastError("Số lượng sản phẩm ít nhất là 1 và không được vượt quá 10 sản phẩm");
+      toastError(
+        "Số lượng sản phẩm ít nhất là 1 và không được vượt quá 10 sản phẩm"
+      );
     } else {
       handleBuyNow(product, quantity);
     }
   };
 
   const handleClickBuyNow = (product) => {
+    console.log("product khi mua ngay");
+    console.log(product);
     product.quantity = quantity;
     dispatch(setCheckoutCart([product]));
   };
 
-  const productInfo = JSON.parse(localStorage.getItem("product_view"));
+  const productInfo = JSON.parse(localStorage.getItem("product_detail"));
 
   const DataConfigProductById = () => {
     fetch(`http://localhost:8080/api/products/` + productInfo.id)
@@ -171,16 +199,16 @@ function ViewProduct() {
 
   const toastError = (message) => {
     toast.error(message, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
     });
-}
+  };
 
   return (
     <>
@@ -228,7 +256,7 @@ function ViewProduct() {
                 ></button>
               </div>
               <div className="carousel-inner">
-                {JSON.parse(localStorage.getItem("product_view")).images.map(
+                {JSON.parse(localStorage.getItem("product_detail")).images.map(
                   (image) => (
                     <div className="carousel-item active">
                       <img className="d-block w-100" src={image.name} alt="" />
@@ -368,8 +396,8 @@ function ViewProduct() {
               <p className="text-danger fs-6">
                 Số lượng còn lại:{" "}
                 {productInfo.quantity - quantity > 0
-                  ? productInfo.quantity - quantity : 0
-                  }
+                  ? productInfo.quantity - quantity
+                  : 0}
               </p>
               <Input
                 value={quantity}
@@ -603,58 +631,63 @@ function ViewProduct() {
           <div className="mb-5 mt-5">
             <div className="col-12 text-center mb-4">
               <p style={{ fontSize: "30px", fontWeight: "600" }}>
-                NHỮNG SẢM PHẨM TƯƠNG TỰ
+                NHỮNG SẢN PHẨM TƯƠNG TỰ
               </p>
             </div>
-            <div className="row">
-              <div className="col-md-12">
-                <div className="row list-product">
-                  {products.map((pro) => (
-                    <div className="product col-2" key={pro.id}>
-                      <div className="product-img">
-                        <img
-                          src={pro.images ? pro.images[0]?.name : product1}
-                          alt=""
-                        />
-                        <div className="product-label">
-                          <span className="new">NEW</span>
+            {productCate.length != 0 ? (
+              <div className="row">
+                <div className="col-md-12">
+                  <div className="row list-product">
+                    {productCate.map((pro) => (
+                      <div className="product col-2" key={pro.id}>
+                        <div className="product-img">
+                          <img
+                            src={pro.images ? pro.images[0]?.name : product1}
+                            alt=""
+                          />
+                          <div className="product-label">
+                            <span className="new">NEW</span>
+                          </div>
+                        </div>
+                        <div className="product-body">
+                          <h3
+                            className="product-name"
+                            onClick={() => handelCLickProduct(pro)}
+                            style={{ wordWrap: "break-word" }}
+                          >
+                            <a href="/user/product">{pro.name}</a>
+                          </h3>
+                          <h4 className="product-price">
+                            {formatCash(Math.ceil(pro.price) + "")} VNĐ{" "}
+                            {pro.discount ? (
+                              <del className="product-old-price">
+                                {formatCash(
+                                  Math.ceil(
+                                    pro.price /
+                                      ((100 - pro.discount.ratio) / 100)
+                                  ) + ""
+                                )}{" "}
+                                VNĐ
+                              </del>
+                            ) : (
+                              ""
+                            )}
+                          </h4>
+                        </div>
+                        <div className="add-to-cart">
+                          <button className="add-to-cart-btn">
+                            <ShoppingCart size={18}></ShoppingCart> thêm vào giỏ
+                            hàng
+                          </button>
                         </div>
                       </div>
-                      <div className="product-body">
-                        <h3
-                          className="product-name"
-                          onClick={() => handelCLickProduct(pro)}
-                          style={{ wordWrap: "break-word" }}
-                        >
-                          <a href="/user/product">{pro.name}</a>
-                        </h3>
-                        <h4 className="product-price">
-                          {formatCash(Math.ceil(pro.price) + "")} VNĐ{" "}
-                          {pro.discount ? (
-                            <del className="product-old-price">
-                              {formatCash(
-                                Math.ceil(
-                                  pro.price / ((100 - pro.discount.ratio) / 100)
-                                ) + ""
-                              )}{" "}
-                              VNĐ
-                            </del>
-                          ) : (
-                            ""
-                          )}
-                        </h4>
-                      </div>
-                      <div className="add-to-cart">
-                        <button className="add-to-cart-btn">
-                          <ShoppingCart size={18}></ShoppingCart> thêm vào giỏ
-                          hàng
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+             <p className="text-center text-danger fs-6 fw-bold">Không có sản phẩm nào</p>
+            )}
           </div>
         </div>
       </div>

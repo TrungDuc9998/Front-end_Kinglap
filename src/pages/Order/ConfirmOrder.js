@@ -35,11 +35,13 @@ const { RangePicker } = DatePicker;
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchName: params.pagination?.search1,
+  // searchName: params.pagination?.search1,
   searchStatus: params.pagination?.searchStatus,
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
   searchPhone: params.pagination?.searchPhone,
+  searchName: params.pagination?.searchName,
+  searchPayment: params.pagination?.searchPayment,
 });
 
 const getRandomuserParams = (params) => ({
@@ -87,11 +89,12 @@ const OrderConfirm = () => {
       current: 1,
       pageSize: 10,
       searchStatus: "CHO_XAC_NHAN",
-      search1: "",
       search2: "",
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
+      searchName: "",
+      searchPayment: "",
     },
   });
 
@@ -194,7 +197,7 @@ const OrderConfirm = () => {
     Modal.confirm({
       icon: <CheckCircleOutlined />,
       title: "Xác nhận đơn hàng ",
-      content: `Bạn có muốn xác nhận những đơn hàng này không?`,
+      content: `Bạn có muốn xác nhận những đơn hàng này không 2234?`,
       okText: "Có",
       cancelText: "Không",
       okType: "primary",
@@ -262,11 +265,13 @@ const OrderConfirm = () => {
 
   const handleTableChange = (pagination, filters, sorter) => {
     tableParams.pagination = pagination;
-    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.searchName = "";
     tableParams.pagination.searchStatus = "CHO_XAC_NHAN";
     tableParams.pagination.searchEndDate= "";
     tableParams.pagination.searchPhone= "";
     tableParams.pagination.searchStartDate= "";
+    tableParams.pagination.searchPayment = "";
+
     setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
@@ -323,10 +328,6 @@ const OrderConfirm = () => {
             money: item.money,
           });
         });
-        console.log('dữ liệu trả ra');
-        console.log(results);
-        console.log('dữ liệu để set');
-        console.log(data);
         setDataOrder(data);
         setLoading(false);
         setTableParams({
@@ -339,25 +340,14 @@ const OrderConfirm = () => {
       });
   };
 
-  const searchDate = () => {
-    setLoading(true);
-    fetch(`http://localhost:8080/api/orders/list/date/` + dateOrder)
-      .then((res) => res.json())
-      .then((results) => {
-        setDataOrder(results);
-        setLoading(false);
-        setTableParams({});
-      });
-  };
 
   const search = () => {
-   
-    console.log(searchName);
-    
+    tableParams.pagination.searchName =(searchName != undefined ? searchName : "") ;
     tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ;
     tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
     tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
     tableParams.pagination.searchStatus = "CHO_XAC_NHAN"
+    tableParams.pagination.searchPayment = ""
     tableParams.pagination.current = 1;
     setLoading(true);
     fetch(
@@ -425,6 +415,7 @@ const OrderConfirm = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
+      sorter: (a, b) => a.id - b.id,
       width: "10%",
     },
     {
@@ -438,11 +429,13 @@ const OrderConfirm = () => {
     {
       title: "Người đặt",
       dataIndex: "customerName",
+      sorter: (a, b) => a.customerName.length - b.customerName.length,
       width: "15%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
+      sorter: (a, b) => a.total - b.total,
       width: "15%",
       render(total) {
         return (
@@ -597,6 +590,12 @@ const OrderConfirm = () => {
         ],
       }),
     }).then((res) => {
+      tableParams.pagination.searchName = "";
+      tableParams.pagination.searchStatus = "CHO_XAC_NHAN";
+      tableParams.pagination.searchEndDate= "";
+      tableParams.pagination.searchPhone= "";
+      tableParams.pagination.searchStartDate= "";
+      tableParams.pagination.searchPayment = "";
       loadDataOrder();
     });
   };
@@ -617,6 +616,7 @@ const OrderConfirm = () => {
       },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
+      
       clearSearchForm();
     });
 
@@ -679,13 +679,33 @@ const OrderConfirm = () => {
     //   setSelectedRowKeys([]);
     // }
 
-    tableParams.pagination.searchPhone = "";
-    tableParams.pagination.searchStartDate =  "";
-    tableParams.pagination.searchEndDate = "";
-    tableParams.pagination.searchStatus = "CHO_XAC_NHAN"
+    // tableParams.pagination.searchPhone = "";
+    // tableParams.pagination.searchStartDate =  "";
+    // tableParams.pagination.searchEndDate = "";
+    // tableParams.pagination.searchStatus = "CHO_XAC_NHAN"
 
-    loadDataOrder();
+    // loadDataOrder();
     // setSearchName("");
+
+    dataOrder?.forEach((item, index) => {
+      data.splice(index, dataOrder.length);
+    });
+
+    if (dataOrder.length == 0) {
+      setDataOrder([]);
+      setData([]);
+      loadDataOrder();
+      setSearchName("");
+      setSelectedRowKeys([]);
+    }
+
+    tableParams.pagination.searchName = "";
+      tableParams.pagination.searchStatus = "CHO_XAC_NHAN";
+      tableParams.pagination.searchEndDate= "";
+      tableParams.pagination.searchPhone= "";
+      tableParams.pagination.searchStartDate= "";
+      tableParams.pagination.searchPayment = "";
+      loadDataOrder();
   };
 
   const handleUpdateOrderDetail = (item) => {
@@ -785,10 +805,20 @@ const OrderConfirm = () => {
       >
         <ToastContainer></ToastContainer>
         <div className="col-4 mt-3">
+          <label>Tên khách hàng</label>
+          <Input
+            type="text"
+            name="searchName"
+            value={searchName}
+            placeholder="Nhập tên khách hàng"
+            onChange={(e) => setSearchName(e.target.value)}
+          />
+        </div>
+        <div className="col-4 mt-3">
           <label>Số điện thoại khách hàng</label>
           <br/>
           <AutoComplete
-            style={{ width: 200 }}
+            style={{ width: 400 }}
             onChange={(event) => setPhoneClient(event)}
             options={dataClient}
             value={phoneClient}
@@ -885,20 +915,6 @@ const OrderConfirm = () => {
             loading={loading}
             onChange={handleTableChange}
           />
-          <Modal
-            id="a"
-            title="Xác nhận đơn hàng"
-            open={isEditing}
-            onCancel={() => {
-              resetEditing();
-            }}
-            onOk={() => {
-              setEditing(true);
-            }}
-          >
-            Bạn có muốn xác nhận đơn hàng không ?
-          </Modal>
-
           <Modal
             title="Chi tiết đơn hàng"
             okButtonProps={{

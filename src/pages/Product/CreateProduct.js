@@ -469,11 +469,15 @@ function CreateProduct() {
       security: data.security,
       description: data.description,
       storageId: data.storageId,
+      warrantyPeriod: data.warrantyPeriod,
     };
     console.log(product);
-    fetch("http://localhost:8080/api/products", {
+    fetch("http://localhost:8080/api/staff/products", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
       body: JSON.stringify(product),
     })
       .then((response) => response.json())
@@ -1070,9 +1074,24 @@ function CreateProduct() {
                   <TextArea rows={4} />
                 </Form.Item>
               </div>
-              <div className="col-7">
-                <div className="row mt-5">
-                  <div className="col-6">
+              <div className="col-3">
+              <Form.Item
+                  name="warrantyPeriod"
+                  label="Thời gian bảo hành"
+                  requiredMark="optional"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Thời gian bảo hành không được để trống",
+                    },
+                  ]}
+                >
+                  <Input style={{ width: "100%" }} type="number" placeholder="Thời gian bảo hành" />
+                </Form.Item>
+              </div>
+              <div className="col-4">
+                <div className="row">
+                  <div className="col-12">
                     <Form.Item
                       name="upload"
                       label="Upload"

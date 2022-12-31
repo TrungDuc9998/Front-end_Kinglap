@@ -65,6 +65,7 @@ function EditProduct() {
   const [processors, setProcessors] = useState([]);
   const [dataScreen, setDataScreen] = useState([]);
   const [dataRam, setDataRam] = useState([]);
+  const [warrantyPeriod, setWarrantyPeriod] = useState();
   const [dataCard, setDataCard] = useState([]);
   const [dataStorage, setDataStorage] = useState([]);
   const [dataAccessory, setDataAccessory] = useState([]);
@@ -147,6 +148,7 @@ function EditProduct() {
     length: productEdit?.length,
     width: productEdit?.width,
     height: productEdit?.height,
+    warrantyPeriod: productEdit.warrantyPeriod,
     images: productEdit?.images.map((item) => ({
       name: item.name,
       product: null,
@@ -207,6 +209,7 @@ function EditProduct() {
     hard_drive: data?.configuration.hard_drive,
     win: data?.configuration.win,
     capacity: data?.configuration.capacity,
+    warrantyPeriod: data.warrantyPeriod
   });
 
   const [tableParams, setTableParams] = useState({
@@ -568,17 +571,12 @@ function EditProduct() {
       security: data.security,
       description: data.description,
       storageId: data.storageId,
+      warrantyPeriod: data.warrantyPeriod
     };
-    console.log("product");
-    console.log(product);
-    console.log(productEdit.id);
     handleSubmit(product);
   };
 
   const handleSubmit = (product) => {
-    console.log("product handle submit");
-    console.log(product);
-
     fetch(`http://localhost:8080/api/products/${productEdit.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -1206,9 +1204,25 @@ function EditProduct() {
                   <TextArea rows={4} />
                 </Form.Item>
               </div>
-              <div className="col-7">
-                <div className="row mt-5">
-                  <div className="col-6">
+              <div className="col-3">
+              <Form.Item
+                  name="warrantyPeriod"
+                  label="Thời gian bảo hành"
+          
+                  initialValue={form.warrantyPeriod}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Thời gian bảo hành không được để trống",
+                    },
+                  ]}
+                >
+                  <Input style={{ width: "100%" }}  value={warrantyPeriod}  placeholder="Thời gian bảo hành" />
+              </Form.Item>
+              </div>
+              <div className="col-4">
+                <div className="row">
+                  <div className="col-12">
                     <Form.Item
                       name="upload"
                       label="Upload"

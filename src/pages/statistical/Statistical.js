@@ -18,6 +18,7 @@ function Statistical() {
   const [sumPro, setSumPro] = useState(0);
   const [countO, setCountO] = useState(0);
   const [countCus, setCountCus] = useState(0);
+  const [numOfProductsSold, setNumOfProductsSold] = useState();
   var now = moment();
   let today = now.format("YYYY-MM");
   useEffect(() => {
@@ -27,6 +28,7 @@ function Statistical() {
     sumProduct();
     countOrder();
     countCustomer();
+    numberOfProductsSold();
   }, []);
 
   const loadDataStaticalByProduct = () => {
@@ -108,6 +110,20 @@ function Statistical() {
         setDataStaticalByOrder(results);
       });
   };
+
+  const numberOfProductsSold = () => {
+    fetch(`http://localhost:8080/api/admin/statistical/numberOfProductsSold`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      },
+    })
+      .then((res) => res.json())
+      .then((results) => {
+        console.log(results);
+        setNumOfProductsSold(results.total);
+      });
+  }
 
   const loadDataStaticalByYear = (year) => {
     if (year != undefined) {
@@ -257,17 +273,21 @@ function Statistical() {
           background: "#fafafa",
         }}
       >
-        <div className="col-12 col-sm-4">
+        <div className="col-12 col-sm-3">
           <h4 className="text-center fw-bold mt-3"> Số lượng sản phẩm</h4>
           <h4 className="text-success text-center fw-bold">{sumPro}</h4>
         </div>
-        <div className="col-12 col-sm-4">
+        <div className="col-12 col-sm-3">
           <h4 className="text-center fw-bold mt-3"> Số lượng khách hàng</h4>
           <h4 className="text-success text-center fw-bold">{countCus}</h4>
         </div>
-        <div className="col-12 col-sm-4">
-          <h4 className="text-center fw-bold mt-3"> Số lượng hoá đơn</h4>
+        <div className="col-12 col-sm-3">
+          <h4 className="text-center fw-bold mt-3">Tổng số lượng hoá đơn</h4>
           <h4 className="text-success text-center fw-bold">{countO}</h4>
+        </div>
+        <div className="col-12 col-sm-3">
+          <h4 className="text-center fw-bold mt-3">Tổng số lượng sản phẩm bán ra</h4>
+          <h4 className="text-success text-center fw-bold">{numOfProductsSold}</h4>
         </div>
       </div>
       <div

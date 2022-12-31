@@ -7,6 +7,7 @@ import {
   DatePicker,
   Space,
   Image,
+  AutoComplete,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -38,6 +39,14 @@ const getRandomOrderParams = (params) => ({
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
   searchPhone: params.pagination?.searchPhone,
+  searchPayment: params.pagination?.searchPayment,
+});
+
+const getRandomuserParams = (params) => ({
+  limit: params.pagination?.pageSize,
+  page: params.pagination?.current,
+  searchUsername: params.pagination?.search1,
+  searchStatus: params.pagination?.searchStatus,
 });
 
 const OrderDelivering = () => {
@@ -54,6 +63,8 @@ const OrderDelivering = () => {
   const [searchStartDate, setSearchStartDate] = useState();
   const [searchEndDate, setSearchEndDate] = useState();
   const [searchName, setSearchName] = useState();
+  const [dataClient, setDataClient] = useState();
+  const [phoneClient, setPhoneClient] =  useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -64,12 +75,60 @@ const OrderDelivering = () => {
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
+      searchPayment: ""
+    },
+  });
+
+  const [tableParamsUser, setTableParamsUser] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "",
     },
   });
 
   useEffect(() => {
     loadDataOrder();
+    loadDataClient();
   }, []);
+
+  const loadDataClient = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/users?${qs.stringify(
+        getRandomuserParams(tableParamsUser)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        console.log("data client");
+        console.log(results.data.data);
+        const option = [];
+        results.data.data.forEach((item) => {
+          item.information.forEach((element) => {
+            if (element.phoneNumber != "none") {
+              option.push({
+                value: element.phoneNumber,
+                id: element.id,
+                fullName: element.fullName,
+              });
+            }
+          });
+        });
+        console.log('load data client');
+        // console.log(option);
+        setDataClient(option);
+        setLoading(false);
+        setTableParamsUser({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
 
   const columnOrderHistory = [
     {
@@ -212,19 +271,23 @@ const OrderDelivering = () => {
   };
 
   const search = () => {
-    if (searchStartDate != undefined && searchEndDate != undefined) {
-      console.log("vào");
-      tableParams.pagination.searchStartDate = searchStartDate;
-      tableParams.pagination.searchEndDate = searchEndDate;
-    }
-    console.log(searchName);
-    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.search1 =(searchName != undefined ? searchName : "") ;
+    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ;
+    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
+    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
+    tableParams.pagination.searchStatus = "DANG_GIAO"
+    tableParams.pagination.searchPayment = ""
     tableParams.pagination.current = 1;
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/orders?${qs.stringify(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomOrderParams(tableParams)
-      )}`
+      )}`,{
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -373,6 +436,7 @@ const OrderDelivering = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
+      sorter: (a, b) => a.id - b.id,
       width: "10%",
     },
     {
@@ -383,11 +447,13 @@ const OrderDelivering = () => {
     {
       title: "Người đặt",
       dataIndex: "customerName",
+      sorter: (a, b) => a.customerName.length - b.customerName.length,
       width: "18%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
+      sorter: (a, b) => a.total - b.total,
       width: "15%",
       render(total) {
         return (
@@ -556,8 +622,15 @@ const OrderDelivering = () => {
       setSelectedRowKeys([]);
     }
 
+    tableParams.pagination.search1 = "";
+      tableParams.pagination.searchStatus = "DANG_GIAO";
+      tableParams.pagination.searchEndDate= "";
+      tableParams.pagination.searchPhone= "";
+      tableParams.pagination.searchStartDate= "";
+      tableParams.pagination.searchPayment = "";
     loadDataOrder();
     setSearchName("");
+    setPhoneClient("")
   };
   const onSelectChange = (newSelectedRowKeys) => {
     console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -619,6 +692,7 @@ const OrderDelivering = () => {
       tableParams.pagination.searchEndDate= "";
       tableParams.pagination.searchPhone= "";
       tableParams.pagination.searchStartDate= "";
+      tableParams.pagination.searchPayment= "";
       loadDataOrder();
       clearSearchForm();
     });
@@ -626,13 +700,20 @@ const OrderDelivering = () => {
     console.log(dataOrder);
   };
 
+  
+  const onSelectAutoClient = (value) => {
+    console.log("on select client");
+    console.log(value);
+  };
+
   const handleTableChange = (pagination, filters, sorter) => {
     tableParams.pagination = pagination;
-    tableParams.pagination.search1 = searchName;
+    tableParams.pagination.search1 = "";
     tableParams.pagination.searchStatus = "DANG_GIAO";
     tableParams.pagination.searchEndDate= "";
     tableParams.pagination.searchPhone= "";
     tableParams.pagination.searchStartDate= "";
+    tableParams.pagination.searchPayment= "";
     setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
@@ -680,7 +761,7 @@ const OrderDelivering = () => {
         }}
       >
         <div className="col-4 mt-3">
-          <label>Từ khoá</label>
+          <label>Tên khách hàng</label>
           <Input
             type="text"
             name="searchName"
@@ -688,6 +769,22 @@ const OrderDelivering = () => {
             placeholder="Nhập tên khách hàng"
             onChange={(e) => setSearchName(e.target.value)}
           />
+        </div>
+        <div className="col-4 mt-3">
+          <label>Số điện thoại khách hàng</label>
+          <br/>
+          <AutoComplete
+            style={{ width: 400 }}
+            onChange={(event) => setPhoneClient(event)}
+            options={dataClient}
+            value={phoneClient}
+            onSelect={(event) => onSelectAutoClient(event)}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
+          />
+         
         </div>
         <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>

@@ -114,6 +114,7 @@ const Product = () => {
     {
       title: "Tên sản phẩm",
       width: "30%",
+      sorter: (a, b) => a.name.length - b.name.length,
       render: (data) => `${data.name} (${data.debut})`,
     },
     {
@@ -125,6 +126,7 @@ const Product = () => {
     {
       title: "Giá tiền",
       dataIndex: "price",
+      sorter: (a, b) => a.price - b.price,
       width: "10%",
       render: (price) => (
         <>
@@ -138,6 +140,7 @@ const Product = () => {
     {
       title: "Số lượng",
       dataIndex: "quantity",
+      sorter: (a, b) => a.quantity - b.quantity,
       width: "10%",
     },
     {

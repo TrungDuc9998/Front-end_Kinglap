@@ -218,11 +218,13 @@ const ExchangeSuccess = () => {
       title: "Mã đơn đổi",
       dataIndex: "id",
       width: "20%",
+      sorter: (a, b) => a.id - b.id,
     },
     {
       title: "Mã hoá đơn",
       dataIndex: "orderId",
       width: "20%",
+      sorter: (a, b) => a.orderId - b.orderId,
     },
     {
       title: "Ghi chú",
