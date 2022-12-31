@@ -78,7 +78,6 @@ function Checkout() {
   };
   const onSelectAuto = (value) => {
     setValueProduct(value);
-    console.log("ádasjd", value);
     const a = products.filter((item) => value == item.id)[0];
     a.quantity = 1;
     if (a != undefined) {
@@ -90,8 +89,6 @@ function Checkout() {
   const [wardCodeChange, setWardCodeChange] = useState();
 
   const onChangeInputNumber = (value, event) => {
-    console.log("changed", value);
-    console.log("event", event);
     value.quantity = event;
     dispatch({
       type: "CHANGE_CART_CHECKOUT_QTY",
@@ -102,7 +99,6 @@ function Checkout() {
   })
 
     if (type == 1) {
-      console.log("vào submit 2");
       SubmitShipping2(wardCodeChange);
       value.quantity = event;
       loadInfo(carts);
@@ -1043,11 +1039,11 @@ function Checkout() {
               {carts?.map((cart) => (
               <div className="row d-flex">
                 <div className="col-3 img mt-2">
-                  <img
+                  {/* <img
                     alt="Ảnh sản phẩm"
-                    src={cart.images[0]?.name}
+                    src={cart?.images[0]?.name}
                     className="img-content"
-                  ></img>
+                  ></img> */}
                 </div>
                 <div className="col-1 mt-5">
                   <InputNumber

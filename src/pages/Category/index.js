@@ -42,9 +42,17 @@ const Category = () => {
 
   const columns = [
     {
+      title: "id",
+      dataIndex: "id",
+      sorter: (a, b) => a.id - b.id,
+      width: "10%",
+    },
+    {
       title: "Danh mục",
       dataIndex: "name",
       width: "25%",
+      sorter: (a, b) => a.name.length - b.name.length,
+ 
     },
     {
       title: "Ngày tạo",

@@ -42,6 +42,8 @@ const getRandomuserParams = (params) => ({
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
   searchPhone: params.pagination?.searchPhone,
+  searchName: params.pagination?.searchName,
+  searchPayment: params.pagination?.searchPayment
 });
 //date
 const { RangePicker } = DatePicker;
@@ -85,6 +87,8 @@ const Order = () => {
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
+      searchName: "",
+      searchPayment: ""
     },
   });
   const [tableParamsPending, setTableParamsPending] = useState({
@@ -849,7 +853,7 @@ const Order = () => {
   const handleTableChange = (pagination, filters, sorter) => {
     tableParams.pagination = pagination;
     tableParams.pagination.search1 = searchName;
-    tableParams.pagination.searchStatus = searchStatus;
+    tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.searchEndDate= "";
     tableParams.pagination.searchPhone= "";
     tableParams.pagination.searchStartDate= "";

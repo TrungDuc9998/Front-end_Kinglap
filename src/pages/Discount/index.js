@@ -22,17 +22,15 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import React, { useEffect, useState } from "react";
-// import Product from "../Product/index";
 import moment from "moment";
 import axios from "axios";
 import "toastr/build/toastr.min.css";
-import toastrs from "toastr";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Moment from "react-moment";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const url = "http://localhost:8080/api/staff/discount";
+const url = "http://localhost:8080/api/auth/discount";
 const urlStaff = "http://localhost:8080/api/staff/discount";
 const urlAdmin = "http://localhost:8080/api/admin/discount";
 const url_Pro = "http://localhost:8080/api/products";
@@ -143,6 +141,10 @@ const Discount = () => {
     var dateTime =
       year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
     return dateTime;
+  }
+
+  function disabledDate(current) {
+    return current && current > moment().startOf('day');
   }
   //loadParam getList
   const getRandomuserParams = (params) => ({
@@ -362,12 +364,6 @@ const Discount = () => {
         if (data.status == "DRAFT") {
           return (
             <>
-              {/* <UnlockOutlined
-                className="mt-2"
-                type="dashed"
-                onClick={() => changeStatusItem(id, data)}
-                style={{ borderRadius: "10px" }}
-              /> */}
               <EditOutlined
                 style={{ marginLeft: 12 }}
                 onClick={() => {
@@ -383,12 +379,6 @@ const Discount = () => {
         } else if (data.status == "ACTIVE" || data.status == "INACTIVE") {
           return (
             <>
-              {/* <UnlockOutlined
-                className="mt-2"
-                type="dashed"
-                onClick={() => changeStatusItem(id, data)}
-                style={{ borderRadius: "10px" }}
-              /> */}
               <EditOutlined
                 style={{ marginLeft: 12 }}
                 onClick={() => {
@@ -538,6 +528,18 @@ const Discount = () => {
 
   //btn Add
   const handleAdd = (e) => {
+
+    console.log('----- test thời gian hiên tại cộng thêm số phút');
+    const currentDate = new Date().getMinutes()+ 30;
+    console.log('thời gian hiện tại cộng thêm 30: ', currentDate);
+
+    console.log("thời gian bắt đầu:", form.startDate);
+    console.log("thời gian Kết thúc:", form.endDate);
+    const currency = new Date().getTime();
+    const start = new Date(form.startDate).getTime();
+    const end = new Date(form.endDate).getTime();
+    console.log(start + " - " + end);
+
     if (form.name == null || form.name == "") {
       notifyError("Tiêu đề giảm giá không được để trống!");
     } else if (form.ratio == null) {
@@ -546,27 +548,32 @@ const Discount = () => {
       notifyError("Tỉ lệ phải từ 1-100!");
     } else if (form.startDate == null || form.endDate == null) {
       notifyError("Thời gian giảm giá không được để trống!");
-    } else {
-      e.preventDefault();
-      axios
-        .post(urlStaff, form, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        })
-        .then((res) => {
-          notifySuccess("Thêm bản ghi thành công");
-          setAdd(false);
-          getData();
-          setValues(formDefault);
-          console.log(res.data);
-        })
-        .catch((error) => {
-          notifyError("Thêm bản ghi thất bại!");
-          return;
-        });
+    } else if (end <= start) {
+      notifyError("Thời gian kết thúc phải lớn hơn thời gian bắt đầu !");
+    }else  if(start < currency) {
+      notifyError("Thời gian bắt đầu phải lớn hơn thời gian hiện tại !")
     }
-  }
+     else {
+      e.preventDefault();
+      // axios
+      //   .post(urlStaff, form, {
+      //     headers: {
+      //       Authorization: "Bearer " + localStorage.getItem("token"),
+      //     },
+      //   })
+      //   .then((res) => {
+      //     notifySuccess("Tạo giảm giá sản phẩm thành công");
+      //     setAdd(false);
+      //     getData();
+      //     setValues(formDefault);
+      //     console.log(res.data);
+      //   })
+      //   .catch((error) => {
+      //     notifyError("Tạo giảm giá không thành công!");
+      //     return;
+      //   });
+    }
+  };
 
   //btn Edit
   const handleEdit = (e) => {
@@ -599,7 +606,7 @@ const Discount = () => {
           return;
         });
     }
-  }
+  };
 
   //Delete
   const onDelete = (id) => {
@@ -787,7 +794,9 @@ const Discount = () => {
               )
               .then((res) => {
                 console.log("DataNoDiscount", res.data.data);
-                res.data?.data ? setCancelSuccess(true) : setCancelSuccess(false);
+                res.data?.data
+                  ? setCancelSuccess(true)
+                  : setCancelSuccess(false);
                 const checkboxes =
                   document.querySelectorAll('input[name="ck"]');
                 checkboxes.forEach((checkbox) => {
@@ -795,20 +804,20 @@ const Discount = () => {
                 });
                 handleCancel();
                 if (res.data.data) {
-                  console.log('------------------------- vào  rest');
+                  console.log("------------------------- vào  rest");
                   loadProduct();
                   getData();
                 }
               });
           }
         });
-        if(checked.length==0||checked==[]){
-          notifyError('Chọn sản phẩm cần huỷ áp dụng giảm giá!')
-        }else{
-          if(cancelSuccess == true) {
-            notifySuccess('Huỷ áp dụng giảm giá thành công !')
-          }else {
-            notifyError('Huỷ áp dụng giảm giá thất bại !')
+        if (checked.length == 0 || checked == []) {
+          notifyError("Chọn sản phẩm cần huỷ áp dụng giảm giá!");
+        } else {
+          if (cancelSuccess == true) {
+            notifySuccess("Huỷ áp dụng giảm giá thành công !");
+          } else {
+            notifyError("Huỷ áp dụng giảm giá thất bại !");
           }
         }
         setChecked([]);
@@ -925,7 +934,6 @@ const Discount = () => {
               background: "#fafafa",
             }}
           >
-
             <div className="col-4 mt-3 ">
               <label>Thời gian</label>
               <Space
@@ -1019,24 +1027,26 @@ const Discount = () => {
                     {dataProduct
                       ? dataProduct.map((item) => {
                           // console.log("item", item);
-                          return (
-                            item.discount ?"":
+                          return item.discount ? (
+                            ""
+                          ) : (
                             <tr key={item.id}>
                               <td>
-                                  <input
-                                    type={"checkbox"}
-                                    name="ck"
-                                    value={item.id}
-                                  ></input>
+                                <input
+                                  type={"checkbox"}
+                                  name="ck"
+                                  value={item.id}
+                                ></input>
                               </td>
                               <td>{item.name}</td>
                               <td>
-                              <CurrencyFormat
-                                        style={{ fontSize: "14px" }}
-                                        value={item.price}
-                                        displayType={"text"}
-                                        thousandSeparator={true}
-                                    /> VNĐ
+                                <CurrencyFormat
+                                  style={{ fontSize: "14px" }}
+                                  value={item.price}
+                                  displayType={"text"}
+                                  thousandSeparator={true}
+                                />{" "}
+                                VNĐ
                               </td>
                               <td>{item.quantity}</td>
                               {/* <td>
@@ -1117,12 +1127,13 @@ const Discount = () => {
                               </td>
                               <td>{item.name}</td>
                               <td>
-                              <CurrencyFormat
-                                        style={{ fontSize: "14px" }}
-                                        value={item.price}
-                                        displayType={"text"}
-                                        thousandSeparator={true}
-                                    /> VNĐ
+                                <CurrencyFormat
+                                  style={{ fontSize: "14px" }}
+                                  value={item.price}
+                                  displayType={"text"}
+                                  thousandSeparator={true}
+                                />{" "}
+                                VNĐ
                               </td>
                               <td>{item.quantity}</td>
                               <td>
@@ -1169,7 +1180,7 @@ const Discount = () => {
               </Button>
               <Modal
                 title="Tạo mới"
-                visible={isAdd}
+                open={isAdd}
                 onOk={handleAdd}
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
@@ -1229,17 +1240,18 @@ const Discount = () => {
                         style={{ width: "472px", borderRadius: "5px" }}
                       >
                         <RangePicker
-                          showTime={{ format: "HH:mm:ss" }}
+                          showTime
                           format={"yyyy-MM-DD HH:mm:ss"}
                           onChange={handleChangeDate}
                           onCalendarChange={setDates}
                           value={[
                             moment(form.startDate, "yyyy-MM-DD HH:mm:ss"),
-                            moment(form.endDate, "yyyy-MM-DD HH:mm:ss"),
+                             moment(form.endDate, "yyyy-MM-DD HH:mm:ss"),
                           ]}
                           type="datetime"
                         />
                       </Space>
+                     
                     </div>
                   </div>
                 </div>

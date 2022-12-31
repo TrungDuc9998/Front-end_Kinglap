@@ -47,6 +47,7 @@ function CopyProduct() {
   const [dataStorage, setDataStorage] = useState([]);
   const [dataAccessory, setDataAccessory] = useState([]);
   const [dataColor, setDataColor] = useState([]);
+  const [warrantyPeriod, setWarrantyPeriod] = useState();
   const navigate = useNavigate();
   const set = new Set();
   const props = {
@@ -110,6 +111,7 @@ function CopyProduct() {
     productColors: productEdit?.productColors,
     storage: productEdit?.storage,
     length: productEdit?.length,
+    warrantyPeriod: productEdit.warrantyPeriod,
     width: productEdit?.width,
     height: productEdit?.height,
     images: productEdit?.images.map((item) => ({
@@ -171,6 +173,7 @@ function CopyProduct() {
     hard_drive: data?.configuration.hard_drive,
     win: data?.configuration.win,
     capacity: data?.configuration.capacity,
+    warrantyPeriod: data.warrantyPeriod
   });
 
   const [tableParams, setTableParams] = useState({
@@ -478,11 +481,15 @@ function CopyProduct() {
       security: data.security,
       description: data.description,
       storageId: data.storageId,
+      warrantyPeriod: data.warrantyPeriod,
     };
     console.log(product);
-    fetch(`http://localhost:8080/api/products/copy/${productEdit.id}`, {
+    fetch(`http://localhost:8080/api/staff/products/copy/${productEdit.id}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
       body: JSON.stringify(product),
     })
       .then((response) => response.json())
@@ -614,6 +621,7 @@ function CopyProduct() {
                     style={{ width: "100%" }}
                     placeholder="Nhập tên sản phẩm"
                     value={name}
+                     readOnly
                   />
                 </Form.Item>
               </div>
@@ -1158,21 +1166,23 @@ function CopyProduct() {
                   <TextArea rows={4} />
                 </Form.Item>
               </div>
-              <div className="col-7 mt-4">
-                {/* <Space
-                  direction="vertical"
-                  style={{
-                    width: "100%",
-                  }}
-                  size="large"
+              <div className="col-3">
+              <Form.Item
+                  name="warrantyPeriod"
+                  label="Thời gian bảo hành"
+          
+                  initialValue={form.warrantyPeriod}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Thời gian bảo hành không được để trống",
+                    },
+                  ]}
                 >
-                  <Upload {...props} listType="picture" maxCount={5}>
-                    <Button icon={<UploadOutlined />}>
-                      {" "}
-                      Chọn hình ảnh (Tối đa: 5)
-                    </Button>
-                  </Upload>
-                </Space> */}
+                  <Input style={{ width: "100%" }} readOnly value={warrantyPeriod}  placeholder="Thời gian bảo hành" />
+                </Form.Item>
+              </div>
+              <div className="col-4 mt-4">
                 <Image.PreviewGroup>
                   <Image width={100} src={productEdit?.images[0]?.name} />
                   {productEdit.length > 2 ? (
