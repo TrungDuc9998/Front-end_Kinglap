@@ -43,7 +43,7 @@ const getRandomuserParams = (params) => ({
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
   searchPhone: params.pagination?.searchPhone,
-  searchPayment: params.pagination?.searchPayment
+  searchPayment: params.pagination?.searchPayment,
 });
 
 const getRandomUserParams = (params) => ({
@@ -84,6 +84,7 @@ const Order = () => {
   const [checkId, setCheckId] = useState();
   const [qrImageUrl, setQRImageUrl] = useState();
   const [dataClient, setDataClient] = useState();
+  const [optionName, setOptionName] = useState();
   const imagesListRef = ref(storage, "images/"); //all url
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -95,7 +96,7 @@ const Order = () => {
       searchEndDate: "",
       searchPhone: "",
       searchName: "",
-      searchPayment: ""
+      searchPayment: "",
     },
   });
   const [tableParamsPending, setTableParamsPending] = useState({
@@ -107,7 +108,7 @@ const Order = () => {
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
-      searchPayment: ""
+      searchPayment: "",
     },
   });
 
@@ -121,7 +122,7 @@ const Order = () => {
       searchEndDate: "",
       searchPhone: "",
       searchName: "",
-      searchPayment: ""
+      searchPayment: "",
     },
   });
 
@@ -135,7 +136,7 @@ const Order = () => {
       searchEndDate: "",
       searchPhone: "",
       searchName: "",
-      searchPayment: ""
+      searchPayment: "",
     },
   });
 
@@ -159,7 +160,7 @@ const Order = () => {
       searchEndDate: "",
       searchPhone: "",
       searchName: "",
-      searchPayment: ""
+      searchPayment: "",
     },
   });
   const [tableParamsSuccess, setTableParamsSuccess] = useState({
@@ -172,10 +173,9 @@ const Order = () => {
       searchEndDate: "",
       searchPhone: "",
       searchName: "",
-      searchPayment: ""
+      searchPayment: "",
     },
   });
-
 
   const [tableParamsUser, setTableParamsUser] = useState({
     pagination: {
@@ -357,7 +357,7 @@ const Order = () => {
           pagination: {
             current: results.data.current_page,
             pageSize: 10,
-            total: results.data.total
+            total: results.data.total,
           },
         });
       });
@@ -385,6 +385,7 @@ const Order = () => {
         console.log("data client");
         console.log(results.data.data);
         const option = [];
+        const optionName = [];
         results.data.data.forEach((item) => {
           item.information.forEach((element) => {
             if (element.phoneNumber != "none") {
@@ -394,25 +395,34 @@ const Order = () => {
                 fullName: element.fullName,
               });
             }
+            if (element.fullName != "none") {
+              optionName.push({
+                value: element.fullName,
+                id: element.id,      
+              });
+            }
           });
         });
-        console.log('load data client');
+        console.log("load data client");
         // console.log(option);
         setDataClient(option);
+        setOptionName(optionName);
         setLoading(false);
       });
   };
 
   const search = () => {
-   tableParams.pagination.search1 =(searchName != undefined ? searchName : "") ;
-    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ; ;
-    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
-    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
-    tableParams.pagination.searchStatus = searchStatus
-    tableParams.pagination.searchPayment = ""
+    tableParams.pagination.search1 = searchName != undefined ? searchName : "";
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
+    tableParams.pagination.searchStatus = searchStatus != undefined ? searchStatus : "";
+    tableParams.pagination.searchPayment = "";
     tableParams.pagination.current = 1;
     load();
-    
   };
 
   const searchDate = () => {
@@ -892,12 +902,15 @@ const Order = () => {
 
   const handleTableChange = (pagination, filters, sorter) => {
     tableParams.pagination = pagination;
-    tableParams.pagination.search1 =(searchName != undefined ? searchName : "") ;
-    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ; ;
-    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
-    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
-    tableParams.pagination.searchStatus = searchStatus
-    tableParams.pagination.searchPayment = ""
+    tableParams.pagination.search1 = searchName != undefined ? searchName : "";
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
+    tableParams.pagination.searchStatus = searchStatus;
+    tableParams.pagination.searchPayment = "";
     setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
@@ -931,9 +944,9 @@ const Order = () => {
   const clearSearchForm = () => {
     tableParams.pagination.search1 = "";
     tableParams.pagination.searchStatus = "";
-    tableParams.pagination.searchEndDate= "";
-    tableParams.pagination.searchPhone= "";
-    tableParams.pagination.searchStartDate= "";
+    tableParams.pagination.searchEndDate = "";
+    tableParams.pagination.searchPhone = "";
+    tableParams.pagination.searchStartDate = "";
     tableParams.pagination.searchPayment = "";
     load();
     setPhoneClient("");
@@ -1096,17 +1109,20 @@ const Order = () => {
       >
         <div className="col-4 mt-3">
           <label>Tên khách hàng</label>
-          <Input
-            type="text"
-            name="searchName"
+          <AutoComplete
+            style={{ width: 400 }}
+            onChange={(event) => setSearchName(event)}
+            options={optionName}
             value={searchName}
-            placeholder="Nhập tên khách hàng"
-            onChange={changeSearchName}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
           />
         </div>
         <div className="col-4 mt-3">
           <label>Số điện thoại khách hàng</label>
-          <br/>
+          <br />
           <AutoComplete
             style={{ width: 400 }}
             onChange={(event) => setPhoneClient(event)}
