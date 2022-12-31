@@ -7,6 +7,7 @@ import {
   DatePicker,
   Space,
   Image,
+  AutoComplete,
 } from "antd";
 import {
   DeleteOutlined,
@@ -26,11 +27,19 @@ const { RangePicker } = DatePicker;
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchUsername: params.pagination?.search1,
+  searchName: params.pagination?.searchName,
   searchStatus: params.pagination?.searchStatus,
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
   searchPhone: params.pagination?.searchPhone,
+  searchPayment: params.pagination?.searchPayment,
+});
+
+const getRandomuserParams = (params) => ({
+  limit: params.pagination?.pageSize,
+  page: params.pagination?.current,
+  searchUsername: params.pagination?.search1,
+  searchStatus: params.pagination?.searchStatus,
 });
 
 const CancelOrder = () => {
@@ -40,8 +49,13 @@ const CancelOrder = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isView, setView] = useState(false);
+  const [phoneClient, setPhoneClient] = useState();
+  const [dataClient, setDataClient] = useState();
   const [orderHistory, setOrderHistory] = useState();
   const [dataOrder, setDataOrder] = useState();
+  const [searchName, setSearchName] = useState();
+  const [searchStartDate, setSearchStartDate] = useState();
+  const [searchEndDate, setSearchEndDate] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -50,13 +64,73 @@ const CancelOrder = () => {
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
+      searchPayment: "",
+      searchName: "",
+    },
+  });
+
+
+  const handleChangeDateSearch = (val, dateStrings) => {
+    if (dateStrings[0] != null) setSearchStartDate(dateStrings[0]);
+    if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
+  };
+
+  const onchangeSearch = (val, dateStrings) => {
+    setSearchStartDate(dateStrings[0]);
+    setSearchEndDate(dateStrings[1]);
+  };
+
+  const [tableParamsUser, setTableParamsUser] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "",
     },
   });
 
   useEffect(() => {
     loadDataOrder();
+    loadDataClient();
     console.log(dataOrder);
-  }, [dataOrder != undefined]);
+  }, []);
+
+  const loadDataClient = () => {
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/users?${qs.stringify(
+        getRandomuserParams(tableParamsUser)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        console.log("data client");
+        console.log(results.data.data);
+        const option = [];
+        results.data.data.forEach((item) => {
+          item.information.forEach((element) => {
+            if (element.phoneNumber != "none") {
+              option.push({
+                value: element.phoneNumber,
+                id: element.id,
+                fullName: element.fullName,
+              });
+            }
+          });
+        });
+        console.log('load data client');
+        // console.log(option);
+        setDataClient(option);
+        setLoading(false);
+        setTableParamsUser({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
+  };
 
   const onCancel = (record) => {
     Modal.confirm({
@@ -146,9 +220,31 @@ const CancelOrder = () => {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log('dữ liệu trả ra');
+        console.log(results.data.data);
         setDataOrder(results.data.data);
         setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total
+          },
+        });
       });
+      
+  };
+
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    tableParams.pagination = pagination;
+    tableParams.pagination.searchName = "";
+    tableParams.pagination.searchStatus = "DA_HUY";
+    tableParams.pagination.searchEndDate= "";
+    tableParams.pagination.searchPhone= "";
+    tableParams.pagination.searchStartDate= "";
+    tableParams.pagination.searchPayment = "";
+    loadDataOrder();
   };
 
   const columns = [
@@ -287,12 +383,59 @@ const CancelOrder = () => {
     console.log(`selected ${value}`);
   };
 
-  const onSearch = (value) => {
-    console.log("search:", value);
+  const search = () => {
+    tableParams.pagination.searchName =(searchName != undefined ? searchName : "") ;
+    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ;
+    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
+    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
+    tableParams.pagination.searchStatus = "DA_HUY"
+    tableParams.pagination.searchPayment = ""
+    tableParams.pagination.current = 1;
+    setLoading(true);
+    fetch(
+      `http://localhost:8080/api/staff/orders?${qs.stringify(
+        getRandomOrderParams(tableParams)
+      )}`,{
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataOrder(results.data.data);
+        setLoading(false);
+        setTableParams({
+          pagination: {
+            current: results.data.current_page,
+            pageSize: 10,
+            total: results.data.total,
+          },
+        });
+      });
   };
 
   const resetEditing = () => {
     setEditing(false);
+  };
+
+  const onSelectAutoClient = (value) => {
+    console.log("on select client");
+    console.log(value);
+  };
+
+  const clearSearchForm = () => {
+    
+    tableParams.pagination.searchName = "";
+    tableParams.pagination.searchStatus = "DA_HUY";
+    tableParams.pagination.searchEndDate= "";
+    tableParams.pagination.searchPhone= "";
+    tableParams.pagination.searchStartDate= "";
+    tableParams.pagination.searchPayment = "";
+    loadDataOrder();
+    setPhoneClient("");
+    setSearchName("");
   };
 
   const columnOrderHistory = [
@@ -368,27 +511,53 @@ const CancelOrder = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-6 mt-4">
-          <label>Người đặt</label>
-          <Input placeholder="Tên người đặt" />
+        <div className="col-4 mt-3">
+          <label>Tên khách hàng</label>
+          <Input
+            type="text"
+            name="searchName"
+            value={searchName}
+            placeholder="Nhập tên khách hàng"
+            onChange={(e) => setSearchName(e.target.value)}
+          />
         </div>
-        <div className="col-6 mt-4">
+        <div className="col-4 mt-3">
+          <label>Số điện thoại khách hàng</label>
+          <br/>
+          <AutoComplete
+            style={{ width: 400 }}
+            onChange={(event) => setPhoneClient(event)}
+            options={dataClient}
+            value={phoneClient}
+            onSelect={(event) => onSelectAutoClient(event)}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
+          />
+        </div>
+        <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
           <br />
           <Space
-            className="mx-2"
-            style={{ minWidth: "90%" }}
             direction="vertical"
             size={12}
+            style={{ width: "100%", borderRadius: "5px" }}
           >
-            <RangePicker size={"middle"} />
+            <RangePicker
+              showTime={{ format: "HH:mm:ss" }}
+              format={"yyyy-MM-DD HH:mm:ss"}
+              onChange={onchangeSearch}
+              onCalendarChange={handleChangeDateSearch}
+              type="datetime"
+            />
           </Space>
         </div>
         <div className="col-12 text-center mt-3 ">
           <Button
             className="mt-2"
             type="primary-uotline"
-            // onClick={showModal}
+            onClick={clearSearchForm}
             style={{ borderRadius: "10px" }}
           >
             <ReloadOutlined />
@@ -397,7 +566,7 @@ const CancelOrder = () => {
           <Button
             className="mx-2  mt-2"
             type="primary"
-            // onClick={showModal}
+            onClick={search}
             style={{ borderRadius: "10px" }}
           >
             <SearchOutlined />
@@ -422,6 +591,7 @@ const CancelOrder = () => {
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
+            onChange = {handleTableChange}
           />
           <Modal
             title="Xác nhận đơn hàng"
@@ -475,7 +645,7 @@ const CancelOrder = () => {
                       {dataO?.createdAt}
                     </Moment>
                   </p>
-                  <p>Ngày nhận: </p>
+                  <p>Địa chỉ nhận hàng: {dataO?.address} </p>
 
                   <p>
                     Phí vận chuyển:{" "}

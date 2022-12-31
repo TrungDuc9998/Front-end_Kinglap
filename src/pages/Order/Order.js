@@ -7,6 +7,7 @@ import {
   DatePicker,
   Image,
   Space,
+  AutoComplete,
 } from "antd";
 import {
   EyeOutlined,
@@ -42,8 +43,14 @@ const getRandomuserParams = (params) => ({
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
   searchPhone: params.pagination?.searchPhone,
-  searchName: params.pagination?.searchName,
   searchPayment: params.pagination?.searchPayment
+});
+
+const getRandomUserParams = (params) => ({
+  limit: params.pagination?.pageSize,
+  page: params.pagination?.current,
+  searchUsername: params.pagination?.search1,
+  searchStatus: params.pagination?.searchStatus,
 });
 //date
 const { RangePicker } = DatePicker;
@@ -61,7 +68,7 @@ const Order = () => {
   const [searchStatus, setSearchStatus] = useState();
   const [searchName, setSearchName] = useState();
   const [imageUrls, setImageUrls] = useState([]);
-  const [imageUpload, setImageUpload] = useState(null);
+  const [phoneClient, setPhoneClient] = useState();
   const [images, setImages] = useState([]);
   const [orderHistory, setOrderHistory] = useState();
   const [loading, setLoading] = useState(false);
@@ -76,6 +83,7 @@ const Order = () => {
   const [searchEndDate, setSearchEndDate] = useState();
   const [checkId, setCheckId] = useState();
   const [qrImageUrl, setQRImageUrl] = useState();
+  const [dataClient, setDataClient] = useState();
   const imagesListRef = ref(storage, "images/"); //all url
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -83,7 +91,6 @@ const Order = () => {
       pageSize: 10,
       searchStatus: "",
       search1: "",
-      search2: "",
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
@@ -100,6 +107,7 @@ const Order = () => {
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
+      searchPayment: ""
     },
   });
 
@@ -107,11 +115,13 @@ const Order = () => {
     pagination: {
       current: 1,
       pageSize: 10,
-      search1: "",
       searchStatus: "CHO_LAY_HANG",
+      search1: "",
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
+      searchName: "",
+      searchPayment: ""
     },
   });
 
@@ -119,11 +129,13 @@ const Order = () => {
     pagination: {
       current: 1,
       pageSize: 10,
-      search1: "",
       searchStatus: "DA_HUY",
+      search1: "",
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
+      searchName: "",
+      searchPayment: ""
     },
   });
 
@@ -141,22 +153,36 @@ const Order = () => {
     pagination: {
       current: 1,
       pageSize: 10,
-      search1: "",
       searchStatus: "DANG_GIAO",
+      search1: "",
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
+      searchName: "",
+      searchPayment: ""
     },
   });
   const [tableParamsSuccess, setTableParamsSuccess] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
-      search1: "",
       searchStatus: "DA_NHAN",
+      search1: "",
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
+      searchName: "",
+      searchPayment: ""
+    },
+  });
+
+
+  const [tableParamsUser, setTableParamsUser] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      search2: "",
     },
   });
   const [idCancel, setIDCancel] = useState();
@@ -339,6 +365,7 @@ const Order = () => {
 
   useEffect(() => {
     load();
+    loadDataClient();
     loadDataOrderStatusPending();
     loadDataOrderStatusSuccess();
     loadDataOrderDelivering();
@@ -346,33 +373,46 @@ const Order = () => {
     loadDataOrderWait();
   }, []);
 
-  const search = () => {
-    console.log(searchDate);
-    if (searchDate != undefined && searchEndDate != undefined) {
-      tableParams.pagination.searchStartDate = searchStartDate;
-      tableParams.pagination.searchEndDate = searchEndDate;
-    }
-    tableParams.pagination.search1 = searchName;
-    tableParams.pagination.search2 = searchStatus;
-    tableParams.pagination.current = 1;
+  const loadDataClient = () => {
     setLoading(true);
     fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomuserParams(tableParams)
+      `http://localhost:8080/api/users?${qs.stringify(
+        getRandomUserParams(tableParamsUser)
       )}`
     )
       .then((res) => res.json())
       .then((results) => {
-        setData(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
+        console.log("data client");
+        console.log(results.data.data);
+        const option = [];
+        results.data.data.forEach((item) => {
+          item.information.forEach((element) => {
+            if (element.phoneNumber != "none") {
+              option.push({
+                value: element.phoneNumber,
+                id: element.id,
+                fullName: element.fullName,
+              });
+            }
+          });
         });
+        console.log('load data client');
+        // console.log(option);
+        setDataClient(option);
+        setLoading(false);
       });
+  };
+
+  const search = () => {
+   tableParams.pagination.search1 =(searchName != undefined ? searchName : "") ;
+    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ; ;
+    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
+    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
+    tableParams.pagination.searchStatus = searchStatus
+    tableParams.pagination.searchPayment = ""
+    tableParams.pagination.current = 1;
+    load();
+    
   };
 
   const searchDate = () => {
@@ -852,11 +892,12 @@ const Order = () => {
 
   const handleTableChange = (pagination, filters, sorter) => {
     tableParams.pagination = pagination;
-    tableParams.pagination.search1 = searchName;
-    tableParams.pagination.search2 = searchStatus;
-    tableParams.pagination.searchEndDate= "";
-    tableParams.pagination.searchPhone= "";
-    tableParams.pagination.searchStartDate= "";
+    tableParams.pagination.search1 =(searchName != undefined ? searchName : "") ;
+    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ; ;
+    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
+    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
+    tableParams.pagination.searchStatus = searchStatus
+    tableParams.pagination.searchPayment = ""
     setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
@@ -888,9 +929,15 @@ const Order = () => {
   };
 
   const clearSearchForm = () => {
+    tableParams.pagination.search1 = "";
+    tableParams.pagination.searchStatus = "";
+    tableParams.pagination.searchEndDate= "";
+    tableParams.pagination.searchPhone= "";
+    tableParams.pagination.searchStartDate= "";
+    tableParams.pagination.searchPayment = "";
     load();
+    setPhoneClient("");
     setSearchName("");
-    setSearchStatus();
   };
 
   const onSearch = (value) => {
@@ -939,6 +986,11 @@ const Order = () => {
     const response = await QRCode.toDataURL(b);
     setQRImageUrl(response);
   }
+
+  const onSelectAutoClient = (value) => {
+    console.log("on select client");
+    console.log(value);
+  };
 
   const navigate = useNavigate();
   const [keyOrder, setKey] = useState("/order/create");
@@ -1043,13 +1095,28 @@ const Order = () => {
         }}
       >
         <div className="col-4 mt-3">
-          <label>Từ khoá</label>
+          <label>Tên khách hàng</label>
           <Input
             type="text"
             name="searchName"
             value={searchName}
             placeholder="Nhập tên khách hàng"
             onChange={changeSearchName}
+          />
+        </div>
+        <div className="col-4 mt-3">
+          <label>Số điện thoại khách hàng</label>
+          <br/>
+          <AutoComplete
+            style={{ width: 400 }}
+            onChange={(event) => setPhoneClient(event)}
+            options={dataClient}
+            value={phoneClient}
+            onSelect={(event) => onSelectAutoClient(event)}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
           />
         </div>
         <div className="col-4 mt-3">
