@@ -41,7 +41,7 @@ import CopyProduct from "../pages/Product/CopyProduct";
 import CreateOrderAdmin from "../pages/Order/Table";
 import ViewProductAdmin from "../pages/Product/ViewProduct";
 import ConfirmPayment from "../pages/Order/ConfirmPayment/ConfirmPayment";
-import ReactFirebaseFileUpload from "../pages/customer/compareProduct/ReactFirebaseFileUpload";
+
 const publicRoutes = [
   {
     path: "/",
@@ -207,11 +207,7 @@ const publicRoutes = [
     path: "/admin/order/confirm/payment",
     component: ConfirmPayment
   },
-  {
-    path: "/admin/firebase",
-    component: ReactFirebaseFileUpload
-    
-  }
+  
 ];
 
 const privateRoutes = [];
