@@ -55,6 +55,7 @@ const OrderSuccess = () => {
   const [orderHistory, setOrderHistory] = useState();
   const [phoneClient, setPhoneClient] = useState();
   const [dataClient, setDataClient] = useState();
+  const [optionName, setOptionName] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -115,9 +116,8 @@ const OrderSuccess = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log("data client");
-        console.log(results.data.data);
         const option = [];
+        const optionName = [];
         results.data.data.forEach((item) => {
           item.information.forEach((element) => {
             if (element.phoneNumber != "none") {
@@ -127,10 +127,15 @@ const OrderSuccess = () => {
                 fullName: element.fullName,
               });
             }
+            if (element.fullName != "none") {
+              optionName.push({
+                value: element.fullName,        
+              });
+            }
           });
         });
         console.log('load data client');
-        // console.log(option);
+       setOptionName(optionName);
         setDataClient(option);
         setLoading(false);
       });
@@ -138,36 +143,17 @@ const OrderSuccess = () => {
 
   const handleTableChange = (pagination, filters, sorter) => {
     tableParams.pagination = pagination;
-    tableParams.pagination.searchName = "";
+    tableParams.pagination.searchName =
+      searchName != undefined ? searchName : "";
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
     tableParams.pagination.searchStatus = "DA_NHAN";
-    tableParams.pagination.searchEndDate= "";
-    tableParams.pagination.searchPhone= "";
-    tableParams.pagination.searchStartDate= "";
-    tableParams.pagination.searchPayment= "";
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomOrderParams(tableParams)
-      )}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setDataOrder(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
+    tableParams.pagination.searchPayment = "";
+    loadDataOrder();
   };
 
 
@@ -176,34 +162,10 @@ const OrderSuccess = () => {
     tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
     tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
     tableParams.pagination.searchStatus = "DA_NHAN"
-    tableParams.pagination.searchName = "";
+    tableParams.pagination.searchName = (searchName != undefined ? searchName : "") ;
     tableParams.pagination.searchPayment = "";
     tableParams.pagination.current = 1;
-   
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomOrderParams(tableParams)
-      )}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        }
-      }
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setDataOrder(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
+    loadDataOrder();
   };
 
   const showModalData = (id) => {
@@ -502,46 +464,33 @@ const OrderSuccess = () => {
         if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="cyan" className="pt-1 pb-1">
                 Thanh toán VNPAY
-              </div>
-            </>
-          );
-        } if (payment == "NGAN_HANG") {
-          return (
-            <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                {"Tài khoản ATM"}
-              </div>
-            </>
-          );
-        }if (payment == "DAT_COC") {
-          return (
-            <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                Tại nhà
-              </div>
+              </Tag>
             </>
           );
         }
-        else {
+        if (payment == "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="blue" className="pt-1 pb-1">
+                Thanh toán ATM
+              </Tag>
+            </>
+          );
+        }
+        if (payment == "DAT_COC") {
+          return (
+            <Tag color="purple" className="pt-1 pb-1">
+              Thanh toán tại nhà
+            </Tag>
+          );
+        } else {
+          return (
+            <>
+              <Tag color="red" className="pt-1 pb-1">
                 Tại cửa hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -665,13 +614,16 @@ const OrderSuccess = () => {
         }}
       >
         <div className="col-4 mt-3">
-          <label>Từ khoá</label>
-          <Input
-            type="text"
-            name="searchName"
+          <label>Tên khách hàng</label>
+          <AutoComplete
+            style={{ width: 400 }}
+            onChange={(event) => setSearchName(event)}
+            options={optionName}
             value={searchName}
-            placeholder="Nhập tên khách hàng"
-            onChange={(e) => setSearchName(e.target.value)}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
           />
         </div>
         <div className="col-4 mt-3">
@@ -814,6 +766,10 @@ const OrderSuccess = () => {
                         style: "currency",
                         currency: "VND",
                       })}
+                    </p>
+                    <p>
+                      Địa chỉ nhận hàng:{" "}
+                      {dataO?.address}
                     </p>
 
                     <p>
