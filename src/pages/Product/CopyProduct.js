@@ -1180,7 +1180,7 @@ function CopyProduct() {
                   ]}
                 >
                   <Input style={{ width: "100%" }} readOnly value={warrantyPeriod}  placeholder="Thời gian bảo hành" />
-                </Form.Item>
+              </Form.Item>
               </div>
               <div className="col-4 mt-4">
                 <Image.PreviewGroup>

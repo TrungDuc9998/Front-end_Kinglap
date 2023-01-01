@@ -8,6 +8,7 @@ import {
   Space,
   Image,
   AutoComplete,
+  Tag,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -19,6 +20,7 @@ import {
   RetweetOutlined,
   MenuFoldOutlined,
   DownloadOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
@@ -30,11 +32,10 @@ import Moment from "react-moment";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  searchName: params.pagination?.search1,
+  searchName: params.pagination?.searchName,
   searchStatus: params.pagination?.searchStatus,
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
@@ -64,18 +65,20 @@ const OrderDelivering = () => {
   const [searchEndDate, setSearchEndDate] = useState();
   const [searchName, setSearchName] = useState();
   const [dataClient, setDataClient] = useState();
-  const [phoneClient, setPhoneClient] =  useState();
+  const [phoneClient, setPhoneClient] = useState();
+  const [optionName, setOptionName] = useState();
+  const [valueDatePicker, setValueDatePicker] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
       searchStatus: "DANG_GIAO",
-      search1: "",
+      searchName: "",
       search2: "",
       searchStartDate: "",
       searchEndDate: "",
       searchPhone: "",
-      searchPayment: ""
+      searchPayment: "",
     },
   });
 
@@ -91,7 +94,7 @@ const OrderDelivering = () => {
   useEffect(() => {
     loadDataOrder();
     loadDataClient();
-  }, []);
+  }, [dataOrder]);
 
   const loadDataClient = () => {
     setLoading(true);
@@ -105,6 +108,7 @@ const OrderDelivering = () => {
         console.log("data client");
         console.log(results.data.data);
         const option = [];
+        const optionName = [];
         results.data.data.forEach((item) => {
           item.information.forEach((element) => {
             if (element.phoneNumber != "none") {
@@ -114,11 +118,16 @@ const OrderDelivering = () => {
                 fullName: element.fullName,
               });
             }
+            if (element.fullName != "none") {
+              optionName.push({
+                value: element.fullName,
+                id: element.id,
+              });
+            }
           });
         });
-        console.log('load data client');
-        // console.log(option);
         setDataClient(option);
+        setOptionName(optionName);
         setLoading(false);
         setTableParamsUser({
           pagination: {
@@ -134,7 +143,7 @@ const OrderDelivering = () => {
     {
       title: "Mã hoá đơn",
       dataIndex: "orderId",
-      width: "20%",
+      width: "10%",
       render(orderId) {
         return <>{orderId.id}</>;
       },
@@ -248,11 +257,13 @@ const OrderDelivering = () => {
   const onchangeSearch = (val, dateStrings) => {
     setSearchStartDate(dateStrings[0]);
     setSearchEndDate(dateStrings[1]);
+    
   };
 
   const handleChangeDateSearch = (val, dateStrings) => {
     if (dateStrings[0] != null) setSearchStartDate(dateStrings[0]);
     if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
+   
   };
 
   const onConfirm = (record) => {
@@ -271,36 +282,21 @@ const OrderDelivering = () => {
   };
 
   const search = () => {
-    tableParams.pagination.search1 =(searchName != undefined ? searchName : "") ;
-    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ;
-    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
-    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
-    tableParams.pagination.searchStatus = "DANG_GIAO"
-    tableParams.pagination.searchPayment = ""
+    setDataOrder([]);
+    setData([]);
+    setSelectedRowKeys([]);
+    tableParams.pagination.searchName =
+      searchName != undefined ? searchName : "";
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
+    tableParams.pagination.searchStatus = "DANG_GIAO";
+    tableParams.pagination.searchPayment = "";
     tableParams.pagination.current = 1;
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomOrderParams(tableParams)
-      )}`,{
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setDataOrder(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
+    loadDataOrder();
   };
 
   const onCancel = (record) => {
@@ -393,7 +389,7 @@ const OrderDelivering = () => {
   };
 
   const loadDataOrder = () => {
-    setLoading(true);
+    // setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomOrderParams(tableParams)
@@ -418,6 +414,7 @@ const OrderDelivering = () => {
             quantity: item.quantity,
             createdAt: item.createdAt,
             money: item.money,
+            phone: item.phone,
           });
         });
         setDataOrder(data);
@@ -426,7 +423,7 @@ const OrderDelivering = () => {
           pagination: {
             current: results.data.current_page,
             pageSize: 10,
-            total: results.data.total
+            total: results.data.total,
           },
         });
       });
@@ -449,6 +446,11 @@ const OrderDelivering = () => {
       dataIndex: "customerName",
       sorter: (a, b) => a.customerName.length - b.customerName.length,
       width: "18%",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      width: "10%",
     },
     {
       title: "Tổng tiền",
@@ -489,47 +491,33 @@ const OrderDelivering = () => {
         if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="cyan" className="pt-1 pb-1">
                 Thanh toán VNPAY
-              </div>
+              </Tag>
             </>
           );
         }
         if (payment == "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                {"Tài khoản ATM"}
-              </div>
+              <Tag color="blue" className="pt-1 pb-1">
+                Thanh toán ATM
+              </Tag>
             </>
           );
         }
         if (payment == "DAT_COC") {
           return (
-            <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                Tại nhà
-              </div>
-            </>
+            <Tag color="purple" className="pt-1 pb-1">
+              Thanh toán tại nhà
+            </Tag>
           );
         } else {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="red" className="pt-1 pb-1">
                 Tại cửa hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -542,12 +530,14 @@ const OrderDelivering = () => {
       render: (status) => {
         return (
           <>
-            <div
-              className="bg-primary text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-             {status}
-            </div>
+            <Tag
+                icon={<SyncOutlined spin />}
+                className="pt-1 pb-1 text-center"
+                color="processing"
+                style={{ width: "100%" }}
+              >
+                Đang giao hàng
+              </Tag>
           </>
         );
       },
@@ -614,23 +604,23 @@ const OrderDelivering = () => {
       data.splice(index, dataOrder.length);
     });
 
-    if (dataOrder.length == 0) {
-      setDataOrder([]);
-      setData([]);
-      loadDataOrder();
-      setSearchName("");
-      setSelectedRowKeys([]);
-    }
+    setDataOrder([]);
+    setData([]);
+    setSelectedRowKeys([]);
 
-    tableParams.pagination.search1 = "";
-      tableParams.pagination.searchStatus = "DANG_GIAO";
-      tableParams.pagination.searchEndDate= "";
-      tableParams.pagination.searchPhone= "";
-      tableParams.pagination.searchStartDate= "";
-      tableParams.pagination.searchPayment = "";
+    tableParams.pagination.searchName = "";
+    tableParams.pagination.searchStatus = "DANG_GIAO";
+    tableParams.pagination.searchEndDate = "";
+    tableParams.pagination.searchPhone = "";
+    tableParams.pagination.searchStartDate = "";
+    tableParams.pagination.searchPayment = "";
     loadDataOrder();
     setSearchName("");
-    setPhoneClient("")
+    setPhoneClient("");
+    setValueDatePicker("");
+    onchangeSearch([]);
+    setSearchStartDate("");
+    setSearchEndDate("");
   };
   const onSelectChange = (newSelectedRowKeys) => {
     console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -689,10 +679,10 @@ const OrderDelivering = () => {
     }).then((res) => {
       tableParams.pagination.search1 = searchName;
       tableParams.pagination.searchStatus = "DANG_GIAO";
-      tableParams.pagination.searchEndDate= "";
-      tableParams.pagination.searchPhone= "";
-      tableParams.pagination.searchStartDate= "";
-      tableParams.pagination.searchPayment= "";
+      tableParams.pagination.searchEndDate = "";
+      tableParams.pagination.searchPhone = "";
+      tableParams.pagination.searchStartDate = "";
+      tableParams.pagination.searchPayment = "";
       loadDataOrder();
       clearSearchForm();
     });
@@ -700,44 +690,27 @@ const OrderDelivering = () => {
     console.log(dataOrder);
   };
 
-  
   const onSelectAutoClient = (value) => {
     console.log("on select client");
     console.log(value);
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
+    setDataOrder([]);
+    setData([]);
+    setSelectedRowKeys([]);
     tableParams.pagination = pagination;
-    tableParams.pagination.search1 = "";
+    tableParams.pagination.searchName =
+      searchName != undefined ? searchName : "";
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
     tableParams.pagination.searchStatus = "DANG_GIAO";
-    tableParams.pagination.searchEndDate= "";
-    tableParams.pagination.searchPhone= "";
-    tableParams.pagination.searchStartDate= "";
-    tableParams.pagination.searchPayment= "";
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomOrderParams(tableParams)
-      )}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setDataOrder(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
+    tableParams.pagination.searchPayment = "";
+    loadDataOrder();
   };
   return (
     <div>
@@ -762,17 +735,20 @@ const OrderDelivering = () => {
       >
         <div className="col-4 mt-3">
           <label>Tên khách hàng</label>
-          <Input
-            type="text"
-            name="searchName"
+          <AutoComplete
+            style={{ width: 400 }}
+            onChange={(event) => setSearchName(event)}
+            options={optionName}
             value={searchName}
-            placeholder="Nhập tên khách hàng"
-            onChange={(e) => setSearchName(e.target.value)}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
           />
         </div>
         <div className="col-4 mt-3">
           <label>Số điện thoại khách hàng</label>
-          <br/>
+          <br />
           <AutoComplete
             style={{ width: 400 }}
             onChange={(event) => setPhoneClient(event)}
@@ -784,7 +760,6 @@ const OrderDelivering = () => {
               -1
             }
           />
-         
         </div>
         <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
@@ -795,8 +770,9 @@ const OrderDelivering = () => {
             style={{ width: "100%", borderRadius: "5px" }}
           >
             <RangePicker
+             allowClear
               showTime={{ format: "HH:mm:ss" }}
-              format={"yyyy-MM-DD HH:mm:ss"}
+              format={"yyyy-MM-DD HH:mm:ss"}           
               onChange={onchangeSearch}
               onCalendarChange={handleChangeDateSearch}
               type="datetime"
@@ -838,7 +814,12 @@ const OrderDelivering = () => {
               >
                 Nhận hàng
               </Button>
-              <Button type="primary" className="ms-5" onClick={cancelCheckBox}>
+              <Button
+                type="primary"
+                shape="round"
+                className="ms-2"
+                onClick={cancelCheckBox}
+              >
                 Huỷ đơn hàng
               </Button>
             </div>
@@ -864,7 +845,7 @@ const OrderDelivering = () => {
             dataSource={dataOrder}
             pagination={tableParams.pagination}
             loading={loading}
-            onChange = {handleTableChange}
+            onChange={handleTableChange}
           />
           <Modal
             id="a"

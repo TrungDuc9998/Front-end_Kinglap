@@ -10,6 +10,7 @@ import {
   InputNumber,
   Image,
   AutoComplete,
+  Tag,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -84,6 +85,7 @@ const OrderConfirm = () => {
   const [note, setNote] = useState();
   const [dataClient, setDataClient] = useState();
   const [phoneClient, setPhoneClient] = useState();
+  const [optionName, setOptionName] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -110,7 +112,7 @@ const OrderConfirm = () => {
   useEffect(() => {
     loadDataOrder();
     loadDataClient();
-  }, []);
+  }, [dataOrder]);
 
   const onConfirm = (record) => {
     const isPut = true;
@@ -197,7 +199,7 @@ const OrderConfirm = () => {
     Modal.confirm({
       icon: <CheckCircleOutlined />,
       title: "Xác nhận đơn hàng ",
-      content: `Bạn có muốn xác nhận những đơn hàng này không 2234?`,
+      content: `Bạn có muốn xác nhận những đơn hàng này không?`,
       okText: "Có",
       cancelText: "Không",
       okType: "primary",
@@ -264,13 +266,25 @@ const OrderConfirm = () => {
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
+    setDataOrder([]);
+    setData([]);
+    setSelectedRowKeys([]);
     tableParams.pagination = pagination;
-    tableParams.pagination.searchName = "";
+    tableParams.pagination.searchName =
+      searchName != undefined ? searchName : "";
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
     tableParams.pagination.searchStatus = "CHO_XAC_NHAN";
-    tableParams.pagination.searchEndDate= "";
-    tableParams.pagination.searchPhone= "";
-    tableParams.pagination.searchStartDate= "";
     tableParams.pagination.searchPayment = "";
+    loadDataOrder();
+  };
+
+  const loadDataOrder = () => {
+    console.log("vào lại log data");
 
     setLoading(true);
     fetch(
@@ -286,35 +300,8 @@ const OrderConfirm = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        setDataOrder(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
-  };
-
-  const loadDataOrder = () => {
-    console.log('vào lại log data');
-
-    // setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomOrderParams(tableParams)
-      )}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((results) => {
+        console.log("dữ liệu trả ra mỗi lần tìm kiếm");
+        console.log(results.data.data);
         results.data.data?.forEach((item) => {
           data.push({
             key: item.id,
@@ -326,43 +313,10 @@ const OrderConfirm = () => {
             quantity: item.quantity,
             createdAt: item.createdAt,
             money: item.money,
+            phone: item.phone,
           });
         });
         setDataOrder(data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total
-          },
-        });
-      });
-  };
-
-
-  const search = () => {
-    tableParams.pagination.searchName =(searchName != undefined ? searchName : "") ;
-    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ;
-    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
-    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
-    tableParams.pagination.searchStatus = "CHO_XAC_NHAN"
-    tableParams.pagination.searchPayment = ""
-    tableParams.pagination.current = 1;
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomOrderParams(tableParams)
-      )}`,{
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setDataOrder(results.data.data);
         setLoading(false);
         setTableParams({
           pagination: {
@@ -372,6 +326,25 @@ const OrderConfirm = () => {
           },
         });
       });
+  };
+
+  const search = () => {
+    console.log("tên khách hàng: ", searchName);
+    setDataOrder([]);
+    setData([]);
+    setSelectedRowKeys([]);
+    tableParams.pagination.searchName = searchName ? searchName : "";
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
+    tableParams.pagination.searchStatus = "CHO_XAC_NHAN";
+    tableParams.pagination.searchPayment = "";
+    tableParams.pagination.current = 1;
+    setLoading(true);
+    loadDataOrder();
   };
 
   const showModalData = (id) => {
@@ -433,6 +406,11 @@ const OrderConfirm = () => {
       width: "15%",
     },
     {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      width: "10%",
+    },
+    {
       title: "Tổng tiền",
       dataIndex: "total",
       sorter: (a, b) => a.total - b.total,
@@ -466,52 +444,38 @@ const OrderConfirm = () => {
     {
       title: "Thanh toán",
       dataIndex: "payment",
-      width: "20%",
+      width: "12%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="cyan" className="pt-1 pb-1">
                 Thanh toán VNPAY
-              </div>
+              </Tag>
             </>
           );
         }
         if (payment == "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                {"Tài khoản ATM"}
-              </div>
+              <Tag color="blue" className="pt-1 pb-1">
+                Thanh toán ATM
+              </Tag>
             </>
           );
         }
         if (payment == "DAT_COC") {
           return (
-            <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                Tại nhà
-              </div>
-            </>
+            <Tag color="purple" className="pt-1 pb-1">
+              Thanh toán tại nhà
+            </Tag>
           );
         } else {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="red" className="pt-1 pb-1">
                 Tại cửa hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -524,12 +488,9 @@ const OrderConfirm = () => {
       render: (status) => {
         return (
           <>
-            <div
-              className="bg-info text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-             {status}
-            </div>
+            <Tag color="blue" className="pt-1 pb-1">
+              Chờ xác nhận
+            </Tag>
           </>
         );
       },
@@ -592,9 +553,9 @@ const OrderConfirm = () => {
     }).then((res) => {
       tableParams.pagination.searchName = "";
       tableParams.pagination.searchStatus = "CHO_XAC_NHAN";
-      tableParams.pagination.searchEndDate= "";
-      tableParams.pagination.searchPhone= "";
-      tableParams.pagination.searchStartDate= "";
+      tableParams.pagination.searchEndDate = "";
+      tableParams.pagination.searchPhone = "";
+      tableParams.pagination.searchStartDate = "";
       tableParams.pagination.searchPayment = "";
       loadDataOrder();
     });
@@ -616,7 +577,6 @@ const OrderConfirm = () => {
       },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
-      
       clearSearchForm();
     });
 
@@ -667,45 +627,21 @@ const OrderConfirm = () => {
   };
 
   const clearSearchForm = () => {
-    // dataOrder?.forEach((item, index) => {
-    //   data.splice(index, dataOrder.length);
-    // });
-
-    // if (dataOrder.length == 0) {
-    //   setDataOrder([]);
-    //   setData([]);
-    //   loadDataOrder();
-    //   setSearchName("");
-    //   setSelectedRowKeys([]);
-    // }
-
-    // tableParams.pagination.searchPhone = "";
-    // tableParams.pagination.searchStartDate =  "";
-    // tableParams.pagination.searchEndDate = "";
-    // tableParams.pagination.searchStatus = "CHO_XAC_NHAN"
-
-    // loadDataOrder();
-    // setSearchName("");
-
     dataOrder?.forEach((item, index) => {
       data.splice(index, dataOrder.length);
     });
-
-    if (dataOrder.length == 0) {
-      setDataOrder([]);
-      setData([]);
-      loadDataOrder();
-      setSearchName("");
-      setSelectedRowKeys([]);
-    }
-
+    setDataOrder([]);
+    setData([]);
+    setSelectedRowKeys([]);
     tableParams.pagination.searchName = "";
-      tableParams.pagination.searchStatus = "CHO_XAC_NHAN";
-      tableParams.pagination.searchEndDate= "";
-      tableParams.pagination.searchPhone= "";
-      tableParams.pagination.searchStartDate= "";
-      tableParams.pagination.searchPayment = "";
-      loadDataOrder();
+    tableParams.pagination.searchStatus = "CHO_XAC_NHAN";
+    tableParams.pagination.searchEndDate = "";
+    tableParams.pagination.searchPhone = "";
+    tableParams.pagination.searchStartDate = "";
+    tableParams.pagination.searchPayment = "";
+    setSearchName("");
+    setPhoneClient("");
+    loadDataOrder();
   };
 
   const handleUpdateOrderDetail = (item) => {
@@ -739,7 +675,6 @@ const OrderConfirm = () => {
     });
   };
 
-
   const loadDataClient = () => {
     setLoading(true);
     fetch(
@@ -752,6 +687,7 @@ const OrderConfirm = () => {
         console.log("data client");
         console.log(results.data.data);
         const option = [];
+        const optionName = [];
         results.data.data.forEach((item) => {
           item.information.forEach((element) => {
             if (element.phoneNumber != "none") {
@@ -761,18 +697,28 @@ const OrderConfirm = () => {
                 fullName: element.fullName,
               });
             }
+
+            item.information.forEach((element) => {
+              if (element.fullName != "none") {
+                optionName.push({
+                  value: element.fullName,
+                  id: element.id,
+                });
+              }
+            });
           });
-        });
-        console.log('load data client');
-        // console.log(option);
-        setDataClient(option);
-        setLoading(false);
-        setTableParamsUser({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
+          console.log("load data client");
+          // console.log(option);
+          setDataClient(option);
+          setOptionName(optionName);
+          setLoading(false);
+          setTableParamsUser({
+            pagination: {
+              current: results.data.current_page,
+              pageSize: 10,
+              total: results.data.total,
+            },
+          });
         });
       });
   };
@@ -781,7 +727,6 @@ const OrderConfirm = () => {
     console.log("on select client");
     console.log(value);
   };
-
 
   return (
     <div>
@@ -806,17 +751,20 @@ const OrderConfirm = () => {
         <ToastContainer></ToastContainer>
         <div className="col-4 mt-3">
           <label>Tên khách hàng</label>
-          <Input
-            type="text"
-            name="searchName"
+          <AutoComplete
+            style={{ width: 400 }}
+            onChange={(event) => setSearchName(event)}
+            options={optionName}
             value={searchName}
-            placeholder="Nhập tên khách hàng"
-            onChange={(e) => setSearchName(e.target.value)}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
           />
         </div>
         <div className="col-4 mt-3">
           <label>Số điện thoại khách hàng</label>
-          <br/>
+          <br />
           <AutoComplete
             style={{ width: 400 }}
             onChange={(event) => setPhoneClient(event)}
@@ -985,9 +933,7 @@ const OrderConfirm = () => {
                       currency: "VND",
                     })}
                   </p>
-                  <p>
-                    Địa chỉ nhận hàng: {dataO?.address}
-                  </p>
+                  <p>Địa chỉ nhận hàng: {dataO?.address}</p>
                 </div>
               </div>
             </div>

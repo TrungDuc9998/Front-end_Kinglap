@@ -13,6 +13,7 @@ import {
 } from "antd";
 import {
   CheckCircleOutlined,
+  ExclamationCircleOutlined,
   EyeOutlined,
   MenuFoldOutlined,
   ReloadOutlined,
@@ -38,7 +39,6 @@ const getRandomOrderParams = (params) => ({
   searchPhone: params.pagination?.searchPhone,
   searchPayment: params.pagination?.searchPayment,
 });
-
 
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -75,8 +75,9 @@ const OrderWait = () => {
   const [orderHistory, setOrderHistory] = useState();
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [note, setNote] = useState();
-  const [phoneClient, setPhoneClient] = useState();  
+  const [phoneClient, setPhoneClient] = useState();
   const [dataClient, setDataClient] = useState();
+  const [optionName, setOptionName] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -102,8 +103,7 @@ const OrderWait = () => {
   useEffect(() => {
     loadDataOrder();
     loadDataClient();
-  }, []);
-
+  }, [dataOrder]);
 
   const loadDataClient = () => {
     setLoading(true);
@@ -117,6 +117,7 @@ const OrderWait = () => {
         console.log("data client");
         console.log(results.data.data);
         const option = [];
+        const optionName = [];
         results.data.data.forEach((item) => {
           item.information.forEach((element) => {
             if (element.phoneNumber != "none") {
@@ -128,9 +129,20 @@ const OrderWait = () => {
             }
           });
         });
-        console.log('load data client');
+        results.data.data.forEach((item) => {
+          item.information.forEach((element) => {
+            if (element.fullName != "none") {
+              optionName.push({
+                value: element.fullName,
+                id: element.id,
+              });
+            }
+          });
+        });
+        console.log("load data client");
         // console.log(option);
         setDataClient(option);
+        setOptionName(optionName);
         setLoading(false);
         setTableParamsUser({
           pagination: {
@@ -142,9 +154,7 @@ const OrderWait = () => {
       });
   };
 
-
   const cancelCheckBox = () => {
-   
     Modal.confirm({
       icon: <CheckCircleOutlined />,
       title: "Huỷ đơn hàng ",
@@ -156,50 +166,32 @@ const OrderWait = () => {
         handleCancel();
       },
     });
-  }
+  };
 
   const onSelectAutoClient = (value) => {
     console.log("on select client");
     console.log(value);
   };
 
-
   const handleTableChange = (pagination, filters, sorter) => {
+    setDataOrder([]);
+    setData([]);
+    setSelectedRowKeys([]);
     tableParams.pagination = pagination;
-    tableParams.pagination.search1 = "";
-    tableParams.pagination.searchStatus = "CHO_LAY_HANG";
-    tableParams.pagination.searchEndDate= "";
-    tableParams.pagination.searchPhone= "";
-    tableParams.pagination.searchStartDate= "";
-    tableParams.pagination.searchPayment = "";
-
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomOrderParams(tableParams)
-      )}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setDataOrder(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
+    tableParams.pagination.search1 =
+    searchName != undefined ? searchName : "";
+  tableParams.pagination.searchPhone =
+    phoneClient != undefined ? phoneClient : "";
+  tableParams.pagination.searchStartDate =
+    searchStartDate != undefined ? searchStartDate : "";
+  tableParams.pagination.searchEndDate =
+    searchEndDate != undefined ? searchEndDate : "";
+  tableParams.pagination.searchStatus = "CHO_LAY_HANG";
+  tableParams.pagination.searchPayment = "";
+    loadDataOrder();
   };
 
-  const updateNote =() => {
+  const updateNote = () => {
     fetch(`http://localhost:8080/api/auth/orders/update/${dataO?.id}/note`, {
       method: "PUT",
       headers: {
@@ -208,9 +200,9 @@ const OrderWait = () => {
       },
       body: JSON.stringify(note),
     }).then((res) => {
-      toastSuccess('Cập nhật ghi chú thành công !')
+      toastSuccess("Cập nhật ghi chú thành công !");
     });
-  }
+  };
 
   const handleCancel = (isPut) => {
     const dataOrder = [];
@@ -351,36 +343,20 @@ const OrderWait = () => {
     },
   ];
   const search = () => {
-    tableParams.pagination.search1 =(searchName != undefined ? searchName : "") ;
-    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ;
-    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
-    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
-    tableParams.pagination.searchStatus = "CHO_LAY_HANG"
-    tableParams.pagination.searchPayment = ""
+    setDataOrder([]);
+    setData([]);
+    setSelectedRowKeys([]);
+    tableParams.pagination.search1 = searchName != undefined ? searchName : "";
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
+    tableParams.pagination.searchStatus = "CHO_LAY_HANG";
+    tableParams.pagination.searchPayment = "";
     tableParams.pagination.current = 1;
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomOrderParams(tableParams)
-      )}`,{
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setDataOrder(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
+    loadDataOrder();
   };
 
   const confirmCheckBox = () => {
@@ -410,8 +386,8 @@ const OrderWait = () => {
       onOk: () => {
         handleConfirm(isPut);
       },
-    })
-  }
+    });
+  };
 
   const handleConfirm = (isPut) => {
     const dataOrder = [];
@@ -429,13 +405,12 @@ const OrderWait = () => {
       },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
-     
       tableParams.pagination.search1 = "";
       tableParams.pagination.searchStatus = "CHO_LAY_HANG";
-      tableParams.pagination.searchEndDate= "";
-      tableParams.pagination.searchPhone= "";
-      tableParams.pagination.searchStartDate= "";
-      tableParams.pagination.searchPayment = ""
+      tableParams.pagination.searchEndDate = "";
+      tableParams.pagination.searchPhone = "";
+      tableParams.pagination.searchStartDate = "";
+      tableParams.pagination.searchPayment = "";
       loadDataOrder();
       clearSearchForm();
     });
@@ -445,20 +420,14 @@ const OrderWait = () => {
     dataOrder?.forEach((item, index) => {
       data.splice(index, dataOrder.length);
     });
-
-    if (dataOrder.length == 0) {
-      setDataOrder([]);
-      setData([]);
-      loadDataOrder();
-      setSearchName("");
-      setSelectedRowKeys([]);
-    }
-
+    setDataOrder([]);
+    setData([]);
+    setSelectedRowKeys([]);
     tableParams.pagination.search1 = "";
     tableParams.pagination.searchStatus = "CHO_LAY_HANG";
-    tableParams.pagination.searchEndDate= "";
-    tableParams.pagination.searchPhone= "";
-    tableParams.pagination.searchStartDate= "";
+    tableParams.pagination.searchEndDate = "";
+    tableParams.pagination.searchPhone = "";
+    tableParams.pagination.searchStartDate = "";
     tableParams.pagination.searchPayment = "";
     loadDataOrder();
     setPhoneClient("");
@@ -579,6 +548,8 @@ const OrderWait = () => {
     )
       .then((res) => res.json())
       .then((results) => {
+        console.log("dữ liệu lấy ra");
+        console.log(results);
         results.data.data?.forEach((item) => {
           data.push({
             key: item.id,
@@ -589,7 +560,8 @@ const OrderWait = () => {
             status: item.status,
             quantity: item.quantity,
             createdAt: item.createdAt,
-            money: item.money
+            money: item.money,
+            phone: item.phone,
           });
         });
         setDataOrder(data);
@@ -598,7 +570,7 @@ const OrderWait = () => {
           pagination: {
             current: results.data.current_page,
             pageSize: 10,
-            total: results.data.total
+            total: results.data.total,
           },
         });
       });
@@ -624,6 +596,11 @@ const OrderWait = () => {
       dataIndex: "customerName",
       sorter: (a, b) => a.customerName.length - b.customerName.length,
       width: "15%",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      width: "10%",
     },
     {
       title: "Tổng tiền",
@@ -664,46 +641,33 @@ const OrderWait = () => {
         if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="cyan" className="pt-1 pb-1">
                 Thanh toán VNPAY
-              </div>
-            </>
-          );
-        } if (payment == "NGAN_HANG") {
-          return (
-            <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                {"Tài khoản ATM"}
-              </div>
-            </>
-          );
-        }if (payment == "DAT_COC") {
-          return (
-            <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                Tại nhà
-              </div>
+              </Tag>
             </>
           );
         }
-        else {
+        if (payment == "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="blue" className="pt-1 pb-1">
+                Thanh toán ATM
+              </Tag>
+            </>
+          );
+        }
+        if (payment == "DAT_COC") {
+          return (
+            <Tag color="purple" className="pt-1 pb-1">
+              Thanh toán tại nhà
+            </Tag>
+          );
+        } else {
+          return (
+            <>
+              <Tag color="red" className="pt-1 pb-1">
                 Tại cửa hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -714,22 +678,20 @@ const OrderWait = () => {
       dataIndex: "status",
       width: "13%",
       render: (status) => {
-       
         if (status === "CHO_LAY_HANG") {
           return (
             <>
-              <div
-                className="bg-warning text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<ExclamationCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="warning"
+                style={{ width: "100%" }}
               >
-                {status}
-              </div>
+                Chờ lấy hàng
+              </Tag>
             </>
           );
         }
-        
-       
-       
       },
     },
     {
@@ -816,20 +778,23 @@ const OrderWait = () => {
           background: "#fafafa",
         }}
       >
-            <ToastContainer></ToastContainer>
+        <ToastContainer></ToastContainer>
         <div className="col-4 mt-3">
           <label>Tên khách hàng</label>
-          <Input
-            type="text"
-            name="searchName"
+          <AutoComplete
+            style={{ width: 400 }}
+            onChange={(event) => setSearchName(event)}
+            options={optionName}
             value={searchName}
-            placeholder="Nhập tên khách hàng"
-            onChange={(e) => setSearchName(e.target.value)}
+            filterOption={(inputValue, option) =>
+              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
+            }
           />
         </div>
         <div className="col-4 mt-3">
           <label>Số điện thoại khách hàng</label>
-          <br/>
+          <br />
           <AutoComplete
             style={{ width: 400 }}
             onChange={(event) => setPhoneClient(event)}
@@ -881,7 +846,7 @@ const OrderWait = () => {
         </div>
       </div>
       <div className="row">
-        <div className="col-12 mt-4 confirmDeleving">
+        <div className="col-12 mt-4 confirmWait">
           {selectedRowKeys.length > 0 ? (
             <div className="text-center ">
               <Button
@@ -900,7 +865,7 @@ const OrderWait = () => {
                 className="ms-2"
                 onClick={cancelCheckBox}
               >
-              Huỷ đơn hàng
+                Huỷ đơn hàng
               </Button>
               <Button
                 type="primary"
@@ -980,14 +945,21 @@ const OrderWait = () => {
                       currency: "VND",
                     })}
                   </p>
-                  <p >
+                  <p>
                     Ghi chú:
                     <div className="row">
                       <div className="col-9">
-                        <TextArea value={note} onChange={(e) => setNote(e.target.value)} rows={3} cols={9} />
+                        <TextArea
+                          value={note}
+                          onChange={(e) => setNote(e.target.value)}
+                          rows={3}
+                          cols={9}
+                        />
                       </div>
-                      <div className="col-3 mt-4" >
-                        <Button onClick={() => updateNote() } >Cập nhật ghi chú</Button>
+                      <div className="col-3 mt-4">
+                        <Button onClick={() => updateNote()}>
+                          Cập nhật ghi chú
+                        </Button>
                       </div>
                     </div>
                   </p>
@@ -1013,10 +985,7 @@ const OrderWait = () => {
                       currency: "VND",
                     })}
                   </p>
-                  <p>
-                    Địa chỉ nhận hàng:{" "}
-                    {dataO?.address}
-                  </p>
+                  <p>Địa chỉ nhận hàng: {dataO?.address}</p>
                 </div>
               </div>
             </div>

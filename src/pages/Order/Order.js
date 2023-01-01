@@ -8,6 +8,7 @@ import {
   Image,
   Space,
   AutoComplete,
+  Tag,
 } from "antd";
 import {
   EyeOutlined,
@@ -16,6 +17,13 @@ import {
   SearchOutlined,
   PrinterOutlined,
   MenuFoldOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  SyncOutlined,
+  QuestionOutlined,
+  QuestionCircleOutlined,
+  IssuesCloseOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import "../Order/order.css";
 import Moment from "react-moment";
@@ -398,7 +406,7 @@ const Order = () => {
             if (element.fullName != "none") {
               optionName.push({
                 value: element.fullName,
-                id: element.id,      
+                id: element.id,
               });
             }
           });
@@ -419,7 +427,8 @@ const Order = () => {
       searchStartDate != undefined ? searchStartDate : "";
     tableParams.pagination.searchEndDate =
       searchEndDate != undefined ? searchEndDate : "";
-    tableParams.pagination.searchStatus = searchStatus != undefined ? searchStatus : "";
+    tableParams.pagination.searchStatus =
+      searchStatus != undefined ? searchStatus : "";
     tableParams.pagination.searchPayment = "";
     tableParams.pagination.current = 1;
     load();
@@ -625,34 +634,33 @@ const Order = () => {
         if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                {payment === "VN_PAY" ? "Thanh toán VNPAY" : "Đặt cọc VNPAY"}
-              </div>
+              <Tag color="cyan" className="pt-1 pb-1">
+                Thanh toán VNPAY
+              </Tag>
             </>
           );
-        } else if (payment == "NGAN_HANG") {
+        }
+        if (payment == "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                Tài khoản ATM
-              </div>
+              <Tag color="blue" className="pt-1 pb-1">
+                Thanh toán ATM
+              </Tag>
             </>
+          );
+        }
+        if (payment == "DAT_COC") {
+          return (
+            <Tag color="purple" className="pt-1 pb-1">
+              Thanh toán tại nhà
+            </Tag>
           );
         } else {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="red" className="pt-1 pb-1">
                 Tại cửa hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -671,72 +679,82 @@ const Order = () => {
         if (status === "CHUA_THANH_TOAN") {
           return (
             <>
-              <div
-                className="bg-secondary text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<QuestionCircleOutlined />}
+                style={{ width: "100%" }}
+                className="pt-1 pb-1 text-center"
+                color="default"
               >
                 Chưa thanh toán
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "CHO_XAC_NHAN") {
           return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+            <Tag
+                icon={<IssuesCloseOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="cyan"
+                style={{ width: "100%" }}
               >
-                Chờ xác nhận
-              </div>
-            </>
+               Chờ xác nhận
+            </Tag>
           );
         }
         if (status === "CHO_LAY_HANG") {
           return (
             <>
-              <div
-                className="bg-warning text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<ExclamationCircleOutlined/>}
+                className="pt-1 pb-1 text-center"
+                color="warning"
+                style={{ width: "100%" }}
               >
-                Chờ lấy hàng
-              </div>
+               Chờ lấy hàng
+            </Tag>
             </>
           );
         }
         if (status === "DANG_GIAO") {
           return (
             <>
-              <div
-                className="bg-primary text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<SyncOutlined spin />}
+                className="pt-1 pb-1 text-center"
+                color="processing"
+                style={{ width: "100%" }}
               >
                 Đang giao hàng
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "DA_NHAN") {
           return (
             <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<CheckCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="success"
+                style={{ width: "100%" }}
               >
                 Đã nhận hàng
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "DA_HUY") {
           return (
             <>
-              <div
-                className="bg-danger text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<CloseCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="error"
+                style={{ width: "100%" }}
               >
                 Đã huỷ hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -909,7 +927,8 @@ const Order = () => {
       searchStartDate != undefined ? searchStartDate : "";
     tableParams.pagination.searchEndDate =
       searchEndDate != undefined ? searchEndDate : "";
-    tableParams.pagination.searchStatus = searchStatus;
+    tableParams.pagination.searchStatus =
+      searchStatus != undefined ? searchStatus : "";
     tableParams.pagination.searchPayment = "";
     setLoading(true);
     fetch(
