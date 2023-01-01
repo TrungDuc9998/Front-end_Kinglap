@@ -134,83 +134,45 @@ const Find = () => {
     });
     const loadDataManufacture = () => {
         fetch(
-            `http://localhost:8080/api/auth/manufactures?${qs.stringify(
-                getRandomuserParamsAccessories(tableParamsAccessories)
-            )}`, {
-            headers: {
-                Authorization: 'Bearer ' + localStorage.getItem("token"),
-            },
-        }
+            `http://localhost:8080/api/manufactures/getAll`
         )
             .then((res) => res.json())
             .then((results) => {
-                setDataManufacture(results.data.data);
-                setTableParams({
-                    pagination: {
-                        current: results.data.current_page,
-                        pageSize: 10,
-                        total: results.data.total,
-                    },
-                });
+              console.log("hang",results.data);
+                setDataManufacture(results.data);
             });
     };
     const loadDataCategory = () => {
         fetch(
-          `http://localhost:8080/api/auth/category?${qs.stringify(
-            getRandomuserParamsAccessories(tableParamsAccessories)
-          )}`,
-          {
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-          }
+          `http://localhost:8080/api/category/getAll`
         )
           .then((res) => res.json())
           .then((results) => {
-            setCategory(results.data.data);
-    
-            setTableParamsAccessories({
-              pagination: {
-                current: results.data.current_page,
-                pageSize: 10,
-                total: results.data.total,
-              },
-            });
+            console.log("cate",results.data);
+            setCategory(results.data);
           });
       };
     
       const loadDataStorage = () => {
         fetch(
-          `http://localhost:8080/api/storage_details?${qs.stringify(
-            getRandomuserParamsAccessories(tableParamsAccessories)
-          )}`
+          `http://localhost:8080/api/storage_details/getAll`
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataStorage(results.data.data);
-    
-            setTableParamsAccessories({
-              pagination: {
-                current: results.data.current_page,
-                pageSize: 10,
-                total: results.data.total,
-              },
-            });
+            setDataStorage(results.data);
           });
       };
     
       const loadDataProcess = () => {
         fetch(
-          `http://localhost:8080/api/auth/processors?${qs.stringify(
-            getRandomuserParamsAccessories(tableParamsAccessories)
-          )}`
+          `http://localhost:8080/api/processors/getAll`
         )
           .then((res) => res.json())
           .then((results) => {
-            setProcessors(results.data.data);
+            setProcessors(results.data);
               let indexProcess = -1;
               let processor1=[];
-            results.data.data.forEach(item=>{
+            results.data.forEach(item=>{
               if (processor1) {
                 indexProcess = processor1.findIndex(value => {
                     return (value.cpuCompany.trim() +" " +value.cpuTechnology.trim()) === (item.cpuCompany.trim() +" " +item.cpuTechnology.trim())
@@ -221,30 +183,21 @@ const Find = () => {
               }
             })
             setProcessorsFilter(processor1);
-            setTableParamsAccessories({
-              pagination: {
-                current: results.data.current_page,
-                pageSize: 10,
-                total: results.data.total,
-              },
-            });
           });
       };
       const loadDataWin = () => {
         fetch(
-          `http://localhost:8080/api/auth/wins?${qs.stringify(
-            getRandomuserParamsAccessories(tableParamsAccessories)
-          )}`
+          `http://localhost:8080/api/wins/getAll`
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataWin(results.data.data);
+            setDataWin(results.data);
           });
       };
     
       const loadDataColor = () => {
         fetch(
-          `http://localhost:8080/api/auth/colors?${qs.stringify(
+          `http://localhost:8080/api/colors?${qs.stringify(
             getRandomuserParamsAccessories(tableParamsAccessories)
           )}`
         )
@@ -256,81 +209,41 @@ const Find = () => {
     
       const loadDataBattery = () => {
         fetch(
-          `http://localhost:8080/api/auth/batteryCharger?${qs.stringify(
-            getRandomuserParamsAccessories(tableParamsAccessories)
-          )}`
+          `http://localhost:8080/api/batteryCharger/getAll`
         )
           .then((res) => res.json())
           .then((results) => {
-            setBattery(results.data.data);
-    
-            setTableParamsAccessories({
-              pagination: {
-                current: results.data.current_page,
-                pageSize: 10,
-                total: results.data.total,
-              },
-            });
+            setBattery(results.data);
           });
       };
     
       const loadDataAccessor = () => {
         fetch(
-          `http://localhost:8080/api/auth/accessory?${qs.stringify(
-            getRandomuserParamsAccessories(tableParamsAccessories)
-          )}`
+          `http://localhost:8080/api/accessory/getAll`
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataAccessory(results.data.data);
-    
-            setTableParamsAccessories({
-              pagination: {
-                current: results.data.current_page,
-                pageSize: 10,
-                total: results.data.total,
-              },
-            });
+            setDataAccessory(results.data);
           });
       };
     
       const loadDataCard = () => {
         fetch(
-          `http://localhost:8080/api/card?${qs.stringify(
-            getRandomuserParamsAccessories(tableParamsAccessories)
-          )}`
+          `http://localhost:8080/api/card/getAll`
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataCard(results.data.data);
-    
-            setTableParamsAccessories({
-              pagination: {
-                current: results.data.current_page,
-                pageSize: 10,
-                total: results.data.total,
-              },
-            });
+            setDataCard(results.data);
           });
       };
     
       const loadDataRam = () => {
         fetch(
-          `http://localhost:8080/api/auth/rams?${qs.stringify(
-            getRandomuserParamsAccessories(tableParamsAccessories)
-          )}`
+          `http://localhost:8080/api/rams/getAll`
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataRam(results.data.data);
-    
-            setTableParamsAccessories({
-              pagination: {
-                current: results.data.current_page,
-                pageSize: 10,
-                total: results.data.total,
-              },
-            });
+            setDataRam(results.data);
           });
       };
     
@@ -361,21 +274,11 @@ const Find = () => {
     
       const loadDataScreen = () => {
         fetch(
-          `http://localhost:8080/api/auth/screens?${qs.stringify(
-            getRandomuserParamsAccessories(tableParamsAccessories)
-          )}`
+          `http://localhost:8080/api/screens/getAll`
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataScreen(results.data.data);
-    
-            setTableParamsAccessories({
-              pagination: {
-                current: results.data.current_page,
-                pageSize: 10,
-                total: results.data.total,
-              },
-            });
+            setDataScreen(results.data);
           });
       };
 
@@ -387,8 +290,10 @@ const Find = () => {
     const [checkAllTH, setCheckAllTH] = useState(true);
     var thuonghieuAll = document.getElementsByClassName("thuonghieuAll");
     const onChangeThuongHieu = (list) => {
+      console.log("thuonghieu", list);
       setCheckedListTH(list);
       setCheckAllTH(list.length === thuonghieuOptions.length||list.length ==0);
+      thuonghieuAll = document.getElementsByClassName("thuonghieuAll");
       if(list.length !== thuonghieuOptions.length||list.length >0){
         thuonghieuAll[0].control.checked=false;// use chonLaptop()
       }
@@ -405,6 +310,48 @@ const Find = () => {
       }
       chonLaptop();
     };
+
+    //onClick img hãng
+    var thuonghieuImg=[];
+    const onClickThuongHieuImg=(nameTH)=>{
+      if(nameTH!=null){
+        dataManufacture?.map(item => {if(item.name.toLowerCase()==nameTH.toLowerCase())thuonghieuImg=[item.id]})
+        console.log("thuonghieuImg",thuonghieuImg);
+        if(thuonghieuImg.length>0){
+          var arrTH1=document.getElementsByClassName("thuonghieu")[0]?.children;
+          for(var i=0; i<arrTH1.length; i++){
+            if(arrTH1[i].control.value==thuonghieuImg[0]){// checkbox
+              arrTH1[i].control.checked = true;//set checked cho checkbox
+            }else{
+              arrTH1[i].control.checked = false;
+            }
+          }
+          onChangeThuongHieu(thuonghieuImg);
+        }
+        
+      }
+    }
+    //onClick img nhu cầu
+    var categoryImg=[];
+    const onClickCategoryImg=(nameNC)=>{
+      if(nameNC!=null){
+        category?.map(item => {if(item.name.toLowerCase()==nameNC.toLowerCase())categoryImg=[item.name]})
+        console.log("categoryImg",categoryImg);
+        if(categoryImg.length>0){
+          var arrNC=document.getElementsByClassName("category")[0]?.children;
+          for(var i=0; i<arrNC.length; i++){
+            if(arrNC[i].control.value==categoryImg[0]){// checkbox
+              arrNC[i].control.checked = true;//set checked cho checkbox
+            }else{
+              arrNC[i].control.checked = false;
+            }
+          }
+          onChangecategory(categoryImg);
+        }
+        
+      }
+    }
+
     //option Giá bán
     const giabanOptions=[
       {label:"Dưới 10 triệu",value:1},
@@ -612,7 +559,9 @@ const Find = () => {
       for(var i=0; i<arr1.length; i++){
         if(thuonghieuAll[0].control.checked == true){
           arr1[i].control.checked = false;
+          console.log("checkallTrue");
         }else{
+          console.log("checkallFalse",arr1[i].control);
           if (arr1[i].control.checked == true) thuonghieuchon_arr.push(arr1[i].control.value);
         }
       }
@@ -835,16 +784,16 @@ const Find = () => {
     useEffect(() => {
         loadDataManufacture();
         loadDataCategory();
-        loadDataOrigin();
+        //loadDataOrigin();
         loadDataProcess();
         loadDataScreen();
         loadDataRam();
         loadDataCard();
-        loadDataBattery();
-        loadDataAccessor();
+        //loadDataBattery();
+        //loadDataAccessor();
         loadDataStorage();
-        loadDataColor();
-        loadDataWin();
+        //loadDataColor();
+        //loadDataWin();
     }, []);
     return <>
         <div className="container">
@@ -1109,7 +1058,7 @@ const Find = () => {
                 </div>
                 <div className="col-9">
                     <div className="row" style={{ marginTop: "20px" }}>
-                        <h3 style={{ fontWeight: 700 }}>LAPTOP</h3>
+                        <h3 style={{ fontWeight: 700 }}>LAPTOP</h3><a className="text-secondary">({dataProductsFind?dataProductsFind.length:0} sản phẩm)</a>
                         <hr></hr>
                         <>
                             <Swiper
@@ -1122,18 +1071,18 @@ const Find = () => {
                                 modules={[FreeMode, Pagination]}
                                 className="mySwiper"
                             >
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/1/4/637769104385571970_Macbook-Apple@2x.jpg" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/11/22/637732077455069770_Asus@2x.jpg" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/7/15/637619564183327279_HP@2x.png" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340494668267616_Lenovo@2x.jpg" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340493755614653_MSI@2x.jpg" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/9/16/637674058450623615_Gigabyte@2x.jpg" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340494666861275_Dell@2x.jpg" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340494666704995_Acer@2x.jpg" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/14/637987475787766575_LG.jpg" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/1/13/637461259692529909_Microsoft@2x.png" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/12/11/637748124762643705_Chuwi@2x.jpg" /></a></SwiperSlide>
-                                <SwiperSlide className="bg-image hover-zoom"><a href="#"><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340491898901930_Masstel@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("Macbook")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/1/4/637769104385571970_Macbook-Apple@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("Asus")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/11/22/637732077455069770_Asus@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("HP")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/7/15/637619564183327279_HP@2x.png" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("Lenovo")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340494668267616_Lenovo@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("MSI")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340493755614653_MSI@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("Gigabyte")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/9/16/637674058450623615_Gigabyte@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("Dell")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340494666861275_Dell@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("Acer")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340494666704995_Acer@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("LG")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/14/637987475787766575_LG.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("Microsoft")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/1/13/637461259692529909_Microsoft@2x.png" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("Chuwi")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2021/12/11/637748124762643705_Chuwi@2x.jpg" /></a></SwiperSlide>
+                                <SwiperSlide className="bg-image hover-zoom"><a href="#" onClick={()=>onClickThuongHieuImg("Masstel")}><img className="w-100" width={150} src="https://images.fpt.shop/unsafe/fit-in/108x40/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/8/26/637340491898901930_Masstel@2x.jpg" /></a></SwiperSlide>
                             </Swiper>
                         </>
                     </div>
@@ -1142,7 +1091,7 @@ const Find = () => {
                         <div className="d-flex justify-content-between">
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                    <a href="#">
+                                    <a href="#" onClick={()=>onClickCategoryImg("Laptop Gaming")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991744177742277_img-gaming.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Gaming</h6>
                                     </a>
@@ -1150,7 +1099,7 @@ const Find = () => {
                             </div>
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                    <a href="#">
+                                   <a href="#" onClick={()=>onClickCategoryImg("Laptop Sinh viên - Văn phòng")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/6/637980583313032986_SV-Văn phòng.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Sinh viên - Văn phòng</h6>
                                     </a>
@@ -1158,7 +1107,7 @@ const Find = () => {
                             </div>
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                    <a href="#">
+                                   <a href="#" onClick={()=>onClickCategoryImg("Laptop Thiết kế đồ họa")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991745714018004_img-thietkedohoa.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Thiết kế đồ họa</h6>
                                     </a>
@@ -1166,7 +1115,7 @@ const Find = () => {
                             </div>
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                    <a href="#">
+                                   <a href="#" onClick={()=>onClickCategoryImg("Laptop Mỏng nhẹ")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991744678844250_img-mongnhe.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Mỏng nhẹ</h6>
                                     </a>
@@ -1174,7 +1123,7 @@ const Find = () => {
                             </div>
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                    <a href="#">
+                                   <a href="#" onClick={()=>onClickCategoryImg("Laptop Doanh nhân")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991745141508369_img-doanhnhan.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Doanh nhân</h6>
                                     </a>
