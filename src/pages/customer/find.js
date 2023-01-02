@@ -56,16 +56,29 @@ const Find = () => {
         })
         console.log("findCart", findCart)
         if (findCart != null) {
-            if (findCart.quantity < 5) {
+          let totalQuantity=parseInt(findCart.quantity);
+            if (totalQuantity < 4) {
                 dispatch(addToCart(product))
-                notifySuccess('Thêm vào giỏ hàng thành công!')
-            } else {
-                notifyError('Đã tồn tại 5 sản phẩm trong giỏ hàng! Liên hệ cửa hàng để đặt mua số lượng lớn')
-            }
-        } else {
-            dispatch(addToCart(product))
-            notifySuccess('Thêm vào giỏ hàng thành công!')
-        }
+                notifySuccess("Thêm vào giỏ hàng thành công!");
+              } else {
+                notifyError(
+                  "Đã tồn tại "+findCart.quantity+" sản phẩm đã chọn trong giỏ hàng! Không được mua quá 4 sản phẩm cùng loại. Liên hệ cửa hàng để đặt mua số lượng lớn"
+                );
+              }
+          } else {
+              let totalProductInCart=(JSON.parse(localStorage.getItem("carts"))
+              ? JSON.parse(localStorage.getItem("carts"))
+              : []).length;
+              console.log("totalProductInCart",totalProductInCart);
+              if(totalProductInCart<10){
+                  dispatch(addToCart(product))
+                  notifySuccess("Thêm vào giỏ hàng thành công!");
+                } else {
+                  notifyError(
+                    "Đã tồn tại 10 sản phẩm khác nhau trong giỏ hàng! Liên hệ cửa hàng để đặt mua số lượng lớn"
+                  );
+                }
+          }
 
 
     }

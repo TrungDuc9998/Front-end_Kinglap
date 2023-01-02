@@ -1044,11 +1044,11 @@ function Checkout() {
               {carts?.map((cart) => (
               <div className="row d-flex">
                 <div className="col-3 img mt-2">
-                  {/* <img
+                  <img
                     alt="Ảnh sản phẩm"
                     src={cart?.images[0]?.name}
                     className="img-content"
-                  ></img> */}
+                  ></img>
                 </div>
                 <div className="col-1 mt-5">
                   <InputNumber
