@@ -8,6 +8,7 @@ import {
   Space,
   Image,
   AutoComplete,
+  Tag,
 } from "antd";
 import {
   DeleteOutlined,
@@ -15,6 +16,7 @@ import {
   SearchOutlined,
   EyeOutlined,
   MenuFoldOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 
@@ -135,7 +137,7 @@ const CancelOrder = () => {
   const onCancel = (record) => {
     Modal.confirm({
       title: 'Xoá đơn hàng',
-      content: `Bạn có muốn xoá đơn hàng ${record.id}  không?`,
+      content: `Bạn có muốn xoá đơn hàng ${record.id} của khách hàng ${record.customerName} không?`,
       okText: "Có",
       cancelText: "Không",
       okType: "primary",
@@ -289,46 +291,33 @@ const CancelOrder = () => {
         if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="cyan" className="pt-1 pb-1">
                 Thanh toán VNPAY
-              </div>
-            </>
-          );
-        } if (payment == "NGAN_HANG") {
-          return (
-            <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                {"Tài khoản ATM"}
-              </div>
-            </>
-          );
-        }if (payment == "DAT_COC") {
-          return (
-            <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
-                Tại nhà
-              </div>
+              </Tag>
             </>
           );
         }
-        else {
+        if (payment == "NGAN_HANG") {
           return (
             <>
-              <div
-                className="bg-info text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-              >
+              <Tag color="blue" className="pt-1 pb-1">
+                Thanh toán ATM
+              </Tag>
+            </>
+          );
+        }
+        if (payment == "DAT_COC") {
+          return (
+            <Tag color="purple" className="pt-1 pb-1">
+              Thanh toán tại nhà
+            </Tag>
+          );
+        } else {
+          return (
+            <>
+              <Tag color="red" className="pt-1 pb-1">
                 Tại cửa hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -346,12 +335,14 @@ const CancelOrder = () => {
       render: (status) => {
         return (
           <>
-            <div
-              className="bg-danger text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-              Đã huỷ hàng
-            </div>
+            <Tag
+                icon={<CloseCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="error"
+                style={{ width: "100%" }}
+              >
+                Đã huỷ hàng
+              </Tag>
           </>
         );
       },

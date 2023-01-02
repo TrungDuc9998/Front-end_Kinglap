@@ -595,6 +595,7 @@ const Order = () => {
     {
       title: "Mã HD",
       dataIndex: "id",
+      sorter: (a, b) => a.id - b.id,
       width: "5%",
     },
     {
@@ -609,11 +610,13 @@ const Order = () => {
     {
       title: "Người đặt",
       dataIndex: "customerName",
+      sorter: (a, b) => a.customerName.length - b.customerName.length,
       width: "15%",
     },
     {
       title: "Tổng tiền",
       dataIndex: "total",
+      sorter: (a, b) => a.total - b.total,
       width: "10%",
       render(total) {
         return (

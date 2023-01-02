@@ -28,6 +28,7 @@ import "toastr/build/toastr.min.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Moment from "react-moment";
+import Clock from "./Clock";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const url = "http://localhost:8080/api/auth/discount";
@@ -82,7 +83,10 @@ const Discount = () => {
   const [searchStartDate, setSearchStartDate] = useState(getDateTime());
   const [searchEndDate, setSearchEndDate] = useState(getDateTime());
   const [dataProduct, setDataProduct] = useState([]);
-  //const [dataProduct2, setDataProduct2] = useState([]);//hiển thị modal
+  const [timerDays, setTimerDays] = useState();
+  const [timerHours, setTimerHours] = useState();
+  const [timerMinutes, setTimerMinutes] = useState();
+  const [timerSeconds, setTimerSeconds] = useState();
   const [dataDiscount, setDataDiscount] = useState();
   const [checked, setChecked] = useState([]);
   const [trueProDiscount, setTrueProDiscount] = useState(false); //dk interval
@@ -144,7 +148,7 @@ const Discount = () => {
   }
 
   function disabledDate(current) {
-    return current && current > moment().startOf('day');
+    return current && current > moment().startOf("day");
   }
   //loadParam getList
   const getRandomuserParams = (params) => ({
@@ -188,9 +192,9 @@ const Discount = () => {
           listProDiscount.push(pro);
         }
       });
-      console.log("listProDiscount1", listProDiscount);
+     
       dateTimer.forEach((time) => {
-        console.log("listProDiscount2", dataProduct);
+        
         //clearInterval(myTimer);
         var myTimer = setInterval(() => {
           time--;
@@ -286,6 +290,7 @@ const Discount = () => {
     {
       title: "Tiêu đề",
       dataIndex: "name",
+      sorter: (a, b) => a.name.length - b.name.length,
       render: (name) => `${name}`,
       width: "30%",
     },
@@ -308,19 +313,25 @@ const Discount = () => {
     {
       title: "Tỉ lệ (%)",
       dataIndex: "ratio",
+      sorter: (a, b) => a.ratio - b.ratio,
       render: (ratio) => `${ratio}`,
       width: "10%",
     },
-    // {
-    //   title: "Time",
-    //   dataIndex: "endDate",
-    //   render(endDate) {
-    //     return (
-    //       <Countdown value={(new Date(endDate)) - Date.now()} onFinish={onFinishTime} />
-    //     );
-    //   },
-    //   width: "10%",
-    // },
+    {
+      title: "Time",
+      dataIndex: "endDate",
+      render(endDate) {
+        return (
+          <Clock
+          timerDays={timerDays}
+          timerHours={timerHours}
+          timerMinutes={timerMinutes}
+          timerSeconds={timerSeconds}
+        />
+        );
+      },
+      width: "10%",
+    },
     {
       title: "Trạng thái",
       dataIndex: "status",
@@ -445,7 +456,6 @@ const Discount = () => {
               var totalTime =
                 (new Date(discount.endDate).getTime() - new Date().getTime()) /
                 1000;
-              console.log("totalTime", Math.ceil(totalTime));
               if (listTime.includes(Math.ceil(totalTime)) == false) {
                 listTime.push(Math.ceil(totalTime));
               }
@@ -463,9 +473,14 @@ const Discount = () => {
       });
   };
 
+  useEffect(() => {
+    // startTimer();
+  })
+
   //LoadList
   useEffect(() => {
     getData();
+    
     // loadProduct();
   }, [JSON.stringify(tableParams)]);
 
@@ -506,10 +521,6 @@ const Discount = () => {
     }
   };
 
-  const onView = (record) => {
-    setView(true);
-  };
-
   const draft = () => {
     axios
       .post(urlStaff + "/draft", form, {
@@ -528,17 +539,16 @@ const Discount = () => {
 
   //btn Add
   const handleAdd = (e) => {
-
-    console.log('----- test thời gian hiên tại cộng thêm số phút');
-    const currentDate = new Date().getMinutes()+ 30;
-    console.log('thời gian hiện tại cộng thêm 30: ', currentDate);
-
-    console.log("thời gian bắt đầu:", form.startDate);
-    console.log("thời gian Kết thúc:", form.endDate);
+    // thời gian giảm giá không quá 3 tháng
     const currency = new Date().getTime();
     const start = new Date(form.startDate).getTime();
     const end = new Date(form.endDate).getTime();
     console.log(start + " - " + end);
+
+
+    const currentDate = new Date(start);
+    currentDate.setDate(currentDate.getDate() + 90)
+    console.log('thời gian sau 3 tháng: ', currentDate);
 
     if (form.name == null || form.name == "") {
       notifyError("Tiêu đề giảm giá không được để trống!");
@@ -550,28 +560,31 @@ const Discount = () => {
       notifyError("Thời gian giảm giá không được để trống!");
     } else if (end <= start) {
       notifyError("Thời gian kết thúc phải lớn hơn thời gian bắt đầu !");
-    }else  if(start < currency) {
-      notifyError("Thời gian bắt đầu phải lớn hơn thời gian hiện tại !")
-    }
-     else {
+    } else if (start < currency) {
+      notifyError("Thời gian bắt đầu phải lớn hơn thời gian hiện tại !");
+    }else if(end > currentDate) {
+      notifyError("Thời gian giảm giá không vượt quá 3 tháng !")
+    } 
+    
+    else {
       e.preventDefault();
-      // axios
-      //   .post(urlStaff, form, {
-      //     headers: {
-      //       Authorization: "Bearer " + localStorage.getItem("token"),
-      //     },
-      //   })
-      //   .then((res) => {
-      //     notifySuccess("Tạo giảm giá sản phẩm thành công");
-      //     setAdd(false);
-      //     getData();
-      //     setValues(formDefault);
-      //     console.log(res.data);
-      //   })
-      //   .catch((error) => {
-      //     notifyError("Tạo giảm giá không thành công!");
-      //     return;
-      //   });
+      axios
+        .post(urlStaff, form, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
+        .then((res) => {
+          notifySuccess("Tạo giảm giá sản phẩm thành công");
+          setAdd(false);
+          getData();
+          setValues(formDefault);
+          console.log(res.data);
+        })
+        .catch((error) => {
+          notifyError("Tạo giảm giá không thành công!");
+          return;
+        });
     }
   };
 
@@ -613,6 +626,8 @@ const Discount = () => {
     Modal.confirm({
       title: "Xoá giảm giá",
       content: "Bạn có muốn xoá bản ghi này không?",
+      okText: "Có",
+      cancelText: "Không",
       onOk() {
         axios
           .delete(urlAdmin + "/" + id, {
@@ -643,14 +658,6 @@ const Discount = () => {
       [e.target.name]: e.target.value,
     });
   };
-  //onChange status
-  // const handleChange = (e) => {
-  //   setValues({
-  //     ...form,
-  //     status: e,
-  //   });
-  //   console.log("status", e);
-  // };
 
   const handleChangeDate = (val, dateStrings) => {
     setValues({
@@ -804,7 +811,6 @@ const Discount = () => {
                 });
                 handleCancel();
                 if (res.data.data) {
-                  console.log("------------------------- vào  rest");
                   loadProduct();
                   getData();
                 }
@@ -912,12 +918,56 @@ const Discount = () => {
   //       });
   //   }
   // };
+
+  //xử lý login set Interval
+  let interval;
+  const startTimer = () => {
+    // const countDownDate = new Date("Jan 2, 2023 00:05:58").getTime();
+    
+    const countDownDate = new Date("01-02-2023 00:05:58").getTime();
+    interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = countDownDate - now;
+      const days = Math.floor(distance / (24 * 60 * 60 * 1000));
+      const hours = Math.floor(
+        (distance % (24 * 60 * 60 * 1000)) / (1000 * 60 * 60)
+      );
+      const minutes = Math.floor(
+        (distance % (60 * 60 * 1000)) / (1000 * 60));
+      const seconds = Math.floor((distance % (60 *  1000)) / 1000);
+
+      if(distance < 0) {
+        console.log('nhỏ hơn 0');
+        clearInterval(interval.current);
+      }else {
+        setTimerDays(days);
+        setTimerHours(hours);
+        setTimerMinutes(minutes)
+        setTimerSeconds(seconds)
+      }
+    });
+   
+   
+  };
+
   return (
     <div>
       <ToastContainer />
       <div className="row">
+          <div className="col-12">
+          <Clock
+            timerDays={timerDays}
+            timerHours={timerHours}
+            timerMinutes={timerMinutes}
+            timerSeconds={timerSeconds}
+          />
+          </div>
+         </div>
+      <div className="row">
         <div className="col-1" style={{ width: "10px" }}>
           <MenuFoldOutlined style={{ fontSize: "20px" }} />
+          <br />
+        
         </div>
         <div className="col-11">
           <h4 className="text-danger fw-bold">Giảm giá sản phẩm</h4>
@@ -1246,12 +1296,11 @@ const Discount = () => {
                           onCalendarChange={setDates}
                           value={[
                             moment(form.startDate, "yyyy-MM-DD HH:mm:ss"),
-                             moment(form.endDate, "yyyy-MM-DD HH:mm:ss"),
+                            moment(form.endDate, "yyyy-MM-DD HH:mm:ss"),
                           ]}
                           type="datetime"
                         />
                       </Space>
-                     
                     </div>
                   </div>
                 </div>
@@ -1273,7 +1322,7 @@ const Discount = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            //rowKey={(record) => console.log('record',record)}
+            rowKey={(record) =>record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}

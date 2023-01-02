@@ -103,7 +103,35 @@ const OrderWait = () => {
   useEffect(() => {
     loadDataOrder();
     loadDataClient();
-  }, [dataOrder]);
+  }, []);
+
+
+  const handleOk = (record, check) => {
+    const isPut = false;
+    if (check == true) {
+      Modal.confirm({
+        title: "Xác nhận đơn hàng",
+        content: `Bạn có muốn xác nhận đơn hàng ${record?.id} 
+        của khách hàng ${record?.customerName}  không?`,
+        okText: "Có",
+        cancelText: "Không",
+        onOk: () => {
+          handleConfirm(true, record);
+        },
+      });
+    } else {
+      Modal.confirm({
+        title: "Huỷ đơn hàng",
+        content: `Bạn có muốn huỷ đơn hàng ${record?.id} 
+        của khách hàng ${record?.customerName}  không?`,
+        okText: "Có",
+        cancelText: "Không",
+        onOk: () => {
+          handleConfirm(false, record);
+        },
+      });
+    }
+  };
 
   const loadDataClient = () => {
     setLoading(true);
@@ -174,8 +202,7 @@ const OrderWait = () => {
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
-    setDataOrder([]);
-    setData([]);
+
     setSelectedRowKeys([]);
     tableParams.pagination = pagination;
     tableParams.pagination.search1 =
@@ -188,7 +215,7 @@ const OrderWait = () => {
     searchEndDate != undefined ? searchEndDate : "";
   tableParams.pagination.searchStatus = "CHO_LAY_HANG";
   tableParams.pagination.searchPayment = "";
-    loadDataOrder();
+  loadDataOrder();
   };
 
   const updateNote = () => {
@@ -221,6 +248,7 @@ const OrderWait = () => {
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       clearSearchForm();
+      toastSuccess("Huỷ đơn hàng thành công!")
     });
   };
 
@@ -389,14 +417,23 @@ const OrderWait = () => {
     });
   };
 
-  const handleConfirm = (isPut) => {
+  const handleConfirm = (isPut,record) => {
     const dataOrder = [];
-    selectedRowKeys.forEach((item) => {
-      dataOrder.push({
-        id: item,
-        status: isPut == true ? "DANG_GIAO" : "CHO_XAC_NHAN",
+    if(selectedRowKeys.length > 0) {
+      selectedRowKeys.forEach((item) => {
+        dataOrder.push({
+          id: item,
+          status: isPut == true ? "DANG_GIAO" : "CHO_XAC_NHAN",
+        });
       });
-    });
+    }else {
+      dataOrder.push({
+        id: record,
+        status:  isPut == true ? "DANG_GIAO" : "CHO_XAC_NHAN",
+      });
+      setView(false); 
+    }
+   
     fetch(`http://localhost:8080/api/staff/orders/confirm`, {
       method: "POST",
       headers: {
@@ -405,14 +442,12 @@ const OrderWait = () => {
       },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
-      tableParams.pagination.search1 = "";
-      tableParams.pagination.searchStatus = "CHO_LAY_HANG";
-      tableParams.pagination.searchEndDate = "";
-      tableParams.pagination.searchPhone = "";
-      tableParams.pagination.searchStartDate = "";
-      tableParams.pagination.searchPayment = "";
-      loadDataOrder();
       clearSearchForm();
+      if(isPut == true) {
+        toastSuccess("Xác nhận đơn hàng thành công !")
+      } else {
+        toastSuccess("Huỷ đơn hàng thành công !")
+      }
     });
   };
 
@@ -420,8 +455,6 @@ const OrderWait = () => {
     dataOrder?.forEach((item, index) => {
       data.splice(index, dataOrder.length);
     });
-    setDataOrder([]);
-    setData([]);
     setSelectedRowKeys([]);
     tableParams.pagination.search1 = "";
     tableParams.pagination.searchStatus = "CHO_LAY_HANG";
@@ -443,20 +476,7 @@ const OrderWait = () => {
     setSearchEndDate(dateStrings[1]);
   };
 
-  const onConfirm = (record) => {
-    const isPut = true;
-    Modal.confirm({
-      icon: <CheckCircleOutlined />,
-      title: "Xác nhận đơn hàng",
-      content: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
-      okText: "Có",
-      cancelText: "Không",
-      okType: "primary",
-      onOk: () => {
-        confirmOrder(record, isPut);
-      },
-    });
-  };
+  
 
   const confirmOrder = (record) => {
     const sdt = record.phone;
@@ -534,6 +554,8 @@ const OrderWait = () => {
   };
 
   const loadDataOrder = () => {
+    console.log("vào lại log data");
+
     setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
@@ -548,8 +570,7 @@ const OrderWait = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log("dữ liệu lấy ra");
-        console.log(results);
+        const data =[];
         results.data.data?.forEach((item) => {
           data.push({
             key: item.id,
@@ -921,15 +942,21 @@ const OrderWait = () => {
             onCancel={() => {
               setView(false);
             }}
-            okButtonProps={{
-              style: {
-                display: "none",
-              },
-            }}
-            cancelText={"Đóng"}
-            onOk={() => {
-              setView(false);
-            }}
+            footer={[
+              <Button
+                key="submit"
+                type="primary"
+                onClick={() => handleOk(dataO, true)}
+              >
+                Xác nhận đơn hàng
+              </Button>,
+              <Button type="danger" onClick={() => handleOk(dataO, false)}>
+                Huỷ đơn hàng
+              </Button>,
+              <Button key="back" onClick={() => setView(false)}>
+                Đóng
+              </Button>,
+            ]}
             width={800}
           >
             <div className="col-12">

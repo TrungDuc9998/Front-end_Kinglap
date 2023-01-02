@@ -114,20 +114,7 @@ const OrderConfirm = () => {
     loadDataClient();
   }, [dataOrder]);
 
-  const onConfirm = (record) => {
-    const isPut = true;
-    Modal.confirm({
-      icon: <CheckCircleOutlined />,
-      title: "Xác nhận đơn hàng ",
-      content: `Bạn có muốn xác nhận đơn hàng ${record.id}  không?`,
-      okText: "Có",
-      cancelText: "Không",
-      okType: "primary",
-      onOk: () => {
-        confirmOrder(record, isPut);
-      },
-    });
-  };
+
 
   const columnOrderHistory = [
     {
@@ -251,23 +238,34 @@ const OrderConfirm = () => {
       year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
     return dateTime;
   }
-  const onCancel = (record) => {
+  const handleOk = (record, check) => {
     const isPut = false;
-
-    Modal.confirm({
-      title: "Huỷ đơn hàng",
-      content: `Bạn có muốn huỷ đơn hàng ${record.id}  không?`,
-      okText: "Có",
-      cancelText: "Không",
-      onOk: () => {
-        confirmOrder(record, isPut);
-      },
-    });
+    if (check == true) {
+      Modal.confirm({
+        title: "Xác nhận đơn hàng",
+        content: `Bạn có muốn xác nhận đơn hàng ${record?.id} 
+        của khách hàng ${record?.customerName} không?`,
+        okText: "Có",
+        cancelText: "Không",
+        onOk: () => {
+          handleConfirm(true, record);
+        },
+      });
+    } else {
+      Modal.confirm({
+        title: "Huỷ đơn hàng",
+        content: `Bạn có muốn huỷ đơn hàng ${record?.id} 
+        của khách hàng ${record?.customerName}  không?`,
+        okText: "Có",
+        cancelText: "Không",
+        onOk: () => {
+          handleConfirm(true, record);
+        },
+      });
+    }
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
-    setDataOrder([]);
-    setData([]);
     setSelectedRowKeys([]);
     tableParams.pagination = pagination;
     tableParams.pagination.searchName =
@@ -284,8 +282,6 @@ const OrderConfirm = () => {
   };
 
   const loadDataOrder = () => {
-    console.log("vào lại log data");
-
     setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
@@ -300,8 +296,7 @@ const OrderConfirm = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        console.log("dữ liệu trả ra mỗi lần tìm kiếm");
-        console.log(results.data.data);
+        const data = [];
         results.data.data?.forEach((item) => {
           data.push({
             key: item.id,
@@ -561,14 +556,25 @@ const OrderConfirm = () => {
     });
   };
 
-  const handleConfirm = (isPut) => {
+  const handleConfirm = (isPut, record) => {
     const dataOrder = [];
-    selectedRowKeys.forEach((item) => {
+    if(selectedRowKeys.length > 0) {
+      selectedRowKeys.forEach((item) => {
+        dataOrder.push({
+          id: item,
+          status: isPut === true ? "CHO_LAY_HANG" : "DA_HUY",
+        });
+      });
+    }else {
       dataOrder.push({
-        id: item,
+        id: record,
         status: isPut === true ? "CHO_LAY_HANG" : "DA_HUY",
       });
-    });
+      setView(false);
+      
+     
+    }
+    
     fetch(`http://localhost:8080/api/staff/orders/confirm`, {
       method: "POST",
       headers: {
@@ -578,9 +584,12 @@ const OrderConfirm = () => {
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       clearSearchForm();
+      if(isPut == true) {
+        toastSuccess("Xác nhận đơn hàng thành công !")
+      } else {
+        toastSuccess("Huỷ đơn hàng thành công !")
+      }
     });
-
-    console.log(dataOrder);
   };
 
   const onChangeInputNumber = (value, id) => {
@@ -630,7 +639,6 @@ const OrderConfirm = () => {
     dataOrder?.forEach((item, index) => {
       data.splice(index, dataOrder.length);
     });
-    setDataOrder([]);
     setData([]);
     setSelectedRowKeys([]);
     tableParams.pagination.searchName = "";
@@ -776,13 +784,6 @@ const OrderConfirm = () => {
               -1
             }
           />
-          {/* <Input
-            type="text"
-            name="searchName"
-            value={searchName}
-            placeholder="Nhập tên khách hàng"
-            onChange={(e) => setSearchName(e.target.value)}
-          /> */}
         </div>
         <div className="col-4 mt-3">
           <label>Thời gian đặt: </label>
@@ -827,7 +828,7 @@ const OrderConfirm = () => {
           {selectedRowKeys.length > 0 ? (
             <div className="text-center ">
               <Button type="primary" shape="round" onClick={confirmCheckBox}>
-                Cập nhật đơn hàng
+                Xác nhận đơn hàng
               </Button>
               <Button
                 className="ms-2"
@@ -865,19 +866,29 @@ const OrderConfirm = () => {
           />
           <Modal
             title="Chi tiết đơn hàng"
-            okButtonProps={{
-              style: {
-                display: "none",
-              },
-            }}
-            cancelText={"Đóng"}
+            footer={[
+              <Button
+                key="submit"
+                type="primary"
+                onClick={() => handleOk(dataO, true)}
+              >
+                Xác nhận đơn hàng
+              </Button>,
+              <Button type="danger" onClick={() => handleOk(dataO, false)}>
+                Huỷ đơn hàng
+              </Button>,
+              <Button key="back" onClick={() => setView(false)}>
+                Đóng
+              </Button>,
+            ]}
             open={isView}
             onCancel={() => {
               setView(false);
             }}
             onOk={() => {
-              setView(false);
+              handleOk(true);
             }}
+            onClick
             width={850}
           >
             <div className="col-12">

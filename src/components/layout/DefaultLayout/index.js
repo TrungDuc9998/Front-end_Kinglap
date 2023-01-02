@@ -9,6 +9,7 @@ import {
   OrderedListOutlined,
   PieChartOutlined,
   ReloadOutlined,
+  SettingOutlined,
   StockOutlined,
   TeamOutlined,
   UserOutlined,
@@ -55,6 +56,7 @@ const item2 = [
   getItem("Yêu cầu hỗ trợ", "sub4", <ReloadOutlined />, [
     getItem("Yêu cầu đổi hàng", "/admin/order/exchange"),
   ]),
+  getItem("Thông tin cá nhân", "/admin/user/profile", <SettingOutlined />),
 ];
 
 const items = [
@@ -85,6 +87,7 @@ const items = [
   getItem("Yêu cầu hỗ trợ", "sub4", <ReloadOutlined />, [
     getItem("Yêu cầu đổi hàng", "/admin/order/exchange"),
   ]),
+  getItem("Thông tin cá nhân", "/admin/user/profile", <SettingOutlined />),
 ];
 
 const DefaultLayout = ({ children }) => {

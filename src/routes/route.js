@@ -41,6 +41,7 @@ import CopyProduct from "../pages/Product/CopyProduct";
 import CreateOrderAdmin from "../pages/Order/Table";
 import ViewProductAdmin from "../pages/Product/ViewProduct";
 import ConfirmPayment from "../pages/Order/ConfirmPayment/ConfirmPayment";
+import Profile from "../pages/User/Profile";
 
 const publicRoutes = [
   {
@@ -206,6 +207,10 @@ const publicRoutes = [
   {
     path: "/admin/order/confirm/payment",
     component: ConfirmPayment
+  },
+  {
+    path: "/admin/user/profile",
+    component: Profile
   },
   
 ];
