@@ -15,11 +15,13 @@ import {
   setCheckoutCart,
   viewProduct,
 } from "../../store/Actions";
-import { json, Link } from "react-router-dom";
+import { json, Link, useNavigate } from "react-router-dom";
 import { Eye, Heart, Repeat, ShoppingCart } from "react-feather";
 import axios from "axios";
 import qs from "qs";
+
 function ViewProduct() {
+  let navigate = useNavigate();
   const handelCLickProduct = (product) => {
     dispatch(viewProduct(product));
     console.log("state", state);
@@ -146,6 +148,18 @@ function ViewProduct() {
       theme: "light",
     });
   };
+  const notifyError = (message) => {
+    toast.error(message, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
   const [state, dispatch] = useContext(Context);
   console.log("state", state.cartCheckout);
   const product = JSON.parse(localStorage.getItem("product_detail"));
@@ -179,11 +193,35 @@ function ViewProduct() {
     }
   };
 
-  const handleClickBuyNow = (product) => {
+  const handleClickBuyNow = (product, quantity) => {
     console.log("product khi mua ngay");
     console.log(product);
-    product.quantity = quantity;
-    dispatch(setCheckoutCart([product]));
+    //product.quantity = quantity;
+    // dispatch(setCheckoutCart([product]));
+    const findCart = (
+      JSON.parse(localStorage.getItem("carts"))
+        ? JSON.parse(localStorage.getItem("carts"))
+        : []
+    ).find((value) => {
+      return value.id === product.id;
+    });
+    console.log("findCart", findCart);
+    if (findCart != null) {
+      var totalQuantity=parseInt(findCart.quantity)+parseInt(quantity);
+      if (totalQuantity <= 10) {
+        dispatch(addToCartByView({ product, quantity }));
+        notifySuccess("Thêm vào giỏ hàng thành công!");
+        navigate("/user/cart");
+      } else {
+        notifyError(
+          "Đã tồn tại "+findCart.quantity+" sản phẩm trong giỏ hàng! Không được mua quá 10 sản phẩm. Liên hệ cửa hàng để đặt mua số lượng lớn"
+        );
+      }
+    } else {
+      dispatch(addToCartByView({ product, quantity }));
+      notifySuccess("Thêm vào giỏ hàng thành công!");
+      navigate("/user/cart");
+    }
   };
 
   const productInfo = JSON.parse(localStorage.getItem("product_detail"));
@@ -418,16 +456,16 @@ function ViewProduct() {
                   {" "}
                   Thêm vào giỏ hàng
                 </button>
-                <Link to={"/user/checkout"}>
+                {/* <Link> */}
                   <button
                     className="btn-add-to-cart ms-2"
-                    onClick={() => handleClickBuyNow(productInfo)}
+                    onClick={() => handleClickBuyNow(productInfo, quantity)}
                     // onClick={() => handleClickBuy(productInfo, quantity)}
                   
                   >
                     Mua ngay
                   </button>
-                </Link>
+                {/* </Link> */}
               </div>
               <div>
                 <p style={{ fontSize: "20px", fontWeight: "600" }}>

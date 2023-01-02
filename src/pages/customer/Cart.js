@@ -37,10 +37,11 @@ function Cart() {
             const checkboxes = document.querySelectorAll('input[name="ck"]');
             checkboxes.forEach((checkbox) => {
                 if (checkbox.checked == true) {
-                    carts.forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "")
+                    (JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : []).forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "")
                 }
                 setChecked(checked)
             });
+            console.log("checked",checked);
             checked.forEach(item=>{
                 dispatch(setCheckoutCart(item))
             })
@@ -55,7 +56,15 @@ function Cart() {
 
     //check all
     const [isCheckedAll, setIsCheckedAll] = useState(true);
-    function handleCheckAll(check) {
+    useEffect(() => {
+        handleCheckAll();
+        const checkboxesAll = document.querySelectorAll('input[id="checkall"]');
+        console.log("ckall",checkboxesAll);
+            checkboxesAll.forEach((checkbox) => {
+                checkbox.checked = true;
+            });
+    }, []);
+    function handleCheckAll() {
         if (isCheckedAll) {
             console.log("checkedAll")
             const checkboxes = document.querySelectorAll('input[name="ck"]');
@@ -81,6 +90,16 @@ function Cart() {
             return ""
         }
     }
+    const onChangeInputNumber = (value, event) => {
+        value.quantity = event;
+        dispatch({
+          type: "CHANGE_CART_QTY",
+          payload: {
+              id: value.id,
+              quantity: event,
+          }
+      })
+    }
 
     return (<>
         <div className="cart">
@@ -93,11 +112,11 @@ function Cart() {
                         <input type={"checkbox"}
                             id="checkall"
                             // checked={isCheckedAll[product]}
-                            onChange={() => handleCheckAll(checked)} />
+                            onChange={() => handleCheckAll()} />
                     </div>
                     Chọn tất cả
                 </div>
-                {carts ? carts.map(product => (
+                {(JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : []) ? (JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : []).map(product => (
                     <div className="row d-flex" key={product.id}>
                         <div className="col-2 ip mt-4">
                             <input type={"checkbox"}
@@ -115,7 +134,14 @@ function Cart() {
                                 <h4 className="text-name"> {product.name}
                                 </h4>
                                 <span className="center-on-small-only">
-                                    <InputNumber className="qty" onChange={(e) =>
+                                <InputNumber
+                                    style={{ width: "50px" }}
+                                    min={1}
+                                    max={10}
+                                    defaultValue={product.quantity}
+                                    onChange={(event) => onChangeInputNumber(product, event)}
+                                />
+                                    {/* <InputNumber className="qty" onChange={(e) =>
                                         dispatch({
                                             type: "CHANGE_CART_QTY",
                                             payload: {
@@ -129,7 +155,7 @@ function Cart() {
                                         defaultValue={0}
                                         min={1}
                                         max={10}
-                                    ></InputNumber>
+                                    ></InputNumber> */}
                                 </span>
                                 <p className="d-flex"><span className="price me-3 text-danger">
                                     <CurrencyFormat
