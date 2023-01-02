@@ -99,7 +99,7 @@ function DiscountProduct() {
                 <div className="row">
                     {products ? products.map((item) => (
                         <div className="col-md-3 col-xs-6 discount" key={item.id}>
-                            <div className="product" onClick={() => handelCLickProduct(item)}>
+                            <div className="product discount" onClick={() => handelCLickProduct(item)}>
                                 <div className="product-img discount">
                                     <img src={item.images ? item.images[0]?.name : product1} alt="" />
                                     <div className="product-label discount">
