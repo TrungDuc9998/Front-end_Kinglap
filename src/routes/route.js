@@ -42,6 +42,7 @@ import CreateOrderAdmin from "../pages/Order/Table";
 import ViewProductAdmin from "../pages/Product/ViewProduct";
 import ConfirmPayment from "../pages/Order/ConfirmPayment/ConfirmPayment";
 import Profile from "../pages/User/Profile";
+import DiscountProduct from "../pages/Product/discountProduct/discountProduct";
 
 const publicRoutes = [
   {
@@ -212,7 +213,10 @@ const publicRoutes = [
     path: "/admin/user/profile",
     component: Profile
   },
-  
+  {
+    path: "/admin/product/discountproduct",
+    component: DiscountProduct
+  },
 ];
 
 const privateRoutes = [];

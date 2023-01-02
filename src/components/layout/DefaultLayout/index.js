@@ -41,6 +41,7 @@ const item2 = [
     getItem("Tạo sản phẩm", "/admin/product/create"),
     getItem("Quản lý linh kiện", "/admin/accessories"),
     getItem("Sản phẩm tồn kho", "/admin/product/inventory"),
+    getItem("Sản phẩm giảm giá", "/admin/product/discountproduct"),
   ]),
   getItem("Quản đơn hàng", "sub2", <OrderedListOutlined />, [
     getItem("Đặt hàng", "/admin/order/create"),
@@ -70,6 +71,7 @@ const items = [
     getItem("Tạo sản phẩm", "/admin/product/create"),
     getItem("Quản lý linh kiện", "/admin/accessories"),
     getItem("Sản phẩm tồn kho", "/admin/product/inventory"),
+    getItem("Sản phẩm giảm giá", "/admin/product/discountproduct"),
   ]),
   getItem("Quản đơn hàng", "sub2", <OrderedListOutlined />, [
     getItem("Đặt hàng", "/admin/order/create"),
