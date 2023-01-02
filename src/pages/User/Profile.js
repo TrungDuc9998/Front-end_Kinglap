@@ -1,5 +1,5 @@
-import { UserOutlined } from "@ant-design/icons";
-import { Avatar, Button, Checkbox, Form, Input } from "antd";
+import { MenuFoldOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Button, Checkbox, Form, Image, Input } from "antd";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -65,9 +65,20 @@ function Profile() {
   return (
     <div>
      <ToastContainer></ToastContainer>
+     <div className="row">
+        <div className="col-1" style={{ width: "10px" }}>
+          <MenuFoldOutlined style={{ fontSize: "20px" }} />
+        </div>
+        <div className="col-11">
+          <h4 className="text-danger fw-bold">Thông tin cá nhân</h4>
+        </div>
+      </div>
       <div className="row bg-light">
         <div className="col-4 mt-5 mb-3 text-center">
-          <Avatar size={260} icon={<UserOutlined />} />
+          <Avatar style={{ color: '#f56a00', backgroundColor: '#fde3cf' }} size={260} src={ <Image src={"https://firebasestorage.googleapis.com/v0/b/fir-react-storage-96f9d.appspot.com/o/images%2FGIGABYTE-Gaming-G5-GE-12.jpge8a1b187-7123-4398-9310-86c0a5639e31?alt=media&token=9a4837c0-0d19-4326-a962-5ec1b01e62d7"}
+            style={{ width: 400 }} 
+          />}  >
+          </Avatar>
           <br />
           <span className="fs-5 text-danger fw-bold">
             Tài khoản: {userName}
@@ -152,8 +163,8 @@ function Profile() {
                 span: 16,
               }}
             >
-              <Button type="primary" htmlType="submit">
-                Cập nhật
+              <Button type="primary" shape="round" htmlType="submit">
+                Cập nhật thông tin
               </Button>
             </Form.Item>
           </Form>

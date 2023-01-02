@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { useState } from "react";
-import { Select, Image, Card, Collapse } from "antd";
+import { Select, Image, Card, Collapse, AutoComplete } from "antd";
 import qs from "qs";
 import { useParams } from "react-router-dom";
 const { Panel } = Collapse;
@@ -24,7 +24,9 @@ function Compare() {
   const [data, setData] = useState([]);
   const [pro1, setPro1] = useState();
   const [pro2, setPro2] = useState();
+  const [values, setValues] = useState();
   const [state, dispatch] = useContext(Context);
+  const [productAuto, setProductAuto] = useState();
   const [dataProduct, setDataProduct] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -36,45 +38,55 @@ function Compare() {
   });
 
   useEffect(() => {
-    loadDataProduct();
     loadDataProductById(id);
-    console.log(def);
+    loadDataProductAuto();
   }, [def]);
 
+  const renderItem = (id, title, count, price) => ({
+    value: id,
+    label: (
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <span>
+          <Image width={85} src={count} />
+        </span>
+        {title}{" "}
+        {price.toLocaleString("it-IT", {
+          style: "currency",
+          currency: "VND",
+        })}
+      </div>
+    ),
+    price: price,
+  });
+
+
+  const loadDataProductAuto = () => {
+    console.log("vào load data product");
+    fetch(
+      `http://localhost:8080/api/products?${qs.stringify(
+        getRandomuserParams(tableParams)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        const dataResult = [];
+        results.data.data.forEach((item) => {
+          dataResult.push(
+            renderItem(item.id, item.name, item?.images[0]?.name, item.price)
+          );
+          setData(dataResult);
+        });
+      });
+  };
+
   const handelCLickProduct = (product) => {
-    // console.log("handleClickProduct:", product);
-    // if(product === undefined) {
-    //   console.log("handleClickProduct:", dataProduct);
-    //   dispatch(viewProduct(dataProduct));
-    //   console.log("state", state);
-    // }else {
-    //   dispatch(viewProduct(product));
-    //   console.log("state", state);
-    // }
   };
 
-  const onChangeProduct = (value) => {
-    data.forEach((element) => {
-      if (element.id === value) {
-        getProductById(element.id, true);
-      }
-    });
-  };
-
-  const onSearchProduct = (searchItem) => {
-    console.log("value product click" + searchItem);
-  };
-
-  const onChangeProduct2 = (value) => {
-    data.forEach((element) => {
-      if (element.id === value) {
-        console.log("vào iff");
-        console.log(element);
-        getProductById(element.id, false);
-      }
-    });
-    console.log(value);
-  };
+ 
   const getProductById = (id, check) => {
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
@@ -87,25 +99,6 @@ function Compare() {
       });
   };
 
-  const onSearchProduct2 = (searchItem) => {
-    console.log("value product click" + searchItem);
-  };
-
-  const loadDataProduct = () => {
-    console.log("vào load data product");
-    fetch(
-      `http://localhost:8080/api/products?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        console.log(results);
-        setData(results.data.data);
-      });
-    setDef("B");
-  };
-
   const loadDataProductById = (id) => {
     fetch(`http://localhost:8080/api/products/${id}`)
       .then((res) => res.json())
@@ -116,6 +109,30 @@ function Compare() {
   };
 
   const onChangeCollapse = (key) => {};
+
+  const onChangeSearch = (event) => {
+    setValues(event);
+  };
+
+  const onSelectAuto = (value) => {
+    setValues("");
+    console.log(data);
+    data.forEach((element) => {
+      if (element.value === value) {
+        getProductById(element.value, true);
+      }
+    });
+  };
+
+  const onSelectAuto2 = (value) => {  
+     setValues("");
+     console.log(data);
+     data.forEach((element) => {
+       if (element.value === value) {
+         getProductById(element.value, false);
+       }
+     });
+   };
 
   return (
     <div className="container">
@@ -134,34 +151,22 @@ function Compare() {
       </div>
       <div className="row">
         <div className="col-12 col-sm-6 ps-5">
-          <Select
-            allowClear
-            showSearch
-            placeholder="Tên sản phẩm"
-            optionFilterProp="children"
+          <AutoComplete
             style={{
-              width: "70%",
+              width:600,
             }}
-            value={pro1?.name == undefined ? dataProduct?.name : pro1?.name}
-            // options={data}
-            onChange={onChangeProduct}
-            onClick={onSearchProduct}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
+            options={data}
+            onChange={(event) => onChangeSearch(event)}
+            onSelect={onSelectAuto}
+            placeholder="Chọn sản phẩm"
+            value={values}
+            filterOption={(inputValue, option) =>
+              option.label.props.children[1]
+                .toUpperCase()
+                .indexOf(inputValue.toUpperCase()) !== -1
             }
-          >
-            {data != undefined
-              ? data.map((item, index) => (
-                  <Option key={index} value={item.id}>
-                    {item.name}
-                    {/* <Image
-                      width={90}
-                      src={item.images[0].name + " " + item.name}
-                    />{" "} */}
-                  </Option>
-                ))
-              : ""}
-          </Select>
+          />
+          
           <div className="text-center" style={{ width: "70%", height: "60%" }}>
             {pro1 === undefined ? (
               <Image
@@ -206,45 +211,36 @@ function Compare() {
                       })}
                     </i>
                   </h5>
-                  <a
+                  <span
                     className="text-center mb-5"
                     style={{ fontSize: "16px", textDecoration: "none" }}
                     onClick={() => handelCLickProduct(pro1)}
                   >
-                    <a href="/user/product"> Xem chi tiết</a>
-                  </a>
+                    <span href="/user/product"> Xem chi tiết</span>
+                  </span>
                 </div>
               )}
             </div>
           </div>
         </div>
         <div className="col-12 col-sm-6 ps-5">
-          <Select
-            allowClear
-            showSearch
-            placeholder="Tên sản phẩm"
-            optionFilterProp="children"
+
+        <AutoComplete
             style={{
-              width: "70%",
+              width: 600,
             }}
-            onChange={onChangeProduct2}
-            onClick={onSearchProduct2}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
+            options={data}
+            onChange={(event) => onChangeSearch(event)}
+            onSelect={onSelectAuto2}
+            placeholder="Chọn sản phẩm"
+            value={values}
+            filterOption={(inputValue, option) =>
+              option.label.props.children[1]
+                .toUpperCase()
+                .indexOf(inputValue.toUpperCase()) !== -1
             }
-          >
-            {data != undefined
-              ? data.map((item, index) => (
-                  <Option key={index} value={item.id}>
-                    {item.name}
-                    {/* <Image
-                      width={90}
-                      src={item.images[0].name + " " + item.name}
-                    />{" "} */}
-                  </Option>
-                ))
-              : ""}
-          </Select>
+          />
+          
           <div className="text-center" style={{ width: "70%", height: "40%" }}>
             <Image className="mt-5" width={350} src={pro2?.images[0]?.name} />
             <div className="mt-3 fw-bold mb-3">
