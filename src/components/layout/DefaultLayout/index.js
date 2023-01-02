@@ -19,6 +19,7 @@ import { Breadcrumb, Layout, Menu } from "antd";
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Header1 } from "./Header";
+import { LogOut, User } from "react-feather";
 const { Header, Content, Footer, Sider } = Layout;
 const roles = localStorage.getItem("roles");
 
@@ -30,6 +31,7 @@ function getItem(label, key, icon, children) {
     children: children,
   };
 }
+const isLogin = localStorage.getItem("token");
 
 const item2 = [
   getItem("Quản lý dịch vụ", "/admin/discount", <FileDoneOutlined />),
@@ -100,6 +102,20 @@ const DefaultLayout = ({ children }) => {
       setUserName(localStorage.getItem("username"));
     }
   }, []);
+
+  const login = () => {
+    navigate("/login");
+  };
+
+  const logout = () => {
+    window.location.href = "/login";
+    localStorage.removeItem("roles");
+    localStorage.removeItem("username");
+    localStorage.removeItem("information");
+    localStorage.removeItem("id");
+    localStorage.removeItem("token");
+    localStorage.removeItem("carts");
+  };
   return (
     <Layout>
       <Sider
@@ -124,7 +140,7 @@ const DefaultLayout = ({ children }) => {
           theme="dark"
           defaultValue={[items.label]}
           mode="inline"
-          items={localStorage.getItem("roles") == "ADMIN" ? items: item2}
+          items={localStorage.getItem("roles") == "ADMIN" ? items : item2}
           onClick={({ key }) => {
             navigate(key);
           }}
@@ -139,18 +155,29 @@ const DefaultLayout = ({ children }) => {
           }}
         >
           <div className="d-flex justify-content-end me-5">
-            <Link to={"/auth/information"} className="acc">
-              <UserSwitchOutlined
-                className="me-2 ic text-light"
-                style={{ fontSize: "22px" }}
-              />
-              <i className="text-light">
-                {" "}
-                {userName != undefined
-                  ? "Xin chào, " + userName
-                  : "Đăng nhập"}{" "}
-              </i>
-            </Link>
+            <p className="mt-4">
+              {localStorage.getItem("username") != undefined ? (
+                <a style={{ color: "white" }}>
+                  <User size={20} color="red"></User>
+                  Xin chào, {localStorage.getItem("username")}
+                </a>
+              ) : (
+                ""
+              )}
+            </p>
+            <p className="mt-4 mx-3">
+              {isLogin ? (
+                <a onClick={logout} className="text-light pb-4">
+                  <LogOut size={20} color="red"></LogOut>
+                  Đăng xuất
+                </a>
+              ) : (
+                <a onClick={login} className="text-light">
+                  <User className="text-light" size={20} color="red"></User>
+                  Đăng nhập
+                </a>
+              )}
+            </p>
           </div>
         </Header>
         <Content

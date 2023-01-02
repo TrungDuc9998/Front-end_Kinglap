@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Image, Modal, Table } from "antd";
+import { Button, Checkbox, Image, Modal, Table } from "antd";
 import { Link, useParams } from "react-router-dom";
 import { CheckCircleOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { toast, ToastContainer } from "react-toastify";
@@ -285,7 +285,7 @@ function exchangeDetail() {
                     onChange={(e) => onChangeStudent(e.target.checked)}
                   ></input>
                 </th>
-                <th scope="col">Id</th>
+                <th scope="col">Sản phẩm lỗi</th>
                 <th scope="col">Hình ảnh</th>
                 <th scope="col">Sản phẩm trước đó</th>
                 <th>Giá tiền</th>
@@ -309,7 +309,7 @@ function exchangeDetail() {
                       checked={d.status === "YEU_CAU" ?  d.select : ""}
                     ></input>
                   </th>
-                  <td>{d.id}</td>
+                  <td><Checkbox checked={d.isCheck == "1" ? true: false}></Checkbox></td>
                   <td>
                     <Image
                       width={100}
