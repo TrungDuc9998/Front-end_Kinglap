@@ -16,15 +16,17 @@ function reducer(state, action) {
                     return value.id === data_add_cart.id
                 })
             }
-            data_add_cart.quantity = 1
+            //data_add_cart.quantity = 1
             if (indexCart === -1) {
                 add_cart.push(data_add_cart)
                 state = {
+                    ...state,
                     cartCheckout: add_cart
                 }
             } else {
-                add_cart[indexCart].quantity += 1
+                add_cart[indexCart].quantity += action.payload.quantity
                 state = {
+                    ...state,
                     cartCheckout: add_cart
                 }
                 console.log("Update")
@@ -145,7 +147,7 @@ function reducer(state, action) {
                 ...state,
                 product_view: action.payload
             }
-            localStorage.setItem('product_view', JSON.stringify(state.product_view));
+            localStorage.setItem('product_detail', JSON.stringify(state.product_view));
             return state;
         }
         default:
