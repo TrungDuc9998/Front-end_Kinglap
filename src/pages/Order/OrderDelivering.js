@@ -94,7 +94,34 @@ const OrderDelivering = () => {
   useEffect(() => {
     loadDataOrder();
     loadDataClient();
-  }, [dataOrder]);
+  }, []);
+
+  const handleOk = (record, check) => {
+    const isPut = false;
+    if (check == true) {
+      Modal.confirm({
+        title: "Nhận đơn hàng",
+        content: `Bạn có muốn nhận đơn hàng ${record?.id} 
+        của khách hàng ${record?.customerName}  không?`,
+        okText: "Có",
+        cancelText: "Không",
+        onOk: () => {
+          handleConfirm(true, record);
+        },
+      });
+    } else {
+      Modal.confirm({
+        title: "Huỷ đơn hàng",
+        content: `Bạn có muốn huỷ đơn hàng ${record?.id} 
+        của khách hàng ${record?.customerName}  không?`,
+        okText: "Có",
+        cancelText: "Không",
+        onOk: () => {
+          handleConfirm(true, record);
+        },
+      });
+    }
+  };
 
   const loadDataClient = () => {
     setLoading(true);
@@ -389,7 +416,8 @@ const OrderDelivering = () => {
   };
 
   const loadDataOrder = () => {
-    // setLoading(true);
+   
+    setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
         getRandomOrderParams(tableParams)
@@ -403,6 +431,7 @@ const OrderDelivering = () => {
     )
       .then((res) => res.json())
       .then((results) => {
+        const data = [];
         results.data.data?.forEach((item) => {
           data.push({
             key: item.id,
@@ -604,8 +633,6 @@ const OrderDelivering = () => {
       data.splice(index, dataOrder.length);
     });
 
-    setDataOrder([]);
-    setData([]);
     setSelectedRowKeys([]);
 
     tableParams.pagination.searchName = "";
@@ -661,14 +688,23 @@ const OrderDelivering = () => {
     });
   };
 
-  const handleConfirm = (isPut) => {
+  const handleConfirm = (isPut,record) => {
     const dataOrder = [];
-    selectedRowKeys.forEach((item) => {
-      dataOrder.push({
-        id: item,
-        status: isPut == true ? "DA_NHAN" : "DA_HUY",
+    if(selectedRowKeys.length > 0) {
+      selectedRowKeys.forEach((item) => {
+        dataOrder.push({
+          id: item,
+          status: isPut == true ? "DA_NHAN" : "DA_HUY",
+        });
       });
-    });
+    }else {
+      dataOrder.push({
+        id: record,
+        status: isPut == true ? "DA_NHAN" : "DA_HUY",
+      })
+      setView(false);
+    }
+   
     fetch(`http://localhost:8080/api/staff/orders/confirm`, {
       method: "POST",
       headers: {
@@ -677,17 +713,13 @@ const OrderDelivering = () => {
       },
       body: JSON.stringify(dataOrder),
     }).then((res) => {
-      tableParams.pagination.search1 = searchName;
-      tableParams.pagination.searchStatus = "DANG_GIAO";
-      tableParams.pagination.searchEndDate = "";
-      tableParams.pagination.searchPhone = "";
-      tableParams.pagination.searchStartDate = "";
-      tableParams.pagination.searchPayment = "";
-      loadDataOrder();
       clearSearchForm();
+      if(isPut == true) {
+        toastSuccess("Xác nhận đơn hàng thành công !")
+      } else {
+        toastSuccess("Huỷ đơn hàng thành công !")
+      }
     });
-
-    console.log(dataOrder);
   };
 
   const onSelectAutoClient = (value) => {
@@ -696,8 +728,6 @@ const OrderDelivering = () => {
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
-    setDataOrder([]);
-    setData([]);
     setSelectedRowKeys([]);
     tableParams.pagination = pagination;
     tableParams.pagination.searchName =
@@ -851,16 +881,22 @@ const OrderDelivering = () => {
             id="a"
             title="Chi tiết đơn hàng"
             open={isView}
-            okButtonProps={{
-              style: {
-                display: "none",
-              },
-            }}
-            cancelText={"Đóng"}
+            footer={[
+              <Button
+                key="submit"
+                type="primary"
+                onClick={() => handleOk(dataO, true)}
+              >
+                Nhận hàng
+              </Button>,
+              <Button type="danger" onClick={() => handleOk(dataO, false)}>
+                Huỷ đơn hàng
+              </Button>,
+              <Button key="back" onClick={() => setView(false)}>
+                Đóng
+              </Button>,
+            ]}
             onCancel={() => {
-              setView(false);
-            }}
-            onOk={() => {
               setView(false);
             }}
             width={800}

@@ -423,7 +423,7 @@ function ViewProduct() {
                     className="btn-add-to-cart ms-2"
                     onClick={() => handleClickBuyNow(productInfo)}
                     // onClick={() => handleClickBuy(productInfo, quantity)}
-                    handleClickBuy
+                  
                   >
                     Mua ngay
                   </button>
