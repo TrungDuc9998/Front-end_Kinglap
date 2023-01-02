@@ -127,7 +127,7 @@ function reducer(state, action) {
         }
         case REMOVE_CART_CHECKOUT: {
             state = {
-                //...state,
+                ...state,
                 cartCheckout: state.cartCheckout.filter(c => c.id !== action.payload.id),
             }
             localStorage.setItem('cartCheckout', JSON.stringify(state.cartCheckout));

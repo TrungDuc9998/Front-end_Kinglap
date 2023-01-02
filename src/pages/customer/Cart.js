@@ -10,8 +10,21 @@ import {
     DeleteOutlined
 } from "@ant-design/icons";
 import CurrencyFormat from "react-currency-format";
+import { ToastContainer, toast } from 'react-toastify';
 
 function Cart() {
+    const notifyError = (message) => {
+        toast.error(message, {
+            position: "top-right",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+    }
     let navigate = useNavigate();
     const [total, setTotal] = useState(0);
     const [state, dispatch] = useContext(StoreContext);
@@ -33,17 +46,47 @@ function Cart() {
         if (localStorage.getItem("token") == null || localStorage.getItem("token") === "") {
             navigate('/login');
         } else {
-            navigate('/user/checkout');
             const checkboxes = document.querySelectorAll('input[name="ck"]');
             checkboxes.forEach((checkbox) => {
                 if (checkbox.checked == true) {
-                    (JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : []).forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "")
+                    (JSON.parse(localStorage.getItem("carts")) ? JSON.parse(localStorage.getItem("carts")) : []).forEach((item) => (item.id == checkbox.value) ? checked.push(item) : "")
                 }
                 setChecked(checked)
             });
             console.log("checked",checked);
             checked.forEach(item=>{
-                dispatch(setCheckoutCart(item))
+                const findCart = (
+                    JSON.parse(localStorage.getItem("cartCheckout"))
+                      ? JSON.parse(localStorage.getItem("cartCheckout"))
+                      : []
+                  ).find((value) => {
+                    return value.id === item.id;
+                  });
+                if (findCart != null) {
+                    let totalQuantity=parseInt(findCart.quantity)+parseInt(item.quantity);
+                      if (totalQuantity <= 4) {
+                        dispatch(setCheckoutCart(item))
+                        navigate('/user/checkout');
+                      } else {
+                        notifyError(
+                          "Đã tồn tại "+findCart.quantity+" sản phẩm đã chọn trong giỏ hàng thanh toán! Không được mua quá 4 sản phẩm cùng loại. Liên hệ cửa hàng để đặt mua số lượng lớn"
+                        );
+                        setChecked([]);
+                      }
+                  } else {
+                    let totalProductInCart=(JSON.parse(localStorage.getItem("cartCheckout"))
+                    ? JSON.parse(localStorage.getItem("cartCheckout"))
+                    : []).length;
+                    console.log("totalProductInCart",totalProductInCart);
+                    if(totalProductInCart<10){
+                        dispatch(setCheckoutCart(item));
+                        navigate('/user/checkout');
+                    } else {
+                        notifyError(
+                          "Đã tồn tại 10 sản phẩm khác nhau trong giỏ hàng! Liên hệ cửa hàng để đặt mua số lượng lớn"
+                        );
+                      }
+                  }
             })
         }
     }
@@ -102,9 +145,10 @@ function Cart() {
     }
 
     return (<>
+    <ToastContainer></ToastContainer>
         <div className="cart">
             <div className="card-header mb-2">
-                <span>Giỏ hàng</span>
+                <span>Giỏ hàng ({(JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : [])?.length} sản phẩm)</span>
             </div>
             <div className="cart-content mt-2 pt-3 border-div container-fluid">
                 <div className="row">
@@ -137,7 +181,7 @@ function Cart() {
                                 <InputNumber
                                     style={{ width: "50px" }}
                                     min={1}
-                                    max={10}
+                                    max={4}
                                     defaultValue={product.quantity}
                                     onChange={(event) => onChangeInputNumber(product, event)}
                                 />
