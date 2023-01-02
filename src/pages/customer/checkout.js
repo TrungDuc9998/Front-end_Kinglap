@@ -99,7 +99,7 @@ function Checkout() {
   })
 
     if (type == 1) {
-      SubmitShipping2(wardCodeChange);
+      //SubmitShipping2(wardCodeChange);
       value.quantity = event;
       loadInfo(carts);
       loadDataProvince();
@@ -113,7 +113,12 @@ function Checkout() {
       dispatch({
           type: "REMOVE_CART_CHECKOUT",
           payload: pro
-      })
+      });
+      if (type == 1) {
+        SubmitShipping2(wardCodeChange);
+        loadInfo(carts);
+        loadDataProvince();
+      }
   };
   // modal
   const onClickShow = (value) => {
@@ -612,7 +617,7 @@ function Checkout() {
   };
 
   const SubmitShipping1 = (value, serviceId, idDistrict) => {
-    let cartList = carts;
+    let cartList = JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[];
     let weight = 0;
     let width = 0;
     let height = 0;
@@ -636,7 +641,7 @@ function Checkout() {
           },
           body: JSON.stringify({
             service_id: serviceId,
-            insurance_value: parseInt(getTotal(carts)),
+            insurance_value: parseInt(getTotal(cartList)),
             coupon: null,
             from_district_id: 3440,
             to_district_id: idDistrict,
