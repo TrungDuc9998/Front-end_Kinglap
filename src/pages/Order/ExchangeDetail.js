@@ -127,6 +127,9 @@ function exchangeDetail() {
   const handleSubmit = (isPut) => {
     const orderDetail = [];
 
+    console.log('data');
+    console.log(data);
+
 
     console.log('data exchange handle submit');
     console.log(dataExchange);
@@ -141,7 +144,7 @@ function exchangeDetail() {
           quantity: element.quantity,
           total: 0,
           isBoolean: element.select,
-          status: data.isCheck,
+          status: "0",
         });
       } 
     });
@@ -164,6 +167,7 @@ function exchangeDetail() {
         });
       });
 
+    console.log('orderDetail');
     console.log(orderDetail);
 
     if (check === true) {
@@ -181,10 +185,13 @@ function exchangeDetail() {
       }).then((res) => loadDataExchangeDetail(id));
       if (isPut === true) {
         fetch(
-          `http://localhost:8080/api/orders/update/exchange/${data.orderId}`,
+          `http://localhost:8080/api/staff/orders/update/exchange/${data.orderId.id}`,
           {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
             body: JSON.stringify(orderDetail),
           }
         ).then((res) => {});
@@ -236,7 +243,7 @@ function exchangeDetail() {
                 Mã đơn đổi: <b>{data?.id}</b>
               </div>
               <div className="mt-2 ms-5 text-success">
-                Mã hoá đơn: <b>{data?.orderId}</b>
+                Mã hoá đơn: <b>{data?.orderId.id}</b>
               </div>
             </div>
             <div className="col-6 mt-4 mb-5 text-success">

@@ -36,7 +36,6 @@ const { RangePicker } = DatePicker;
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
-  // searchName: params.pagination?.search1,
   searchStatus: params.pagination?.searchStatus,
   searchStartDate: params.pagination?.searchStartDate,
   searchEndDate: params.pagination?.searchEndDate,
@@ -170,7 +169,7 @@ const OrderConfirm = () => {
   ];
 
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
+
     // setLoading(true);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
@@ -567,7 +566,7 @@ const OrderConfirm = () => {
       });
     }else {
       dataOrder.push({
-        id: record,
+        id: record.id,
         status: isPut === true ? "CHO_LAY_HANG" : "DA_HUY",
       });
       setView(false);
