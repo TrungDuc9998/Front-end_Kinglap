@@ -614,6 +614,11 @@ const Order = () => {
       width: "15%",
     },
     {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      width: "15%",
+    },
+    {
       title: "Tổng tiền",
       dataIndex: "total",
       sorter: (a, b) => a.total - b.total,
@@ -1172,7 +1177,8 @@ const Order = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="CHO_XAC_NHAN" selected>
+            <Option value="CHUA_THANH_TOAN" selected>Chưa thanh toán</Option>
+            <Option value="CHO_XAC_NHAN" >
               Chờ xác nhận
             </Option>
             <Option value="CHO_LAY_HANG">Chờ lấy hàng</Option>
@@ -1316,12 +1322,6 @@ const Order = () => {
                   <p>
                     Ghi chú:
                     <div className="row">
-                      {/* <div className="col-9">
-                        <TextArea value={note} onChange={(e) => setNote(e.target.value)} rows={3} cols={9} />
-                      </div> */}
-                      {/* <div className="col-3 mt-4" >
-                        <Button onClick={() => updateNote() } >Cập nhật ghi chú</Button>
-                      </div> */}
                     </div>
                   </p>
                 </div>

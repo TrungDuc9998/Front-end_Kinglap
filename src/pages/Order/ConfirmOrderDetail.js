@@ -291,7 +291,7 @@ const ConfirmOrderDetail = () => {
       cancelText: "Không",
       okType: "primary",
       onOk: () => {
-        updateOrderDetail();
+        updateOrderDetail(record);
       },
     });
   };
@@ -344,8 +344,6 @@ const ConfirmOrderDetail = () => {
         .then((data) => {
           if (data.data === null) {
           } else {
-            console.log("Success service:", data.data);
-            console.log("data service id: " + data.data[0].service_id);
             const checkValue = data.data[0].service_id;
             setServiceId(checkValue);
             fetch(
@@ -371,10 +369,8 @@ const ConfirmOrderDetail = () => {
                   console.log(data.data);
                   const myArray = order?.address.split(",");
                   const ward = myArray[1];
-                  console.log("Xã: ", ward);
                   data.data.forEach((item) => {
                     if (item.WardName == ward.trim()) {
-                      console.log("ward code");
                       setWard(item.WardCode);
                       SubmitShipping(item.WardCode, checkValue, value);
                     }
@@ -420,7 +416,6 @@ const ConfirmOrderDetail = () => {
         console.log(district);
         result.data.forEach((item) => {
           if (item.DistrictName == district.trim()) {
-            console.log("vào distric id:");
             setDistrict(item.DistrictID);
             loadDataWard(item.DistrictID);
           }
@@ -440,15 +435,15 @@ const ConfirmOrderDetail = () => {
           loadDataDistrict(element.ProvinceID);
         }
       });
-    }else{
+    } else {
       updateOrderDetail();
     }
   };
 
-  const updateOrderDetail = () => {
+  const updateOrderDetail = (record) => {
     const od = {
       id: order.id,
-      total: order.total,
+      total: Number(order.total + record),
       payment: order.payment,
       address: order.address,
       status: order.status,
@@ -456,8 +451,13 @@ const ConfirmOrderDetail = () => {
       customerName: order.customerName,
       phone: order.phone,
       user: order.user,
+      shippingFree: record,
       orderDetails: todos,
     };
+
+    console.log('phí ship thay đ');
+    const total1=  order.total + record;
+    console.log("giá tiền: "+total1);
 
     fetch(`http://localhost:8080/api/auth/orders/${order.id}`, {
       method: "PUT",
@@ -473,12 +473,14 @@ const ConfirmOrderDetail = () => {
         status: order.status,
         note: order.not,
         customerName: order.customerName,
+        shippingFree: record,
         phone: order.phone,
         user: order.user,
         orderDetails: todos,
       }),
     }).then((res) => {
       loadDataOrder(id);
+      loadDataOrderHistoryById(id);
       toastSuccess("Cập nhật đơn hàng thành công !");
     });
   };
@@ -579,14 +581,13 @@ const ConfirmOrderDetail = () => {
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       if (isPut === true) {
-        
         navigate("/admin/order/confirm");
         toastSuccess("Xác nhận đơn hàng thành công !");
       } else {
         toastSuccess("Huỷ đơn hàng thành công !");
         navigate("/admin/order/confirm");
       }
-     
+
       // clearSearchForm();
     });
   };
@@ -640,13 +641,18 @@ const ConfirmOrderDetail = () => {
                 Số điện thoại: <b>{order?.phone}</b>{" "}
               </div>
               <div className="mt-2 ms-5">
+                Ngày đặt:{" "}
+                <b>
+                  <Moment format="DD-MM-YYYY HH:mm:ss">
+                    {order?.createdAt}
+                  </Moment>
+                </b>
+              </div>
+              <div className="mt-2 ms-5">
                 Ghi chú: <b>{order?.note}</b>{" "}
               </div>
             </div>
             <div className="col-6 mt-4 mb-5">
-              <div className="mt-2">
-                Ngày đặt: <b><Moment format="DD-MM-YYYY HH:mm:ss">{order?.createdAt}</Moment></b>
-              </div>
               <div className="mt-2">
                 Tổng tiền:{" "}
                 <b>
@@ -657,7 +663,24 @@ const ConfirmOrderDetail = () => {
                 </b>
               </div>
               <div className="mt-2">
-                Đã thanh toán: <b>{order?.money}</b>
+                Đã thanh toán:{" "}
+                <b>
+                  {order?.money.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </b>
+              </div>
+              <div className="mt-2">
+                <p>
+                  Phí giao hàng:{" "}
+                  <b>
+                    {order?.shippingFree.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </b>
+                </p>
               </div>
               <div className="mt-2">
                 Trạng thái:{" "}
@@ -711,7 +734,7 @@ const ConfirmOrderDetail = () => {
                       <InputNumber
                         // style={{width: "20%"}}
                         min={1}
-                        disabled={order?.status !="CHO_XAC_NHAN"}
+                        disabled={order?.status != "CHO_XAC_NHAN"}
                         max={item.product?.quantity}
                         value={quantity}
                         defaultValue={item.quantity}
