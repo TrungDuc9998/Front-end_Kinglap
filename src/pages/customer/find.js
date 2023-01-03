@@ -142,7 +142,7 @@ const Find = () => {
     const [tableParamsAccessories, setTableParamsAccessories] = useState({
         pagination: {
             current: 1,
-            pageSize: 10,
+            pageSize: 100,
         },
     });
     const loadDataManufacture = () => {
@@ -151,8 +151,9 @@ const Find = () => {
         )
             .then((res) => res.json())
             .then((results) => {
-              console.log("hang",results.data);
-                setDataManufacture(results.data);
+              const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+                setDataManufacture(re);
             });
     };
     const loadDataCategory = () => {
@@ -161,8 +162,9 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            console.log("cate",results.data);
-            setCategory(results.data);
+            const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setCategory(re);
           });
       };
     
@@ -172,7 +174,9 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataStorage(results.data);
+            const re=[]
+            results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setDataStorage(re);
           });
       };
     
@@ -182,10 +186,12 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setProcessors(results.data);
+            const re=[]
+            results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setProcessors(re);
               let indexProcess = -1;
               let processor1=[];
-            results.data.forEach(item=>{
+            re.forEach(item=>{
               if (processor1) {
                 indexProcess = processor1.findIndex(value => {
                     return (value.cpuCompany.trim() +" " +value.cpuTechnology.trim()) === (item.cpuCompany.trim() +" " +item.cpuTechnology.trim())
@@ -204,7 +210,9 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataWin(results.data);
+            const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setDataWin(re);
           });
       };
     
@@ -216,7 +224,9 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataColor(results.data.data);
+            const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setDataColor(re);
           });
       };
     
@@ -226,7 +236,9 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setBattery(results.data);
+            const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setBattery(re);
           });
       };
     
@@ -236,7 +248,9 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataAccessory(results.data);
+            const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setDataAccessory(re);
           });
       };
     
@@ -246,7 +260,9 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataCard(results.data);
+            const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setDataCard(re);
           });
       };
     
@@ -256,7 +272,9 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataRam(results.data);
+            const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setDataRam(re);
           });
       };
     
@@ -273,12 +291,14 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataOrigin(results.data.data);
+            const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setDataOrigin(re);
     
             setTableParamsAccessories({
               pagination: {
                 current: results.data.current_page,
-                pageSize: 10,
+                pageSize: 100,
                 total: results.data.total,
               },
             });
@@ -291,7 +311,9 @@ const Find = () => {
         )
           .then((res) => res.json())
           .then((results) => {
-            setDataScreen(results.data);
+            const re=[]
+              results.data.forEach(item=>{if(item.status=="ACTIVE")re.push(item)});
+            setDataScreen(re);
           });
       };
 
@@ -736,13 +758,15 @@ const Find = () => {
           var cate=[];
           categoryLT.forEach(item=>{cate.push(item.category.name.trim())});//lay cate trong categoryProduct
           console.log("cate", cate.toString());
-          var stop=false;
           for( var j=0; j<cate.length;j++){
+            var stop=false;
+            //console.log("cate"+[j], cate[j]);
             if(!category_arr.includes(cate[j])==true){
               stop=true;
             }else{
               stop=false;
               ktCategory=true;
+              break;
             }
           }
           if(stop){
@@ -1104,7 +1128,7 @@ const Find = () => {
                         <div className="d-flex justify-content-between">
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                    <a href="#" onClick={()=>onClickCategoryImg("Laptop Gaming")}>
+                                    <a href="#" onClick={()=>onClickCategoryImg("Gaming")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991744177742277_img-gaming.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Gaming</h6>
                                     </a>
@@ -1112,7 +1136,7 @@ const Find = () => {
                             </div>
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                   <a href="#" onClick={()=>onClickCategoryImg("Laptop Sinh viên - Văn phòng")}>
+                                   <a href="#" onClick={()=>onClickCategoryImg("Sinh viên - Văn phòng")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/6/637980583313032986_SV-Văn phòng.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Sinh viên - Văn phòng</h6>
                                     </a>
@@ -1120,7 +1144,7 @@ const Find = () => {
                             </div>
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                   <a href="#" onClick={()=>onClickCategoryImg("Laptop Thiết kế đồ họa")}>
+                                   <a href="#" onClick={()=>onClickCategoryImg("Thiết kế đồ họa")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991745714018004_img-thietkedohoa.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Thiết kế đồ họa</h6>
                                     </a>
@@ -1128,7 +1152,7 @@ const Find = () => {
                             </div>
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                   <a href="#" onClick={()=>onClickCategoryImg("Laptop Mỏng nhẹ")}>
+                                   <a href="#" onClick={()=>onClickCategoryImg("Mỏng nhẹ")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991744678844250_img-mongnhe.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Mỏng nhẹ</h6>
                                     </a>
@@ -1136,7 +1160,7 @@ const Find = () => {
                             </div>
                             <div className="col-2" style={{ textAlign: "center" }}>
                                 <div className="categoryFind">
-                                   <a href="#" onClick={()=>onClickCategoryImg("Laptop Doanh nhân")}>
+                                   <a href="#" onClick={()=>onClickCategoryImg("Doanh nhân")}>
                                         <img src="https://images.fpt.shop/unsafe/fit-in/125x125/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2022/9/19/637991745141508369_img-doanhnhan.png" />
                                         <h6 style={{ margin: "20px 0px", fontWeight: 700 }}>Doanh nhân</h6>
                                     </a>
