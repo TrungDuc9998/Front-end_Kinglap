@@ -8,6 +8,7 @@ import {
   Select,
   Upload,
   Space,
+  InputNumber,
 } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
@@ -25,6 +26,19 @@ const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
 });
+
+const toastError = (message) => {
+  toast.error(message, {
+    position: "top-right",
+    autoClose: 2000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
 
 function CopyProduct() {
   const [dataProduct, setDataProduct] = useState([]);
@@ -484,28 +498,37 @@ function CopyProduct() {
       warrantyPeriod: data.warrantyPeriod,
     };
     console.log(product);
-    fetch(`http://localhost:8080/api/staff/products/copy/${productEdit.id}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-      body: JSON.stringify(product),
-    })
-      .then((response) => response.json())
-      .then((results) => {
-        if (results.status === 200) {
-          console.log(results);
-          onReset();
-          toastSuccess("Thêm mới thành công !");
-          navigate("/admin/product");
-        } else {
-          toastError("Thêm mới sản phẩm thất bại !");
-        }
+    const yearCurrent = new Date().getFullYear();
+    if (Number(product.debut > yearCurrent)) {
+      toastError("Năm ra mắt lớn năm hiện tại!");
+    } else if (Number(product.debut) < yearCurrent - 4) {
+      toastError("Năm ra mắt nhỏ hơn năm hiện tại không quá 4 năm!");
+    } else {
+      fetch(`http://localhost:8080/api/staff/products/copy/${productEdit.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify(product),
       })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+        .then((response) => response.json())
+        .then((results) => {
+          if (results.status === 200) {
+            console.log(results);
+            onReset();
+            toastSuccess("Thêm mới sản phẩm thành công !");
+            navigate("/admin/product");
+          } else {
+            toastError("Thêm mới sản phẩm thất bại !");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+
+    
   };
 
   const loadDataStorage = () => {
@@ -564,6 +587,17 @@ function CopyProduct() {
       });
   };
 
+  const validateMessages = {
+    required: "${label} không được để trống!",
+    types: {
+      email: "${label} is not a valid email!",
+      number: "${label} phải là kiểu số!",
+    },
+    number: {
+      range: "${label} phải từ ${min} đến ${max}",
+    },
+  };
+
   return (
     <div className="row">
       <div className="row">
@@ -587,6 +621,8 @@ function CopyProduct() {
         <div>
           <Form
             form={clearForm}
+            name="nest-messages"
+            validateMessages={validateMessages}
             className="me-2 ms-2"
             initialValues={{
               cpuCompany: name,
@@ -681,17 +717,20 @@ function CopyProduct() {
                   initialValue={form.price}
                   rules={[
                     {
+                      type: "number",
+                      min: 10000000,
+                      max: 100000000,
                       required: true,
-                      message: "Giá tiền không được để trống",
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
-                    type="number"
-                    style={{ width: "100%" }}
+                  <InputNumber
                     placeholder="Nhập giá tiền"
-                    value={price}
+                    formatter={(value) =>
+                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }
+                    style={{ width: "100%" }}
                   />
                 </Form.Item>
               </div>
@@ -703,17 +742,17 @@ function CopyProduct() {
                   initialValue={form.quantity}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Số lượng không được để trống",
+                      min: 1,
+                      max: 1000,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
-                    type="number"
-                    style={{ width: "100%" }}
+                  <InputNumber
                     placeholder="Nhập số lượng"
-                    value={quantity}
+                    style={{ width: "100%" }}
                   />
                 </Form.Item>
               </div>
@@ -749,18 +788,17 @@ function CopyProduct() {
                   initialValue={form.length}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Chiều dài không được để trống",
+                      min: 50,
+                      max: 1000,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                   <InputNumber readOnly
+                    placeholder="Nhập chiều dài"
                     style={{ width: "100%" }}
-                    placeholder="Chiều dài"
-                    type="number"
-                    readOnly={true}
-                    value={length}
                   />
                 </Form.Item>
               </div>
@@ -771,18 +809,18 @@ function CopyProduct() {
                   initialValue={form.width}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Chiều rộng được để trống",
+                      min: 50,
+                      max: 1000,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                 <InputNumber
+                   readOnly
+                    placeholder="Nhập chiểu rộng"
                     style={{ width: "100%" }}
-                    placeholder="Chiều rộng"
-                    value={width}
-                    readOnly={true}
-                    type="number"
                   />
                 </Form.Item>
               </div>
@@ -793,17 +831,17 @@ function CopyProduct() {
                   initialValue={form.height}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Chiều cao không được để trống",
+                      min: 50,
+                      max: 1000,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                   <InputNumber readOnly
+                    placeholder="Nhập chiều cao"
                     style={{ width: "100%" }}
-                    placeholder="Chiều cao"
-                    type="number"
-                    readOnly={true}
                   />
                 </Form.Item>
               </div>
@@ -814,16 +852,17 @@ function CopyProduct() {
                   initialValue={form.weight}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Cân nặng không được để trống",
+                      min: 1,
+                      max: 10,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                   <InputNumber
+                    placeholder="Nhập cân nặng"
                     style={{ width: "100%" }}
-                    placeholder="Cân nặng"
-                    type="number"
                   />
                 </Form.Item>
               </div>
