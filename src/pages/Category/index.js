@@ -497,7 +497,7 @@ const Category = () => {
       >
         <div className="col-4 mt-3">
           <label>Từ khoá</label>
-          <Input type="text" name="searchName" value={searchName} placeholder="Nhập tên tài khoản người dùng" onChange={changeSearchName} />
+          <Input type="text" name="searchName" value={searchName} placeholder="Nhập tên thể loại" onChange={changeSearchName} />
         </div>
         <div className="col-4 mt-3">
           <label>Trạng thái</label>
