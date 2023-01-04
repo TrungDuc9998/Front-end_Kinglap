@@ -24,7 +24,7 @@ import Exchange from "../pages/Order/exchange";
 import ViewOrder from "../pages/customer/ViewOrder";
 import ExchangeSuccess from "../pages/Order/ExchangeSuccess";
 import Return from "../pages/Order/Return"
-import ReturnConfirm from "../pages/Order/ReturnConfirm"
+// import ReturnConfirm from "../pages/Order/ReturnConfirm"
 import ConfirmOrderDetail from "../pages/Order/ConfirmOrderDetail";
 import Accessories from "../pages/Accessories";
 import ExchangeUser from "../pages/customer/Order/Exchange";
@@ -145,10 +145,10 @@ const publicRoutes = [
     path: "/admin/return/:id",
     component: Return
   },
-  {
-    path: "/admin/return/confirm",
-    component: ReturnConfirm
-  },
+  // {
+  //   path: "/admin/return/confirm",
+  //   component: ReturnConfirm
+  // },
   {
     path: "/admin/order/:id/confirm/",
     component: ConfirmOrderDetail,

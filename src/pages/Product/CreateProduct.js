@@ -2,7 +2,15 @@ import { UploadOutlined, MenuFoldOutlined } from "@ant-design/icons";
 import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { storage } from "../../image/firebase/firebase";
 import { v4 } from "uuid";
-import { Button, Input, Select, DatePicker, Form, Upload } from "antd";
+import {
+  Button,
+  Input,
+  Select,
+  DatePicker,
+  Form,
+  Upload,
+  InputNumber,
+} from "antd";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,7 +30,7 @@ const getRandomuserParams = (params) => ({
 const toastError = (message) => {
   toast.error(message, {
     position: "top-right",
-    autoClose: 5000,
+    autoClose: 2000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
@@ -472,27 +480,35 @@ function CreateProduct() {
       warrantyPeriod: data.warrantyPeriod,
     };
     console.log(product);
-    fetch("http://localhost:8080/api/staff/products", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-      body: JSON.stringify(product),
-    })
-      .then((response) => response.json())
-      .then((results) => {
-        if (results.status === 200) {
-          console.log(results);
-          onReset();
-          toastSuccess("Thêm mới thành công !");
-        } else {
-          toastError("Thêm mới sản phẩm thất bại !");
-        }
+    const yearCurrent = new Date().getFullYear();
+   
+    if (Number(product.debut > yearCurrent)) {
+      toastError("Năm ra mắt lớn năm hiện tại!");
+    } else if (Number(product.debut) < yearCurrent - 4) {
+      toastError("Năm ra mắt nhỏ hơn năm hiện tại không quá 4 năm!");
+    } else {
+      fetch("http://localhost:8080/api/staff/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify(product),
       })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+        .then((response) => response.json())
+        .then((results) => {
+          if (results.status === 200) {
+            console.log(results);
+            onReset();
+            toastSuccess("Thêm mới sản phẩm thành công !");
+          } else {
+            toastError("Thêm mới sản phẩm thất bại !");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
   };
 
   const handleUpload = () => {
@@ -501,6 +517,16 @@ function CreateProduct() {
     });
   };
 
+  const validateMessages = {
+    required: "${label} không được để trống!",
+    types: {
+      email: "${label} is not a valid email!",
+      number: "${label} phải là kiểu số!",
+    },
+    number: {
+      range: "${label} phải từ ${min} đến ${max}",
+    },
+  };
   return (
     <div>
       <div className="row">
@@ -525,6 +551,8 @@ function CreateProduct() {
         <div>
           <Form
             form={form}
+            name="nest-messages"
+            validateMessages={validateMessages}
             className="me-2 ms-2"
             initialValues={{
               cpuCompany: name,
@@ -593,7 +621,6 @@ function CreateProduct() {
                   rules={[
                     {
                       required: true,
-                      message: "Thể loại sản phẩm không được để trống",
                     },
                   ]}
                 >
@@ -613,20 +640,20 @@ function CreateProduct() {
                   label="Giá tiền"
                   rules={[
                     {
+                      type: "number",
+                      min: 10000000,
+                      max: 100000000,
                       required: true,
-                      message: "Giá tiền không được để trống",
                     },
-                    { whitespace: true },
-                    { min: 7, message: "Giá trị lớn hơn 6 ký tự" },
                   ]}
                   hasFeedback
                 >
-                  <Input
-                    style={{ width: "100%" }}
+                  <InputNumber
                     placeholder="Nhập giá tiền"
-                    value={price}
-                    type="number"
-                    min={10000000}
+                    formatter={(value) =>
+                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }
+                    style={{ width: "100%" }}
                   />
                 </Form.Item>
               </div>
@@ -637,19 +664,17 @@ function CreateProduct() {
                   label="Số lượng"
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Số lượng không được để trống",
+                      min: 1,
+                      max: 1000,
                     },
-                    { whitespace: true },
                   ]}
                   hasFeedback
                 >
-                  <Input
-                    type="number"
-                    style={{ width: "100%" }}
+                  <InputNumber
                     placeholder="Nhập số lượng"
-                    value={quantity}
-                    min={1}
+                    style={{ width: "100%" }}
                   />
                 </Form.Item>
               </div>
@@ -681,18 +706,17 @@ function CreateProduct() {
                   label="Chiều dài"
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Chiều dài không được để trống",
+                      min: 50,
+                      max: 1000,
                     },
-                    { whitespace: true },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                  <InputNumber
+                    placeholder="Nhập chiều dài"
                     style={{ width: "100%" }}
-                    placeholder="Chiều dài"
-                    value={length}
-                    min={100}
                   />
                 </Form.Item>
               </div>
@@ -702,18 +726,16 @@ function CreateProduct() {
                   label="Chiều rộng"
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Chiều rộng được để trống",
+                      min: 50,
+                      max: 1000,
                     },
-                    { whitespace: true },
                   ]}
-                  hasFeedback
                 >
-                  <Input
+                  <InputNumber
+                    placeholder="Nhập chiểu rộng"
                     style={{ width: "100%" }}
-                    placeholder="Chiều rộng"
-                    value={width}
-                    min={100}
                   />
                 </Form.Item>
               </div>
@@ -723,17 +745,17 @@ function CreateProduct() {
                   label="Chiều cao"
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Chiều cao không được để trống",
+                      min: 50,
+                      max: 1000,
                     },
-                    { whitespace: true },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                  <InputNumber
+                    placeholder="Nhập chiều cao"
                     style={{ width: "100%" }}
-                    placeholder="Chiều cao"
-                    min={1}
                   />
                 </Form.Item>
               </div>
@@ -743,17 +765,17 @@ function CreateProduct() {
                   label="Cân nặng"
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Cân nặng không được để trống",
+                      min: 1,
+                      max: 10,
                     },
-                    { whitespace: true },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                  <InputNumber
+                    placeholder="Nhập cân nặng"
                     style={{ width: "100%" }}
-                    placeholder="Cân nặng"
-                    min={1}
                   />
                 </Form.Item>
               </div>
@@ -1075,7 +1097,7 @@ function CreateProduct() {
                 </Form.Item>
               </div>
               <div className="col-3">
-              <Form.Item
+                <Form.Item
                   name="warrantyPeriod"
                   label="Thời gian bảo hành"
                   requiredMark="optional"
@@ -1086,7 +1108,11 @@ function CreateProduct() {
                     },
                   ]}
                 >
-                  <Input style={{ width: "100%" }} type="number" placeholder="Thời gian bảo hành" />
+                  <Input
+                    style={{ width: "100%" }}
+                    type="number"
+                    placeholder="Thời gian bảo hành"
+                  />
                 </Form.Item>
               </div>
               <div className="col-4">

@@ -1,5 +1,14 @@
 import { MenuFoldOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Form, Input, Select, Upload, Image } from "antd";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  Upload,
+  Image,
+  InputNumber,
+} from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import moment from "moment";
@@ -15,6 +24,20 @@ const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
 });
+
+
+const toastError = (message) => {
+  toast.error(message, {
+    position: "top-right",
+    autoClose: 2000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
 
 function EditProduct() {
   const set = new Set();
@@ -209,7 +232,7 @@ function EditProduct() {
     hard_drive: data?.configuration.hard_drive,
     win: data?.configuration.win,
     capacity: data?.configuration.capacity,
-    warrantyPeriod: data.warrantyPeriod
+    warrantyPeriod: data.warrantyPeriod,
   });
 
   const [tableParams, setTableParams] = useState({
@@ -261,9 +284,10 @@ function EditProduct() {
     fetch(
       `http://localhost:8080/api/auth/manufactures?${qs.stringify(
         getRandomMuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -306,9 +330,10 @@ function EditProduct() {
     fetch(
       `http://localhost:8080/api/staff/category?${qs.stringify(
         getRandomMuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -394,9 +419,10 @@ function EditProduct() {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -555,7 +581,7 @@ function EditProduct() {
       debut: moment(data.debut).format("yyyy"),
       categoryId: data.categoryId,
       manufactureId: data.manufactureId,
-      images: (imageUrls.length > 0) ? data.images : [],
+      images: imageUrls.length > 0 ? data.images : [],
       status: "ACTIVE",
       processorId: data.processorId,
       screenId: data.screenId,
@@ -571,36 +597,54 @@ function EditProduct() {
       security: data.security,
       description: data.description,
       storageId: data.storageId,
-      warrantyPeriod: data.warrantyPeriod
+      warrantyPeriod: data.warrantyPeriod,
     };
     handleSubmit(product);
   };
 
   const handleSubmit = (product) => {
-    fetch(`http://localhost:8080/api/products/${productEdit.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(product),
-    })
-      .then((response) => {})
-      .then((results) => {
-        console.log(results);
-        onReset();
-        localStorage.removeItem("productEdit");
-        toastSuccess("Cập nhật sản phẩm thành công!");
-        setTimeout(() => {
-          navigate("/admin/product");
-        }, 3000);
+    const yearCurrent = new Date().getFullYear();
+    if (Number(product.debut > yearCurrent)) {
+      toastError("Năm ra mắt lớn năm hiện tại!");
+    } else if (Number(product.debut) < yearCurrent - 4) {
+      toastError("Năm ra mắt nhỏ hơn năm hiện tại không quá 4 năm!");
+    } else {
+      fetch(`http://localhost:8080/api/products/${productEdit.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(product),
       })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+        .then((response) => {})
+        .then((results) => {
+          console.log(results);
+          onReset();
+          localStorage.removeItem("productEdit");
+          toastSuccess("Cập nhật sản phẩm thành công!");
+          setTimeout(() => {
+            navigate("/admin/product");
+          }, 3000);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
   };
 
   const handleUpload = () => {
     set.forEach((item) => {
       uploadFile(item);
     });
+  };
+
+  const validateMessages = {
+    required: "${label} không được để trống!",
+    types: {
+      email: "${label} is not a valid email!",
+      number: "${label} phải là kiểu số!",
+    },
+    number: {
+      range: "${label} phải từ ${min} đến ${max}",
+    },
   };
   return (
     <div className="row">
@@ -624,6 +668,8 @@ function EditProduct() {
         <ToastContainer></ToastContainer>
         <div>
           <Form
+            name="nest-messages"
+            validateMessages={validateMessages}
             form={clearForm}
             className="me-2 ms-2"
             initialValues={{
@@ -719,14 +765,18 @@ function EditProduct() {
                   initialValue={form.price}
                   rules={[
                     {
+                      type: "number",
+                      min: 10000000,
+                      max: 100000000,
                       required: true,
-                      message: "Giá tiền không được để trống",
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
-                    type="number"
+                  <InputNumber
+                    formatter={(value) =>
+                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }
                     style={{ width: "100%" }}
                     placeholder="Nhập giá tiền"
                     value={price}
@@ -741,17 +791,18 @@ function EditProduct() {
                   initialValue={form.quantity}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Số lượng không được để trống",
+                      min: 1,
+                      max: 1000,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
-                    type="number"
-                    style={{ width: "100%" }}
-                    placeholder="Nhập số lượng"
+                  <InputNumber
                     value={quantity}
+                    placeholder="Nhập số lượng"
+                    style={{ width: "100%" }}
                   />
                 </Form.Item>
               </div>
@@ -787,16 +838,17 @@ function EditProduct() {
                   initialValue={form.length}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Chiều dài không được để trống",
+                      min: 50,
+                      max: 1000,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                  <InputNumber
+                    placeholder="Nhập chiều dài"
                     style={{ width: "100%" }}
-                    placeholder="Chiều dài"
-                    type="number"
                     value={length}
                   />
                 </Form.Item>
@@ -808,17 +860,18 @@ function EditProduct() {
                   initialValue={form.width}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Chiều rộng được để trống",
+                      min: 50,
+                      max: 1000,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                  <InputNumber
+                    placeholder="Nhập chiểu rộng"
                     style={{ width: "100%" }}
-                    placeholder="Chiều rộng"
                     value={width}
-                    type="number"
                   />
                 </Form.Item>
               </div>
@@ -829,16 +882,17 @@ function EditProduct() {
                   initialValue={form.height}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Chiều cao không được để trống",
+                      min: 50,
+                      max: 1000,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                  <InputNumber
+                    placeholder="Nhập chiều cao"
                     style={{ width: "100%" }}
-                    placeholder="Chiều cao"
-                    type="number"
                   />
                 </Form.Item>
               </div>
@@ -849,16 +903,17 @@ function EditProduct() {
                   initialValue={form.weight}
                   rules={[
                     {
+                      type: "number",
                       required: true,
-                      message: "Cân nặng không được để trống",
+                      min: 1,
+                      max: 10,
                     },
                   ]}
                   hasFeedback
                 >
-                  <Input
+                  <InputNumber
+                    placeholder="Nhập cân nặng"
                     style={{ width: "100%" }}
-                    placeholder="Cân nặng"
-                    type="number"
                   />
                 </Form.Item>
               </div>
@@ -1205,10 +1260,9 @@ function EditProduct() {
                 </Form.Item>
               </div>
               <div className="col-3">
-              <Form.Item
+                <Form.Item
                   name="warrantyPeriod"
                   label="Thời gian bảo hành"
-          
                   initialValue={form.warrantyPeriod}
                   rules={[
                     {
@@ -1217,17 +1271,17 @@ function EditProduct() {
                     },
                   ]}
                 >
-                  <Input style={{ width: "100%" }}  value={warrantyPeriod}  placeholder="Thời gian bảo hành" />
-              </Form.Item>
+                  <Input
+                    style={{ width: "100%" }}
+                    value={warrantyPeriod}
+                    placeholder="Thời gian bảo hành"
+                  />
+                </Form.Item>
               </div>
               <div className="col-4">
                 <div className="row">
                   <div className="col-12">
-                    <Form.Item
-                      name="upload"
-                      label="Upload"
-                     
-                    >
+                    <Form.Item name="upload" label="Upload">
                       <Upload
                         {...props}
                         listType="picture"
