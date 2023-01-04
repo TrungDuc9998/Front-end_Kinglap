@@ -280,7 +280,7 @@ function CreateOrderAdmin() {
                 customerName:
                   order.customerName == "" ? fullNameForm : order.customerName,
                 phone: order.phone,
-                status: "CHO_XAC_NHAN",
+                status: order.payment === "TẠI CỬA HÀNG" ? "DA_NHAN": "CHO_XAC_NHAN",
                 money: 0,
                 shippingFree: shipping,
                 orderDetails: orderDetails,

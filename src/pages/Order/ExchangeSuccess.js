@@ -7,7 +7,7 @@ import {
   Modal,
   DatePicker,
   Radio,
-  Space,
+  Drawer,
   Image,
   Option,
   Checkbox,
@@ -60,6 +60,7 @@ const ExchangeSuccess = () => {
   const [dataExchangeDetail, setDataExchangeDetail] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState();
+  const [open, setOpen] = useState(false);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -115,16 +116,15 @@ const ExchangeSuccess = () => {
     console.log(array);
 
     array.forEach((element) => {
-        orderDetail.push({
-          id: element.orderDetailId,
-          isCheck: element.orderChange,
-          productId: element.productId,
-          quantity: element.quantity,
-          total: 0,
-          isBoolean: true,
-          status: "0",
-        });
-    
+      orderDetail.push({
+        id: element.orderDetailId,
+        isCheck: element.orderChange,
+        productId: element.productId,
+        quantity: element.quantity,
+        total: 0,
+        isBoolean: true,
+        status: "0",
+      });
     });
 
     const exchangeDetails = [];
@@ -159,7 +159,7 @@ const ExchangeSuccess = () => {
         returnDetailEntities: array,
       }),
     }).then((res) => {});
-    // if (isPut === true) {
+    if (isPut === true) {
       fetch(
         `http://localhost:8080/api/staff/orders/update/exchange/${data.orderId.id}`,
         {
@@ -170,11 +170,16 @@ const ExchangeSuccess = () => {
           },
           body: JSON.stringify(orderDetail),
         }
-      ).then((res) => loadDataExchange());
-      toastSuccess("Xác nhận yêu cầu thành công !");
-    // } else {
-    //   toastSuccess("Huỷ yêu cầu thành công !");
-    // }
+      ).then((res) => {
+        loadDataExchangeDetailById(data.id);
+        loadDataExchange();
+      });
+      toastSuccess("Xác nhận yêu cầu đổi hàng thành công !");
+    } else {
+      toastSuccess("Huỷ yêu cầu thành công !");
+      loadDataExchangeDetailById(data.id);
+      loadDataExchange();
+    }
   };
 
   const ConfirmReturn = (data, isPut) => {
@@ -321,7 +326,7 @@ const ExchangeSuccess = () => {
                   style={{
                     width: "150px",
                     borderRadius: "5px",
-                    padding: "4px",
+                    padding: "4px 0px 4px 0px",
                   }}
                 >
                   Đã xác nhận
@@ -356,13 +361,7 @@ const ExchangeSuccess = () => {
     },
   ];
 
-  const showModalData = (id) => {
-    fetch(`http://localhost:8080/api/auth/returns/${id}/detail`)
-      .then((res) => res.json())
-      .then((res) => {
-        setData(res.data);
-      });
-
+  const loadDataExchangeDetailById = (id) => {
     fetch(`http://localhost:8080/api/returns/${id}`)
       .then((res) => res.json())
       .then((res) => {
@@ -386,7 +385,7 @@ const ExchangeSuccess = () => {
               isCheck: item.isCheck,
               reason: item.reason,
               quantity: item.quantity,
-              orderDetailId:item.orderDetail.id,
+              orderDetailId: item.orderDetail.id,
               orderChange: item.orderChange,
             });
           } else {
@@ -405,11 +404,19 @@ const ExchangeSuccess = () => {
             });
           }
         });
-        console.log("data set");
-        console.log(data);
         setDataRequest(data);
         setDataExchangeDetail(dataRequest);
       });
+  };
+
+  const showModalData = (id) => {
+    fetch(`http://localhost:8080/api/auth/returns/${id}/detail`)
+      .then((res) => res.json())
+      .then((res) => {
+        setData(res.data);
+      });
+
+    loadDataExchangeDetailById(id);
     setView(true);
   };
 
@@ -504,15 +511,18 @@ const ExchangeSuccess = () => {
       render: (id, record) => {
         return (
           <>
-            <EyeOutlined
+            {/* <EyeOutlined
               style={{ fontSize: "20px" }}
               onClick={() => navigate(`/admin/order/exchange/detail/${id}`)}
-            />
-            <Button
+            /> */}
+            {/* <Button
               onClick={() => {
                 showModalData(id);
               }}
             >
+              Chi tiết
+            </Button> */}
+            <Button type="primary" shape="round" onClick={() => showDrawer(id)}>
               Chi tiết
             </Button>
           </>
@@ -520,6 +530,15 @@ const ExchangeSuccess = () => {
       },
     },
   ];
+
+  const showDrawer = (id) => {
+    showModalData(id);
+    setOpen(true);
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
 
   const [valueSearch, setValueSearch] = useState("TAT_CA");
   const onChange = (value) => {
@@ -567,6 +586,21 @@ const ExchangeSuccess = () => {
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
+  };
+
+  const onCancel = () => {
+    const isPut = false;
+    Modal.confirm({
+      icon: <CheckCircleOutlined className="text-success" />,
+      title: "Huỷ xác nhận đổi đơn hàng",
+      content: `Bạn có huỷ muốn xác nhận đổi đơn hàng này không ?`,
+      okText: "Có",
+      cancelText: "Không",
+      okType: "primary",
+      onOk: () => {
+        handleSubmit(isPut);
+      },
+    });
   };
 
   return (
@@ -655,7 +689,7 @@ const ExchangeSuccess = () => {
             loading={loading}
             // onChange={handleTableChange}
           />
-          <Modal
+          {/* <Modal
             title="Chi tiết đơn đổi"
             footer={[
               <Button key="back" onClick={() => setView(false)}>
@@ -720,8 +754,67 @@ const ExchangeSuccess = () => {
                 />
               </div>
             </div>
-          </Modal>
+          </Modal> */}
         </div>
+        <Drawer
+          title="Chi tiết đơn đổi"
+          placement="right"
+          onClose={onClose}
+          open={open}
+          width={1200}
+        >
+          <div className="col-12">
+            <div className="row">
+              <div className="col-6">
+                <p>Mã đơn đổi: {data?.id} </p>
+                <p>Mã hoá đơn: {data?.orderId.id} </p>
+                <p>Ngày gửi yêu cầu: {data?.orderId.createdAt}</p>
+              </div>
+              <div className="col-6">
+                <p>Tên khách hàng: {data?.orderId.customerName}</p>
+                <p>Số điện thoại: {data?.orderId.phone}</p>
+                <p>Ghi chú: {data?.description}</p>
+              </div>
+            </div>
+            <div>
+              <div className="col-12 mt-4 mb-2 confirm">
+                {selectedRowKeys.length > 0 ? (
+                  <div className="text-center ">
+                    <Button type="primary" shape="round" onClick={onConfirm}>
+                      Xác nhận đơn hàng
+                    </Button>
+                    <Button
+                      className="ms-2"
+                      type="primary"
+                      shape="round"
+                      danger
+                      onClick={onCancel}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+                ) : (
+                  ""
+                )}
+              </div>
+              <h6 className="text-danger fw-bold ">Đơn đổi chưa xử lý</h6>
+              <Table
+                rowSelection={rowSelection}
+                columns={columnDetail}
+                rowKey={(record) => record.id}
+                dataSource={dataRequest}
+                pagination={{ position: ["none", "none"] }}
+              />
+              <h6 className="text-danger fw-bold mt-5">Đơn đổi đã xử lý</h6>
+              <Table
+                columns={columnDetail}
+                rowKey={(record) => record.id}
+                dataSource={dataExchangeDetail}
+                pagination={{ position: ["none", "none"] }}
+              />
+            </div>
+          </div>
+        </Drawer>
       </div>
     </div>
   );

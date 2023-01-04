@@ -50,6 +50,19 @@ const getRandomuserParams = (params) => ({
   searchStatus: params.pagination?.searchStatus,
 });
 
+const toastSuccess = (message) => {
+  toast.success(message, {
+    position: "top-right",
+    autoClose: 2000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+};
+
 const OrderDelivering = () => {
   let navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -699,7 +712,7 @@ const OrderDelivering = () => {
       });
     }else {
       dataOrder.push({
-        id: record,
+        id: record.id,
         status: isPut == true ? "DA_NHAN" : "DA_HUY",
       })
       setView(false);
@@ -715,7 +728,7 @@ const OrderDelivering = () => {
     }).then((res) => {
       clearSearchForm();
       if(isPut == true) {
-        toastSuccess("Xác nhận đơn hàng thành công !")
+        toastSuccess("Nhận đơn hàng thành công !")
       } else {
         toastSuccess("Huỷ đơn hàng thành công !")
       }

@@ -428,7 +428,7 @@ const OrderWait = () => {
       });
     }else {
       dataOrder.push({
-        id: record,
+        id: record.id,
         status:  isPut == true ? "DANG_GIAO" : "CHO_XAC_NHAN",
       });
       setView(false); 
