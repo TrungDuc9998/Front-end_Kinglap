@@ -13,12 +13,16 @@ import {
 } from "antd";
 import {
   CheckCircleOutlined,
+  CloseCircleOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
+  IssuesCloseOutlined,
   MenuFoldOutlined,
+  QuestionCircleOutlined,
   ReloadOutlined,
   RollbackOutlined,
   SearchOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import Moment from "react-moment";
@@ -105,7 +109,6 @@ const OrderWait = () => {
     loadDataClient();
   }, []);
 
-
   const handleOk = (record, check) => {
     const isPut = false;
     if (check == true) {
@@ -119,17 +122,7 @@ const OrderWait = () => {
           handleConfirm(true, record);
         },
       });
-    } else {
-      Modal.confirm({
-        title: "Huỷ đơn hàng",
-        content: `Bạn có muốn huỷ đơn hàng ${record?.id} 
-        của khách hàng ${record?.customerName}  không?`,
-        okText: "Có",
-        cancelText: "Không",
-        onOk: () => {
-          handleConfirm(false, record);
-        },
-      });
+    
     }
   };
 
@@ -182,18 +175,35 @@ const OrderWait = () => {
       });
   };
 
-  const cancelCheckBox = () => {
-    Modal.confirm({
-      icon: <CheckCircleOutlined />,
-      title: "Huỷ đơn hàng ",
-      content: `Bạn có muốn huỷ những đơn hàng này không?`,
-      okText: "Có",
-      cancelText: "Không",
-      okType: "primary",
-      onOk: () => {
-        handleCancel();
-      },
-    });
+  const cancelCheckBox = (data) => {
+    console.log(data);
+    console.log('data lúc huỷ đơn hàng: '+ data)
+    if (data.id != undefined) {
+      Modal.confirm({
+        icon: <CheckCircleOutlined />,
+        title: "Huỷ đơn hàng ",
+        content: `Bạn có muốn huỷ đơn hàng ${data?.id} 
+          của khách hàng ${data?.customerName}  không?`,
+        okText: "Có",
+        cancelText: "Không",
+        okType: "primary",
+        onOk: () => {
+          handleCancel(data);
+        },
+      });
+    } else {
+      Modal.confirm({
+        icon: <CheckCircleOutlined />,
+        title: "Huỷ đơn hàng ",
+        content: `Bạn có muốn huỷ những đơn hàng này không?`,
+        okText: "Có",
+        cancelText: "Không",
+        okType: "primary",
+        onOk: () => {
+          handleCancel();
+        },
+      });
+    }
   };
 
   const onSelectAutoClient = (value) => {
@@ -202,20 +212,18 @@ const OrderWait = () => {
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
-
     setSelectedRowKeys([]);
     tableParams.pagination = pagination;
-    tableParams.pagination.search1 =
-    searchName != undefined ? searchName : "";
-  tableParams.pagination.searchPhone =
-    phoneClient != undefined ? phoneClient : "";
-  tableParams.pagination.searchStartDate =
-    searchStartDate != undefined ? searchStartDate : "";
-  tableParams.pagination.searchEndDate =
-    searchEndDate != undefined ? searchEndDate : "";
-  tableParams.pagination.searchStatus = "CHO_LAY_HANG";
-  tableParams.pagination.searchPayment = "";
-  loadDataOrder();
+    tableParams.pagination.search1 = searchName != undefined ? searchName : "";
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
+    tableParams.pagination.searchStatus = "CHO_LAY_HANG";
+    tableParams.pagination.searchPayment = "";
+    loadDataOrder();
   };
 
   const updateNote = () => {
@@ -231,14 +239,23 @@ const OrderWait = () => {
     });
   };
 
-  const handleCancel = (isPut) => {
+  const handleCancel = (data) => {
     const dataOrder = [];
-    selectedRowKeys.forEach((item) => {
+    if (selectedRowKeys.length > 0) {
+      selectedRowKeys.forEach((item) => {
+        dataOrder.push({
+          id: item,
+          status: "DA_HUY",
+        });
+      });
+    } else {
       dataOrder.push({
-        id: item,
+        id: data.id,
         status: "DA_HUY",
       });
-    });
+     
+    }
+
     fetch(`http://localhost:8080/api/staff/orders/confirm`, {
       method: "POST",
       headers: {
@@ -248,7 +265,8 @@ const OrderWait = () => {
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       clearSearchForm();
-      toastSuccess("Huỷ đơn hàng thành công!")
+      setView(false);
+      toastSuccess("Huỷ đơn hàng thành công!");
     });
   };
 
@@ -298,72 +316,82 @@ const OrderWait = () => {
         if (status === "CHUA_THANH_TOAN") {
           return (
             <>
-              <div
-                className="bg-secondary text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<QuestionCircleOutlined />}
+                style={{ width: "100%" }}
+                className="pt-1 pb-1 text-center"
+                color="default"
               >
                 Chưa thanh toán
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "CHO_XAC_NHAN") {
           return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+            <Tag
+                icon={<IssuesCloseOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="cyan"
+                style={{ width: "100%" }}
               >
-                Chờ xác nhận
-              </div>
-            </>
+               Chờ xác nhận
+            </Tag>
           );
         }
         if (status === "CHO_LAY_HANG") {
           return (
             <>
-              <div
-                className="bg-warning text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<ExclamationCircleOutlined/>}
+                className="pt-1 pb-1 text-center"
+                color="warning"
+                style={{ width: "100%" }}
               >
-                Chờ lấy hàng
-              </div>
+               Chờ lấy hàng
+            </Tag>
             </>
           );
         }
         if (status === "DANG_GIAO") {
           return (
             <>
-              <div
-                className="bg-primary text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<SyncOutlined spin />}
+                className="pt-1 pb-1 text-center"
+                color="processing"
+                style={{ width: "100%" }}
               >
                 Đang giao hàng
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "DA_NHAN") {
           return (
             <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<CheckCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="success"
+                style={{ width: "100%" }}
               >
                 Đã nhận hàng
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "DA_HUY") {
           return (
             <>
-              <div
-                className="bg-danger text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<CloseCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="error"
+                style={{ width: "100%" }}
               >
                 Đã huỷ hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -417,23 +445,23 @@ const OrderWait = () => {
     });
   };
 
-  const handleConfirm = (isPut,record) => {
+  const handleConfirm = (isPut, record) => {
     const dataOrder = [];
-    if(selectedRowKeys.length > 0) {
+    if (selectedRowKeys.length > 0) {
       selectedRowKeys.forEach((item) => {
         dataOrder.push({
           id: item,
           status: isPut == true ? "DANG_GIAO" : "CHO_XAC_NHAN",
         });
       });
-    }else {
+    } else {
       dataOrder.push({
         id: record.id,
-        status:  isPut == true ? "DANG_GIAO" : "CHO_XAC_NHAN",
+        status: isPut == true ? "DANG_GIAO" : "CHO_XAC_NHAN",
       });
-      setView(false); 
+      setView(false);
     }
-   
+
     fetch(`http://localhost:8080/api/staff/orders/confirm`, {
       method: "POST",
       headers: {
@@ -443,10 +471,10 @@ const OrderWait = () => {
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       clearSearchForm();
-      if(isPut == true) {
-        toastSuccess("Xác nhận đơn hàng thành công !")
+      if (isPut == true) {
+        toastSuccess("Xác nhận đơn hàng thành công!");
       } else {
-        toastSuccess("Huỷ đơn hàng thành công !")
+        toastSuccess("Đơn hàng được chuyển về trạng thái chờ xác nhận!");
       }
     });
   };
@@ -475,8 +503,6 @@ const OrderWait = () => {
     setSearchStartDate(dateStrings[0]);
     setSearchEndDate(dateStrings[1]);
   };
-
-  
 
   const confirmOrder = (record) => {
     const sdt = record.phone;
@@ -570,7 +596,7 @@ const OrderWait = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        const data =[];
+        const data = [];
         results.data.data?.forEach((item) => {
           data.push({
             key: item.id,
@@ -850,7 +876,7 @@ const OrderWait = () => {
             className="mt-2"
             type="primary-uotline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <ReloadOutlined />
             Đặt lại
@@ -859,7 +885,7 @@ const OrderWait = () => {
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <SearchOutlined />
             Tìm kiếm
@@ -946,14 +972,19 @@ const OrderWait = () => {
               <Button
                 key="submit"
                 type="primary"
+                shape="round"
                 onClick={() => handleOk(dataO, true)}
               >
                 Xác nhận đơn hàng
               </Button>,
-              <Button type="danger" onClick={() => handleOk(dataO, false)}>
+              <Button
+                type="danger"
+                shape="round"
+                onClick={() => cancelCheckBox(dataO, false)}
+              >
                 Huỷ đơn hàng
               </Button>,
-              <Button key="back" onClick={() => setView(false)}>
+              <Button key="back"  shape="round" onClick={() => setView(false)}>
                 Đóng
               </Button>,
             ]}
@@ -984,7 +1015,7 @@ const OrderWait = () => {
                         />
                       </div>
                       <div className="col-3 mt-4">
-                        <Button onClick={() => updateNote()}>
+                        <Button shape="round" onClick={() => updateNote()}>
                           Cập nhật ghi chú
                         </Button>
                       </div>

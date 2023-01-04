@@ -419,7 +419,8 @@ const Discount = () => {
             <>
               <Button
                 type="danger"
-                style={{ borderRadius: "7px" }}
+                shape="round"
+               
                 onClick={() => {
                   showDataProduct(id);
                 }}
@@ -1027,7 +1028,7 @@ const Discount = () => {
                 className="mx-2  mt-2"
                 type="primary"
                 onClick={search}
-                style={{ borderRadius: "10px" }}
+                shape="round"
               >
                 <SearchOutlined />
                 Tìm kiếm
@@ -1036,7 +1037,7 @@ const Discount = () => {
                 className="mt-2"
                 type="primary-outline"
                 onClick={clearSearchForm}
-                style={{ borderRadius: "10px" }}
+                shape="round"
               >
                 <ReloadOutlined />
                 Đặt lại
@@ -1230,7 +1231,7 @@ const Discount = () => {
                 className="offset-11 "
                 type="primary"
                 onClick={showModalAdd}
-                style={{ borderRadius: "5px" }}
+                shape="round"
               >
                 <PlusOutlined />
                 Thêm mới
@@ -1238,7 +1239,7 @@ const Discount = () => {
               <Button
                 className="offset-11 mt-1"
                 type="danger"
-                style={{ borderRadius: "7px" }}
+                shape="round"
                 onClick={() => {
                   showDataProductCancel();
                 }}

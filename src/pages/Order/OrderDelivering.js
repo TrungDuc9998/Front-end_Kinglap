@@ -21,6 +21,10 @@ import {
   MenuFoldOutlined,
   DownloadOutlined,
   SyncOutlined,
+  QuestionCircleOutlined,
+  IssuesCloseOutlined,
+  ExclamationCircleOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
@@ -222,72 +226,82 @@ const OrderDelivering = () => {
         if (status === "CHUA_THANH_TOAN") {
           return (
             <>
-              <div
-                className="bg-secondary text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<QuestionCircleOutlined />}
+                style={{ width: "100%" }}
+                className="pt-1 pb-1 text-center"
+                color="default"
               >
                 Chưa thanh toán
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "CHO_XAC_NHAN") {
           return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+            <Tag
+                icon={<IssuesCloseOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="cyan"
+                style={{ width: "100%" }}
               >
-                Chờ xác nhận
-              </div>
-            </>
+               Chờ xác nhận
+            </Tag>
           );
         }
         if (status === "CHO_LAY_HANG") {
           return (
             <>
-              <div
-                className="bg-warning text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<ExclamationCircleOutlined/>}
+                className="pt-1 pb-1 text-center"
+                color="warning"
+                style={{ width: "100%" }}
               >
-                Chờ lấy hàng
-              </div>
+               Chờ lấy hàng
+            </Tag>
             </>
           );
         }
         if (status === "DANG_GIAO") {
           return (
             <>
-              <div
-                className="bg-primary text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<SyncOutlined spin />}
+                className="pt-1 pb-1 text-center"
+                color="processing"
+                style={{ width: "100%" }}
               >
                 Đang giao hàng
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "DA_NHAN") {
           return (
             <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<CheckCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="success"
+                style={{ width: "100%" }}
               >
                 Đã nhận hàng
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "DA_HUY") {
           return (
             <>
-              <div
-                className="bg-danger text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<CloseCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="error"
+                style={{ width: "100%" }}
               >
                 Đã huỷ hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -593,6 +607,7 @@ const OrderDelivering = () => {
           <>
             <Button
               className="secondary"
+              shape="round"
               onClick={() => {
                 showModalData(id);
               }}
@@ -827,7 +842,7 @@ const OrderDelivering = () => {
             className="mt-2"
             type="primary-uotline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <ReloadOutlined />
             Đặt lại
@@ -836,7 +851,7 @@ const OrderDelivering = () => {
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <SearchOutlined />
             Tìm kiếm
@@ -852,6 +867,7 @@ const OrderDelivering = () => {
                 shape="round"
                 icon={<CheckCircleOutlined />}
                 className="ms-5"
+            
                 onClick={confirmCheckBox}
                 danger
               >
@@ -898,14 +914,15 @@ const OrderDelivering = () => {
               <Button
                 key="submit"
                 type="primary"
-                onClick={() => handleOk(dataO, true)}
+                shape="round"
+                onClick={() =>  handleOk(dataO, true)}
               >
                 Nhận hàng
               </Button>,
-              <Button type="danger" onClick={() => handleOk(dataO, false)}>
+              <Button type="danger" shape="round" onClick={() => handleOk(dataO, false)}>
                 Huỷ đơn hàng
               </Button>,
-              <Button key="back" onClick={() => setView(false)}>
+              <Button key="back" shape="round" onClick={() => setView(false)}>
                 Đóng
               </Button>,
             ]}

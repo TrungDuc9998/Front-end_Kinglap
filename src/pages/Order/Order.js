@@ -20,7 +20,6 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   SyncOutlined,
-  QuestionOutlined,
   QuestionCircleOutlined,
   IssuesCloseOutlined,
   ExclamationCircleOutlined,
@@ -1207,18 +1206,20 @@ const Order = () => {
         <div className="col-12 text-center mt-4">
           <Button
             className="mt-2"
+            shape="round"
             type="primary-uotline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+           
           >
             <ReloadOutlined />
             Đặt lại
           </Button>
           <Button
+            shape="round"
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+          
           >
             <SearchOutlined />
             Tìm kiếm
@@ -1230,7 +1231,7 @@ const Order = () => {
           <Button
             className="offset-11 "
             type="primary"
-            style={{ borderRadius: "10px" }}
+            shape="round"
             onClick={() => {
               navigate("create");
             }}

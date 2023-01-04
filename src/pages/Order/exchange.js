@@ -18,7 +18,7 @@ import qs from "qs";
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 const { TextArea } = Input;
-import moment from "moment";
+import Moment from "react-moment";
 import { useParams } from "react-router-dom";
 import { render } from "@testing-library/react";
 const { Option } = Select;
@@ -236,6 +236,51 @@ const Exchange = () => {
       theme: "light",
     });
   };
+
+  const onCancel = (record) => {
+    const isPut = true;
+    Modal.confirm({
+      icon: <CloseCircleOutlined className="text-danger" />,
+      title: "Huỷ yêu cầu đổi hàng",
+      content: `Bạn có muốn huỷ yêu cầu đổi hàng ${record.id} không ?`,
+      okText: "Có",
+      cancelText: "Không",
+      okType: "primary",
+      onOk: () => {
+       cancelOrderDetail(record);
+      },
+    });
+  };
+
+  const cancelOrderDetail = (data) => {
+    const orderDetail = [];
+    orderDetail.push({
+      id: data.id,
+      isCheck: data.id,
+      productId: data.product.id,
+      quantity: data.quantity,
+      total: 0,
+      isBoolean: false,
+      status: "0",
+    });
+    console.log('order detail gửi yêu cầu');
+    console.log(orderDetail);
+
+    fetch(
+      `http://localhost:8080/api/staff/orders/update/exchange/${data.id}/cancel`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify(orderDetail),
+      }
+    ).then((res) => {
+      loadDataOrder(id);
+    });
+    toastSuccess("Huỷ yêu cầu đổi hàng thành công !"); 
+  }
 
   useEffect(() => {
     loadDataOrder(id);
@@ -580,6 +625,8 @@ const Exchange = () => {
                 <th scope="col">Tên sản phẩm</th>
                 <th scope="col">Giá</th>
                 <th scope="col">Số lượng</th>
+                <th>Thời gian </th>
+             
                 <th scope="col">Tổng tiền</th>
                 <th></th>
               </tr>
@@ -600,6 +647,8 @@ const Exchange = () => {
                       })}
                     </td>
                     <td>{item.quantity}</td>
+                   
+                    <td> <Moment format="DD-MM-YYYY HH:mm:ss">{item.updatedAt}</Moment></td>
                     <td>
                       {item.total.toLocaleString("it-IT", {
                         style: "currency",
@@ -609,7 +658,7 @@ const Exchange = () => {
 
                     <td>
                       {item.isCheck === null ? (
-                        <Button onClick={() => showDrawer(item)}>
+                        <Button  shape="round" onClick={() => showDrawer(item)}>
                           Chọn sản phẩm
                         </Button>
                       ) : (
@@ -629,12 +678,20 @@ const Exchange = () => {
                             showIcon
                           />
                         )
-                      ) : item.isCheck != 1 && item.isCheck !== null ? (
-                        <i className="text-danger">
+                      ) : item.isCheck != 1 && item.isCheck !== null && item.isCheck!=3 ? (
+                        <>
+                        <Button type="primary"   onClick={() => onCancel(item)} danger>Huỷ</Button>
+                        <i className="text-primary mx-2">
                           Đơn yêu cầu đổi hoá đơn {item.isCheck}
                         </i>
+                       
+                        </>
                       ) : (
-                        ""
+                        item.isCheck == 3 ? (
+                          <i className="text-danger fw-bold">
+                          Đơn yêu cầu đổi hoá đơn {item.isCheck} bị huỷ
+                        </i>
+                        ): ""
                       )}
                     </td>
                   </tr>
@@ -791,7 +848,7 @@ const Exchange = () => {
               })}
             </tbody>
           </table>
-          <Button className="offset-6" disabled={dataCart.length == 0} type="primary" onClick={handleOk}>Gửi yêu cầu</Button>
+          <Button className="offset-6" disabled={dataCart.length == 0} type="primary"  shape="round" onClick={handleOk}>Gửi yêu cầu</Button>
         </Drawer>
       </div>
     </div>

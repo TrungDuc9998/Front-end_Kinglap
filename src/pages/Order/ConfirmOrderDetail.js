@@ -7,11 +7,16 @@ import {
   InputNumber,
   Modal,
   Image,
+  Tag,
 } from "antd";
 import {
   CheckCircleOutlined,
+  CloseCircleOutlined,
   ExclamationCircleOutlined,
+  IssuesCloseOutlined,
   MenuFoldOutlined,
+  QuestionCircleOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -111,72 +116,82 @@ const ConfirmOrderDetail = () => {
         if (status === "CHUA_THANH_TOAN") {
           return (
             <>
-              <div
-                className="bg-secondary text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<QuestionCircleOutlined />}
+                style={{ width: "100%" }}
+                className="pt-1 pb-1 text-center"
+                color="default"
               >
                 Chưa thanh toán
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "CHO_XAC_NHAN") {
           return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+            <Tag
+                icon={<IssuesCloseOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="cyan"
+                style={{ width: "100%" }}
               >
-                Chờ xác nhận
-              </div>
-            </>
+               Chờ xác nhận
+            </Tag>
           );
         }
         if (status === "CHO_LAY_HANG") {
           return (
             <>
-              <div
-                className="bg-warning text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<ExclamationCircleOutlined/>}
+                className="pt-1 pb-1 text-center"
+                color="warning"
+                style={{ width: "100%" }}
               >
-                Chờ lấy hàng
-              </div>
+               Chờ lấy hàng
+            </Tag>
             </>
           );
         }
         if (status === "DANG_GIAO") {
           return (
             <>
-              <div
-                className="bg-primary text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<SyncOutlined spin />}
+                className="pt-1 pb-1 text-center"
+                color="processing"
+                style={{ width: "100%" }}
               >
                 Đang giao hàng
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "DA_NHAN") {
           return (
             <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<CheckCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="success"
+                style={{ width: "100%" }}
               >
                 Đã nhận hàng
-              </div>
+              </Tag>
             </>
           );
         }
         if (status === "DA_HUY") {
           return (
             <>
-              <div
-                className="bg-danger text-center text-light"
-                style={{ width: "100%", borderRadius: "5px", padding: "4px" }}
+              <Tag
+                icon={<CloseCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="error"
+                style={{ width: "100%" }}
               >
                 Đã huỷ hàng
-              </div>
+              </Tag>
             </>
           );
         }
@@ -763,18 +778,19 @@ const ConfirmOrderDetail = () => {
           <div className="col-12 text-center mb-3 mt-2">
             {order?.status === "CHO_XAC_NHAN" ? (
               <div>
-                <Button type="primary" onClick={handleConfirm}>
+                <Button type="primary"  shape="round" onClick={handleConfirm}>
                   Xác nhận đơn hàng
                 </Button>
                 <Button
                   type="primary"
+                  shape="round"
                   onClick={cancelCheckBox}
                   className="ms-2"
                   danger
                 >
                   Huỷ đơn hàng
                 </Button>
-                <Button onClick={confirm} className="ms-2">
+                <Button onClick={confirm}  shape="round" className="ms-2">
                   Cập nhật đơn hàng
                 </Button>
               </div>
