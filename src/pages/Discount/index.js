@@ -9,8 +9,11 @@ import {
   Radio,
   Space,
   Statistic,
+  Tag,
 } from "antd";
 import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
@@ -192,9 +195,8 @@ const Discount = () => {
           listProDiscount.push(pro);
         }
       });
-     
+
       dateTimer.forEach((time) => {
-        
         //clearInterval(myTimer);
         var myTimer = setInterval(() => {
           time--;
@@ -323,11 +325,11 @@ const Discount = () => {
       render(endDate) {
         return (
           <Clock
-          timerDays={timerDays}
-          timerHours={timerHours}
-          timerMinutes={timerMinutes}
-          timerSeconds={timerSeconds}
-        />
+            timerDays={timerDays}
+            timerHours={timerHours}
+            timerMinutes={timerMinutes}
+            timerSeconds={timerSeconds}
+          />
         );
       },
       width: "10%",
@@ -340,28 +342,34 @@ const Discount = () => {
         return (
           <>
             {status == "ACTIVE" && (
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              <Tag
+               
+                className="pt-1 pb-1  text-center"
+                color="#389e0d"
+                style={{ width: "100%" }}
               >
                 Hoạt động
-              </div>
+              </Tag>
             )}
             {status == "INACTIVE" && (
-              <div
-                className="bg-secondary text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              <Tag
+               
+                className="pt-1 pb-1 text-center"
+                color="#f50"
+                style={{ width: "100%" }}
               >
                 Không hoạt động
-              </div>
+              </Tag>
             )}
             {status == "DRAFT" && (
-              <div
-                className="bg-danger text-center text-light"
-                style={{ width: "150px", borderRadius: "5px", padding: "5px" }}
+              <Tag
+               
+                className="pt-1 pb-1 text-center"
+                color="#2db7f5"
+                style={{ width: "100%" }}
               >
                 Nháp
-              </div>
+              </Tag>
             )}
           </>
         );
@@ -475,12 +483,12 @@ const Discount = () => {
 
   useEffect(() => {
     // startTimer();
-  })
+  });
 
   //LoadList
   useEffect(() => {
     getData();
-    
+
     // loadProduct();
   }, [JSON.stringify(tableParams)]);
 
@@ -545,10 +553,9 @@ const Discount = () => {
     const end = new Date(form.endDate).getTime();
     console.log(start + " - " + end);
 
-
     const currentDate = new Date(start);
-    currentDate.setDate(currentDate.getDate() + 90)
-    console.log('thời gian sau 3 tháng: ', currentDate);
+    currentDate.setDate(currentDate.getDate() + 90);
+    console.log("thời gian sau 3 tháng: ", currentDate);
 
     if (form.name == null || form.name == "") {
       notifyError("Tiêu đề giảm giá không được để trống!");
@@ -562,11 +569,9 @@ const Discount = () => {
       notifyError("Thời gian kết thúc phải lớn hơn thời gian bắt đầu !");
     } else if (start < currency) {
       notifyError("Thời gian bắt đầu phải lớn hơn thời gian hiện tại !");
-    }else if(end > currentDate) {
-      notifyError("Thời gian giảm giá không vượt quá 3 tháng !")
-    } 
-    
-    else {
+    } else if (end > currentDate) {
+      notifyError("Thời gian giảm giá không vượt quá 3 tháng !");
+    } else {
       e.preventDefault();
       axios
         .post(urlStaff, form, {
@@ -590,6 +595,12 @@ const Discount = () => {
 
   //btn Edit
   const handleEdit = (e) => {
+    const start = new Date(form.startDate).getTime();
+    const end = new Date(form.endDate).getTime();
+    const currentDate = new Date(start);
+    currentDate.setDate(currentDate.getDate() + 90);
+    const currency = new Date().getTime();
+
     if (form.name == null || form.name == "") {
       notifyError("Tiêu đề giảm giá không được để trống!");
     } else if (form.ratio == null) {
@@ -598,6 +609,12 @@ const Discount = () => {
       notifyError("Tỉ lệ phải từ 1-100!");
     } else if (form.startDate == null || form.endDate == null) {
       notifyError("Thời gian giảm giá không được để trống!");
+    } else if (end <= start) {
+      notifyError("Thời gian kết thúc phải lớn hơn thời gian bắt đầu !");
+    } else if (start < currency) {
+      notifyError("Thời gian bắt đầu phải lớn hơn thời gian hiện tại !");
+    } else if (end > currentDate) {
+      notifyError("Thời gian giảm giá không vượt quá 3 tháng !");
     } else {
       e.preventDefault();
       axios
@@ -660,10 +677,11 @@ const Discount = () => {
   };
 
   const handleChangeDate = (val, dateStrings) => {
+    console.log("dữ liệu update thời gian");
     setValues({
       ...form,
       startDate: dateStrings[0],
-      endDate: dateStrings[1],
+      endDate: dateStrings[1] != "" ? dateStrings[1] : dateStrings[0],
     });
   };
   const handleChangeDateSearch = (val, dateStrings) => {
@@ -683,11 +701,14 @@ const Discount = () => {
         ...form,
         startDate: dateStrings[0],
       });
-    if (dateStrings[1] != null)
+    if (dateStrings[1] != null && dateStrings[1] != ""){
+      console.log('vào set end date');
       setValues({
         ...form,
         endDate: dateStrings[1],
       });
+    }
+      
   };
 
   const handleCancel = () => {
@@ -923,7 +944,7 @@ const Discount = () => {
   let interval;
   const startTimer = () => {
     // const countDownDate = new Date("Jan 2, 2023 00:05:58").getTime();
-    
+
     const countDownDate = new Date("01-02-2023 00:05:58").getTime();
     interval = setInterval(() => {
       const now = new Date().getTime();
@@ -932,42 +953,38 @@ const Discount = () => {
       const hours = Math.floor(
         (distance % (24 * 60 * 60 * 1000)) / (1000 * 60 * 60)
       );
-      const minutes = Math.floor(
-        (distance % (60 * 60 * 1000)) / (1000 * 60));
-      const seconds = Math.floor((distance % (60 *  1000)) / 1000);
+      const minutes = Math.floor((distance % (60 * 60 * 1000)) / (1000 * 60));
+      const seconds = Math.floor((distance % (60 * 1000)) / 1000);
 
-      if(distance < 0) {
-        console.log('nhỏ hơn 0');
+      if (distance < 0) {
+        console.log("nhỏ hơn 0");
         clearInterval(interval.current);
-      }else {
+      } else {
         setTimerDays(days);
         setTimerHours(hours);
-        setTimerMinutes(minutes)
-        setTimerSeconds(seconds)
+        setTimerMinutes(minutes);
+        setTimerSeconds(seconds);
       }
     });
-   
-   
   };
 
   return (
     <div>
       <ToastContainer />
       <div className="row">
-          <div className="col-12">
+        <div className="col-12">
           <Clock
             timerDays={timerDays}
             timerHours={timerHours}
             timerMinutes={timerMinutes}
             timerSeconds={timerSeconds}
           />
-          </div>
-         </div>
+        </div>
+      </div>
       <div className="row">
         <div className="col-1" style={{ width: "10px" }}>
           <MenuFoldOutlined style={{ fontSize: "20px" }} />
           <br />
-        
         </div>
         <div className="col-11">
           <h4 className="text-danger fw-bold">Giảm giá sản phẩm</h4>
@@ -1322,7 +1339,7 @@ const Discount = () => {
         <div className="col-12">
           <Table
             columns={columns}
-            rowKey={(record) =>record.id}
+            rowKey={(record) => record.id}
             dataSource={data}
             pagination={tableParams.pagination}
             loading={loading}
@@ -1334,6 +1351,8 @@ const Discount = () => {
           <Modal
             title="Cập nhật"
             open={isEditing}
+            okText={"Cập nhật"}
+            cancelText={"Huỷ"}
             onOk={handleEdit}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
