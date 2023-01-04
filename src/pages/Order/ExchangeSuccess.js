@@ -12,6 +12,7 @@ import {
   Option,
   Checkbox,
   Spin,
+  Tag,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -22,7 +23,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
-import axios from "axios";
+import Moment from "react-moment";
 import React, { useEffect, useState } from "react";
 import { useAsyncError, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -39,7 +40,7 @@ const getRandomOrderParams = (params) => ({
 const toastSuccess = (message) => {
   toast.success(message, {
     position: "top-right",
-    autoClose: 5000,
+    autoClose: 1000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
@@ -65,6 +66,7 @@ const ExchangeSuccess = () => {
     pagination: {
       current: 1,
       pageSize: 10,
+      searchStatus: ""
     },
   });
 
@@ -158,7 +160,9 @@ const ExchangeSuccess = () => {
         status: "DA_XU_LY",
         returnDetailEntities: array,
       }),
-    }).then((res) => {});
+    }).then((res) => {
+     
+    });
     if (isPut === true) {
       fetch(
         `http://localhost:8080/api/staff/orders/update/exchange/${data.orderId.id}`,
@@ -176,9 +180,21 @@ const ExchangeSuccess = () => {
       });
       toastSuccess("Xác nhận yêu cầu đổi hàng thành công !");
     } else {
-      toastSuccess("Huỷ yêu cầu thành công !");
-      loadDataExchangeDetailById(data.id);
-      loadDataExchange();
+      fetch(
+        `http://localhost:8080/api/staff/orders/update/exchange/${data.orderId.id}/cancel`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+          body: JSON.stringify(orderDetail),
+        }
+      ).then((res) => {
+        loadDataExchangeDetailById(data.id);
+        loadDataExchange();
+      });
+      toastSuccess("Huỷ yêu cầu đổi hàng thành công !"); 
     }
   };
 
@@ -321,27 +337,23 @@ const ExchangeSuccess = () => {
           <>
             {status != "YEU_CAU" ? (
               status === "DA_XAC_NHAN" ? (
-                <div
-                  className="bg-success text-center text-light"
-                  style={{
-                    width: "150px",
-                    borderRadius: "5px",
-                    padding: "4px 0px 4px 0px",
-                  }}
-                >
-                  Đã xác nhận
-                </div>
+                <Tag
+               
+               className="pt-1 pb-1  text-center"
+               color="#389e0d"
+               style={{ width: "100%" }}
+             >
+               Đã xác nhận
+             </Tag>
               ) : (
-                <div
-                  className="bg-danger text-center text-light"
-                  style={{
-                    width: "150px",
-                    borderRadius: "5px",
-                    padding: "4px",
-                  }}
-                >
-                  Huỷ
-                </div>
+                <Tag
+               
+                className="pt-1 pb-1  text-center"
+                color="#f50"
+                style={{ width: "100%" }}
+              >
+                Huỷ
+              </Tag>
               )
             ) : (
               <div
@@ -456,6 +468,9 @@ const ExchangeSuccess = () => {
     {
       title: "Thời gian",
       dataIndex: "createdAt",
+      render(createdAt) {
+        return <Moment format="DD-MM-YYYY HH:mm:ss">{createdAt}</Moment>;
+      },
       width: "18%",
     },
     {
@@ -511,17 +526,6 @@ const ExchangeSuccess = () => {
       render: (id, record) => {
         return (
           <>
-            {/* <EyeOutlined
-              style={{ fontSize: "20px" }}
-              onClick={() => navigate(`/admin/order/exchange/detail/${id}`)}
-            /> */}
-            {/* <Button
-              onClick={() => {
-                showModalData(id);
-              }}
-            >
-              Chi tiết
-            </Button> */}
             <Button type="primary" shape="round" onClick={() => showDrawer(id)}>
               Chi tiết
             </Button>
@@ -540,23 +544,19 @@ const ExchangeSuccess = () => {
     setOpen(false);
   };
 
-  const [valueSearch, setValueSearch] = useState("TAT_CA");
+  const [valueSearch, setValueSearch] = useState("");
   const onChange = (value) => {
     setValueSearch(value);
   };
   const onClickDatLai = () => {
-    setValueSearch("TAT_CA");
-    setDataExchange(dataExchange1);
+    setValueSearch("");
+    tableParams.pagination.searchStatus = "";
+   loadDataExchange();
   };
   const onClickSearch = () => {
-    console.log(valueSearch);
-    if (valueSearch == "TAT_CA") {
-      setDataExchange(dataExchange1);
-      return;
-    }
-    setDataExchange(
-      dataExchange1.filter((item) => item.status === valueSearch)
-    );
+    tableParams.pagination.searchStatus = valueSearch != undefined ? valueSearch : "";
+    tableParams.pagination.current = 1;
+    loadDataExchange();
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
@@ -568,19 +568,7 @@ const ExchangeSuccess = () => {
   };
 
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-    console.log("row key: ", newSelectedRowKeys[0]);
-    console.log("return detail");
-    console.log(dataExchangeDetail);
     setSelectedRowKeys(newSelectedRowKeys);
-    dataExchangeDetail.forEach((element) => {
-      if (element.id === newSelectedRowKeys[0]) {
-        if (element.status == "YEU_CAU") {
-          console.log("vào yêu cầu");
-          setSelectedRowKeys(newSelectedRowKeys);
-        }
-      }
-    });
   };
 
   const rowSelection = {
@@ -630,14 +618,9 @@ const ExchangeSuccess = () => {
           <br />
           <Select
             style={{ width: "300px", borderRadius: "5px" }}
-            defaultValue={"TAT_CA"}
             value={valueSearch}
             onChange={onChange}
             options={[
-              {
-                value: "TAT_CA",
-                label: "Tất cả",
-              },
               {
                 value: "DA_XU_LY",
                 label: "Đã xử lý",
@@ -652,9 +635,10 @@ const ExchangeSuccess = () => {
         <div className="col-12 text-center ">
           <Button
             className="mt-2"
-            type="primary-uotline"
+            type="primary-outline"
             onClick={onClickDatLai}
-            style={{ borderRadius: "10px" }}
+            shape="round"
+           
           >
             <ReloadOutlined />
             Đặt lại
@@ -662,8 +646,9 @@ const ExchangeSuccess = () => {
           <Button
             className="mx-2  mt-2"
             type="primary"
+            shape="round"
             onClick={onClickSearch}
-            style={{ borderRadius: "10px" }}
+           
           >
             <SearchOutlined />
             Tìm kiếm
@@ -687,7 +672,7 @@ const ExchangeSuccess = () => {
             dataSource={dataExchange}
             pagination={tableParams.pagination}
             loading={loading}
-            // onChange={handleTableChange}
+            onChange={handleTableChange}
           />
           {/* <Modal
             title="Chi tiết đơn đổi"

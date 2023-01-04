@@ -17,6 +17,11 @@ import {
   EyeOutlined,
   MenuFoldOutlined,
   CloseCircleOutlined,
+  CheckCircleOutlined,
+  SyncOutlined,
+  ExclamationCircleOutlined,
+  IssuesCloseOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
 
@@ -469,16 +474,88 @@ const CancelOrder = () => {
       dataIndex: "status",
       with: "45%",
       render: (status) => {
-        return (
-          <>
-            <div
-              className="bg-success text-center text-light"
-              style={{ width: "150px", borderRadius: "5px", padding: "4px" }}
-            >
-              Đã nhận hàng
-            </div>
-          </>
-        );
+        if (status === "CHUA_THANH_TOAN") {
+          return (
+            <>
+              <Tag
+                icon={<QuestionCircleOutlined />}
+                style={{ width: "100%" }}
+                className="pt-1 pb-1 text-center"
+                color="default"
+              >
+                Chưa thanh toán
+              </Tag>
+            </>
+          );
+        }
+        if (status === "CHO_XAC_NHAN") {
+          return (
+            <Tag
+                icon={<IssuesCloseOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="cyan"
+                style={{ width: "100%" }}
+              >
+               Chờ xác nhận
+            </Tag>
+          );
+        }
+        if (status === "CHO_LAY_HANG") {
+          return (
+            <>
+              <Tag
+                icon={<ExclamationCircleOutlined/>}
+                className="pt-1 pb-1 text-center"
+                color="warning"
+                style={{ width: "100%" }}
+              >
+               Chờ lấy hàng
+            </Tag>
+            </>
+          );
+        }
+        if (status === "DANG_GIAO") {
+          return (
+            <>
+              <Tag
+                icon={<SyncOutlined spin />}
+                className="pt-1 pb-1 text-center"
+                color="processing"
+                style={{ width: "100%" }}
+              >
+                Đang giao hàng
+              </Tag>
+            </>
+          );
+        }
+        if (status === "DA_NHAN") {
+          return (
+            <>
+              <Tag
+                icon={<CheckCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="success"
+                style={{ width: "100%" }}
+              >
+                Đã nhận hàng
+              </Tag>
+            </>
+          );
+        }
+        if (status === "DA_HUY") {
+          return (
+            <>
+              <Tag
+                icon={<CloseCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="error"
+                style={{ width: "100%" }}
+              >
+                Đã huỷ hàng
+              </Tag>
+            </>
+          );
+        }
       },
     },
   ];
@@ -549,7 +626,7 @@ const CancelOrder = () => {
             className="mt-2"
             type="primary-uotline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+           shape="round"
           >
             <ReloadOutlined />
             Đặt lại
@@ -558,7 +635,7 @@ const CancelOrder = () => {
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <SearchOutlined />
             Tìm kiếm

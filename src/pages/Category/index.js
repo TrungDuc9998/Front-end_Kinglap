@@ -496,7 +496,7 @@ const Category = () => {
         }}
       >
         <div className="col-4 mt-3">
-          <label>Từ khoá</label>
+          <label>Tên thể loại</label>
           <Input type="text" name="searchName" value={searchName} placeholder="Nhập tên thể loại" onChange={changeSearchName} />
         </div>
         <div className="col-4 mt-3">
@@ -524,7 +524,7 @@ const Category = () => {
             className="mt-2"
             type="primary-uotline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <ReloadOutlined />
             Đặt lại
@@ -533,7 +533,7 @@ const Category = () => {
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <SearchOutlined />
             Tìm kiếm
@@ -546,7 +546,7 @@ const Category = () => {
             className="offset-11 "
             type="primary"
             onClick={showModal}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <a href="/product/create"></a>
             <PlusOutlined />

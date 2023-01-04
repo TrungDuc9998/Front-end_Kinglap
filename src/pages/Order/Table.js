@@ -203,6 +203,9 @@ function CreateOrderAdmin() {
   };
 
   const handleChangePayment = (value) => {
+
+    console.log("Hình thức nhận hàng khi change: ", value);
+
     if (value === "TẠI CỬA HÀNG") {
       setDisableCountry(true);
     } else {
@@ -212,7 +215,7 @@ function CreateOrderAdmin() {
   };
 
   const handleSubmitOrder = () => {
-    console.log("địa chỉ chi tiết");
+   
     console.log(addressDetail);
     if (dataCart === undefined || dataCart.length === 0) {
       toastError("Vui lòng thêm sản phẩm vào giỏ hàng");
@@ -280,7 +283,7 @@ function CreateOrderAdmin() {
                 customerName:
                   order.customerName == "" ? fullNameForm : order.customerName,
                 phone: order.phone,
-                status: order.payment === "TẠI CỬA HÀNG" ? "DA_NHAN": "CHO_XAC_NHAN",
+                status: typeOrder === "TẠI CỬA HÀNG" ? "DA_NHAN": "CHO_XAC_NHAN",
                 money: 0,
                 shippingFree: shipping,
                 orderDetails: orderDetails,
@@ -1134,7 +1137,7 @@ function CreateOrderAdmin() {
                   <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">
                     Tại cửa hàng
                   </Option>
-                  <Option key={"GIAO HÀNG TẠI NHÀ"} value="GIAO HÀNG TẠI NHÀ">
+                  <Option key={"TAI_NHA"} value="TAI_NHA">
                     Giao hàng tại nhà
                   </Option>
                 </Select>
