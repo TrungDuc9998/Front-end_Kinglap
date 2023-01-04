@@ -758,8 +758,6 @@ const OrderSuccess = () => {
                         {dataO?.createdAt}
                       </Moment>
                     </p>
-                    <p>Ngày nhận: </p>
-
                     <p>
                       Phí vận chuyển:{" "}
                       {dataO?.shippingFree?.toLocaleString("it-IT", {

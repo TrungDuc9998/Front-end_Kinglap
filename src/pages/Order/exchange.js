@@ -7,6 +7,7 @@ import {
   Image,
   Checkbox,
   AutoComplete,
+  Drawer,
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -36,7 +37,8 @@ const Exchange = () => {
   const [reason, setReason] = useState();
   const [note, setNote] = useState();
   const [data, setData] = useState([]);
-  const [dataCart, setDataCart] = useState();
+  const [open, setOpen] = useState(false);
+  const [dataCart, setDataCart] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isView, setView] = useState(false);
   const [totalProduct, setTotalProduct] = useState(0);
@@ -88,11 +90,11 @@ const Exchange = () => {
     });
 
     let count = 0;
-    dataCart.forEach(item => {
-      if(item.reason != undefined && item.reason != "null") {
-        count ++;
+    dataCart.forEach((item) => {
+      if (item.reason != undefined && item.reason != "null") {
+        count++;
       }
-    })
+    });
 
     if (dataCart.length == count) {
       fetch("http://localhost:8080/api/auth/orders/exchanges", {
@@ -115,11 +117,9 @@ const Exchange = () => {
           console.error("Error:", error);
         });
       setIsModalOpen(false);
-    }else {
-      toastError("Bạn chưa nhập đầy đủ lý do !")
+    } else {
+      toastError("Bạn chưa nhập đầy đủ lý do !");
     }
-
-   
   };
 
   const handleSubmitReturn = (data, dataOrderDetail) => {
@@ -132,7 +132,7 @@ const Exchange = () => {
         reason: dataCart[index].reason,
         orderChange: element.id,
         status: "YEU_CAU",
-        isCheck: dataCart[index].checked == true ? "1": "",
+        isCheck: dataCart[index].checked == true ? "1" : "",
         id: null,
       });
     });
@@ -153,55 +153,56 @@ const Exchange = () => {
     //   moment(event.setDate(event.getDate() + 2)).format("DD-MM-YYYY")
     // );
     // if (reason != undefined) {
-      ///tạo đơn đổi
-      // try {
-        fetch("http://localhost:8080/api/auth/returns", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-          body: JSON.stringify({
-            orderId: order.id,
-            description: "Ghi chú",
-            status: "CHUA_XU_LY",
-            returnDetailEntities: ExchangeDetail,
-          }),
-        }).then((res) => {});
-        fetch(
-          `http://localhost:8080/api/auth/orders/${dataOrderDetail.id}/updateOrderDetail`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-            body: JSON.stringify({
-              productId: dataOrderDetail.product.id,
-              total: dataOrderDetail.total,
-              quantity: dataOrderDetail.quantity,
-              status: dataOrderDetail.status,
-              isCheck: dataOrderDetail.id,
-              isUpdate: 1,
-            }),
-          }
-        ).then((res) => loadDataOrder(id));
-        toastSuccess("Gửi yêu cầu thành công!");
-        setReason("");
-        setChecked(false);
-        setIsModalOpen(false);
-        setNote("");
-        setLoading(false);
-      // } catch (err) {
-      //   toastError("Gửi yêu cầu thất bại!");
-      // }
+    ///tạo đơn đổi
+    // try {
+    fetch("http://localhost:8080/api/auth/returns", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        orderId: order.id,
+        description: "Ghi chú",
+        status: "CHUA_XU_LY",
+        returnDetailEntities: ExchangeDetail,
+      }),
+    }).then((res) => {});
+    fetch(
+      `http://localhost:8080/api/auth/orders/${dataOrderDetail.id}/updateOrderDetail`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+        body: JSON.stringify({
+          productId: dataOrderDetail.product.id,
+          total: dataOrderDetail.total,
+          quantity: dataOrderDetail.quantity,
+          status: dataOrderDetail.status,
+          isCheck: dataOrderDetail.id,
+          isUpdate: 1,
+        }),
+      }
+    ).then((res) => loadDataOrder(id));
+    toastSuccess("Gửi yêu cầu thành công!");
+    setOpen(false);
+    setReason("");
+    setChecked(false);
+    setIsModalOpen(false);
+    setNote("");
+    setLoading(false);
+    // } catch (err) {
+    //   toastError("Gửi yêu cầu thất bại!");
+    // }
     // } else {
     //   toastError("Bạn chưa nhập lý do đổi hàng !");
     // }
 
     setChecked(false);
     setDataCart([]);
-    console.log('data cart khi gửi yêu cầu:');
+    console.log("data cart khi gửi yêu cầu:");
     console.log(dataCart);
     loadDataOrder(id);
   };
@@ -344,7 +345,7 @@ const Exchange = () => {
         });
       console.log(dataPro);
     }
-    if (dataCart === undefined ||dataCart === [] || dataCart.length == 0) {
+    if (dataCart === undefined || dataCart === [] || dataCart.length == 0) {
       dataPro.forEach((element, index) => {
         if (Number(element.price) < Number(item.product.price)) {
           dataPro.splice(index, 1);
@@ -367,16 +368,16 @@ const Exchange = () => {
             );
           } else {
             console.log("vào else cuối cùng");
-            console.log(dataCart[dataCart.length-1].index)
+            console.log(dataCart[dataCart.length - 1].index);
             console.log(dataPro[0]);
             const pro = {
-              index:Number(dataCart[dataCart.length-1].index) + 1,
+              index: Number(dataCart[dataCart.length - 1].index) + 1,
               id: dataPro[0].id,
               images: dataPro[0].images,
               name: dataPro[0].name,
               price: dataPro[0].price,
               debut: dataPro[0].debut,
-            }
+            };
             // console.log((t) => [...t, dataPro[0]]);
             setDataCart((t) => [...t, pro]);
             console.log(dataCart);
@@ -454,42 +455,50 @@ const Exchange = () => {
   const onChangeReason = (value, id) => {
     let check = false;
     console.log(value);
-    if(!isNaN(value)) {
-      console.log('--------------- vào rỗng --------------');
-      dataCart?.forEach( (element,index) => {
-        if(element.index == id){
-          console.log('rỗng đầu tiên');
+    if (!isNaN(value)) {
+      console.log("--------------- vào rỗng --------------");
+      dataCart?.forEach((element, index) => {
+        if (element.index == id) {
+          console.log("rỗng đầu tiên");
           element.reason = "null";
           // setReason(count);
         }
-      })
+      });
       check = true;
     }
     let count = 0;
-    dataCart?.forEach( (element,index) => {
-      if(element.index == id && isNaN(value)){
-        console.log('rỗng: ', check);
-        console.log('vào đếm count');
-        count ++;
+    dataCart?.forEach((element, index) => {
+      if (element.index == id && isNaN(value)) {
+        console.log("rỗng: ", check);
+        console.log("vào đếm count");
+        count++;
         element.reason = value;
         // setReason(count);
       }
-    })
+    });
   };
 
   const onChangeChecked = (value, id) => {
-    console.log('value checked');
+    console.log("value checked");
     console.log(value);
-    setChecked(value)
-    dataCart?.forEach( (element,index) => {
-      if(element.index == id){
+    setChecked(value);
+    dataCart?.forEach((element, index) => {
+      if (element.index == id) {
         element.checked = value;
       }
-    })
-    console.log('data checked');
+    });
+    console.log("data checked");
     console.log(dataCart);
-  }
+  };
 
+  const showDrawer = (item) => {
+    showModal(item);
+    setOpen(true);
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
 
   return (
     <div>
@@ -600,7 +609,7 @@ const Exchange = () => {
 
                     <td>
                       {item.isCheck === null ? (
-                        <Button onClick={() => showModal(item)}>
+                        <Button onClick={() => showDrawer(item)}>
                           Chọn sản phẩm
                         </Button>
                       ) : (
@@ -621,7 +630,9 @@ const Exchange = () => {
                           />
                         )
                       ) : item.isCheck != 1 && item.isCheck !== null ? (
-                        <i className="text-danger" >Đơn yêu cầu đổi hoá đơn {item.isCheck}</i>         
+                        <i className="text-danger">
+                          Đơn yêu cầu đổi hoá đơn {item.isCheck}
+                        </i>
                       ) : (
                         ""
                       )}
@@ -632,14 +643,12 @@ const Exchange = () => {
             </tbody>
           </table>
         </div>
-        <Modal
+        <Drawer
           title="Chọn sản phẩm muốn đổi hàng"
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          width={1400}
-          cancelText={"Đóng"}
-          okText={"Gửi yêu cầu"}
+          placement="right"
+          onClose={onClose}
+          width={1000}
+          open={open}
         >
           <div className="search-inner mb-2">
             <div className="row">
@@ -671,17 +680,7 @@ const Exchange = () => {
                     cols={4}
                   />
                 </div>
-                {/* <div className="mt-4">
-                  <TextArea
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    className="mb-2"
-                    style={{ width: "80%" }}
-                    placeholder="Lý do đổi hàng"
-                    rows={3}
-                    cols={2}
-                  />
-                </div> */}
+              
               </div>
               <div className="col-5">
                 <p>
@@ -709,15 +708,6 @@ const Exchange = () => {
                         })}
                   </i>
                 </p>
-                {/* <p className="text-danger fw-bold mt-2">
-                  Vui lòng tích chọn nếu sản phẩm lỗi
-                </p> */}
-                {/* <Checkbox
-                  checked={checked}
-                  onChange={(e) => setChecked(e.target.checked)}
-                >
-                  Sản phẩm lỗi
-                </Checkbox> */}
                
               </div>
             </div>
@@ -740,8 +730,12 @@ const Exchange = () => {
           <table className="table">
             <thead>
               <tr>
-                <th className="text-center" cols="1">STT</th>
-                <th className="text-center" cols="2">Hình ảnh</th>
+                <th className="text-center" cols="1">
+                  STT
+                </th>
+                <th className="text-center" cols="2">
+                  Hình ảnh
+                </th>
                 <th className="text-center">Tên sản phẩm</th>
                 <th className="text-center">Lý do đổi hàng</th>
                 <th className="text-center">Sản phẩm lỗi ?</th>
@@ -753,7 +747,6 @@ const Exchange = () => {
                 return (
                   <tr key={index}>
                     <td>{index}</td>
-                    {/* <td>{item.images}</td> */}
                     <td>
                       {item.images[0].name === undefined ? (
                         <Image width={90} src={item.images} />
@@ -770,11 +763,22 @@ const Exchange = () => {
                     </td>
 
                     <td>
-                      <TextArea rows={4} style={{width:"300px"}} onChange={(event) => 
-                     onChangeReason(event.target.value, index)} cols={4} placeholder="Nhập lý do" />
+                      <TextArea
+                        rows={4}
+                        style={{ width: "300px" }}
+                        onChange={(event) =>
+                          onChangeReason(event.target.value, index)
+                        }
+                        cols={4}
+                        placeholder="Nhập lý do"
+                      />
                     </td>
                     <td>
-                      <Checkbox onChange={(e) => onChangeChecked(e.target.checked, index)}/>
+                      <Checkbox
+                        onChange={(e) =>
+                          onChangeChecked(e.target.checked, index)
+                        }
+                      />
                     </td>
                     <td>
                       <CloseCircleOutlined
@@ -787,7 +791,8 @@ const Exchange = () => {
               })}
             </tbody>
           </table>
-        </Modal>
+          <Button className="offset-6" disabled={dataCart.length == 0} type="primary" onClick={handleOk}>Gửi yêu cầu</Button>
+        </Drawer>
       </div>
     </div>
   );
