@@ -16,6 +16,8 @@ import {
 } from "antd";
 import {
   CheckCircleOutlined,
+  CloseCircleOutlined,
+  ExclamationCircleOutlined,
   EyeOutlined,
   MenuFoldOutlined,
   PlusOutlined,
@@ -338,34 +340,33 @@ const ExchangeSuccess = () => {
             {status != "YEU_CAU" ? (
               status === "DA_XAC_NHAN" ? (
                 <Tag
-               
-               className="pt-1 pb-1  text-center"
-               color="#389e0d"
-               style={{ width: "100%" }}
+              icon={<CheckCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="success"
+                style={{ width: "100%" }}
              >
                Đã xác nhận
              </Tag>
               ) : (
                 <Tag
                
-                className="pt-1 pb-1  text-center"
-                color="#f50"
+               icon={<CloseCircleOutlined />}
+                className="pt-1 pb-1 text-center"
+                color="error"
                 style={{ width: "100%" }}
               >
                 Huỷ
               </Tag>
               )
             ) : (
-              <div
-                className="bg-warning text-center text-light"
-                style={{
-                  width: "150px",
-                  borderRadius: "5px",
-                  padding: "4px",
-                }}
+              <Tag
+                icon={<ExclamationCircleOutlined/>}
+                className="pt-1 pb-1 text-center"
+                color="warning"
+                style={{ width: "100%" }}
               >
-                Yêu cầu xác nhận
-              </div>
+               Yêu cầu đổi hàng
+            </Tag>
             )}
           </>
         );
@@ -753,7 +754,7 @@ const ExchangeSuccess = () => {
               <div className="col-6">
                 <p>Mã đơn đổi: {data?.id} </p>
                 <p>Mã hoá đơn: {data?.orderId.id} </p>
-                <p>Ngày gửi yêu cầu: {data?.orderId.createdAt}</p>
+                <p>Ngày gửi yêu cầu: <Moment format="DD-MM-YYYY HH:mm:ss">{data?.createdAt}</Moment></p>
               </div>
               <div className="col-6">
                 <p>Tên khách hàng: {data?.orderId.customerName}</p>

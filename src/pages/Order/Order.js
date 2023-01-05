@@ -9,6 +9,7 @@ import {
   Space,
   AutoComplete,
   Tag,
+  Form,
 } from "antd";
 import {
   EyeOutlined,
@@ -148,8 +149,14 @@ const Order = () => {
   });
 
   const onchangeSearch = (val, dateStrings) => {
-    setSearchStartDate(dateStrings[0]);
-    setSearchEndDate(dateStrings[1]);
+    console.log('dữ liệu onChange search:'+ dateStrings);
+    if (dateStrings === undefined) {
+      setSearchStartDate("");
+      setSearchEndDate("");
+    } else {
+      setSearchStartDate(dateStrings[0]);
+      setSearchEndDate(dateStrings[1]);
+    }
   };
 
   const handleChangeDateSearch = (val, dateStrings) => {
@@ -486,6 +493,13 @@ const Order = () => {
     setDateOrder(dateStrings);
   };
 
+  const [clearForm] = Form.useForm();
+
+  const onReset = () => {
+    clearForm.resetFields();
+    onchangeSearch();
+  };
+
   const showModalData = (id) => {
     fetch(
       `http://localhost:8080/api/auth/orders/get/${id}?${qs.stringify(
@@ -700,12 +714,12 @@ const Order = () => {
         if (status === "CHO_XAC_NHAN") {
           return (
             <Tag
-                icon={<IssuesCloseOutlined />}
-                className="pt-1 pb-1 text-center"
-                color="cyan"
-                style={{ width: "100%" }}
-              >
-               Chờ xác nhận
+              icon={<IssuesCloseOutlined />}
+              className="pt-1 pb-1 text-center"
+              color="cyan"
+              style={{ width: "100%" }}
+            >
+              Chờ xác nhận
             </Tag>
           );
         }
@@ -713,13 +727,13 @@ const Order = () => {
           return (
             <>
               <Tag
-                icon={<ExclamationCircleOutlined/>}
+                icon={<ExclamationCircleOutlined />}
                 className="pt-1 pb-1 text-center"
                 color="warning"
                 style={{ width: "100%" }}
               >
-               Chờ lấy hàng
-            </Tag>
+                Chờ lấy hàng
+              </Tag>
             </>
           );
         }
@@ -937,30 +951,7 @@ const Order = () => {
     tableParams.pagination.searchStatus =
       searchStatus != undefined ? searchStatus : "";
     tableParams.pagination.searchPayment = "";
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/staff/orders?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setData(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
+    load();    
   };
 
   const onChange = (value) => {
@@ -968,6 +959,8 @@ const Order = () => {
   };
 
   const clearSearchForm = () => {
+    onReset();
+    tableParams.pagination.current = 1;
     tableParams.pagination.search1 = "";
     tableParams.pagination.searchStatus = "";
     tableParams.pagination.searchEndDate = "";
@@ -984,7 +977,6 @@ const Order = () => {
   };
 
   const handleUploadFile = () => {
-    console.log("vào handle uploadFile");
     const check = "1";
     const imageRef = ref(storage, `images/${check + v4()}`);
     // console.log("imageRef",imageRef)//_service: {…}, _location: {…}
@@ -1133,7 +1125,121 @@ const Order = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-3">
+        <Form
+          form={clearForm}
+          name="nest-messages"
+          className="me-2 ms-2"
+          layout="vertical"
+          autoComplete="off"
+          onFinish={(values) => {
+            search();
+          }}
+          onFinishFailed={(error) => {
+            console.log({ error });
+          }}
+        >
+          <div className="row">
+            <div className="col-4 mt-3">
+              <label>Tên khách hàng</label>
+              <AutoComplete
+                style={{ width: 400 }}
+                onChange={(event) => setSearchName(event)}
+                options={optionName}
+                value={searchName}
+                filterOption={(inputValue, option) =>
+                  option.value
+                    .toUpperCase()
+                    .indexOf(inputValue.toUpperCase()) !== -1
+                }
+              />
+            </div>
+            <div className="col-4 mt-3">
+              <label>Số điện thoại khách hàng</label>
+              <br />
+              <AutoComplete
+                style={{ width: 400 }}
+                onChange={(event) => setPhoneClient(event)}
+                options={dataClient}
+                value={phoneClient}
+                onSelect={(event) => onSelectAutoClient(event)}
+                filterOption={(inputValue, option) =>
+                  option.value
+                    .toUpperCase()
+                    .indexOf(inputValue.toUpperCase()) !== -1
+                }
+              />
+            </div>
+            <div className="col-md-4 mt-3 pe-5">
+              <Form.Item name="status">
+                <label>Trạng thái</label>
+                <br />
+                <Select
+                  width={200}
+                  allowClear={true}
+                  showSearch
+                  placeholder="Chọn trạng thái"
+                  optionFilterProp="children"
+                  onChange={changeSearchStatus}
+                  onSearch={onSearch}
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  <Option value="CHUA_THANH_TOAN" selected>
+                    Chưa thanh toán
+                  </Option>
+                  <Option value="CHO_XAC_NHAN">Chờ xác nhận</Option>
+                  <Option value="CHO_LAY_HANG">Chờ lấy hàng</Option>
+                  <Option value="DANG_GIAO">Đang giao</Option>
+                  <Option value="DA_NHAN">Đã nhận</Option>
+                  <Option value="DA_HUY">Đã hủy</Option>
+                </Select>
+              </Form.Item>
+            </div>
+            <div className="col-md-4">
+              <Form.Item name="range-time-picker">
+                <label>Thời gian đặt: </label>
+                <br />
+                <Space
+                  direction="vertical"
+                  size={12}
+                  style={{ width: "97%", borderRadius: "5px" }}
+                >
+                  <RangePicker
+                    showTime={{ format: "HH:mm:ss" }}
+                    format={"yyyy-MM-DD HH:mm:ss"}
+                    onChange={onchangeSearch}
+                    onCalendarChange={handleChangeDateSearch}
+                    type="datetime"
+                  />
+                </Space>
+              </Form.Item>
+            </div>
+          </div>
+          <Form.Item className="text-center mt-2">
+            <Button
+              className=""
+              type="primary-outline"
+              onClick={clearSearchForm}
+              shape="round"
+            >
+              <ReloadOutlined />
+              Đặt lại
+            </Button>
+            <Button
+              block
+              className="mx-2"
+              type="primary"
+              shape="round"
+              htmlType="submit"
+              icon={<SearchOutlined />}
+              style={{ width: "120px" }}
+            >
+              Tìm kiếm
+            </Button>
+          </Form.Item>
+        </Form>
+        {/* <div className="col-4 mt-3">
           <label>Tên khách hàng</label>
           <AutoComplete
             style={{ width: 400 }}
@@ -1176,10 +1282,10 @@ const Order = () => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
           >
-            <Option value="CHUA_THANH_TOAN" selected>Chưa thanh toán</Option>
-            <Option value="CHO_XAC_NHAN" >
-              Chờ xác nhận
+            <Option value="CHUA_THANH_TOAN" selected>
+              Chưa thanh toán
             </Option>
+            <Option value="CHO_XAC_NHAN">Chờ xác nhận</Option>
             <Option value="CHO_LAY_HANG">Chờ lấy hàng</Option>
             <Option value="DANG_GIAO">Đang giao</Option>
             <Option value="DA_NHAN">Đã nhận</Option>
@@ -1209,7 +1315,6 @@ const Order = () => {
             shape="round"
             type="primary-uotline"
             onClick={clearSearchForm}
-           
           >
             <ReloadOutlined />
             Đặt lại
@@ -1219,12 +1324,11 @@ const Order = () => {
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-          
           >
             <SearchOutlined />
             Tìm kiếm
           </Button>
-        </div>
+        </div> */}
       </div>
       <div className="row">
         <div className="col-12 mt-4">
@@ -1322,8 +1426,7 @@ const Order = () => {
                   </p>
                   <p>
                     Ghi chú:
-                    <div className="row">
-                    </div>
+                    <div className="row"></div>
                   </p>
                 </div>
                 <div className="col-6">
