@@ -9,6 +9,7 @@ import {
   Space,
   Tag,
   AutoComplete,
+  Form,
 } from "antd";
 import {
   ReloadOutlined,
@@ -27,7 +28,6 @@ import React, { useEffect, useState } from "react";
 import Moment from "react-moment";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-
 
 const getRandomOrderParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -135,19 +135,20 @@ const OrderSuccess = () => {
             }
             if (element.fullName != "none") {
               optionName.push({
-                value: element.fullName,        
+                value: element.fullName,
               });
             }
           });
         });
-        console.log('load data client');
-       setOptionName(optionName);
+        console.log("load data client");
+        setOptionName(optionName);
         setDataClient(option);
         setLoading(false);
       });
   };
 
   const handleTableChange = (pagination, filters, sorter) => {
+    console.log("pagination:", pagination);
     tableParams.pagination = pagination;
     tableParams.pagination.searchName =
       searchName != undefined ? searchName : "";
@@ -162,13 +163,16 @@ const OrderSuccess = () => {
     loadDataOrder();
   };
 
-
   const search = () => {
-    tableParams.pagination.searchPhone =(phoneClient != undefined ? phoneClient : "") ;
-    tableParams.pagination.searchStartDate = (searchStartDate != undefined ? searchStartDate : "");
-    tableParams.pagination.searchEndDate = (searchEndDate != undefined ? searchEndDate : "");
-    tableParams.pagination.searchStatus = "DA_NHAN"
-    tableParams.pagination.searchName = (searchName != undefined ? searchName : "") ;
+    tableParams.pagination.searchPhone =
+      phoneClient != undefined ? phoneClient : "";
+    tableParams.pagination.searchStartDate =
+      searchStartDate != undefined ? searchStartDate : "";
+    tableParams.pagination.searchEndDate =
+      searchEndDate != undefined ? searchEndDate : "";
+    tableParams.pagination.searchStatus = "DA_NHAN";
+    tableParams.pagination.searchName =
+      searchName != undefined ? searchName : "";
     tableParams.pagination.searchPayment = "";
     tableParams.pagination.current = 1;
     loadDataOrder();
@@ -210,8 +214,6 @@ const OrderSuccess = () => {
     setView(true);
   };
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
-    // setLoading(true);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
       .then((res) => {
@@ -222,8 +224,14 @@ const OrderSuccess = () => {
   };
 
   const onchangeSearch = (val, dateStrings) => {
-    setSearchStartDate(dateStrings[0]);
-    setSearchEndDate(dateStrings[1]);
+   
+    if (dateStrings === undefined) {
+      setSearchStartDate("");
+      setSearchEndDate("");
+    } else {
+      setSearchStartDate(dateStrings[0]);
+      setSearchEndDate(dateStrings[1]);
+    }
   };
 
   const handleChangeDateSearch = (val, dateStrings) => {
@@ -232,15 +240,7 @@ const OrderSuccess = () => {
   };
 
   const clearSearchForm = () => {
-    tableParams.pagination.searchName = "";
-    tableParams.pagination.searchStatus = "DA_NHAN";
-    tableParams.pagination.searchEndDate= "";
-    tableParams.pagination.searchPhone= "";
-    tableParams.pagination.searchStartDate= "";
-    tableParams.pagination.searchPayment = "";
-    loadDataOrder();
-    setPhoneClient("");
-    setSearchName("");
+    onReset();
   };
 
   const confirmOrder = (record) => {
@@ -296,7 +296,7 @@ const OrderSuccess = () => {
           pagination: {
             current: results.data.current_page,
             pageSize: 10,
-            total: results.data.total
+            total: results.data.total,
           },
         });
       });
@@ -361,12 +361,12 @@ const OrderSuccess = () => {
         if (status === "CHO_XAC_NHAN") {
           return (
             <Tag
-                icon={<IssuesCloseOutlined />}
-                className="pt-1 pb-1 text-center"
-                color="cyan"
-                style={{ width: "100%" }}
-              >
-               Chờ xác nhận
+              icon={<IssuesCloseOutlined />}
+              className="pt-1 pb-1 text-center"
+              color="cyan"
+              style={{ width: "100%" }}
+            >
+              Chờ xác nhận
             </Tag>
           );
         }
@@ -374,13 +374,13 @@ const OrderSuccess = () => {
           return (
             <>
               <Tag
-                icon={<ExclamationCircleOutlined/>}
+                icon={<ExclamationCircleOutlined />}
                 className="pt-1 pb-1 text-center"
                 color="warning"
                 style={{ width: "100%" }}
               >
-               Chờ lấy hàng
-            </Tag>
+                Chờ lấy hàng
+              </Tag>
             </>
           );
         }
@@ -538,7 +538,7 @@ const OrderSuccess = () => {
         return (
           <>
             <Button
-             shape="round"
+              shape="round"
               onClick={() => {
                 showModalData(data.id);
               }}
@@ -550,7 +550,7 @@ const OrderSuccess = () => {
               ""
             ) : (
               <Button
-               shape="round"
+                shape="round"
                 className="ms-2"
                 danger
                 onClick={() => navigate(`/admin/order/exchange/${data.id}`)}
@@ -611,6 +611,23 @@ const OrderSuccess = () => {
     console.log("on select client");
     console.log(value);
   };
+
+  const onReset = () => {
+    clearForm.resetFields();
+    tableParams.pagination.current = 1;
+    tableParams.pagination.searchName = "";
+    tableParams.pagination.searchStatus = "DA_NHAN";
+    tableParams.pagination.searchEndDate = "";
+    tableParams.pagination.searchPhone = "";
+    tableParams.pagination.searchStartDate = "";
+    tableParams.pagination.searchPayment = "";
+    loadDataOrder();
+    setPhoneClient("");
+    setSearchName("");
+    onchangeSearch();
+  };
+
+  const [clearForm] = Form.useForm();
   return (
     <div>
       <div className="row">
@@ -631,78 +648,93 @@ const OrderSuccess = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-3">
-          <label>Tên khách hàng</label>
-          <AutoComplete
-            style={{ width: 400 }}
-            onChange={(event) => setSearchName(event)}
-            options={optionName}
-            value={searchName}
-            filterOption={(inputValue, option) =>
-              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-              -1
-            }
-          />
-        </div>
-        <div className="col-4 mt-3">
-          <label>Số điện thoại khách hàng</label>
-          <br/>
-          <AutoComplete
-            style={{ width: 400 }}
-            onChange={(event) => setPhoneClient(event)}
-            options={dataClient}
-            value={phoneClient}
-            onSelect={(event) => onSelectAutoClient(event)}
-            filterOption={(inputValue, option) =>
-              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-              -1
-            }
-          />
-          {/* <Input
-            type="text"
-            name="searchName"
-            value={searchName}
-            placeholder="Nhập tên khách hàng"
-            onChange={(e) => setSearchName(e.target.value)}
-          /> */}
-        </div>
-        <div className="col-4 mt-3">
-          <label>Thời gian đặt: </label>
-          <br />
-          <Space
-            direction="vertical"
-            size={12}
-            style={{ width: "100%", borderRadius: "5px" }}
-          >
-            <RangePicker
-              showTime={{ format: "HH:mm:ss" }}
-              format={"yyyy-MM-DD HH:mm:ss"}
-              onChange={onchangeSearch}
-              onCalendarChange={handleChangeDateSearch}
-              type="datetime"
-            />
-          </Space>
-        </div>
-        <div className="col-12 text-center mt-4">
-          <Button
-            className="mt-2"
-            type="primary-uotline"
-            onClick={clearSearchForm}
-            shape="round"
-          >
-            <ReloadOutlined />
-            Đặt lại
-          </Button>
-          <Button
-            className="mx-2  mt-2"
-            type="primary"
-            onClick={search}
-            shape="round"
-          >
-            <SearchOutlined />
-            Tìm kiếm
-          </Button>
-        </div>
+        <Form
+          form={clearForm}
+          name="nest-messages"
+          className="me-2 ms-2"
+          layout="vertical"
+          autoComplete="off"
+          onFinish={(values) => {
+            search();
+          }}
+          onFinishFailed={(error) => {
+            console.log({ error });
+          }}
+        >
+          <div className="row">
+            <div className="col-4 mt-3">
+              <label>Tên khách hàng</label>
+              <AutoComplete
+                style={{ width: 400 }}
+                onChange={(event) => setSearchName(event)}
+                options={optionName}
+                value={searchName}
+                filterOption={(inputValue, option) =>
+                  option.value
+                    .toUpperCase()
+                    .indexOf(inputValue.toUpperCase()) !== -1
+                }
+              />
+            </div>
+            <div className="col-4 mt-3">
+              <label>Số điện thoại khách hàng</label>
+              <br />
+              <AutoComplete
+                style={{ width: 400 }}
+                onChange={(event) => setPhoneClient(event)}
+                options={dataClient}
+                value={phoneClient}
+                onSelect={(event) => onSelectAutoClient(event)}
+                filterOption={(inputValue, option) =>
+                  option.value
+                    .toUpperCase()
+                    .indexOf(inputValue.toUpperCase()) !== -1
+                }
+              />
+            </div>
+            <div className="col-4 mt-3">
+              <Form.Item name="range-time-picker">
+                <label>Thời gian đặt: </label>
+                <br />
+                <Space
+                  direction="vertical"
+                  size={12}
+                  style={{ width: "97%", borderRadius: "5px" }}
+                >
+                  <RangePicker
+                    showTime={{ format: "HH:mm:ss" }}
+                    format={"yyyy-MM-DD HH:mm:ss"}
+                    onChange={onchangeSearch}
+                    onCalendarChange={handleChangeDateSearch}
+                    type="datetime"
+                  />
+                </Space>
+              </Form.Item>
+            </div>
+          </div>
+          <Form.Item className="text-center mt-2">
+            <Button
+              className=""
+              type="primary-outline"
+              onClick={clearSearchForm}
+              shape="round"
+            >
+              <ReloadOutlined />
+              Đặt lại
+            </Button>
+            <Button
+              block
+              className="mx-2"
+              type="primary"
+              shape="round"
+              htmlType="submit"
+              icon={<SearchOutlined />}
+              style={{ width: "120px" }}
+            >
+              Tìm kiếm
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
 
       <div
@@ -783,10 +815,7 @@ const OrderSuccess = () => {
                         currency: "VND",
                       })}
                     </p>
-                    <p>
-                      Địa chỉ nhận hàng:{" "}
-                      {dataO?.address}
-                    </p>
+                    <p>Địa chỉ nhận hàng: {dataO?.address}</p>
 
                     <p>
                       Đặt cọc:{" "}

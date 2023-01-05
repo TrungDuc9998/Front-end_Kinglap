@@ -188,13 +188,11 @@ const CancelOrder = () => {
     setView(true);
   };
   const loadDataOrderHistoryById = (id) => {
-    console.log("id hoá đơn log ra", id);
+
     // setLoading(true);
     fetch(`http://localhost:8080/api/auth/orders/history/${id}`)
       .then((res) => res.json())
-      .then((res) => {
-        console.log("data order history");
-        console.log(res);
+      .then((res) => {  
         setOrderHistory(res);
       });
   };
@@ -258,7 +256,7 @@ const CancelOrder = () => {
     {
       title: "Mã đơn đặt",
       dataIndex: "id",
-      width: "10%",
+      width: "7%",
     },
     {
       title: "Thời gian đặt",
@@ -271,7 +269,12 @@ const CancelOrder = () => {
     {
       title: "Người đặt",
       dataIndex: "customerName",
-      width: "16%",
+      width: "15%",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      width: "10%",
     },
     {
       title: "Tổng tiền",
@@ -291,7 +294,7 @@ const CancelOrder = () => {
     {
       title: "Hình thức thanh toán",
       dataIndex: "payment",
-      width: "17%",
+      width: "15%",
       render: (payment) => {
         if (payment != "TẠI CỬA HÀNG" && payment != "NGAN_HANG") {
           return (
@@ -331,7 +334,7 @@ const CancelOrder = () => {
     {
       title: "Địa chỉ",
       dataIndex: "address",
-      width: "20%",
+      width: "17%",
     },
     {
       title: "Trạng thái",
@@ -624,7 +627,7 @@ const CancelOrder = () => {
         <div className="col-12 text-center mt-3 ">
           <Button
             className="mt-2"
-            type="primary-uotline"
+            type="primary-outline"
             onClick={clearSearchForm}
            shape="round"
           >
