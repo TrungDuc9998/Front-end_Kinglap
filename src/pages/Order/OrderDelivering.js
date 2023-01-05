@@ -9,6 +9,7 @@ import {
   Image,
   AutoComplete,
   Tag,
+  Form
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -28,7 +29,7 @@ import {
 } from "@ant-design/icons";
 import qs from "qs";
 import axios from "axios";
-import CurrencyFormat from "react-currency-format";
+import { ToastContainer, toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Order/ConfirmOrder.css";
@@ -134,10 +135,15 @@ const OrderDelivering = () => {
         okText: "Có",
         cancelText: "Không",
         onOk: () => {
-          handleConfirm(true, record);
+          handleConfirm(false, record);
         },
       });
     }
+  };
+
+  const onReset = () => {
+    onchangeSearch();
+    clearForm.resetFields();
   };
 
   const loadDataClient = () => {
@@ -240,12 +246,12 @@ const OrderDelivering = () => {
         if (status === "CHO_XAC_NHAN") {
           return (
             <Tag
-                icon={<IssuesCloseOutlined />}
-                className="pt-1 pb-1 text-center"
-                color="cyan"
-                style={{ width: "100%" }}
-              >
-               Chờ xác nhận
+              icon={<IssuesCloseOutlined />}
+              className="pt-1 pb-1 text-center"
+              color="cyan"
+              style={{ width: "100%" }}
+            >
+              Chờ xác nhận
             </Tag>
           );
         }
@@ -253,13 +259,13 @@ const OrderDelivering = () => {
           return (
             <>
               <Tag
-                icon={<ExclamationCircleOutlined/>}
+                icon={<ExclamationCircleOutlined />}
                 className="pt-1 pb-1 text-center"
                 color="warning"
                 style={{ width: "100%" }}
               >
-               Chờ lấy hàng
-            </Tag>
+                Chờ lấy hàng
+              </Tag>
             </>
           );
         }
@@ -309,15 +315,20 @@ const OrderDelivering = () => {
     },
   ];
   const onchangeSearch = (val, dateStrings) => {
-    setSearchStartDate(dateStrings[0]);
-    setSearchEndDate(dateStrings[1]);
-    
+
+    if (dateStrings === undefined) {
+      setSearchStartDate("");
+      setSearchEndDate("");
+    } else {
+      setSearchStartDate(dateStrings[0]);
+      setSearchEndDate(dateStrings[1]);
+    }
+   
   };
 
   const handleChangeDateSearch = (val, dateStrings) => {
     if (dateStrings[0] != null) setSearchStartDate(dateStrings[0]);
     if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
-   
   };
 
   const onConfirm = (record) => {
@@ -443,7 +454,6 @@ const OrderDelivering = () => {
   };
 
   const loadDataOrder = () => {
-   
     setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
@@ -458,22 +468,24 @@ const OrderDelivering = () => {
     )
       .then((res) => res.json())
       .then((results) => {
-        const data = [];
-        results.data.data?.forEach((item) => {
-          data.push({
-            key: item.id,
-            id: item.id,
-            payment: item.payment,
-            customerName: item.customerName,
-            total: item.total,
-            status: item.status,
-            quantity: item.quantity,
-            createdAt: item.createdAt,
-            money: item.money,
-            phone: item.phone,
+        console.log(results);
+     
+          const data = [];
+          results.data.data?.forEach((item) => {
+            data.push({
+              key: item.id,
+              id: item.id,
+              payment: item.payment,
+              customerName: item.customerName,
+              total: item.total,
+              status: item.status,
+              quantity: item.quantity,
+              createdAt: item.createdAt,
+              money: item.money,
+              phone: item.phone,
+            });
           });
-        });
-        setDataOrder(data);
+          setDataOrder(data);
         setLoading(false);
         setTableParams({
           pagination: {
@@ -587,13 +599,13 @@ const OrderDelivering = () => {
         return (
           <>
             <Tag
-                icon={<SyncOutlined spin />}
-                className="pt-1 pb-1 text-center"
-                color="processing"
-                style={{ width: "100%" }}
-              >
-                Đang giao hàng
-              </Tag>
+              icon={<SyncOutlined spin />}
+              className="pt-1 pb-1 text-center"
+              color="processing"
+              style={{ width: "100%" }}
+            >
+              Đang giao hàng
+            </Tag>
           </>
         );
       },
@@ -657,12 +669,13 @@ const OrderDelivering = () => {
   };
 
   const clearSearchForm = () => {
+    onReset();
     dataOrder?.forEach((item, index) => {
       data.splice(index, dataOrder.length);
     });
 
     setSelectedRowKeys([]);
-
+    tableParams.pagination.current = 1;
     tableParams.pagination.searchName = "";
     tableParams.pagination.searchStatus = "DANG_GIAO";
     tableParams.pagination.searchEndDate = "";
@@ -716,23 +729,22 @@ const OrderDelivering = () => {
     });
   };
 
-  const handleConfirm = (isPut,record) => {
+  const handleConfirm = (isPut, record) => {
     const dataOrder = [];
-    if(selectedRowKeys.length > 0) {
+    if (selectedRowKeys.length > 0) {
       selectedRowKeys.forEach((item) => {
         dataOrder.push({
           id: item,
           status: isPut == true ? "DA_NHAN" : "DA_HUY",
         });
       });
-    }else {
+    } else {
       dataOrder.push({
         id: record.id,
         status: isPut == true ? "DA_NHAN" : "DA_HUY",
-      })
+      });
       setView(false);
     }
-   
     fetch(`http://localhost:8080/api/staff/orders/confirm`, {
       method: "POST",
       headers: {
@@ -742,10 +754,11 @@ const OrderDelivering = () => {
       body: JSON.stringify(dataOrder),
     }).then((res) => {
       clearSearchForm();
-      if(isPut == true) {
-        toastSuccess("Nhận đơn hàng thành công !")
+      if (isPut == true) {
+        toastSuccess("Nhận đơn hàng thành công !");
       } else {
-        toastSuccess("Huỷ đơn hàng thành công !")
+        toastSuccess("Huỷ đơn hàng thành công !");
+        setView(false);
       }
     });
   };
@@ -770,8 +783,12 @@ const OrderDelivering = () => {
     tableParams.pagination.searchPayment = "";
     loadDataOrder();
   };
+
+  const [clearForm] = Form.useForm();
+
   return (
     <div>
+      <ToastContainer></ToastContainer>
       <div className="row">
         <div className="col-1" style={{ width: "10px" }}>
           <MenuFoldOutlined style={{ fontSize: "20px" }} />
@@ -791,72 +808,93 @@ const OrderDelivering = () => {
           background: "#fafafa",
         }}
       >
-        <div className="col-4 mt-3">
-          <label>Tên khách hàng</label>
-          <AutoComplete
-            style={{ width: 400 }}
-            onChange={(event) => setSearchName(event)}
-            options={optionName}
-            value={searchName}
-            filterOption={(inputValue, option) =>
-              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-              -1
-            }
-          />
-        </div>
-        <div className="col-4 mt-3">
-          <label>Số điện thoại khách hàng</label>
-          <br />
-          <AutoComplete
-            style={{ width: 400 }}
-            onChange={(event) => setPhoneClient(event)}
-            options={dataClient}
-            value={phoneClient}
-            onSelect={(event) => onSelectAutoClient(event)}
-            filterOption={(inputValue, option) =>
-              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-              -1
-            }
-          />
-        </div>
-        <div className="col-4 mt-3">
-          <label>Thời gian đặt: </label>
-          <br />
-          <Space
-            direction="vertical"
-            size={12}
-            style={{ width: "100%", borderRadius: "5px" }}
-          >
-            <RangePicker
-             allowClear
-              showTime={{ format: "HH:mm:ss" }}
-              format={"yyyy-MM-DD HH:mm:ss"}           
-              onChange={onchangeSearch}
-              onCalendarChange={handleChangeDateSearch}
-              type="datetime"
-            />
-          </Space>
-        </div>
-        <div className="col-12 text-center mt-4">
-          <Button
-            className="mt-2"
-            type="primary-uotline"
-            onClick={clearSearchForm}
-            shape="round"
-          >
-            <ReloadOutlined />
-            Đặt lại
-          </Button>
-          <Button
-            className="mx-2  mt-2"
-            type="primary"
-            onClick={search}
-            shape="round"
-          >
-            <SearchOutlined />
-            Tìm kiếm
-          </Button>
-        </div>
+        <Form
+          form={clearForm}
+          name="nest-messages"
+          className="me-2 ms-2"
+          layout="vertical"
+          autoComplete="off"
+          onFinish={(values) => {
+            search();
+          }}
+          onFinishFailed={(error) => {
+            console.log({ error });
+          }}
+        >
+          <div className="row">
+            <div className="col-4 mt-3">
+              <label>Tên khách hàng</label>
+              <AutoComplete
+                style={{ width: 400 }}
+                onChange={(event) => setSearchName(event)}
+                options={optionName}
+                value={searchName}
+                filterOption={(inputValue, option) =>
+                  option.value
+                    .toUpperCase()
+                    .indexOf(inputValue.toUpperCase()) !== -1
+                }
+              />
+            </div>
+            <div className="col-4 mt-3">
+              <label>Số điện thoại khách hàng</label>
+              <br />
+              <AutoComplete
+                style={{ width: 400 }}
+                onChange={(event) => setPhoneClient(event)}
+                options={dataClient}
+                value={phoneClient}
+                onSelect={(event) => onSelectAutoClient(event)}
+                filterOption={(inputValue, option) =>
+                  option.value
+                    .toUpperCase()
+                    .indexOf(inputValue.toUpperCase()) !== -1
+                }
+              />
+            </div>
+            <div className="col-4 mt-3">
+              <Form.Item name="range-time-picker">
+                <label>Thời gian đặt: </label>
+                <br />
+                <Space
+                  direction="vertical"
+                  size={12}
+                  style={{ width: "97%", borderRadius: "5px" }}
+                >
+                  <RangePicker
+                    showTime={{ format: "HH:mm:ss" }}
+                    format={"yyyy-MM-DD HH:mm:ss"}
+                    onChange={onchangeSearch}
+                    onCalendarChange={handleChangeDateSearch}
+                    type="datetime"
+                  />
+                </Space>
+              </Form.Item>
+            </div>
+          </div>
+          <Form.Item className="text-center mt-2">
+            <Button
+              className=""
+              type="primary-outline"
+              onClick={clearSearchForm}
+              shape="round"
+            >
+              <ReloadOutlined />
+              Đặt lại
+            </Button>
+            <Button
+              block
+              className="mx-2"
+              type="primary"
+              shape="round"
+              htmlType="submit"
+              icon={<SearchOutlined />}
+              style={{ width: "120px" }}
+            >
+              Tìm kiếm
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
       <div className="row">
         <div className="col-12 mt-4 confirmDeleving">
@@ -867,7 +905,6 @@ const OrderDelivering = () => {
                 shape="round"
                 icon={<CheckCircleOutlined />}
                 className="ms-5"
-            
                 onClick={confirmCheckBox}
                 danger
               >
@@ -915,11 +952,16 @@ const OrderDelivering = () => {
                 key="submit"
                 type="primary"
                 shape="round"
-                onClick={() =>  handleOk(dataO, true)}
+                onClick={() => handleOk(dataO, true)}
               >
                 Nhận hàng
               </Button>,
-              <Button type="danger" shape="round" onClick={() => handleOk(dataO, false)}>
+              <Button
+                key="link"
+                type="danger"
+                shape="round"
+                onClick={() => handleOk(dataO, false)}
+              >
                 Huỷ đơn hàng
               </Button>,
               <Button key="back" shape="round" onClick={() => setView(false)}>

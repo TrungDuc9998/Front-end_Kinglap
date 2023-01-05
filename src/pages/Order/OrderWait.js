@@ -10,6 +10,7 @@ import {
   Space,
   Tag,
   AutoComplete,
+  Form
 } from "antd";
 import {
   CheckCircleOutlined,
@@ -122,7 +123,6 @@ const OrderWait = () => {
           handleConfirm(true, record);
         },
       });
-    
     }
   };
 
@@ -177,7 +177,7 @@ const OrderWait = () => {
 
   const cancelCheckBox = (data) => {
     console.log(data);
-    console.log('data lúc huỷ đơn hàng: '+ data)
+    console.log("data lúc huỷ đơn hàng: " + data);
     if (data.id != undefined) {
       Modal.confirm({
         icon: <CheckCircleOutlined />,
@@ -253,7 +253,6 @@ const OrderWait = () => {
         id: data.id,
         status: "DA_HUY",
       });
-     
     }
 
     fetch(`http://localhost:8080/api/staff/orders/confirm`, {
@@ -330,12 +329,12 @@ const OrderWait = () => {
         if (status === "CHO_XAC_NHAN") {
           return (
             <Tag
-                icon={<IssuesCloseOutlined />}
-                className="pt-1 pb-1 text-center"
-                color="cyan"
-                style={{ width: "100%" }}
-              >
-               Chờ xác nhận
+              icon={<IssuesCloseOutlined />}
+              className="pt-1 pb-1 text-center"
+              color="cyan"
+              style={{ width: "100%" }}
+            >
+              Chờ xác nhận
             </Tag>
           );
         }
@@ -343,13 +342,13 @@ const OrderWait = () => {
           return (
             <>
               <Tag
-                icon={<ExclamationCircleOutlined/>}
+                icon={<ExclamationCircleOutlined />}
                 className="pt-1 pb-1 text-center"
                 color="warning"
                 style={{ width: "100%" }}
               >
-               Chờ lấy hàng
-            </Tag>
+                Chờ lấy hàng
+              </Tag>
             </>
           );
         }
@@ -480,10 +479,12 @@ const OrderWait = () => {
   };
 
   const clearSearchForm = () => {
+    onReset();
     dataOrder?.forEach((item, index) => {
       data.splice(index, dataOrder.length);
     });
     setSelectedRowKeys([]);
+    tableParams.pagination.current = 1;
     tableParams.pagination.search1 = "";
     tableParams.pagination.searchStatus = "CHO_LAY_HANG";
     tableParams.pagination.searchEndDate = "";
@@ -500,8 +501,13 @@ const OrderWait = () => {
     if (dateStrings[1] != null) setSearchEndDate(dateStrings[1]);
   };
   const onchangeSearch = (val, dateStrings) => {
-    setSearchStartDate(dateStrings[0]);
-    setSearchEndDate(dateStrings[1]);
+    if (dateStrings === undefined) {
+      setSearchStartDate("");
+      setSearchEndDate("");
+    } else {
+      setSearchStartDate(dateStrings[0]);
+      setSearchEndDate(dateStrings[1]);
+    }
   };
 
   const confirmOrder = (record) => {
@@ -580,8 +586,6 @@ const OrderWait = () => {
   };
 
   const loadDataOrder = () => {
-    console.log("vào lại log data");
-
     setLoading(true);
     fetch(
       `http://localhost:8080/api/staff/orders?${qs.stringify(
@@ -805,6 +809,13 @@ const OrderWait = () => {
   const resetEditing = () => {
     setEditing(false);
   };
+
+  const onReset = () => {
+    onchangeSearch();
+    clearForm.resetFields();
+  };
+
+  const [clearForm] = Form.useForm();
   return (
     <div>
       <div className="row">
@@ -826,71 +837,93 @@ const OrderWait = () => {
         }}
       >
         <ToastContainer></ToastContainer>
-        <div className="col-4 mt-3">
-          <label>Tên khách hàng</label>
-          <AutoComplete
-            style={{ width: 400 }}
-            onChange={(event) => setSearchName(event)}
-            options={optionName}
-            value={searchName}
-            filterOption={(inputValue, option) =>
-              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-              -1
-            }
-          />
-        </div>
-        <div className="col-4 mt-3">
-          <label>Số điện thoại khách hàng</label>
-          <br />
-          <AutoComplete
-            style={{ width: 400 }}
-            onChange={(event) => setPhoneClient(event)}
-            options={dataClient}
-            value={phoneClient}
-            onSelect={(event) => onSelectAutoClient(event)}
-            filterOption={(inputValue, option) =>
-              option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-              -1
-            }
-          />
-        </div>
-        <div className="col-4 mt-3">
-          <label>Thời gian đặt: </label>
-          <br />
-          <Space
-            direction="vertical"
-            size={12}
-            style={{ width: "100%", borderRadius: "5px" }}
-          >
-            <RangePicker
-              showTime={{ format: "HH:mm:ss" }}
-              format={"yyyy-MM-DD HH:mm:ss"}
-              onChange={onchangeSearch}
-              onCalendarChange={handleChangeDateSearch}
-              type="datetime"
-            />
-          </Space>
-        </div>
-        <div className="col-12 text-center mt-4">
-          <Button
-            className="mt-2"
-            type="primary-uotline"
-            onClick={clearSearchForm}
-            shape="round"
-          >
-            <ReloadOutlined />
-            Đặt lại
-          </Button>
-          <Button
-            className="mx-2  mt-2"
-            type="primary"
-            onClick={search}
-            shape="round"
-          >
-            <SearchOutlined />
-            Tìm kiếm
-          </Button>
-        </div>
+        <Form
+          form={clearForm}
+          name="nest-messages"
+          className="me-2 ms-2"
+          layout="vertical"
+          autoComplete="off"
+          onFinish={(values) => {
+            search();
+          }}
+          onFinishFailed={(error) => {
+            console.log({ error });
+          }}
+        >
+          <div className="row">
+            <div className="col-4 mt-3">
+              <label>Tên khách hàng</label>
+              <AutoComplete
+                style={{ width: 400 }}
+                onChange={(event) => setSearchName(event)}
+                options={optionName}
+                value={searchName}
+                filterOption={(inputValue, option) =>
+                  option.value
+                    .toUpperCase()
+                    .indexOf(inputValue.toUpperCase()) !== -1
+                }
+              />
+            </div>
+            <div className="col-4 mt-3">
+              <label>Số điện thoại khách hàng</label>
+              <br />
+              <AutoComplete
+                style={{ width: 400 }}
+                onChange={(event) => setPhoneClient(event)}
+                options={dataClient}
+                value={phoneClient}
+                onSelect={(event) => onSelectAutoClient(event)}
+                filterOption={(inputValue, option) =>
+                  option.value
+                    .toUpperCase()
+                    .indexOf(inputValue.toUpperCase()) !== -1
+                }
+              />
+            </div>
+            <div className="col-4 mt-3">
+              <Form.Item name="range-time-picker">
+                <label>Thời gian đặt: </label>
+                <br />
+                <Space
+                  direction="vertical"
+                  size={12}
+                  style={{ width: "97%", borderRadius: "5px" }}
+                >
+                  <RangePicker
+                    showTime={{ format: "HH:mm:ss" }}
+                    format={"yyyy-MM-DD HH:mm:ss"}
+                    onChange={onchangeSearch}
+                    onCalendarChange={handleChangeDateSearch}
+                    type="datetime"
+                  />
+                </Space>
+              </Form.Item>
+            </div>
+          </div>
+          <Form.Item className="text-center mt-2">
+            <Button
+              className=""
+              type="primary-outline"
+              onClick={clearSearchForm}
+              shape="round"
+            >
+              <ReloadOutlined />
+              Đặt lại
+            </Button>
+            <Button
+              block
+              className="mx-2"
+              type="primary"
+              shape="round"
+              htmlType="submit"
+              icon={<SearchOutlined />}
+              style={{ width: "120px" }}
+            >
+              Tìm kiếm
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
       <div className="row">
         <div className="col-12 mt-4 confirmWait">
@@ -969,6 +1002,9 @@ const OrderWait = () => {
               setView(false);
             }}
             footer={[
+              <Button key="back" shape="round" onClick={() => setView(false)}>
+                Đóng
+              </Button>,
               <Button
                 key="submit"
                 type="primary"
@@ -978,14 +1014,12 @@ const OrderWait = () => {
                 Xác nhận đơn hàng
               </Button>,
               <Button
+                key="link"
                 type="danger"
                 shape="round"
                 onClick={() => cancelCheckBox(dataO, false)}
               >
                 Huỷ đơn hàng
-              </Button>,
-              <Button key="back"  shape="round" onClick={() => setView(false)}>
-                Đóng
               </Button>,
             ]}
             width={800}
@@ -1003,11 +1037,10 @@ const OrderWait = () => {
                       currency: "VND",
                     })}
                   </p>
-                  <p>
-                    Ghi chú:
-                    <div className="row">
-                      <div className="col-9">
-                        <TextArea
+                  <div>Ghi chú: 
+                    <div className="row mb-2">
+                      <div className="col-md-9">
+                      <TextArea
                           value={note}
                           onChange={(e) => setNote(e.target.value)}
                           rows={3}
@@ -1015,12 +1048,12 @@ const OrderWait = () => {
                         />
                       </div>
                       <div className="col-3 mt-4">
-                        <Button shape="round" onClick={() => updateNote()}>
+                        <Button  shape="round" onClick={() => updateNote()}>
                           Cập nhật ghi chú
                         </Button>
                       </div>
                     </div>
-                  </p>
+                  </div>
                 </div>
                 <div className="col-6">
                   <p>
@@ -1036,6 +1069,7 @@ const OrderWait = () => {
                       currency: "VND",
                     })}
                   </p>
+
                   <p>
                     Đặt cọc:{" "}
                     {dataO?.money?.toLocaleString("it-IT", {
@@ -1056,7 +1090,6 @@ const OrderWait = () => {
                   <th scope="col">Giá</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Tổng tiền</th>
-                  {/* <th scope="col">Trạng thái</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -1081,13 +1114,12 @@ const OrderWait = () => {
                           currency: "VND",
                         })}
                       </td>
-                      {/* <td>{item.status}</td> */}
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-            <h6 className="text-danger mt-5">Lịch sử đơn hàng</h6>
+            <h6 className="text-danger ms-1">Lịch sử đơn hàng</h6>
             <Table
               columns={columnOrderHistory}
               rowKey={(record) => record.id}
