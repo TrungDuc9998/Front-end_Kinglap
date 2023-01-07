@@ -85,8 +85,8 @@ const Find = () => {
     const handleClickAddToCart = (product) => {
         handleAddToCart(product)
     }
-
-    const [dataProducts, setDataProducts] = useState();
+    var pro=JSON.parse(localStorage.getItem("productFilter"))?JSON.parse(localStorage.getItem("productFilter")):[];
+    const [dataProducts, setDataProducts] = useState(pro);
     const [dataProductsFind1, setDataProductsFind1] = useState(dataProducts);
     const [dataProductsFind, setDataProductsFind] = useState(dataProducts);
     const [dataManufacture, setDataManufacture] = useState([]);

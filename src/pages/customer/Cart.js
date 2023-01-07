@@ -16,7 +16,7 @@ function Cart() {
     const notifyError = (message) => {
         toast.error(message, {
             position: "top-right",
-            autoClose: 1000,
+            autoClose: 2000,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
@@ -43,9 +43,9 @@ function Cart() {
     }, [carts]);
 
     const handleCheckout = () => {
-        if (localStorage.getItem("token") == null || localStorage.getItem("token") === "") {
-            navigate('/login');
-        } else {
+        // if (localStorage.getItem("token") == null || localStorage.getItem("token") === "") {
+        //     navigate('/login');
+        // } else {
             const checkboxes = document.querySelectorAll('input[name="ck"]');
             checkboxes.forEach((checkbox) => {
                 if (checkbox.checked == true) {
@@ -54,45 +54,55 @@ function Cart() {
                 setChecked(checked)
             });
             console.log("checked",checked);
-            checked.forEach(item=>{
-                const findCart = (
-                    JSON.parse(localStorage.getItem("cartCheckout"))
-                      ? JSON.parse(localStorage.getItem("cartCheckout"))
-                      : []
-                  ).find((value) => {
-                    return value.id === item.id;
-                  });
-                if (findCart != null) {
-                    let totalQuantity=parseInt(findCart.quantity)+parseInt(item.quantity);
-                      if (totalQuantity <= 4) {
-                        dispatch(setCheckoutCart(item))
-                        navigate('/user/checkout');
+            //kiểm tra chọn sản phẩm
+            if(checked.length>0){
+                checked.forEach(item=>{
+                    const findCart = (
+                        JSON.parse(localStorage.getItem("cartCheckout"))
+                          ? JSON.parse(localStorage.getItem("cartCheckout"))
+                          : []
+                      ).find((value) => {
+                        return value.id === item.id;
+                      });
+                    if (findCart != null) {
+                        let totalQuantity=parseInt(findCart.quantity)+parseInt(item.quantity);
+                          if (totalQuantity <= 4) {
+                            dispatch(setCheckoutCart(item))
+                            navigate('/user/checkout');
+                          } else {
+                            notifyError(
+                              "Đã tồn tại "+findCart.quantity+" sản phẩm đã chọn trong trang đặt hàng! Không được mua quá 4 sản phẩm cùng loại. Liên hệ cửa hàng để đặt mua số lượng lớn"
+                            );
+                            setChecked([]);
+                          }
                       } else {
-                        notifyError(
-                          "Đã tồn tại "+findCart.quantity+" sản phẩm đã chọn trong giỏ hàng thanh toán! Không được mua quá 4 sản phẩm cùng loại. Liên hệ cửa hàng để đặt mua số lượng lớn"
-                        );
-                        setChecked([]);
+                        let totalProductInCart=(JSON.parse(localStorage.getItem("cartCheckout"))
+                        ? JSON.parse(localStorage.getItem("cartCheckout"))
+                        : []).length;
+                        console.log("totalProductInCart",totalProductInCart);
+                        if(totalProductInCart<10){
+                            dispatch(setCheckoutCart(item));
+                            navigate('/user/checkout');
+                        } else {
+                            notifyError(
+                              "Đã tồn tại 10 sản phẩm khác nhau trong  trong trang đặt hàng! Liên hệ cửa hàng để đặt mua số lượng lớn"
+                            );
+                          }
                       }
-                  } else {
-                    let totalProductInCart=(JSON.parse(localStorage.getItem("cartCheckout"))
-                    ? JSON.parse(localStorage.getItem("cartCheckout"))
-                    : []).length;
-                    console.log("totalProductInCart",totalProductInCart);
-                    if(totalProductInCart<10){
-                        dispatch(setCheckoutCart(item));
+                })
+            }else{
+                console.log("false");
+                Modal.confirm({
+                    title: "Xác nhận",
+                    content: "Bạn chưa chọn sản phẩm. Bạn vẫn muốn chuyển sang trang đặt hàng?",
+                    onOk() {
                         navigate('/user/checkout');
-                    } else {
-                        notifyError(
-                          "Đã tồn tại 10 sản phẩm khác nhau trong giỏ hàng! Liên hệ cửa hàng để đặt mua số lượng lớn"
-                        );
-                      }
-                  }
-            })
-        }
-    }
-
-    const toOtherProduct = () => {
-        navigate("/user")
+                    },
+                    onCancel() {
+                    },
+                  });
+            }
+        //}
     }
 
     const [checked, setChecked] = useState([]);
@@ -240,8 +250,12 @@ function Cart() {
                 <div className="mt-2">
                     <a className="btn btn-primary btn-cart" onClick={handleCheckout}>Tiến hành đặt hàng</a>
                 </div>
+                {(JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[]).length>0?(
+                <div className="">
+                    <a className="btn btn-outline-danger btn-cart" onClick={()=>navigate("/user/checkout")}>Vào trang đặt hàng</a>
+                </div>):""}
                 <div className="mt-2">
-                    <button className="btn btn-outline-primary btn-cart" onClick={toOtherProduct}>Chọn thêm sản phẩm</button>
+                    <button className="btn btn-outline-primary btn-cart" onClick={()=>navigate("/user/find")}>Chọn thêm sản phẩm</button>
                 </div>
 
             </div>
