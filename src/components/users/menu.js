@@ -153,10 +153,26 @@ function Menu() {
   const info = () => {
     navigate("/auth/information");
   };
+  //load trang sản phẩm find.js
+  const getDataProductsFind = () => {
+    fetch(`http://localhost:8080/api/products/getAllProAccess` + `?${qs.stringify(
+        getRandomuserParams({
+          pagination: {
+            current: 1,
+            pageSize: 100,
+            searchStatus: "ACTIVE"
+          }})
+    )}`)
+        .then((res) => res.json())
+        .then((results) => {
+            localStorage.setItem("productFilter",JSON.stringify(results.data.data))
+        });
+};
 
   useEffect(() => {
     // getData();
     loadDataProduct();
+    getDataProductsFind();
   }, []);
 
   const idUser = localStorage.getItem("id");

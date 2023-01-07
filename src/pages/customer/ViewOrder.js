@@ -193,8 +193,9 @@ function ViewOrder() {
           ", " +
           valueProvince;
       }
-
-      fetch(`http://localhost:8080/api/orders/user`, {
+      const idUser=localStorage.getItem("id")?localStorage.getItem("id"):null;
+      if(idUser!=null){
+        fetch(`http://localhost:8080/api/auth/orders/user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -235,6 +236,47 @@ function ViewOrder() {
         localStorage.removeItem("value");
         navigate("/user/order");
       });
+      }else{
+        fetch(`http://localhost:8080/api/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: null,
+          total: total,
+          money: payment === "VN_PAY" ? total : total * 0.1,
+          payment: payment,
+          // type: type,
+          address: type == 0 ? "TẠI CỬA HÀNG" : dc,
+          phone: phone,
+          customerName: customerName,
+          // email: email,
+          status: status,
+          orderDetails: JSON.parse(orderDetails),
+        }),
+      }).then(() => {
+        JSON.parse(localStorage.getItem("orderDetails"))
+          ? JSON.parse(localStorage.getItem("orderDetails")).forEach((ord) => {
+              dispatch({
+                type: "REMOVE_CART_AFTER_CHECKOUT",
+                payload: ord.productId,
+              });
+            })
+          : console.log("null");
+        localStorage.removeItem("total");
+        localStorage.removeItem("payment");
+        localStorage.removeItem("address");
+        localStorage.removeItem("type");
+        localStorage.removeItem("phone");
+        localStorage.removeItem("customerName");
+        localStorage.removeItem("status");
+        localStorage.removeItem("orderDetails");
+        localStorage.removeItem("valueWard");
+        localStorage.removeItem("valueDistrict");
+        localStorage.removeItem("value");
+        navigate("/user/order");
+      });
+      }
+      
 
       //localStorage.removeItem("carts");
     }

@@ -27,14 +27,13 @@ function Checkout() {
   const [state, dispatch] = useContext(StoreContext);
   //const [carts, setCarts] = useState(state.cartCheckout);
   const carts= JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[];
-  //const [carts, setCarts] = useState(JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[]);
   const [valueDistrict, setValueDistrict] = useState("");
   const [array, setArray] = useState([{}]);
   const [district, setDistrict] = useState([{}]);
-  const [ProvinceID, setProvinceID] = useState(1);
+  const [ProvinceID, setProvinceID] = useState(localStorage.getItem("ProvinceID")?localStorage.getItem("ProvinceID"):null);
   const [value, setValue] = useState("");
-  const [districtId, setDistrictId] = useState(1542);
-  const [serviceId, setServiceId] = useState();
+  const [districtId, setDistrictId] = useState(localStorage.getItem("districtId")?parseInt(localStorage.getItem("districtId")):null);
+  const [serviceId, setServiceId] = useState(localStorage.getItem("serviceId")?parseInt(localStorage.getItem("serviceId")):null);
   const [isDisabled, setIsDisabled] = useState(false);
   const [Ward, setWard] = useState([{}]);
   const [valueWard, setValueWard] = useState("");
@@ -54,7 +53,8 @@ function Checkout() {
   const [totalWith, setTotalWidth] = useState();
   const [disableCountry, setDisableCountry] = useState(false);
   const [valueProvince, setValueProvince] = useState();
-  const [wardCode, setWardCode] = useState(1);
+  const [wardCode, setWardCode] = useState(localStorage.getItem("wardCode")?localStorage.getItem("wardCode"):null);
+  const information = JSON.parse(localStorage.getItem("information"));
   const renderItem = (id, title, count, price) => ({
     value: id,
     label: (
@@ -77,7 +77,7 @@ function Checkout() {
     setValues(event);
   };
   const onSelectAuto = (value) => {
-    setValueProduct(value);
+    //setValueProduct(value);
     const a = products.filter((item) => value == item.id)[0];
     a.quantity = 1;
     if (a != undefined) {
@@ -86,7 +86,7 @@ function Checkout() {
     setValues("");
   };
 
-  const [wardCodeChange, setWardCodeChange] = useState();
+  //const [wardCode, setWardCode] = useState();
 
   const onChangeInputNumber = (value, event) => {
     value.quantity = event;
@@ -98,15 +98,15 @@ function Checkout() {
       }
   })
 
-    if (type == 1) {
-      //SubmitShipping2(wardCodeChange);
-      value.quantity = event;
-      loadInfo(carts);
-      loadDataProvince();
-    }
-
+  if (type == 1) {
+    console.log("vào submit 2");
     value.quantity = event;
-    loadInfo(carts);
+    loadInfo(JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[]);
+    //SubmitShipping2(wardCode);
+    loadDataProvince();
+  }
+  value.quantity = event;
+  loadInfo(JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[]);
   };
 
   const onclickDeleteCart = (pro) => {
@@ -115,15 +115,15 @@ function Checkout() {
           payload: pro
       });
       if (type == 1) {
-        SubmitShipping2(wardCodeChange);
+        //SubmitShipping2(wardCode);
         loadInfo(carts);
         loadDataProvince();
       }
   };
   // modal
-  const onClickShow = (value) => {
-    console.log(value.images[0]);
-  };
+  // const onClickShow = (value) => {
+  //   console.log(value.images[0]);
+  // };
   const onclickDelete = (value) => {
     setProductAdd(productAdd.filter((item) => item != value));
   };
@@ -191,25 +191,6 @@ function Checkout() {
     },
   ];
 
-  const onSearchProduct = (searchItem) => {
-    getData();
-  };
-  const [valueProduct, setValueProduct] = useState("");
-  const onChangeProduct = (value) => {
-    console.log(value);
-    const a = products.filter((item) => value == item.id)[0];
-    a.quantity = 1;
-    if (a != undefined) {
-      setProductAdd([...productAdd, a]);
-    }
-    // carts.push(a);
-  };
-  // const clickOptions = (pro) => {
-  //   console.log("click", pro);
-  //   const ca = [...state.cartCheckout, pro];
-  //   console.log("new", pro);
-  // }
-
   const url = "http://localhost:8080/api/products";
   const [totalSet, setTotalSet] = useState(10);
   const [products, setData] = useState([
@@ -239,7 +220,7 @@ function Checkout() {
       searchStatus: "ACTIVE",
     },
   });
-  //APILoadList
+  //APILoadList Product
   const [cherang, setCherang] = useState([]);
   const getData = () => {
     axios
@@ -267,10 +248,30 @@ function Checkout() {
   
 
   const createOrder = () => {
+    if (type == 1) {
+      var districtName="";
+      var wardName="";
+      var provinceName="";
+      array.map((item) => (ProvinceID==item.ProvinceID?provinceName=item.ProvinceName:""));
+      district.map((item) => (districtId==item.DistrictID?districtName=item.DistrictName:""));
+      Ward.map((item) => (wardCode==item.WardCode?wardName=item.WardName:""));
+      const info={
+        fullName:name,
+        phoneNumber:phone,
+        address:provinceName.trim()+", "+districtName.trim()+", "+wardName+", "+address.trim()
+      }
+      localStorage.setItem("information",JSON.stringify([info]));
+      localStorage.setItem("districtId",districtId);
+      localStorage.setItem("ProvinceID",ProvinceID);
+      localStorage.setItem("wardCode",wardCode);
+      //SubmitShipping2(wardCode);
+      loadInfo(carts);
+    }
     console.log("create order");
-    console.log(districtId);
-
-    if (name === "" || name == null) {
+    console.log("districtId",districtId);
+    if ((JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[]).length<=0) {
+      toastError("Vui lòng thêm sản phẩm!");
+    } else if (name === "" || name == null) {
       toastError("Vui lòng nhập đầy đủ họ tên!");
     } else if (phone === "" || phone == null) {
       toastError("Vui lòng nhập đầy đủ số điện thoại!");
@@ -354,16 +355,52 @@ function Checkout() {
           }
 
           // Tạo hóa đơn
+          //kiem tra dang nhap
+          if(localStorage.getItem("id")!=null){
+            try {
+              fetch("http://localhost:8080/api/auth/orders", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + localStorage.getItem("token"),
+                },
+                body: JSON.stringify({
+                  payment: payment,
+                  userId: localStorage.getItem("id")?localStorage.getItem("id"):localStorage.getItem("phone"),
+                  total: parseInt(getTotal(carts)) + parseInt(shipping),
+                  address: diachi,
+                  note: "",
+                  customerName: localStorage.getItem("customerName"),
+                  phone: localStorage.getItem("phone"),
+                  status: "CHUA_THANH_TOAN",
+                  money: 0,
+                  shippingFree: shipping,
+                  orderDetails: getListSetListOrderDetails(carts),
+                }),
+              })
+                .then((res) => res.json())
+                .then((results) => {
+                  if (results.status === 200) {
+                    toastSuccess("Thêm hoá đơn thành công");
+                    navigate("/user/order");
+                    // resetInputField();
+                  } else {
+                    toastError("Thêm hoá đơn thất bại");
+                  }
+                });
+            } catch (err) {
+              toastError("Thêm hoá đơn thất bại");
+            }
+          }else{
           try {
             fetch("http://localhost:8080/api/orders", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: "Bearer " + localStorage.getItem("token"),
               },
               body: JSON.stringify({
                 payment: payment,
-                userId: localStorage.getItem("id"),
+                userId: null,
                 total: parseInt(getTotal(carts)) + parseInt(shipping),
                 address: diachi,
                 note: "",
@@ -388,6 +425,7 @@ function Checkout() {
           } catch (err) {
             toastError("Thêm hoá đơn thất bại");
           }
+        }
         } else {
           localStorage.setItem(
             "total",
@@ -457,16 +495,15 @@ function Checkout() {
   };
 
   useEffect(() => {
-    //setProvinceID(information[0].address.split(",")[0].trim());
-    //setDistrictId(information[0].address.split(",")[1].trim());
-    setWardCode(information[0].address.split(",")[2].trim());
-    setValue(information[0].address.split(",")[0].trim());
-    setValueDistrict(information[0].address.split(",")[1].trim());
-    setValueWard(information[0].address.split(",")[2].trim());
-    setAddRess(information[0].address.split(",")[3]);
-    setName(information[0].fullName);
-    setPhone(information[0].phoneNumber);
-    localStorage.getItem("");
+    setProvinceID(localStorage.getItem("ProvinceID")?localStorage.getItem("ProvinceID").trim():null);
+    setDistrictId(localStorage.getItem("districtId")?localStorage.getItem("districtId").trim():null);
+    setWardCode(localStorage.getItem("wardCode")?localStorage.getItem("wardCode"):null);
+    setValue(information?information[0].address.split(",")[0].trim():null);
+    setValueDistrict(information?information[0].address.split(",")[1].trim():null);
+    setValueWard(information?information[0].address.split(",")[2].trim():null);
+    setAddRess(information?information[0].address.split(",")[3].trim():"");
+    setName(information?information[0].fullName.trim():"");
+    setPhone(information?information[0].phoneNumber.trim():"");
     setTotal(getTotal(carts));
     loadInfo(carts);
     getData();
@@ -499,7 +536,7 @@ function Checkout() {
   const onSearchDistricts = (value) => {
     if (value.target.innerText !== "") {
       setValueDistrict(value.target.innerText.trim());
-      loadDataWard();
+      ///loadDataWard();
     }
   };
 
@@ -507,7 +544,7 @@ function Checkout() {
     console.log(event.target.value);
     setType(event.target.value);
     if (event.target.value == 1) {
-      loadDataProvince();
+        loadDataProvince();
     } else {
       setShipping(0);
     }
@@ -527,52 +564,8 @@ function Checkout() {
     setPhone(event.target.value);
   };
 
-  const changeEmail = (event) => {
-    setEmail(event.target.value);
-  };
-
-  const onSearchWard = (searchTerm, value) => {
-    if (searchTerm != null) {
-      setValueWard(searchTerm);
-    } else {
-      valueWard = isDisabled;
-    }
-
-    if (value != null) {
-      setShipping(value);
-      SubmitShipping(value);
-    }
-  };
-
-  const onChangeProvince = (event) => {
-    setValue(event.target.value);
-  };
-
-  const onChangeWard = (event) => {
-    setValueWard(event.target.value);
-  };
-
-  const onChangeDistrict = (event) => {
-    setValueDistrict(event.target.value);
-    setIsDisabled(false);
-  };
-
-  const onSearchProvince = (searchTerm, value) => {
-    setValue(searchTerm);
-    setProvinceID(value);
-    loadDataDistrict(value);
-  };
-
-  const onSearchDistrict = (searchTerm, value) => {
-    setValueDistrict(searchTerm);
-    setDistrictId(value);
-    if (value != null) {
-      loadDataWard(value);
-    }
-  };
-
   const SubmitShipping = (value, serviceId) => {
-    let cartList = carts;
+    let cartList = JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[];
     let weight = 0;
     let width = 0;
     let height = 0;
@@ -599,7 +592,7 @@ function Checkout() {
             insurance_value: parseInt(getTotal(carts)),
             coupon: null,
             from_district_id: 3440,
-            to_district_id: districtId,
+            to_district_id: parseInt(districtId),
             height: Math.round(height * 0.1),
             length: Math.round(length * 0.1),
             weight: Math.round(weight * 1000),
@@ -661,11 +654,12 @@ function Checkout() {
     }
   };
 
-  const SubmitShipping2 = (value) => {
-    if (value != null) {
-      console.log("xa", value);
-      setWardCodeChange(value);
-      console.log(serviceId);
+  //tinh ship khi thay doi so luong sp
+  const SubmitShipping2 = (valueCodeWard) => {
+    if (valueCodeWard != null) {
+      console.log("CodeWard", valueCodeWard);
+      //setWardCode(valueCodeWard);
+      console.log("serviceId shipping2",serviceId);
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
         {
@@ -678,21 +672,21 @@ function Checkout() {
           },
           body: JSON.stringify({
             service_id: serviceId,
-            insurance_value: parseInt(getTotal(carts)),
+            insurance_value: parseInt(getTotal(JSON.parse(localStorage.getItem("cartCheckout"))?JSON.parse(localStorage.getItem("cartCheckout")):[])),
             coupon: null,
             from_district_id: 3440,
-            to_district_id: districtId,
+            to_district_id: parseInt(districtId),
             height: Math.round(totalHeight * 0.1),
             length: Math.round(totalLength * 0.1),
             weight: Math.round(totalWeight * 1000),
             width: Math.round(totalLength * 0.1),
-            to_ward_code: value,
+            to_ward_code: valueCodeWard,
           }),
         }
       )
         .then((response) => response.json())
         .then((data) => {
-          console.log(data.data.total);
+          console.log("giá ship",data.data.total);
           setShipping(data.data.total);
         });
     }
@@ -703,19 +697,49 @@ function Checkout() {
       setIsDisabled(true);
     }
     setWardCode(value);
-    SubmitShipping2(value);
+    serviceShip();
+    //SubmitShipping2(value);
+    //loadDataProvince();
   };
 
   const onSearchWards = (value) => {
     if (value.target.innerText !== "") {
       setValueWard(value.target.innerText);
-      SubmitShipping();
+      //SubmitShipping();
     }
   };
-
-  const loadDataWard = (value) => {
-    setDistrictId(value);
-    if (value != null) {
+  const serviceShip=()=>{
+    fetch(
+      "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
+        },
+        body: JSON.stringify({
+          shop_id: 3379752,
+          from_district: 1542,
+          to_district: parseInt(districtId),
+        }),
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.data === null) {
+          console.log("không có dữ liệu giao hàng phù hợp");
+          setIsDisabled(true);
+        } else {
+          const checkService = data.data[0].service_id;
+          setServiceId(checkService);
+          SubmitShipping(wardCode,checkService);
+        }
+      })
+  }
+  const loadDataWard = (valueDistrict) => {
+    //setDistrictId(valueDistrict);
+    if (valueDistrict != null) {
       fetch(
         "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
         {
@@ -728,7 +752,7 @@ function Checkout() {
           body: JSON.stringify({
             shop_id: 3379752,
             from_district: 1542,
-            to_district: value,
+            to_district: parseInt(districtId),
           }),
         }
       )
@@ -738,8 +762,9 @@ function Checkout() {
             console.log("không có dữ liệu giao hàng phù hợp");
             setIsDisabled(true);
           } else {
-            const checkValue = data.data[0].service_id;
-            setServiceId(checkValue);
+            const checkService = data.data[0].service_id;
+            setServiceId(checkService);
+            localStorage.setItem("serviceId",checkService);
             fetch(
               "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward",
               {
@@ -750,25 +775,27 @@ function Checkout() {
                   token: "e2b079d4-5279-11ed-8008-c673db1cbf27",
                 },
                 body: JSON.stringify({
-                  district_id: value,
+                  district_id: valueDistrict,
                 }),
               }
             )
               .then((response) => response.json())
-              .then((data) => {
-                if (data.data === null) {
+              .then((result) => {
+                if (result.data === null) {
                   console.log("không có dữ liệu phù hợp");
                 } else {
-                  console.log("Success ward:", data.data);
-                  setWard(data.data);
-                  data.data.forEach((element) => {
-                    if (
-                      element.WardName.trim() ===
-                      information[0].address.split(",")[2].trim()
-                    ) {
-                      SubmitShipping1(element.WardCode, checkValue, value);
+                  console.log("Success ward:", result.data);
+                  setWard(result.data);
+                  for(var h=0; h<result.data.length;h++){
+                    if (result.data[h].WardCode.trim() == wardCode) {
+                      console.log("element.WardName"+h,result.data[h].WardName);
+                      console.log("element.WardCode"+h,result.data[h].WardCode);
+                      SubmitShipping1(result.data[h].WardCode, checkService, valueDistrict);
+                      break;
+                    }else{
+                      continue;
                     }
-                  });
+                  }
                 }
               });
           }
@@ -797,23 +824,28 @@ function Checkout() {
       .then((result) => {
         console.log(result.data);
         setArray(result.data);
-        result.data.forEach((element) => {
-          if (
-            element.ProvinceName === information[0].address.split(",")[0].trim()
-          ) {
-            loadDataDistrict(element.ProvinceID);
-            setProvinceID(element.ProvinceID);
+        if(result.data.length>0){
+          for(var i=0; i<result.data.length;i++){
+            if (
+              result.data[i].ProvinceID == ProvinceID
+            ) {
+              console.log("result.data[i].ProvinceID",result.data[i].ProvinceID);
+              console.log("element.ProvinceName",result.data[i].ProvinceName);
+              setProvinceID(result.data[i].ProvinceID);
+              loadDataDistrict(result.data[i].ProvinceID);
+              break;
+            }else{
+              continue;
+            }
           }
-        });
+        }
+        
       })
       .catch((error) => {
         console.log("err", error);
       });
   };
 
-  const toOtherProduct = () => {
-    navigate("/user");
-  };
 
   const loadDataDistrict = (value) => {
     fetch(
@@ -860,15 +892,19 @@ function Checkout() {
         } else {
           setDistrict(result.data);
         }
-        result.data.forEach((element) => {
+        for(var k=0; k<result.data.length;k++){
           if (
-            element.DistrictName.trim() ===
-            information[0].address.split(",")[1].trim()
+            result.data[k].DistrictID == districtId
           ) {
-            setDistrictId(element.DistrictID);
-            loadDataWard(element.DistrictID);
+            console.log("result.data[i].DistrictID",result.data[k].DistrictID);
+            console.log("element.DistrictName",result.data[k].DistrictName);
+            setDistrictId(result.data[k].DistrictID);
+            loadDataWard(result.data[k].DistrictID);
+            break;
+          }else{
+            continue;
           }
-        });
+        }
       });
   };
 
@@ -893,7 +929,7 @@ function Checkout() {
   const onSearch = (value) => {
     if (value.target.innerText !== "") {
       setValueProvince(value.target.innerText);
-      loadDataDistrict();
+      //loadDataDistrict();
     }
   };
 
@@ -940,56 +976,7 @@ function Checkout() {
     return price;
   };
 
-  const information = JSON.parse(localStorage.getItem("information"));
 
-  // const showCarts = (carts) => {
-  //   console.log(carts);
-  //   let cartList = carts;
-  //   console.log("cartList",cartList);
-  //   if (cartList.length > 0) {
-  //     // for(i=0;i<cartList.length;i++){
-  //     const listItems = cartList?.map((cart) => (
-  //       <div className="row d-flex">
-  //         <div className="col-3 img mt-2">
-  //           <img
-  //             alt="Ảnh sản phẩm"
-  //             src={cart.images[0]?.name}
-  //             className="img-content"
-  //           ></img>
-  //         </div>
-  //         <div className="col-1 mt-5">
-  //           <InputNumber
-  //             style={{ width: "50px" }}
-  //             min={1}
-  //             max={10}
-  //             defaultValue={cart.quantity}
-  //             onChange={(event) => onChangeInputNumber(cart, event)}
-  //           />
-  //         </div>
-  //         <div className="col-4 mt-5 d-block ">
-  //           <div>
-  //             <p className="text-name1 ">{cart.name}</p>
-  //           </div>
-  //         </div>
-  //         <div className="col-3 mt-5">
-  //           <p className="text-name1 text-center">
-  //             {formatCash(cart.price * cart.quantity + "")} VND
-  //           </p>
-  //         </div>
-  //         <div className="col-1 mt-5">
-  //           <DeleteOutlined
-  //             style={{ fontSize: "18px", marginLeft: "20%", color: "red" }}
-  //             onClick={() => {
-  //               onclickDeleteCart(cart);
-  //             }}
-  //           />
-  //         </div>
-  //       </div>
-  //     ));
-  //     return listItems;
-  //     // };
-  //   }
-  // };
   return (
     <>
       <ToastContainer></ToastContainer>
@@ -1005,7 +992,7 @@ function Checkout() {
                   className="form-control radio-ip"
                   placeholder="Họ tên"
                   onChange={changeName}
-                  defaultValue={information[0]?.fullName}
+                  defaultValue={information?information[0].fullName:null}
                 ></input>
               </div>
               <div>
@@ -1015,7 +1002,7 @@ function Checkout() {
                   className="form-control radio-ip"
                   placeholder="Số điện thoại"
                   onChange={changePhone}
-                  defaultValue={information[0]?.phoneNumber}
+                  defaultValue={information?information[0].phoneNumber:null}
                 ></input>
               </div>
             </form>
@@ -1054,7 +1041,7 @@ function Checkout() {
                   <InputNumber
                     style={{ width: "50px" }}
                     min={1}
-                    max={10}
+                    max={4}
                     defaultValue={cart.quantity}
                     onChange={(event) => onChangeInputNumber(cart, event)}
                   />
@@ -1092,9 +1079,9 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tỉnh/ Thành Phố</label>
                           <Select
-                            defaultValue={information[0].address
+                            defaultValue={information?information[0].address
                               .split(",")[0]
-                              .trim()}
+                              .trim():null}
                             disabled={disableCountry}
                             showSearch
                             placeholder="Tỉnh/thành phố"
@@ -1126,9 +1113,9 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên quận huyện</label>
                           <Select
-                            defaultValue={information[0].address
+                            defaultValue={information?information[0].address
                               .split(",")[1]
-                              .trim()}
+                              .trim():null}
                             showSearch
                             disabled={disableCountry}
                             placeholder="Quận/huyện"
@@ -1160,9 +1147,9 @@ function Checkout() {
                         <div className="search-inner">
                           <label>Tên phường xã</label>
                           <Select
-                            defaultValue={information[0].address
+                            defaultValue={information?information[0].address
                               .split(",")[2]
-                              .trim()}
+                              .trim():null}
                             showSearch
                             placeholder="Phường/xã"
                             optionFilterProp="children"
@@ -1191,9 +1178,9 @@ function Checkout() {
                     <div>
                       <label>Địa chỉ</label>
                       <input
-                        defaultValue={information[0].address
+                        defaultValue={information?information[0].address
                           .split(",")[3]
-                          .trim()}
+                          .trim():null}
                         style={{
                           width: 380,
                           marginLeft: "97px",
@@ -1208,7 +1195,16 @@ function Checkout() {
                 </div>
               </div>
             ) : (
-              ""
+              <div>
+                <div className="row ck-content">
+                  <div className="col-12" style={{ paddingLeft: "20px" }}>
+                    <p style={{ fontWeight: "600" }}>Địa chỉ nhận hàng</p>
+                    <div>
+                    <p>125 P. Trần Đại Nghĩa, Bách Khoa, Hai Bà Trưng, Hà Nội</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -1227,7 +1223,6 @@ function Checkout() {
             </div>
             <div className="form-group">
               <label>Phí vận chuyển</label>
-              {/* <div className="input-group"> */}
               {shipping ? (
                 <Input
                   style={{ borderRadius: "16px" }}
@@ -1253,8 +1248,6 @@ function Checkout() {
                 style={{ width: "200px", height: "150px", marginLeft: "130px" }}
                 src="https://inkythuatso.com/uploads/images/2021/12/thiet-ke-khong-ten-04-13-29-21.jpg"
               ></img>
-              {/* <span className="input-group-text">VNĐ</span>
-                            </div> */}
             </div>
             <hr></hr>
             <span style={{ color: "red", fontSize: "20px", fontWeight: "700" }}>
@@ -1309,34 +1302,11 @@ function Checkout() {
             <div className="col-12 mt-2">
               <button
                 className="btn btn-primary form-control btn-ck "
-                onClick={showModal}
+                //onClick={showModal}
+                onClick={()=>navigate("/user/find")}
               >
                 Thêm sản phẩm
               </button>
-              {/* <div class="collapse multi-collapse" id="multiCollapseExample1">
-                <div class="card card-body border border-0">
-                  <Select className=""
-                    showSearch
-                    placeholder="Tên sản phẩm"
-                    optionFilterProp="children"
-                    onChange={onChangeProduct}
-                    onClick={onSearchProduct}
-                    filterOption={(input, option) =>
-                      option.children.toLowerCase().includes(input.toLowerCase())
-                    }
-
-                  >
-                    {products != undefined
-                      ? products.map((item, index) => (
-                        <Option key={index} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))
-                      : ""}
-
-                  </Select>
-                </div>
-              </div> */}
               <Modal
                 width={800}
                 title="Thêm sản phẩm"
@@ -1346,26 +1316,6 @@ function Checkout() {
                 cancelText={"Đóng"}
                 onCancel={handleCancel}
               >
-                {/* <Select
-                  allowClear
-                  showSearch
-                  size="large"
-                  placeholder="Tên sản phẩm"
-                  optionFilterProp="children"
-                  onChange={onChangeProduct}
-                  onClick={onSearchProduct}
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                >
-                  {products != undefined
-                    ? products.map((item, index) => (
-                      <Option key={index} value={item.id}>
-                        <Image src={""}></Image>{item.name}
-                      </Option>
-                    ))
-                    : ""}
-                </Select> */}
 
                 <AutoComplete
                   style={{
