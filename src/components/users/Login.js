@@ -90,6 +90,8 @@ function Login() {
     }
 
     let handelSubmit = () => {
+        
+
         if (username == "") {
             toastError("Tài khoản đang được để trống!")
         } else if (password == "") {

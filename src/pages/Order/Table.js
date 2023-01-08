@@ -51,6 +51,7 @@ const toastError = (message) => {
 };
 
 function CreateOrderAdmin() {
+  const [show, setShow] = useState(false);
   const [value, setValue] = useState("");
   const [values, setValues] = useState();
   const [users, setUsers] = useState();
@@ -85,7 +86,7 @@ function CreateOrderAdmin() {
   const [ProvinceID, setProvinceID] = useState(1);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState();
-  const [dataCart, setDataCart] = useState();
+  const [dataCart, setDataCart] = useState([]);
   const [dataClient, setDataClient] = useState();
   const [valueProduct, setValueProduct] = useState("");
   const [valueClient, setValueClient] = useState("");
@@ -159,6 +160,10 @@ function CreateOrderAdmin() {
   const onReset = () => {
     form.resetFields();
     loadDataClient();
+    setShipping(0);
+    setValueUser("");
+    setShow(false);
+    setTotal(total);
   };
 
   const handleOk = (value) => {
@@ -203,31 +208,27 @@ function CreateOrderAdmin() {
   };
 
   const handleChangePayment = (value) => {
-
-    console.log("Hình thức nhận hàng khi change: ", value);
+    console.log("Hình thức nhận hàng khi change: " + value);
 
     if (value === "TẠI CỬA HÀNG") {
       setDisableCountry(true);
+      setShow(false);
     } else {
+      setShow(true);
       setDisableCountry(false);
     }
     setTypeOrder(value);
   };
 
-  const handleSubmitOrder = () => {
-   
-    console.log(addressDetail);
+  const handleSubmitOrder = (form) => {
     if (dataCart === undefined || dataCart.length === 0) {
       toastError("Vui lòng thêm sản phẩm vào giỏ hàng");
-    } else if (
-      typeOrder === undefined ||
-      (fullNameForm === undefined && valueUser === undefined) ||
-      (phoneClient === undefined && phoneNumberForm === undefined)
-    ) {
-      toastError("Vui lòng điền đầy đủ thông tin !");
+    }
+    if (valueUser === undefined) {
+      toastError("Bạn chưa nhập tên khách hàng !");
     } else {
       const order = {
-        payment: "TẠI CỬA HÀNG",
+        payment: form.payment,
         total: total + shipping,
         userId: userId === undefined ? null : userId,
         address:
@@ -255,15 +256,7 @@ function CreateOrderAdmin() {
           isCheck: null,
         });
       });
-      if (phoneClient != undefined && phoneClient.length != 10) {
-        toastError("Số điện thoại không đúng định dạng !");
-      }
-      if (
-        (typeOrder != "TẠI CỬA HÀNG" && addressDetail === undefined) ||
-        addressDetail == ""
-      ) {
-        toastError("Nhập địa chỉ chi tiết!");
-      } else {
+     
         if (Number(order.total) + Number(shipping) > 200000000) {
           toastError("Giá trị đơn hàng không vượt quá 200 triệu !");
         } else {
@@ -275,15 +268,16 @@ function CreateOrderAdmin() {
                 Authorization: "Bearer " + localStorage.getItem("token"),
               },
               body: JSON.stringify({
-                payment: order.payment,
+                payment: form.payment,
                 userId: order.userId | null,
                 total: Number(order.total) + Number(shipping),
                 address: order.address,
-                note: "",
+                note: form.note,
                 customerName:
                   order.customerName == "" ? fullNameForm : order.customerName,
                 phone: order.phone,
-                status: typeOrder === "TẠI CỬA HÀNG" ? "DA_NHAN": "CHO_XAC_NHAN",
+                status:
+                  typeOrder === "TẠI CỬA HÀNG" ? "DA_NHAN" : "CHO_XAC_NHAN",
                 money: 0,
                 shippingFree: shipping,
                 orderDetails: orderDetails,
@@ -292,18 +286,18 @@ function CreateOrderAdmin() {
               .then((res) => res.json())
               .then((results) => {
                 if (results.status === 200) {
-                  toastSuccess("Thêm hoá đơn thành công");
-                  onRest();
+                  toastSuccess("Tạo hoá đơn thành công");
+                  onReset();
                   loadDataCart();
                   // resetInputField();
                 } else {
-                  toastError("Thêm hoá đơn thất bại");
+                  toastError("Tạo hoá đơn thất bại");
                 }
               });
           } catch (err) {
-            toastError("Thêm hoá đơn thất bại");
+            toastError("Tạo hoá đơn thất bại");
           }
-        }
+    
       }
     }
   };
@@ -878,7 +872,12 @@ function CreateOrderAdmin() {
     console.log("onchange search client");
     console.log(event);
     setPhoneClient(event);
+    setValueUser("")
     console.log("id event on change:");
+  };
+
+  const valueShow = (value) => {
+    console.log("value show: " + value);
   };
 
   return (
@@ -925,9 +924,342 @@ function CreateOrderAdmin() {
         </div>
         <div className="col-5">
           <div className="title">
-            <h3>Thông tin khách hàng</h3>
+            <h3 className="text-danger">Thông tin khách hàng</h3>
           </div>
-          <div className="row mt-3">
+          <Form
+            form={form}
+            autoComplete="off"
+            layout="vertical"
+            disabled={ dataCart.length ==0}
+            onFinish={(values) => {
+              // handleOk(values);
+              console.log("value đặt  hàng");
+              console.log({ values });
+              handleSubmitOrder(values);
+            }}
+            onFinishFailed={(error) => {
+              console.log({ error });
+            }}
+          >
+            <div className="row">
+              <div className="col-6">
+                <Form.Item
+                  className=""
+                  name="phone"
+                  label="Số điện thoại khách"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Số điện thoại khách hàng không được trống",
+                    },{
+                      pattern:`^(0|84)(2(0[3-9]|1[0-6|8|9]|2[0-2|5-9]|3[2-9]|4[0-9]|5[1|2|4-9]|6[0-3|9]|7[0-7]|8[0-9]|9[0-4|6|7|9])|3[2-9]|5[5|6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])([0-9]{7})$`,
+                      message: "Số điện thoại khách hàng không đúng định dạng",
+                    },
+                    { whitespace: true },
+                    { min: 3, message: "Tài khoản từ 3 ký tự trở lên" },
+                  ]}
+                  hasFeedback
+                >
+                  <AutoComplete
+                    style={{ width: 240 }}
+                    onChange={(event) => onChangeSearchClient(event)}
+                    options={dataClient}
+                    value={phoneClient}
+                    pattern="[0]{10}"
+                    onSelect={(event) => onSelectAutoClient(event)}
+                    placeholder="Nhập số điện thoại khách hàng"
+                    filterOption={(inputValue, option) =>
+                      option.value
+                        .toUpperCase()
+                        .indexOf(inputValue.toUpperCase()) !== -1
+                    }
+                  />
+                </Form.Item>
+                <label>Thông tin người bán </label>
+                <Input
+                  readOnly={true}
+                  value={userNameLogin}
+                  placeholder="Hà Trung Kiên"
+                />
+
+                <Form.Item
+                  className="mt-4"
+                  name="paymentOrder"
+                  label="Hình thức mua hàng"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Hình thức mua hàng không được để trống",
+                    },
+                  ]}
+                
+                >
+                  <Select
+                    key={1}
+                    allowClear
+                    value={typeOrder}
+                    onChange={handleChangePayment}
+                    placeholder="Hình thức mua hàng"
+                  >
+                    <Option key={"TẠI CỬA HÀNG"} value="TẠI CỬA HÀNG">
+                      Tại cửa hàng
+                    </Option>
+                    <Option
+                      onClick={() => setShow(!show)}
+                      key={"TAI_NHA"}
+                      value="TAI_NHA"
+                    >
+                      Giao hàng tại nhà
+                    </Option>
+                  </Select>
+                </Form.Item>
+
+                {show && (
+                  <div>
+                    <Form.Item
+                      className="mt-4"
+                      name="province"
+                      label="Tỉnh / Thành phố"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Tỉnh/thành phố không được trống!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        key={2}
+                        combobox="true"
+                        showSearch
+                        placeholder="Tỉnh/thành phố"
+                        optionFilterProp="children"
+                        style={{
+                          width: 240,
+                        }}
+                        defaultValue={resetSelect}
+                        onChange={onChange}
+                        onClick={onSearch}
+                        filterOption={(input, option) =>
+                          option.children
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                      >
+                        {array.map((item) => (
+                          <Option key={item.ProvinceID} value={item.ProvinceID}>
+                            {item.ProvinceName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                      className="mt-4"
+                      name="district"
+                      label="Quận / huyện"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Quận/huyện không được trống!",
+                        },
+                      ]}
+                    >
+                      <Select
+                        key={3}
+                        combobox="true"
+                        showSearch
+                        placeholder="Quận/huyện"
+                        optionFilterProp="children"
+                        style={{
+                          width: 240,
+                        }}
+                        onChange={onChangeDistricts}
+                        onClick={onSearchDistricts}
+                        filterOption={(input, option) =>
+                          option.children
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                      >
+                        {district?.map((item) => (
+                          <Option key={item.DistrictID} value={item.DistrictID}>
+                            {item.DistrictName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                      className="mt-4"
+                      
+                      name="ward"
+                      label="Phường / xã"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Phường/xã không được để trống!",
+                          
+                        },
+                      ]}
+                    >
+                      <Select
+                        key={4}
+                        combobox="true"
+                        showSearch
+                        placeholder="Phường/xã"
+                        optionFilterProp="children"
+                        style={{
+                          width: 240,
+                        }}
+                        onChange={onChangeWards}
+                        onClick={onSearchWards}
+                        filterOption={(input, option) =>
+                          option.children
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                      >
+                        {Ward.map((item) => (
+                          <Option key={item.WardCode} value={item.WardCode}>
+                            {item.WardName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+                )}
+                <label>
+                  Tổng tiền <span className="text-danger fs-6">*</span>
+                </label>
+                <br />
+                <Input
+                  className="text-danger fw-bold"
+                  style={{
+                    width: 240,
+                  }}
+                  readOnly={true}
+                  value={total.toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                  onChange={(e) => setTotal(e.target.value)}
+                  defaultValue={0}
+                />
+              </div>
+              <div className="col-6">
+                <Button
+                  onClick={showModal}
+                  className="mt-4"
+                  shape="round"
+                  danger
+                >
+                  Tạo khách hàng
+                </Button>
+                <Form.Item
+                  className="mt-4"
+                  name="payment"
+                  label="Hình thức thanh toán"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Hình thức thanh toán không được để trống!",
+                    },
+                  ]}
+                >
+                  <Select placeholder="Hình thức thanh toán">
+                    <Option value="Thanh toán bằng tiền mặt">Thanh toán bằng tiền mặt</Option>
+                    <Option value="Thanh toán bằng thẻ ATM">Thanh toán bằng thẻ ATM</Option>
+                    <Option value="Thanh toán bằng tiền mặt và thẻ ATM">
+                    Thanh toán tiền mặt và thẻ ATM
+                    </Option>
+                  </Select>
+                </Form.Item>
+                <div className="form-group">
+                  <label>
+                    Tên khách hàng <span className="text-danger fs-6">*</span>
+                  </label>
+                  <Input required
+                    onChange={(e) => setValueUser(e.target.value)}
+                    value={valueUser}
+                    placeholder="Tên khách hàng"
+                    // type="number"
+                  />
+                </div>
+                {show && (
+                  <div>
+                    <Form.Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Địa chỉ chi tiết không được trống!",
+                        },
+                      ]}
+                      name="address"
+                      className="mt-4"
+                      label="Địa chỉ chi tiết"
+                    >
+                      <TextArea placeholder={"Địa chỉ chi tiết"} rows={9} />
+                    </Form.Item>
+                    <label>
+                      Phí ship <span className="text-danger fs-6">*</span>
+                    </label>
+                    <Input
+                      style={{
+                        width: 240,
+                      }}
+                      className="text-danger fw-bold"
+                      readOnly={true}
+                      value={shipping.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                      defaultValue={0}
+                    />
+                  </div>
+                )}
+
+                {/* <Form.Item label="Phí giao hàng" name="shipping"> */}
+
+                {/* </Form.Item> */}
+              </div>
+              <div className="col-12">
+                <Form.Item
+                  name="note"
+                  className="mt-4"
+                  label="Ghi chú đơn hàng"
+                >
+                  <TextArea
+                    showCount
+                    maxLength={200}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder={"Ghi chú"}
+                    rows={6}
+                  />
+                </Form.Item>
+              </div>
+            </div>
+
+            <Form.Item className="text-center mt-4">
+              <Button
+                block
+                shape="round"
+                danger
+                type="primary"
+                htmlType="submit"
+                style={{ width: "120px" }}
+              >
+                Đặt hàng
+              </Button>
+              <Button
+                block
+                shape="round"
+                className="ms-2"
+                style={{ width: "120px" }}
+                onClick={onReset}
+              >
+                Làm mới
+              </Button>
+            </Form.Item>
+          </Form>
+          {/* <div className="row mt-3">
             <div className="col-6">
               <div className="search-container">
                 <div className="search-inner">
@@ -1289,8 +1621,8 @@ function CreateOrderAdmin() {
                 />
               </div>
             </div>
-          </div>
-          <div className="row mt-3">
+          </div> */}
+          {/* <div className="row mt-3">
             <div className="form-group">
               <br />
               <TextArea
@@ -1300,12 +1632,12 @@ function CreateOrderAdmin() {
                 placeholder={"Ghi chú"}
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="col-7">
           <div className="title">
-            <h3>Giỏ hàng</h3>
+            <h3 className="text-danger">Giỏ hàng</h3>
           </div>
           <div className="row">
             <div className="col-12 mt-3">
@@ -1393,7 +1725,7 @@ function CreateOrderAdmin() {
             </div>
           </div>
         </div>
-        <div className="row mb-5">
+        {/* <div className="row mb-5">
           <div className="btn-submit">
             <Button
               className="text-center"
@@ -1403,7 +1735,7 @@ function CreateOrderAdmin() {
               Hoàn tất đặt hàng
             </Button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

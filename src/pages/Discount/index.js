@@ -1256,7 +1256,7 @@ const Discount = () => {
                   <Button key="back" onClick={handleCancel}>
                     Hủy
                   </Button>,
-                  <Button type="danger" onClick={draft}>
+                  <Button key="link" type="danger" onClick={draft}>
                     Nháp
                   </Button>,
                   <Button
