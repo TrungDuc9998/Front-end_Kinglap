@@ -120,6 +120,7 @@ const DefaultLayout = ({ children }) => {
     <Layout>
       <Sider
         style={{
+          boxShadow: "2px 0 6px #00152959",
           overflow: "auto",
           height: "94vh",
           // position: "fixed",
@@ -146,7 +147,7 @@ const DefaultLayout = ({ children }) => {
           }}
         ></Menu>
       </Sider>
-      <Layout className="site-layout">
+      <Layout  className="site-layout">
         <Header
           className="site-layout-background"
           style={{

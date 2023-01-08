@@ -107,10 +107,38 @@ const OrderSuccess = () => {
     }
   }
 
+  function startTimer(duration, display) {
+    var timer = duration,
+      minutes,
+      seconds;
+    setInterval(function () {
+      minutes = parseInt(timer / 60, 10);
+      seconds = parseInt(timer % 60, 10);
+
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+
+      display.textContent = minutes + ":" + seconds;
+
+      if (--timer < 0) {
+        timer = duration;
+      }
+
+      if (timer === 0) {
+        document.querySelector("#button").setAttribute("disabled", true);
+      }
+    }, 1000);
+  }
+
+  window.onload = function () {
+    var tenMinutes = 60 * 10,
+      display = document.querySelector("#time");
+    startTimer(tenMinutes, display);
+  };
+
   useEffect(() => {
     loadDataOrder();
     loadDataClient();
-    // compareDates("2022-12-25 23:01:07", "2023-12-15 23:01:07");
   }, []);
 
   const loadDataClient = () => {
@@ -224,7 +252,6 @@ const OrderSuccess = () => {
   };
 
   const onchangeSearch = (val, dateStrings) => {
-   
     if (dateStrings === undefined) {
       setSearchStartDate("");
       setSearchEndDate("");
@@ -630,6 +657,8 @@ const OrderSuccess = () => {
   const [clearForm] = Form.useForm();
   return (
     <div>
+      <button id="button">Button</button>
+      <div id="time">10:00</div>
       <div className="row">
         <div className="col-1" style={{ width: "10px" }}>
           <MenuFoldOutlined style={{ fontSize: "20px" }} />
