@@ -28,7 +28,7 @@ const getRandomuserParams = (params) => ({
   searchProductKey: params.pagination?.search1,
   searchStatus: params.pagination?.search2,
   searchPrice: params.pagination?.search3,
-  searchImei: params.pagination?.search4,
+  searchPn: params.pagination?.search4,
 });
 
 const Product = () => {
@@ -152,8 +152,8 @@ const Product = () => {
           return (
             <>
               <div
-                className="bg-success text-center text-light"
-                style={{ width: "120px", borderRadius: "5px", padding: "3px" }}
+                className="ant-tag ant-tag-green pt-1 pb-1 text-center"
+                style={{ width: "120px", padding: "3px" }}
               >
                 Hoạt động
               </div>
@@ -164,8 +164,8 @@ const Product = () => {
           return (
             <>
               <div
-                className="bg-danger text-center text-light"
-                style={{ width: "120px", borderRadius: "5px", padding: "3px" }}
+                className="ant-tag ant-tag-red pt-1 pb-1 text-center"
+                style={{ width: "120px", padding: "3px" }}
               >
                 Không hoạt động
               </div>
@@ -317,7 +317,7 @@ const Product = () => {
     tableParams.pagination.search1 = searchProductKey;
     tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.search3 = searchPrice;
-    tableParams.pagination.search4 = searchImei;
+    tableParams.pagination.search4 = searchPn;
     setLoading(true);
     fetch(
       `http://localhost:8080/api/products?${qs.stringify(
@@ -343,6 +343,7 @@ const Product = () => {
   };
   const [importSuccess, setImportSuccess] = useState(true);
   const [searchProductKey, setSearchProductKey] = useState();
+  const [searchPn, setSearchPn] = useState();
   const [searchStatus, setSearchStatus] = useState();
   const [searchPrice, setSearchPrice] = useState();
   const [searchImei, setSearchImei] = useState();
@@ -357,7 +358,7 @@ const Product = () => {
     tableParams.pagination.search1 = searchProductKey;
     tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.search3 = searchPrice;
-    tableParams.pagination.search4 = searchImei;
+    tableParams.pagination.search4 = searchPn;
     tableParams.pagination.current = 1;
     setLoading(true);
     fetch(
@@ -383,12 +384,16 @@ const Product = () => {
     load();
     setSearchProductKey("");
     setSearchStatus("");
-    setSearchImei("");
+    setSearchPn("");
     setSearchPrice("");
   };
 
   const changeSearchProductKey = (event) => {
     setSearchProductKey(event.target.value);
+  };
+
+  const changeSearchPn = (event) => {
+    setSearchPn(event.target.value);
   };
 
   const changeSearchStatus = (value) => {
@@ -949,17 +954,17 @@ const Product = () => {
               onChange={changeSearchProductKey}
             />
           </div>
-          {/* <div className="col-3 mt-1">
-            <label>Imei</label>
+          <div className="col-3 mt-1">
+            <label>P/N</label>
             <br />
             <Input
               type="text"
-              name="searchImei"
-              value={searchImei}
-              placeholder="Nhập imei"
-              onChange={changeSearchImei}
+              name="searchPn"
+              value={searchPn}
+              placeholder="Nhập P/N"
+              onChange={changeSearchPn}
             />
-          </div> */}
+          </div>
           <div className="col-3 mt-1">
             <label>Trạng thái</label>
             <br />
