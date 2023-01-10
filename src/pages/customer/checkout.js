@@ -697,7 +697,7 @@ function Checkout() {
       setIsDisabled(true);
     }
     setWardCode(value);
-    serviceShip();
+    serviceShip(value);
     //SubmitShipping2(value);
     //loadDataProvince();
   };
@@ -708,7 +708,7 @@ function Checkout() {
       //SubmitShipping();
     }
   };
-  const serviceShip=()=>{
+  const serviceShip=(valueWardCode)=>{
     fetch(
       "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
       {
@@ -733,7 +733,8 @@ function Checkout() {
         } else {
           const checkService = data.data[0].service_id;
           setServiceId(checkService);
-          SubmitShipping(wardCode,checkService);
+          console.log("wardCode",valueWardCode);
+          SubmitShipping(valueWardCode,checkService);
         }
       })
   }
@@ -752,7 +753,7 @@ function Checkout() {
           body: JSON.stringify({
             shop_id: 3379752,
             from_district: 1542,
-            to_district: parseInt(districtId),
+            to_district: valueDistrict,
           }),
         }
       )
@@ -787,7 +788,7 @@ function Checkout() {
                   console.log("Success ward:", result.data);
                   setWard(result.data);
                   for(var h=0; h<result.data.length;h++){
-                    if (result.data[h].WardCode.trim() == wardCode) {
+                    if (result.data[h].WardCode.trim() == wardCode||result.data[h].WardName.trim()==valueWard) {
                       console.log("element.WardName"+h,result.data[h].WardName);
                       console.log("element.WardCode"+h,result.data[h].WardCode);
                       SubmitShipping1(result.data[h].WardCode, checkService, valueDistrict);
@@ -827,7 +828,7 @@ function Checkout() {
         if(result.data.length>0){
           for(var i=0; i<result.data.length;i++){
             if (
-              result.data[i].ProvinceID == ProvinceID
+              result.data[i].ProvinceID == ProvinceID||result.data[i].ProvinceName.trim()==information?information[0].address.split(",")[0].trim():""
             ) {
               console.log("result.data[i].ProvinceID",result.data[i].ProvinceID);
               console.log("element.ProvinceName",result.data[i].ProvinceName);
@@ -894,7 +895,7 @@ function Checkout() {
         }
         for(var k=0; k<result.data.length;k++){
           if (
-            result.data[k].DistrictID == districtId
+            result.data[k].DistrictID == districtId||result.data[k].DistrictName ==valueDistrict
           ) {
             console.log("result.data[i].DistrictID",result.data[k].DistrictID);
             console.log("element.DistrictName",result.data[k].DistrictName);
