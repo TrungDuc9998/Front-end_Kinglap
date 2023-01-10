@@ -11,6 +11,12 @@ import { ToastContainer, toast } from "react-toastify";
 import React, { useEffect, useState, useRef } from "react";
 const { Option } = Select;
 
+const getRandomManufactoryParams = (params) => ({
+  limit: params.pagination?.pageSize,
+  page: params.pagination?.current,
+  searchStatus: params.pagination?.searchStatus,
+});
+
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
   page: params.pagination?.current,
@@ -22,45 +28,61 @@ function Inventory() {
     setSearchName(undefined);
     setSearchStatus(undefined);
     setInventory(inventory1);
-  }
+  };
   const onSearchStatus = (value) => {
-    console.log(value);
+    console.log("value để search hãng sản xuất: " + value);
     setSearchStatus(value);
-  }
+  };
   const onSearchName = (value) => {
     console.log(value);
     setSearchName(value);
-  }
+  };
   const [searchStatus, setSearchStatus] = useState();
   const [searchName, setSearchName] = useState();
   const changeSearchName = (value) => {
     setSearchName(value);
-  }
+  };
   const changeSearchStatus = (value) => {
     setSearchStatus(value);
-  }
+  };
   const onClickSearch = () => {
     console.log("click", searchStatus, "name", searchName);
     if (searchName == undefined && searchStatus == undefined) {
-      setInventory(inventory1)
+      setInventory(inventory1);
     }
     if (searchName == undefined && searchStatus != undefined) {
       console.log("name null");
-      setInventory(inventory1.filter(item => item.manufacture == searchStatus));
+      setInventory(
+        inventory1.filter((item) => item.manufacture == searchStatus)
+      );
     }
     if (searchName != undefined && searchStatus == undefined) {
       console.log("hang null");
-      setInventory(inventory1.filter(item => item.name == searchName));
+      setInventory(inventory1.filter((item) => item.name == searchName));
     }
     if (searchName != undefined && searchStatus != undefined) {
-      setInventory(inventory1.filter(item => item.name == searchName && item.manufacture == searchStatus));
+      setInventory(
+        inventory1.filter(
+          (item) => item.name == searchName && item.manufacture == searchStatus
+        )
+      );
     }
-  }
+  };
   const [inventory, setInventory] = useState([]);
   const [inventory1, setInventory1] = useState([]);
   const [isView, setView] = useState(false);
   const [product, setProduct] = useState();
+  const [manufacture, setManufacture] = useState([]);
   const [tableParams, setTableParams] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      search1: "",
+      searchStatus: "ACTIVE",
+    },
+  });
+
+  const [tableParamManu, setTableParamManu] = useState({
     pagination: {
       current: 1,
       pageSize: 10,
@@ -69,17 +91,36 @@ function Inventory() {
   });
   useEffect(() => {
     loadDataInventory();
+    loadDataManufacture();
   }, []);
+
+  const loadDataManufacture = () => {
+    fetch(
+      `http://localhost:8080/api/auth/manufactures?${qs.stringify(
+        getRandomManufactoryParams(tableParamManu)
+      )}`,
+      {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setManufacture(results.data.data);
+      });
+  };
 
   const loadDataInventory = () => {
     fetch(
       `http://localhost:8080/api/admin/statistical/inventory?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem("token"),
-      },
-    }
+      )}`,
+      {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -94,7 +135,6 @@ function Inventory() {
         });
       });
   };
-
 
   const columns = [
     {
@@ -205,11 +245,13 @@ function Inventory() {
             onChange={changeSearchName}
             onSearch={onSearchName}
           >
-            {inventory1 ? inventory1.map(item => (
-              <Option value={item.name} selected>
-                {item.name}
-              </Option>
-            )) : ""}
+            {inventory1
+              ? inventory1.map((item) => (
+                  <Option value={item.name} selected>
+                    {item.name}
+                  </Option>
+                ))
+              : ""}
           </Select>
         </div>
         <div className="col-4 mt-3">
@@ -225,18 +267,18 @@ function Inventory() {
             onChange={changeSearchStatus}
             onSearch={onSearchStatus}
           >
-            {inventory1 ? inventory1.map(item => (
-              <Option value={item.manufacture} selected>
-                {item.manufacture}
-              </Option>
-            )) : ""}
+            {manufacture?.map((item) => (
+              <Select.Option value={item.name} >
+                {item.name}
+              </Select.Option>
+            ))}
           </Select>
         </div>
 
         <div className="col-12 text-center mt-4">
           <Button
             className="mt-2"
-            type="primary-uotline"
+            type="primary-outline"
             onClick={onClickClear}
             style={{ borderRadius: "10px" }}
           >

@@ -241,7 +241,9 @@ const Color = () => {
   //Delete
   const onDelete = (id) => {
     Modal.confirm({
-      title: "Xoá giảm giá",
+      title: "Xoá",
+      okText:"Có",
+      cancelText:"Không",
       content: "Bạn có muốn xoá bản ghi này không?",
       onOk() {
         axios.delete(url + "/staff/color/" + id, {
@@ -351,13 +353,8 @@ const Color = () => {
             open={open}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
-            width={650}
-            okButtonProps={{
-              style: {
-                display: "none",
-              },
-            }}
-            cancelText={"Đóng"}
+            width={550}
+            footer={null}
           >
             <Form
               form={formE}
@@ -387,10 +384,28 @@ const Color = () => {
                 <Input placeholder="Nhập tên màu" />
               </Form.Item>
               <Form.Item className="text-center">
-                <div className="row">
+              <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                      shape="round"
+                      style={{width: "100px"}}
+                    >
                       Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                  <Button
+                      block
+                      shape="round"
+                      className="cancel"
+                      onClick={handleCancel}
+                      style={{width: "80px"}}
+                    >
+                      Huỷ
                     </Button>
                   </div>
                 </div>
@@ -422,13 +437,13 @@ const Color = () => {
             title="Cập nhật"
             open={isEditing}
             onCancel={handleCancel}
-            width={650}
+            width={550}
             okButtonProps={{
               style: {
                 display: "none",
               },
             }}
-            cancelText={"Đóng"}
+            footer={null}
           >
             <Form
               form={formE}
@@ -454,17 +469,36 @@ const Color = () => {
                   },
                   { whitespace: true },
                 ]}
-                hasFeedback
+              
               >
                 <Input placeholder="Nhập tên màu" />
               </Form.Item>
               <Form.Item className="text-center">
-                <div className="row">
+              <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                      shape="round"
+                      style={{width: "100px"}}
+                    >
                       Cập nhật
                     </Button>
                   </div>
+                  <div className="col-6">
+                  <Button
+                      block
+                      shape="round"
+                      className="cancel"
+                      onClick={handleCancel}
+                      style={{width: "80px"}}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+            
                 </div>
               </Form.Item>
             </Form>

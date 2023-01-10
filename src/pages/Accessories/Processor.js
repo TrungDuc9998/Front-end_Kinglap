@@ -1,11 +1,4 @@
-import {
-  Table,
-  Select,
-  Input,
-  Button,
-  Modal,
-  Form,
-} from "antd";
+import { Table, Select, Input, Button, Modal, Form, InputNumber } from "antd";
 import {
   CheckCircleOutlined,
   DeleteOutlined,
@@ -19,7 +12,7 @@ import {
 import qs from "qs";
 import React, { useEffect, useState, useRef } from "react";
 import "./Processor.css";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 const { Option } = Select;
 const getRandomParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -63,6 +56,7 @@ const Processor = () => {
   });
   const [form] = Form.useForm();
   const inputRef = useRef(null);
+  const [isDraft, setIsDraft] = useState();
 
   const onReset = () => {
     form.resetFields();
@@ -111,8 +105,9 @@ const Processor = () => {
 
   const deleteProcessor = (record) => {
     fetch(`http://localhost:8080/api/staff/processors/${record.id}`, {
-      method: "DELETE", headers: {
-        Authorization: 'Bearer ' + localStorage.getItem("token"),
+      method: "DELETE",
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
       },
     })
       .then((response) => response.json())
@@ -218,9 +213,21 @@ const Processor = () => {
         if (data.status === "DRAFT") {
           return (
             <>
-              <DeleteOutlined
-                onClick={() => onDelete(data)}
-                style={{ color: "red" }}
+              <UnlockOutlined
+                onClick={() => {
+                  // setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/staff/processors/${data.id}/active`,
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
+                      },
+                    }
+                  ).then(() => loadDataProcessor());
+                  toastSuccessProcessor("Mở khóa thành công!");
+                }}
               />
               <EditOutlined
                 style={{ marginLeft: 12 }}
@@ -228,13 +235,17 @@ const Processor = () => {
                   onEdit(data);
                 }}
               />
+              <DeleteOutlined
+                onClick={() => onDelete(data)}
+                style={{ color: "red", marginLeft: "12px" }}
+              />
             </>
           );
         }
         if (data.status == "ACTIVE") {
           return (
             <>
-              <UnlockOutlined
+              <LockOutlined
                 style={{}}
                 onClick={() => {
                   // setLoading(true);
@@ -243,7 +254,8 @@ const Processor = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => loadDataProcessor());
@@ -261,7 +273,7 @@ const Processor = () => {
         } else if (data.status == "INACTIVE") {
           return (
             <>
-              <LockOutlined
+              <UnlockOutlined
                 style={{}}
                 onClick={() => {
                   // setLoading(true);
@@ -270,7 +282,8 @@ const Processor = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => loadDataProcessor());
@@ -292,6 +305,7 @@ const Processor = () => {
 
   const clearSearchForm = () => {
     loadDataProcessor();
+    onClearForm();
   };
 
   const handleTableChange = (pagination) => {
@@ -318,8 +332,7 @@ const Processor = () => {
       });
   };
 
-  const onSearch = (value) => {
-  };
+  const onSearch = (value) => {};
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
@@ -342,12 +355,12 @@ const Processor = () => {
 
   const handleSubmitProcessor = (data) => {
     if (isUpdate === false) {
-      data.status = "ACTIVE";
+      data.status = isDraft == true ? "ACTIVE" : "DRAFT";
       fetch("http://localhost:8080/api/staff/processors", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
         body: JSON.stringify(data),
       })
@@ -386,7 +399,7 @@ const Processor = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
         body: JSON.stringify(edit),
       })
@@ -429,13 +442,35 @@ const Processor = () => {
     setSearchStatus(value);
   };
 
+  const onChangeIsDraft = (value) => {
+    setIsDraft(value);
+  };
+
+  const [clearForm] = Form.useForm();
+
+  const onClearForm = () => {
+    clearForm.resetFields();
+    onchangeSearch();
+  };
+
+  const validateMessages = {
+    required: "${label} không được để trống!",
+    types: {
+      email: "${label} is not a valid email!",
+      number: "${label} phải là kiểu số!",
+    },
+    number: {
+      range: "${label} phải từ ${min} đến ${max}",
+    },
+  };
+
   return (
     <div>
       <div
         className="row"
         style={{
           borderRadius: "20px",
-          height: "150px",
+          height: "170px",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
@@ -450,34 +485,44 @@ const Processor = () => {
           />
         </div>
         <div className="col-4 mt-4">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            allowClear={true}
-            style={{ width: "400px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            defaultValue={"ACTIVE"}
-            optionFilterProp="children"
-            onChange={changeSearchStatus}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
+          <Form
+            form={clearForm}
+            name="nest-messages"
+            className="me-2 ms-2"
+            layout="vertical"
+            autoComplete="off"
           >
-            <Option value="ACTIVE" selected>
-              Hoạt động
-            </Option>
-            <Option value="INACTIVE">Không hoạt động</Option>
-            <Option value="DRAFT">Nháp</Option>
-          </Select>
+            <Form.Item name="select">
+              <label>Trạng thái</label>
+              <br />
+              <Select
+                allowClear={true}
+                style={{ width: "400px", borderRadius: "5px" }}
+                showSearch
+                placeholder="Chọn trạng thái"
+               
+                optionFilterProp="children"
+                onChange={changeSearchStatus}
+                onSearch={onSearch}
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                <Option value="ACTIVE" selected>
+                  Hoạt động
+                </Option>
+                <Option value="INACTIVE">Không hoạt động</Option>
+                <Option value="DRAFT">Nháp</Option>
+              </Select>
+            </Form.Item>
+          </Form>
         </div>
-        <div className="col-12 text-center ">
+        <div className="col-12 text-center mb-4">
           <Button
             className="mt-2"
             type="primary-outline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <ReloadOutlined />
             Đặt lại
@@ -486,7 +531,7 @@ const Processor = () => {
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <SearchOutlined />
             Tìm kiếm
@@ -499,19 +544,19 @@ const Processor = () => {
             className="offset-11 "
             type="primary"
             onClick={showModal}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <PlusOutlined /> Thêm mới
           </Button>
           <Modal
             id="modal"
-            title="Tạo mới"
+            title="Tạo mới bộ xử lý"
             okButtonProps={{
               style: {
                 display: "none",
               },
             }}
-            cancelText={"Đóng"}
+            footer={null}
             width={700}
             open={open}
             onOk={handleOk}
@@ -520,11 +565,7 @@ const Processor = () => {
           >
             <Form
               form={form}
-              initialValues={
-                {
-                  // cpuCompany: name,
-                }
-              }
+              validateMessages={validateMessages}
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 10 }}
@@ -546,9 +587,10 @@ const Processor = () => {
                     message: "Hãng CPU không được để trống",
                   },
                   { whitespace: true },
-                  { min: 3 },
+                  { min: 3 ,
+                  message:"Hãng CPU từ 3 ký tự trở lên"},
                 ]}
-                hasFeedback
+               
               >
                 <Input placeholder="Nhập hãng CPU" ref={cpuCompany} />
               </Form.Item>
@@ -561,7 +603,7 @@ const Processor = () => {
                     message: "Công nghệ CPU không được để trống",
                   },
                 ]}
-                hasFeedback
+                
               >
                 <Input placeholder="Nhập công nghệ CPU" />
               </Form.Item>
@@ -575,7 +617,7 @@ const Processor = () => {
                     message: "Loại CPU không được để trống",
                   },
                 ]}
-                hasFeedback
+               
               >
                 <Input placeholder="Tốc độ CPU" />
               </Form.Item>
@@ -588,7 +630,7 @@ const Processor = () => {
                     message: "Tốc độ CPU không được để trống",
                   },
                 ]}
-                hasFeedback
+               
               >
                 <Input placeholder="Nhập tốc độ CPU" />
               </Form.Item>
@@ -601,7 +643,7 @@ const Processor = () => {
                     message: "Tốc độ tối đa không được để trống",
                   },
                 ]}
-                hasFeedback
+               
               >
                 <Input placeholder="Tốc độ tối đa CPU" />
               </Form.Item>
@@ -610,26 +652,30 @@ const Processor = () => {
                 label="Số nhân"
                 rules={[
                   {
-                    required: true,
-                    message: "Số nhân CPU không được để trống",
+                    type:"number",
+                    min: 1,
+                    max: 1000,
+                    required: true,           
                   },
                 ]}
-                hasFeedback
+               
               >
-                <Input placeholder="Nhập số nhân CPU" type="number" />
+                <InputNumber style={{ width: "100%" }} placeholder="Nhập số nhân CPU" type="number" />
               </Form.Item>
               <Form.Item
                 name="numberOfThread"
                 label="Số luồng CPU"
                 rules={[
                   {
-                    required: true,
-                    message: "Số luồng CPU không được để trống",
+                    type:"number",
+                    min: 1,
+                    max: 1000,
+                    required: true,   
                   },
                 ]}
-                hasFeedback
+               
               >
-                <Input placeholder="Nhập số luồng CPU" type="number" />
+                <InputNumber style={{ width: "100%" }} placeholder="Nhập số luồng CPU" type="number" />
               </Form.Item>
               <Form.Item
                 name="caching"
@@ -640,14 +686,50 @@ const Processor = () => {
                     message: "Bộ nhớ đẹm CPU không được để trống",
                   },
                 ]}
-                hasFeedback
+                
               >
                 <Input placeholder="Nhập bộ nhớ đệm CPU" />
               </Form.Item>
               <Form.Item className="text-center">
-                <Button block type="primary" htmlType="submit" id="create">
-                  Tạo mới
-                </Button>
+                <div className="row">
+                  <div className="col-4">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      id="create"
+                      onClick={() => onChangeIsDraft(true)}
+                      style={{ width: "100px", marginLeft: "170px" }}
+                    >
+                      Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-4">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      danger
+                      onClick={() => onChangeIsDraft(false)}
+                      style={{ width: "100px", marginLeft: "180px" }}
+                    >
+                      Tạo nháp
+                    </Button>
+                  </div>
+                  <div className="col-4">
+                    <Button
+                      block
+                      className="cancel"
+                      shape="round"
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft: "190px" }}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+                </div>
               </Form.Item>
             </Form>
           </Modal>
@@ -672,7 +754,7 @@ const Processor = () => {
             onChange={handleTableChange}
           />
           <Modal
-            title="Cập nhật"
+            title="Cập nhật bộ xử lý"
             open={isEditing}
             onCancel={() => {
               setEditing(false);
@@ -682,7 +764,7 @@ const Processor = () => {
                 display: "none",
               },
             }}
-            cancelText={"Đóng"}
+            footer={null}
             width={700}
           >
             <Form
@@ -815,9 +897,31 @@ const Processor = () => {
                 <Input />
               </Form.Item>
               <Form.Item className="text-center">
-                <Button block type="primary" htmlType="submit" id="create">
-                  Cập nhật
-                </Button>
+                <div className="row">
+                  <div className="col-6">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      id="create"
+                      style={{ width: "100px", marginLeft: "230px" }}
+                    >
+                      Cập nhật
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                    <Button
+                      block
+                      className="cancel"
+                      shape="round"
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft: "190px" }}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+                </div>
               </Form.Item>
             </Form>
           </Modal>

@@ -265,16 +265,16 @@ const Accessory = () => {
             <Button
               type="primary-outline"
               onClick={clearSearchForm}
-              style={{ borderRadius: "10px" }}
+              shape="round"
             >
               <ReloadOutlined />
               Đặt lại
             </Button>
             <Button
-              className="mx-5"
+              className="mx-2"
               type="primary"
               onClick={search}
-              style={{ borderRadius: "10px" }}
+              shape="round"
             >
               <SearchOutlined />
               Tìm kiếm
@@ -288,7 +288,7 @@ const Accessory = () => {
             className="offset-11 "
             type="primary"
             onClick={showModal}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <PlusOutlined /> Thêm mới
           </Button>
@@ -298,13 +298,8 @@ const Accessory = () => {
             open={open}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
-            width={700}
-            okButtonProps={{
-              style: {
-                display: "none",
-              },
-            }}
-            cancelText={"Đóng"}
+            width={550}         
+            footer={null}
           >
             <Form
               form={form}
@@ -345,9 +340,31 @@ const Accessory = () => {
                 <TextArea placeholder="Mô tả sản phẩm ..." />
               </Form.Item>
               <Form.Item className="text-center">
-                <Button block type="primary" htmlType="submit" id="create">
-                  Tạo mới
-                </Button>
+              <div className="row">
+                  <div className="col-6">
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                      shape="round"
+                      style={{width: "100px"}}
+                    >
+                      Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                  <Button
+                      block
+                      shape="round"
+                      className="cancel"
+                      onClick={handleCancel}
+                      style={{width: "80px"}}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+                </div>
               </Form.Item>
             </Form>
           </Modal>
@@ -376,14 +393,9 @@ const Accessory = () => {
             open={isEditing}
             onCancel={() => {
               setEditing(false);
-            }}
-            okButtonProps={{
-              style: {
-                display: "none",
-              },
-            }}
-            cancelText={"Đóng"}
-            width={700}
+            }}   
+            footer={null}
+            width={550}
           >
             <Form
               form={formEdit}
@@ -411,7 +423,7 @@ const Accessory = () => {
                   },
                   { whitespace: true },
                 ]}
-                hasFeedback
+            
               >
                 <Input />
               </Form.Item>
@@ -419,14 +431,36 @@ const Accessory = () => {
                 name="description"
                 label="Mô tả"
                 initialValue={dataEdit.description}
-                hasFeedback
+               
               >
                 <TextArea />
               </Form.Item>
               <Form.Item className="text-center">
-                <Button block type="primary" htmlType="submit" id="create">
-                  Cập nhật
-                </Button>
+              <div className="row">
+                  <div className="col-6">
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                      shape="round"
+                      style={{width: "100px"}}
+                    >
+                     Cập nhật
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                  <Button
+                      block
+                      shape="round"
+                      className="cancel"
+                      onClick={handleCancel}
+                      style={{width: "80px"}}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+                </div>
               </Form.Item>
             </Form>
           </Modal>

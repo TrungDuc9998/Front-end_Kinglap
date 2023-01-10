@@ -63,6 +63,7 @@ const BatteryCharger = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setEditing] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
+  const [isDraft, setIsDraft] = useState();
   const [data, setData] = useState([
     {
       id: "",
@@ -156,7 +157,18 @@ const BatteryCharger = () => {
       dataIndex: "status",
       width: "13%",
       render: (status) => {
-        if (status == "ACTIVE") {
+        if (status == "DRAFT") {
+          return (
+            <>
+              <div
+                className="bg-danger text-center text-light"
+                style={{ width: "100%", borderRadius: "5px", padding: "5px" }}
+              >
+                Nháp
+              </div>
+            </>
+          );
+        } else if (status == "ACTIVE") {
           return (
             <>
               <div
@@ -167,12 +179,11 @@ const BatteryCharger = () => {
               </div>
             </>
           );
-        }
-        if (status == "INACTIVE") {
+        } else if (status == "INACTIVE") {
           return (
             <>
               <div
-                className="bg-danger text-center text-light"
+                className="bg-secondary text-center text-light"
                 style={{ width: "100%", borderRadius: "5px", padding: "5px" }}
               >
                 Không hoạt động
@@ -199,7 +210,8 @@ const BatteryCharger = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => getData());
@@ -231,7 +243,8 @@ const BatteryCharger = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => getData());
@@ -261,8 +274,10 @@ const BatteryCharger = () => {
                   fetch(
                     `http://localhost:8080/api/admin/batteryCharger/open/${data.id}`,
                     {
-                      method: "PUT", headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                      method: "PUT",
+                      headers: {
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => getData());
@@ -294,16 +309,27 @@ const BatteryCharger = () => {
       render: (id, data) => {
         return (
           <>
-            <EditOutlined
-              style={{ marginLeft: 12 }}
-              onClick={() => {
-                onEdit(data);
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => onDelete(data.id)}
-              style={{ color: "red", marginLeft: 12 }}
-            />
+            {data.status == "DRAFT" ? (
+              <>
+                <EditOutlined
+                  style={{ marginLeft: 12 }}
+                  onClick={() => {
+                    onEdit(data);
+                  }}
+                />
+                <DeleteOutlined
+                  onClick={() => onDelete(data.id)}
+                  style={{ color: "red", marginLeft: 12 }}
+                />
+              </>
+            ) : (
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  onEdit(data);
+                }}
+              />
+            )}
           </>
         );
       },
@@ -316,14 +342,15 @@ const BatteryCharger = () => {
     axios
       .get(
         url +
-        `/auth/batteryCharger?${qs.stringify(
-          getRandomuserParams(tableParams)
-        )}`
-        , {
+          `/auth/batteryCharger?${qs.stringify(
+            getRandomuserParams(tableParams)
+          )}`,
+        {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
-        })
+        }
+      )
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -367,12 +394,12 @@ const BatteryCharger = () => {
 
   const handleSubmit = (data) => {
     if (isUpdate === false) {
-      data.status = "ACTIVE";
+      data.status = isDraft == true ? "ACTIVE" : "DRAFT";
       fetch("http://localhost:8080/api/staff/batteryCharger", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
         body: JSON.stringify(data),
       })
@@ -380,6 +407,8 @@ const BatteryCharger = () => {
         .then((results) => {
           if (results.status === 200) {
             toastSuccess("Thêm mới thành công !");
+            getData();
+            onClearForm();
           }
         });
       setOpen(false);
@@ -400,7 +429,7 @@ const BatteryCharger = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
         body: JSON.stringify(edit),
       })
@@ -420,6 +449,8 @@ const BatteryCharger = () => {
     Modal.confirm({
       title: "Xoá giảm giá",
       content: "Bạn có muốn xoá bản ghi này không?",
+      okText:"Có",
+      cancelText: "Không",
       onOk() {
         axios
           .delete(url + "/admin/batteryCharger/" + id, {
@@ -438,8 +469,7 @@ const BatteryCharger = () => {
             return;
           });
       },
-      onCancel() {
-      },
+      onCancel() {},
     });
   };
 
@@ -474,6 +504,16 @@ const BatteryCharger = () => {
       },
     });
     getData();
+  };
+
+  const onChangeIsDraft = (value) => {
+    setIsDraft(value);
+  };
+
+  const [clearForm] = Form.useForm();
+
+  const onClearForm = () => {
+    clearForm.resetFields();
   };
 
   return (
@@ -518,16 +558,16 @@ const BatteryCharger = () => {
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <SearchOutlined />
             Tìm kiếm
           </Button>
           <Button
             className="mt-2"
-            type="primary-uotline"
+            type="primary-outline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <ReloadOutlined />
             Đặt lại
@@ -540,7 +580,7 @@ const BatteryCharger = () => {
             className="offset-11 "
             type="primary"
             onClick={showModal}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <PlusOutlined /> Thêm mới
           </Button>
@@ -552,13 +592,14 @@ const BatteryCharger = () => {
                 display: "none",
               },
             }}
-            cancelText={"Đóng"}
+            footer={null}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
             width={650}
           >
             <Form
               initialValues={{}}
+              form={clearForm}
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 13 }}
@@ -581,9 +622,8 @@ const BatteryCharger = () => {
                     message: "Loại pin không được để trống",
                   },
                   { whitespace: true },
-                  { min: 3 },
+                  { min: 3, message: "Loại pin lớn hơn 3 ký tự" },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập loại pin" />
               </Form.Item>
@@ -597,9 +637,8 @@ const BatteryCharger = () => {
                     message: "Dung lượng pin không được để trống",
                   },
                   { whitespace: true },
-                  { min: 3 },
+                  { min: 3, message: "Dung lượng pin lớn hơn 3 ký tự" },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập dung lượng pin" />
               </Form.Item>
@@ -610,20 +649,50 @@ const BatteryCharger = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Power supply không được để trống",
+                    message: "Nguồn cấp không được để trống",
                   },
                   { whitespace: true },
-                  { min: 3 },
+                  { min: 3, message: "Nguồn cấp lớn hơn 3 ký tự" },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập power supply" />
               </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
-                  <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                  <div className="col-4">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      onClick={() => onChangeIsDraft(true)}
+                      style={{ width: "100px", marginLeft: "190px" }}
+                    >
                       Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-4">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      onClick={() => onChangeIsDraft(false)}
+                      danger
+                      style={{ width: "100px", marginLeft: "180px" }}
+                    >
+                      Tạo nháp
+                    </Button>
+                  </div>
+                  <div className="col-4">
+                    <Button
+                      block
+                      className="cancel"
+                      shape="round"
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft: "170px" }}
+                    >
+                      Huỷ
                     </Button>
                   </div>
                 </div>
@@ -660,7 +729,7 @@ const BatteryCharger = () => {
                 display: "none",
               },
             }}
-            cancelText={"Đóng"}
+            footer={null}
             width={650}
           >
             <Form
@@ -731,8 +800,26 @@ const BatteryCharger = () => {
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      id="create"
+                      style={{ width: "100px", marginLeft: "230px" }}
+                    >
                       Cập nhật
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                    <Button
+                      block
+                      className="cancel"
+                      shape="round"
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft: "170px" }}
+                    >
+                      Huỷ
                     </Button>
                   </div>
                 </div>

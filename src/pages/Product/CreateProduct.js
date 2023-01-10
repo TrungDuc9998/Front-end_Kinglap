@@ -644,6 +644,7 @@ function CreateProduct() {
                       min: 10000000,
                       max: 100000000,
                       required: true,
+                      
                     },
                   ]}
                   hasFeedback

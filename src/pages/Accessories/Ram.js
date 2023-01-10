@@ -1,13 +1,7 @@
-import {
-  Table,
-  Select,
-  Input,
-  Button,
-  Modal,
-  Form,
-} from "antd";
+import { Table, Select, Input, Button, Modal, Form, InputNumber } from "antd";
 import {
   CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
@@ -22,26 +16,6 @@ import React, { useEffect, useState, useRef } from "react";
 import "./Processor.css";
 import { ToastContainer, toast } from "react-toastify";
 const { Option } = Select;
-
-const onDelete = (record) => {
-  const isPut = true;
-  Modal.confirm({
-    icon: <CheckCircleOutlined />,
-    title: "Xoá RAM ",
-    content: `Bạn có muốn xoá ram ${record.ramCapacity} ${record.ramSpeed} không?`,
-    okText: "Có",
-    cancelText: "Không",
-    okType: "primary",
-    onOk: () => {
-      fetch(`http://localhost:8080/api/staff/rams/${record.id}`, {
-        method: "DELETE", headers: {
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
-        },
-      });
-      // loadDataRam();
-    },
-  });
-};
 
 const getRandomuserParams = (params) => ({
   limit: params.pagination?.pageSize,
@@ -78,6 +52,7 @@ const Ram = () => {
   const [cpuCompany, setCpuCompany] = useState("2");
   const [searchStatus, setSearchStatus] = useState();
   const [formEdit] = Form.useForm();
+  const [isDraft, setIsDraft] = useState();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -90,6 +65,13 @@ const Ram = () => {
 
   const onReset = () => {
     form.resetFields();
+  };
+
+  const [clearForm] = Form.useForm();
+
+  const onClearForm = () => {
+    clearForm.resetFields();
+    onchangeSearch();
   };
   const columns = [
     {
@@ -180,7 +162,30 @@ const Ram = () => {
             <>
               <DeleteOutlined
                 onClick={() => onDelete(data)}
-                style={{ color: "red", marginLeft: 12 }}
+                style={{ color: "red" }}
+              />
+              <EditOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  showModalE(data);
+                }}
+              />
+              <UnlockOutlined
+                style={{ marginLeft: 12 }}
+                onClick={() => {
+                  setLoading(true);
+                  fetch(
+                    `http://localhost:8080/api/staff/rams/${data.id}/active`,
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
+                      },
+                    }
+                  ).then(() => loadDataRam());
+                  toastSuccess("Mở khóa thành công!");
+                }}
               />
             </>
           );
@@ -188,7 +193,7 @@ const Ram = () => {
         if (data.status == "ACTIVE") {
           return (
             <>
-              <UnlockOutlined
+              <LockOutlined
                 onClick={() => {
                   setLoading(true);
                   fetch(
@@ -196,7 +201,8 @@ const Ram = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => loadDataRam());
@@ -207,13 +213,14 @@ const Ram = () => {
                 style={{ marginLeft: 12 }}
                 onClick={() => {
                   showModalE(data);
-                }} />
+                }}
+              />
             </>
           );
         } else if (data.status == "INACTIVE") {
           return (
             <>
-              <LockOutlined
+              <UnlockOutlined
                 onClick={() => {
                   setLoading(true);
                   fetch(
@@ -221,19 +228,20 @@ const Ram = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => loadDataRam());
                   toastSuccess("Mở khóa thành công!");
                 }}
-
               />
               <EditOutlined
                 style={{ marginLeft: 12 }}
                 onClick={() => {
                   showModalE(data);
-                }} />
+                }}
+              />
             </>
           );
         }
@@ -248,7 +256,8 @@ const Ram = () => {
               style={{ marginLeft: 12 }}
               onClick={() => {
                 showModalE(data);
-              }} />
+              }}
+            />
             <DeleteOutlined
               onClick={() => onDelete(data)}
               style={{ color: "red", fontSize: "20px", marginLeft: 12 }}
@@ -260,7 +269,6 @@ const Ram = () => {
   ];
 
   const loadDataRam = () => {
-    setSearchName("");
     setLoading(true);
     fetch(
       `http://localhost:8080/api/auth/rams?${qs.stringify(
@@ -279,6 +287,25 @@ const Ram = () => {
           },
         });
       });
+  };
+
+  const onDelete = (record) => {
+    Modal.confirm({
+      icon: <CloseCircleOutlined />,
+      title: "Xoá RAM ",
+      content: `Bạn có muốn xoá ram ${record.ramCapacity} ${record.ramSpeed} không?`,
+      okText: "Có",
+      cancelText: "Không",
+      okType: "primary",
+      onOk: () => {
+        fetch(`http://localhost:8080/api/staff/rams/${record.id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }).then((res) => loadDataRam());
+      },
+    });
   };
 
   useEffect(() => {
@@ -292,48 +319,14 @@ const Ram = () => {
     tableParams.pagination = pagination;
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/auth/rams?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setRams(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
+    loadDataRam();
   };
 
   const search = () => {
     tableParams.pagination.search1 = searchName;
     tableParams.pagination.search2 = searchStatus;
     tableParams.pagination.current = 1;
-    setLoading(true);
-    fetch(
-      `http://localhost:8080/api/auth/rams?${qs.stringify(
-        getRandomuserParams(tableParams)
-      )}`
-    )
-      .then((res) => res.json())
-      .then((results) => {
-        setRams(results.data.data);
-        setLoading(false);
-        setTableParams({
-          pagination: {
-            current: results.data.current_page,
-            pageSize: 10,
-            total: results.data.total,
-          },
-        });
-      });
+    loadDataRam();
   };
 
   const onSearch = (value) => {
@@ -370,12 +363,17 @@ const Ram = () => {
 
   const handleSubmit = (data) => {
     if (isUpdate === false) {
-      data.status = "ACTIVE";
+      console.log("giá trị draft khi submit" + isDraft);
+      if (isDraft == true) {
+        data.status = "ACTIVE";
+      } else {
+        data.status = "DRAFT";
+      }
       fetch("http://localhost:8080/api/staff/rams", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
         body: JSON.stringify(data),
       })
@@ -402,12 +400,12 @@ const Ram = () => {
       remainingSlot: data.remainingSlot,
       status: dataEdit.status,
       typeOfRam: data.typeOfRam,
-    }
+    };
     fetch(`http://localhost:8080/api/staff/rams/` + edit.id, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: 'Bearer ' + localStorage.getItem("token"),
+        Authorization: "Bearer " + localStorage.getItem("token"),
       },
       body: JSON.stringify(edit),
     })
@@ -425,10 +423,26 @@ const Ram = () => {
     loadDataRam();
     setSearchName("");
     setSearchStatus();
+    onClearForm();
   };
 
   const changeSearchStatus = (value) => {
     setSearchStatus(value);
+  };
+
+  const onChangeIsDraft = (value) => {
+    setIsDraft(value);
+  };
+
+  const validateMessages = {
+    required: "${label} không được để trống!",
+    types: {
+      email: "${label} is not a valid email!",
+      number: "${label} phải là kiểu số!",
+    },
+    number: {
+      range: "${label} phải từ ${min} đến ${max}",
+    },
   };
 
   return (
@@ -437,7 +451,7 @@ const Ram = () => {
         className="row"
         style={{
           borderRadius: "20px",
-          height: "150px",
+          height: "170px",
           border: "1px solid #d9d9d9",
           background: "#fafafa",
         }}
@@ -451,35 +465,51 @@ const Ram = () => {
             onChange={(e) => setSearchName(e.target.value)}
           />
         </div>
-        <div className="col-4 mt-4">
-          <label>Trạng thái</label>
-          <br />
-          <Select
-            allowClear={true}
-            style={{ width: "400px", borderRadius: "5px" }}
-            showSearch
-            placeholder="Chọn trạng thái"
-            defaultValue={"ACTIVE"}
-            optionFilterProp="children"
-            onChange={changeSearchStatus}
-            onSearch={onSearch}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
+        <div className="col-md-4 mt-4">
+          <Form
+            form={clearForm}
+            name="nest-messages"
+            className="me-2 ms-2"
+            layout="vertical"
+            autoComplete="off"
+            onFinish={(values) => {
+              search();
+            }}
+            onFinishFailed={(error) => {
+              console.log({ error });
+            }}
           >
-            <Option value="ACTIVE" selected>
-              Hoạt động
-            </Option>
-            <Option value="INACTIVE">Không hoạt động</Option>
-            <Option value="DRAFT">Nháp</Option>
-          </Select>
+            <Form.Item name="select">
+            <label>Trạng thái</label>
+              <br />
+              <Select
+                allowClear={true}
+                style={{ width: "400px", borderRadius: "5px" }}
+                showSearch
+                placeholder="Chọn trạng thái"
+                optionFilterProp="children"
+                onChange={changeSearchStatus}
+                onSearch={onSearch}
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                <Select.Option value="ACTIVE" selected>
+                  Hoạt động
+                </Select.Option>
+                <Select.Option value="INACTIVE">Không hoạt động</Select.Option>
+                <Select.Option value="DRAFT">Nháp</Select.Option>
+              </Select>
+            </Form.Item>
+          </Form>
         </div>
-        <div className="col-12 text-center ">
+
+        <div className="col-12 text-center mb-4">
           <Button
             className="mt-2"
             type="primary-uotline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <ReloadOutlined />
             Đặt lại
@@ -488,7 +518,7 @@ const Ram = () => {
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <SearchOutlined />
             Tìm kiếm
@@ -501,7 +531,7 @@ const Ram = () => {
             className="offset-11 "
             type="primary"
             onClick={showModal}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <PlusOutlined /> Thêm mới
           </Button>
@@ -514,22 +544,23 @@ const Ram = () => {
                 display: "none",
               },
             }}
-            cancelText={"Đóng"}
+            footer={null}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
             width={650}
           >
             <Form
-              initialValues={{
-                cpuCompany
-              }}
-              form={form}
+             form={form}
+              // validateMessages={validateMessages}
+              // initialValues={{
+              //   cpuCompany,
+              // }}
               autoComplete="off"
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 14 }}
               onFinish={(values) => {
                 setIsUpdate(false);
-                handleSubmit(values, isUpdate);
+                handleSubmit(values);
                 console.log({ values });
               }}
               onFinishFailed={(error) => {
@@ -548,7 +579,6 @@ const Ram = () => {
                   { whitespace: true },
                   { min: 3 },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập dung lượng RAM" ref={cpuCompany} />
               </Form.Item>
@@ -561,7 +591,6 @@ const Ram = () => {
                     message: "Loại ram không được để trống",
                   },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập loại ram" />
               </Form.Item>
@@ -574,7 +603,6 @@ const Ram = () => {
                     message: "Tốc độ RAM không được để trống",
                   },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập tốc độ RAM" />
               </Form.Item>
@@ -584,39 +612,43 @@ const Ram = () => {
                 label="Số khe cắm rời"
                 rules={[
                   {
-                    required: true,
-                    message: "Số khe cẳm rời không được để trống",
+                    type:"number",
+                    min: 1,
+                    max: 1000,
+                    required: true,   
                   },
                 ]}
-                hasFeedback
               >
-                <Input placeholder="Số khe cắm rời" />
+                <InputNumber style={{ width: "100%" }} placeholder="Số khe cắm rời" />
               </Form.Item>
               <Form.Item
                 name="remainingSlot"
                 label="Số khe còn lại"
                 rules={[
                   {
+                    
+                    type:"number",
+                    min: 1,
+                    max: 100,
                     required: true,
-                    message: "Số khe còn lại không được để trống",
                   },
                 ]}
-                hasFeedback
               >
-                <Input placeholder="Nhập số khe còn lại" />
+                <InputNumber style={{ width: "100%" }} placeholder="Nhập số khe còn lại" />
               </Form.Item>
               <Form.Item
                 name="onboardRam"
                 label="Số RAM onboard"
                 rules={[
                   {
-                    required: true,
-                    message: "Số RAM onboard được để trống",
+                    type: "number",
+                      required: true,
+                      min: 1,
+                      max: 1000,      
                   },
                 ]}
-                hasFeedback
               >
-                <Input placeholder="Số RAM onboard" />
+                <InputNumber style={{ width: "100%" }} placeholder="Số RAM onboard" />
               </Form.Item>
               <Form.Item
                 name="maxRamSupport"
@@ -627,15 +659,47 @@ const Ram = () => {
                     message: "Hỗ trợ RAM tối đa không được để trống",
                   },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập hỗ trợ RAM tối đa" />
               </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
-                  <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                  <div className="col-4">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      id="create"
+                      onClick={() => onChangeIsDraft(true)}
+                      style={{ width: "100px", marginLeft: "170px" }}
+                    >
                       Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-4">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      id="create"
+                      onClick={() => onChangeIsDraft(false)}
+                      danger
+                      style={{ width: "100px", marginLeft: "150px" }}
+                    >
+                      Tạo nháp
+                    </Button>
+                  </div>
+                  <div className="col-4">
+                    <Button
+                      block
+                      className="cancel"
+                      shape="round"
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft: "130px" }}
+                    >
+                      Huỷ
                     </Button>
                   </div>
                 </div>
@@ -654,7 +718,7 @@ const Ram = () => {
                 display: "none",
               },
             }}
-            cancelText={"Đóng"}
+            footer={null}
             width={650}
           >
             <Form
@@ -775,8 +839,26 @@ const Ram = () => {
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      id="create"
+                      style={{ width: "100px", marginLeft: "230px" }}
+                    >
                       Cập nhật
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                    <Button
+                      block
+                      className="cancel"
+                      shape="round"
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft: "170px" }}
+                    >
+                      Huỷ
                     </Button>
                   </div>
                 </div>

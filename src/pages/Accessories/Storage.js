@@ -8,7 +8,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import qs from "qs";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 const { Option } = Select;
@@ -66,7 +66,8 @@ const Storage = () => {
     {
       title: "Bộ lưu trữ chi tiết",
       dataIndex: "storageDetail",
-      render: (storageDetail) => `${storageDetail.storageType.name} (${storageDetail.type}, ${storageDetail.capacity})`,
+      render: (storageDetail) =>
+        `${storageDetail.storageType.name} (${storageDetail.type}, ${storageDetail.capacity})`,
       width: "25%",
     },
     {
@@ -150,12 +151,13 @@ const Storage = () => {
       onOk() {
         fetch(`http://localhost:8080/api/storages/` + id, {
           method: "DELETE",
-        }).then((res) => res.json())
+        })
+          .then((res) => res.json())
           .then((results) => {
             fetchData();
             toastSuccess("Xóa bản ghi thành công!");
           });
-      }
+      },
     });
   };
 
@@ -198,7 +200,7 @@ const Storage = () => {
     fetchData();
     loadDataDetail();
   }, [JSON.stringify(tableParams)]);
-  const [storageDetail, setStorageDetail] = useState()
+  const [storageDetail, setStorageDetail] = useState();
   const [form, setValues] = useState({
     id: "",
     storageDetailId: "",
@@ -234,12 +236,13 @@ const Storage = () => {
       storageDetailId: storageDetail,
       total: value.total,
       number: value.number,
-    }
+    };
     fetch(`http://localhost:8080/api/storages/` + formEdit.id, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formEdit),
-    }).then((res) => res.json())
+    })
+      .then((res) => res.json())
       .then((results) => {
         if (results.data == null) {
           toastError(results.message);
@@ -249,34 +252,35 @@ const Storage = () => {
           handleCancel();
         }
       });
-  }
+  };
 
   const handleSelect = (e) => {
     setValues({
       ...form,
-      storageDetailId: e
+      storageDetailId: e,
     });
-    setStorageDetail(e)
-  }
+    setStorageDetail(e);
+  };
 
   const handle = (e) => {
     setValues({
       ...form,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-  }
+  };
 
   const handleOk = (value) => {
     const form = {
       storageDetailId: value.storageDetailId,
       total: value.total,
       number: value.number,
-    }
+    };
     fetch(`http://localhost:8080/api/storages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
-    }).then((res) => res.json())
+    })
+      .then((res) => res.json())
       .then((results) => {
         if (results.data == null) {
           toastError(results.message);
@@ -314,7 +318,7 @@ const Storage = () => {
             className="offset-11"
             type="primary"
             onClick={showModal}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <PlusOutlined /> Thêm mới
           </Button>
@@ -329,18 +333,15 @@ const Storage = () => {
               },
             }}
             cancelText={"Đóng"}
-            width={750}
+            width={550}
           >
             <Form
               form={formE}
-              autoComplete="off"
-              labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
+              layout="vertical"
+              autoComplete="off"          
               onFinish={(values) => {
-                setValues(
-                  values
-                );
-                handleOk(values)
+                setValues(values);
+                handleOk(values);
               }}
               onFinishFailed={(error) => {
                 console.log({ error });
@@ -356,19 +357,24 @@ const Storage = () => {
                     message: "Kiểu ổ cứng không được để trống",
                   },
                 ]}
-                hasFeedback
               >
                 <Select
                   showSearch
-                  style={{
-                    width: 300,
-                  }}
+                
                   placeholder="Search to Select"
                   optionFilterProp="children"
-                  filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                  filterOption={(input, option) =>
+                    (option?.label ?? "").includes(input)
+                  }
                   onChange={(e) => handleSelect(e)}
                   options={detail.map((detail) => ({
-                    label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
+                    label:
+                      detail.storageType.name +
+                      " (" +
+                      detail.type +
+                      ", " +
+                      detail.capacity +
+                      ")",
                     value: detail.id,
                   }))}
                 />
@@ -383,7 +389,6 @@ const Storage = () => {
                     message: "Tổng số khe cắm SSD/HDD không được để trống",
                   },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập tổng số khe cắm SSD/HDD" />
               </Form.Item>
@@ -397,26 +402,37 @@ const Storage = () => {
                     message: "Số khe SSD/HDD còn lại không được để trống",
                   },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập số khe SSD/HDD còn lại" />
               </Form.Item>
               <Form.Item className="text-center">
-                <div className="row">
+              <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
-                      Tạo mới
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                      shape="round"
+                      style={{ width: "100px" }}
+                    >
+                    Tạo mới
                     </Button>
                   </div>
                   <div className="col-6">
-                    <Button block type="danger" id="create" htmlType="submit">
-                      Lưu nháp
+                    <Button
+                      block
+                      shape="round"
+                     
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft:"-120px" }}
+                    >
+                      Huỷ
                     </Button>
                   </div>
                 </div>
               </Form.Item>
             </Form>
-
           </Modal>
         </div>
       </div>
@@ -446,39 +462,40 @@ const Storage = () => {
               setEditing(false);
               handleEdit();
             }}
+            width={550}
+            footer={null}
           >
             <Form
               form={formE}
+              layout="vertical"
               autoComplete="off"
-              labelCol={{ span: 7 }}
-              wrapperCol={{ span: 10 }}
               onFinish={(values) => {
-                handleEdit(
-                  values
-                );
+                handleEdit(values);
               }}
               onFinishFailed={(error) => {
                 console.log({ error });
               }}
             >
-              <Form.Item
-                className="mt-2"
-                label="Kiểu ổ cứng"
-              >
+              <Form.Item className="mt-2" label="Kiểu ổ cứng">
                 <Select
                   showSearch
-                  style={{
-                    width: 300,
-                  }}
+                
                   name="storageDetailId"
                   value={storageDetail}
                   placeholder="Search to Select"
                   optionFilterProp="children"
-
-                  filterOption={(input, option) => (option?.label ?? '').includes(input)}
+                  filterOption={(input, option) =>
+                    (option?.label ?? "").includes(input)
+                  }
                   onChange={(e) => handleSelect(e)}
                   options={detail.map((detail) => ({
-                    label: detail.storageType.name + " (" + detail.type + ", " + detail.capacity + ")",
+                    label:
+                      detail.storageType.name +
+                      " (" +
+                      detail.type +
+                      ", " +
+                      detail.capacity +
+                      ")",
                     value: detail.id,
                   }))}
                 />
@@ -493,7 +510,6 @@ const Storage = () => {
                     message: "Tổng số khe cắm SSD/HDD không được để trống",
                   },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập tổng số khe cắm SSD/HDD" />
               </Form.Item>
@@ -507,15 +523,32 @@ const Storage = () => {
                     message: "Số khe SSD/HDD còn lại không được để trống",
                   },
                 ]}
-                hasFeedback
               >
                 <Input placeholder="Nhập số khe SSD/HDD còn lại" />
               </Form.Item>
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
-                      Cập nhật
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                      shape="round"
+                      style={{ width: "100px" }}
+                    >
+                     Cập nhật
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                    <Button
+                      block
+                      shape="round"
+                     
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft:"-120px" }}
+                    >
+                      Huỷ
                     </Button>
                   </div>
                 </div>
