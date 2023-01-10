@@ -288,9 +288,9 @@ function Card() {
                 </div>
                 <div className="col-4">
                     <Button
-                        type="primary-uotline"
+                        type="primary-outline"
                         onClick={clearSearchForm}
-                        style={{ borderRadius: "10px" }}
+                       shape="round"
                     >
                         <ReloadOutlined />Đặt lại
                     </Button>
@@ -298,7 +298,7 @@ function Card() {
                         className="mx-2 "
                         type="primary"
                         onClick={search}
-                        style={{ borderRadius: "10px" }}
+                       shape="round"
                     >
                         <SearchOutlined />Tìm kiếm
                     </Button>
@@ -310,7 +310,7 @@ function Card() {
                         className="offset-11 "
                         type="primary"
                         onClick={showModal}
-                        style={{ borderRadius: "10px" }}
+                        shape="round"
                     >
                         <PlusOutlined /> Thêm mới
                     </Button>
@@ -319,7 +319,7 @@ function Card() {
                         open={open}
                         confirmLoading={confirmLoading}
                         onCancel={handleCancel}
-                        width={650}
+                        width={550}
                         okButtonProps={{
                             style: {
                                 display: "none",
@@ -381,13 +381,31 @@ function Card() {
                                 <Input placeholder="Bộ nhớ ..." />
                             </Form.Item>
                             <Form.Item className="text-center">
-                                <div className="row">
-                                    <div className="col-6">
-                                        <Button block type="primary" id="create" htmlType="submit">
-                                            Tạo mới
-                                        </Button>
-                                    </div>
-                                </div>
+                            <div className="row">
+                  <div className="col-6">
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                      shape="round"
+                      style={{width: "100px"}}
+                    >
+                      Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                  <Button
+                      block
+                      shape="round"
+                      className="cancel"
+                      onClick={handleCancel}
+                      style={{width: "80px"}}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+                </div>
                             </Form.Item>
                         </Form>
                     </Modal>
@@ -418,13 +436,9 @@ function Card() {
                         onCancel={() => {
                             setEditing(false);
                         }}
-                        okButtonProps={{
-                            style: {
-                                display: "none",
-                            },
-                        }}
-                        cancelText={"Đóng"}
-                        width={650}
+                        
+                        footer={null}
+                        width={550}
                     >
                         <Form
                             form={formEdit}
@@ -481,13 +495,31 @@ function Card() {
                                 <Input />
                             </Form.Item>
                             <Form.Item className="text-center">
-                                <div className="row">
-                                    <div className="col-6">
-                                        <Button block type="primary" id="create" htmlType="submit">
-                                            Cập nhật
-                                        </Button>
-                                    </div>
-                                </div>
+                            <div className="row">
+                  <div className="col-6">
+                    <Button
+                      block
+                      type="primary"
+                      className="create"
+                      htmlType="submit"
+                      shape="round"
+                      style={{width: "100px"}}
+                    >
+                      Cập nhật
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                  <Button
+                      block
+                      shape="round"
+                      className="cancel"
+                      onClick={handleCancel}
+                      style={{width: "80px"}}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+                </div>
                             </Form.Item>
                         </Form>
                     </Modal>

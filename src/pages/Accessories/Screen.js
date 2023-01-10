@@ -1,12 +1,4 @@
-import {
-  Table,
-  Slider,
-  Select,
-  Input,
-  Button,
-  Modal,
-  Form,
-} from "antd";
+import { Table, Slider, Select, Input, Button, Modal, Form } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -109,6 +101,7 @@ const Screen = () => {
 
   const [searchScreenType, setSearchScreenType] = useState();
   const [searchSize, setSearchSize] = useState();
+  const [isDraft, setIsDraft] = useState();
   const [searchScreenTechnology, setSearchScreenTechnology] = useState();
   //loadParam getList
   const getRandomuserParams = (params) => ({
@@ -170,24 +163,39 @@ const Screen = () => {
       dataIndex: "status",
       width: "10%",
       render: (status) => {
-        if (status == "ACTIVE") {
-          return (
-            <>
-              <div
-                className="bg-success text-center text-light"
-                style={{ width: "100px", borderRadius: "5px", }}
-              >
-                Hoạt động
-              </div>
-            </>
-          );
-        }
-        if (status == "INACTIVE") {
+        if (status == "DRAFT") {
           return (
             <>
               <div
                 className="bg-danger text-center text-light"
                 style={{ width: "100px", borderRadius: "5px", padding: "5px" }}
+              >
+                Nháp
+              </div>
+            </>
+          );
+        } else if (status == "ACTIVE") {
+          return (
+            <>
+              <div
+                className="bg-success text-center text-light"
+                style={{ width: "100px", borderRadius: "5px", padding: "5px" }}
+              >
+                Hoạt động
+              </div>
+            </>
+          );
+        } else if (status == "INACTIVE") {
+          return (
+            <>
+              <div
+                className="bg-secondary text-center text-light"
+                style={{
+                  width: "100px",
+                  borderRadius: "5px",
+                  padding: "5px",
+                  padding: "5px",
+                }}
               >
                 Không hoạt động
               </div>
@@ -213,7 +221,8 @@ const Screen = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => getData());
@@ -245,7 +254,8 @@ const Screen = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => getData());
@@ -277,7 +287,8 @@ const Screen = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => getData());
@@ -309,16 +320,27 @@ const Screen = () => {
       render: (id, data) => {
         return (
           <>
-            <EditOutlined
-              style={{ marginLeft: 12 }}
-              onClick={() => {
-                onEdit(data);
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => onDelete(data.id)}
-              style={{ color: "red", marginLeft: 12 }}
-            />
+            {data.status == "DRAFT" ? (
+              <>
+                <EditOutlined
+                  style={{ marginLeft: 12 }}
+                  onClick={() => {
+                    onEdit(data);
+                  }}
+                />
+                <DeleteOutlined
+                  onClick={() => onDelete(data.id)}
+                  style={{ color: "red", marginLeft: 12 }}
+                />
+              </>
+            ) : (
+              <EditOutlined
+                  style={{ marginLeft: 12 }}
+                  onClick={() => {
+                    onEdit(data);
+                  }}
+                />
+            )}
           </>
         );
       },
@@ -330,12 +352,13 @@ const Screen = () => {
     setLoading(true);
     axios
       .get(
-        url + `/auth/screens?${qs.stringify(getRandomuserParams(tableParams))}`
-        , {
+        url + `/auth/screens?${qs.stringify(getRandomuserParams(tableParams))}`,
+        {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
-        })
+        }
+      )
       .then((results) => {
         setData(results.data.data.data);
         setTotal(results.data.data.total);
@@ -389,7 +412,7 @@ const Screen = () => {
       screenRatio: value.screenRatio,
       touchScreen: value.touchScreen,
       contrast: value.contrast,
-      status: "ACTIVE",
+      status: isDraft == true ? "ACTIVE" : "DRAFT",
     };
     axios
       .post(url + "/staff/screens", form, {
@@ -473,8 +496,7 @@ const Screen = () => {
             return;
           });
       },
-      onCancel() {
-      },
+      onCancel() {},
     });
   };
 
@@ -516,6 +538,10 @@ const Screen = () => {
       return Promise.resolve();
     }
     return Promise.reject(new Error("Giá phải lớn hơn hoặc bằng 0!"));
+  };
+
+  const onChangeIsDraft = (value) => {
+    setIsDraft(value);
   };
 
   return (
@@ -563,16 +589,16 @@ const Screen = () => {
             className="mx-2  mt-2 "
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <SearchOutlined />
             Tìm kiếm
           </Button>
           <Button
             className="mt-2"
-            type="primary-uotline"
+            type="primary-outline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <ReloadOutlined />
             Đặt lại
@@ -585,7 +611,7 @@ const Screen = () => {
             className="offset-11 "
             type="primary"
             onClick={showModal}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <PlusOutlined /> Thêm mới
           </Button>
@@ -600,7 +626,7 @@ const Screen = () => {
                 display: "none",
               },
             }}
-            cancelText={"Đóng"}
+            footer={null}
             width={900}
           >
             <Form
@@ -627,7 +653,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập kích thước màn hình" />
                   </Form.Item>
@@ -642,7 +667,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập công nghệ màn hình" />
                   </Form.Item>
@@ -657,7 +681,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập độ phân giải" />
                   </Form.Item>
@@ -673,7 +696,6 @@ const Screen = () => {
                       { whitespace: true },
                       { min: 3 },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập loại màn hình" />
                   </Form.Item>
@@ -688,7 +710,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập tần số quét" />
                   </Form.Item>
@@ -703,7 +724,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập độ tương phản" />
                   </Form.Item>
@@ -720,7 +740,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập tấm nền" />
                   </Form.Item>
@@ -735,7 +754,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập độ sáng" />
                   </Form.Item>
@@ -750,7 +768,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập độ phủ màu" />
                   </Form.Item>
@@ -765,7 +782,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập tỷ lệ màn hình" />
                   </Form.Item>
@@ -780,24 +796,48 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập màn hình cảm ứng" />
                   </Form.Item>
                 </div>
               </div>
-
               <Form.Item className="text-center">
                 <div className="row">
-                  <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                  <div className="col-4">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      id="create"
+                      style={{ width: "100px", marginLeft: "230px" }}
+                    >
                       Tạo mới
                     </Button>
                   </div>
-                  <div className="col-6">
-                    {/* <Button block type="danger" id="create" htmlType="submit">
-                      Lưu nháp
-                    </Button> */}
+                  <div className="col-4">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      onClick={() => onChangeIsDraft(false)}
+                      danger
+                      style={{ width: "100px", marginLeft: "-60px" }}
+                    >
+                      Tạo nháp
+                    </Button>
+                  </div>
+                  <div className="col-4">
+                    <Button
+                      block
+                      className="cancel"
+                      shape="round"
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft: "-430px" }}
+                    >
+                      Huỷ
+                    </Button>
                   </div>
                 </div>
               </Form.Item>
@@ -829,12 +869,7 @@ const Screen = () => {
             open={isEditing}
             width={900}
             onCancel={handleCancel}
-            okButtonProps={{
-              style: {
-                display: "none",
-              },
-            }}
-            cancelText={"Đóng"}
+            footer={null}
           >
             <Form
               form={formE}
@@ -860,7 +895,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập kích thước màn hình" />
                   </Form.Item>
@@ -875,7 +909,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập công nghệ màn hình" />
                   </Form.Item>
@@ -890,7 +923,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập độ phân giải" />
                   </Form.Item>
@@ -905,7 +937,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập loại màn hình" />
                   </Form.Item>
@@ -920,7 +951,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập màn hình cảm ứng" />
                   </Form.Item>
@@ -935,7 +965,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập độ tương phản" />
                   </Form.Item>
@@ -952,7 +981,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập tần số quét" />
                   </Form.Item>
@@ -967,7 +995,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập tấm nền" />
                   </Form.Item>
@@ -982,7 +1009,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập độ sáng" />
                   </Form.Item>
@@ -997,7 +1023,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập độ phủ màu" />
                   </Form.Item>
@@ -1012,7 +1037,6 @@ const Screen = () => {
                       },
                       { whitespace: true },
                     ]}
-                    hasFeedback
                   >
                     <Input placeholder="Nhập tỷ lệ màn hình" />
                   </Form.Item>
@@ -1022,15 +1046,28 @@ const Screen = () => {
               <Form.Item className="text-center">
                 <div className="row">
                   <div className="col-6">
-                    <Button block type="primary" id="create" htmlType="submit">
+                    <Button
+                      block
+                      type="primary"
+                      shape="round"
+                      htmlType="submit"
+                      id="create"
+                      style={{ width: "100px", marginLeft: "230px" }}
+                    >
                       Cập nhật
                     </Button>
                   </div>
-                  {/* <div className="col-6">
-                    <Button block type="danger" id="create" htmlType="submit">
-                      Lưu nháp
+                  <div className="col-6">
+                    <Button
+                      block
+                      className="cancel"
+                      shape="round"
+                      onClick={handleCancel}
+                      style={{ width: "80px", marginLeft: "-440px" }}
+                    >
+                      Huỷ
                     </Button>
-                  </div> */}
+                  </div>
                 </div>
               </Form.Item>
             </Form>

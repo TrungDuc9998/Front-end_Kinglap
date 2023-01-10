@@ -170,6 +170,8 @@ const Discount = () => {
     },
   });
 
+
+
   const [dateTimer, setDateTimer] = useState([]);
   // Call API product
   const loadProduct = () => {

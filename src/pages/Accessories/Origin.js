@@ -157,7 +157,8 @@ const Origin = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => fetchData());
@@ -182,7 +183,8 @@ const Origin = () => {
                     {
                       method: "PUT",
                       headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem("token"),
+                        Authorization:
+                          "Bearer " + localStorage.getItem("token"),
                       },
                     }
                   ).then(() => fetchData());
@@ -206,12 +208,13 @@ const Origin = () => {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: 'Bearer ' + localStorage.getItem("token"),
-      },
-    }
+      )}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
     )
       .then((res) => res.json())
       .then((results) => {
@@ -249,10 +252,11 @@ const Origin = () => {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -276,10 +280,11 @@ const Origin = () => {
     fetch(
       `http://localhost:8080/api/staff/origin?${qs.stringify(
         getRandomuserParams(tableParams)
-      )}`, {
+      )}`,
+      {
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       }
     )
@@ -318,7 +323,7 @@ const Origin = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
         body: JSON.stringify(data),
       })
@@ -327,6 +332,7 @@ const Origin = () => {
           if (results.status === 200) {
             toastSuccessOrigin("Thêm mới xuất xứ thành công!");
             setOpen(false);
+            onReset();
             fetchData();
           }
         });
@@ -345,7 +351,7 @@ const Origin = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + localStorage.getItem("token"),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
         body: JSON.stringify(edit),
       })
@@ -368,6 +374,11 @@ const Origin = () => {
 
   const changeSearchStatus = (value) => {
     setSearchStatus(value);
+  };
+
+  const [form] = Form.useForm();
+  const onReset = () => {
+    form.resetFields();
   };
 
   return (
@@ -417,7 +428,7 @@ const Origin = () => {
             className="mt-2"
             type="primary-uotline"
             onClick={clearSearchForm}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <ReloadOutlined />
             Đặt lại
@@ -426,7 +437,7 @@ const Origin = () => {
             className="mx-2  mt-2"
             type="primary"
             onClick={search}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <SearchOutlined />
             Tìm kiếm
@@ -439,7 +450,7 @@ const Origin = () => {
             className="offset-11 "
             type="primary"
             onClick={showModal}
-            style={{ borderRadius: "10px" }}
+            shape="round"
           >
             <PlusOutlined /> Thêm mới
           </Button>
@@ -448,17 +459,13 @@ const Origin = () => {
             open={open}
             confirmLoading={confirmLoading}
             onCancel={handleCancel}
-            okButtonProps={{
-              style: {
-                display: "none",
-              },
-            }}
-            cancelText={"Đóng"}
-            width={700}
+            footer={null}
+            width={550}
           >
             <Form
               initialValues={{}}
               autoComplete="off"
+              form={form}
               labelCol={{ span: 7 }}
               wrapperCol={{ span: 13 }}
               onFinish={(values) => {
@@ -491,8 +498,21 @@ const Origin = () => {
                       type="primary"
                       className="create"
                       htmlType="submit"
+                      shape="round"
+                      style={{width: "100px"}}
                     >
                       Tạo mới
+                    </Button>
+                  </div>
+                  <div className="col-6">
+                  <Button
+                      block
+                      shape="round"
+                      className="cancel"
+                      onClick={handleCancel}
+                      style={{width: "80px"}}
+                    >
+                      Huỷ
                     </Button>
                   </div>
                 </div>
@@ -531,8 +551,8 @@ const Origin = () => {
                 display: "none",
               },
             }}
-            cancelText={"Đóng"}
-            width={700}
+           footer={null}
+            width={550}
           >
             <Form
               form={formEdit}
@@ -570,10 +590,24 @@ const Origin = () => {
                       type="primary"
                       className="create"
                       htmlType="submit"
+                      shape="round"
+                      style={{width: "100px"}}
                     >
                       Cập nhật
                     </Button>
                   </div>
+                  <div className="col-6">
+                  <Button
+                      block
+                      shape="round"
+                      className="cancel"
+                      onClick={handleCancel}
+                      style={{width: "80px"}}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+            
                 </div>
               </Form.Item>
             </Form>
@@ -588,7 +622,7 @@ const Origin = () => {
               fetch(`http://localhost:8080/api/admin/origin/${id}`, {
                 method: "DELETE",
                 headers: {
-                  Authorization: 'Bearer ' + localStorage.getItem("token"),
+                  Authorization: "Bearer " + localStorage.getItem("token"),
                 },
               }).then(() => fetchData());
               setDelete(false);
