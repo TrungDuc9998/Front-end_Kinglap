@@ -1,4 +1,4 @@
-import { ADD_TO_CART, CHECK_OUT_CART, CHANGE_CART_QTY, REMOVE_CART, VIEW_PRODUCT, ADD_TO_CART_BY_VIEW, REMOVE_CART_AFTER_CHECKOUT, SELECT_PRODUCT_TO_CART_ADMIN,REMOVE_CART_CHECKOUT, CHANGE_CART_CHECKOUT_QTY } from './constants'
+import { ADD_TO_CART, CHECK_OUT_CART, CHANGE_CART_QTY, REMOVE_CART, VIEW_PRODUCT, ADD_TO_CART_BY_VIEW, REMOVE_CART_AFTER_CHECKOUT,REMOVE_CART_CHECKOUT, CHANGE_CART_CHECKOUT_QTY, SELECT_PRODUCT_TO_CART_ADMIN  } from './constants'
 const initState = {
     cartCheckout: JSON.parse(localStorage.getItem('cartCheckout')) ? JSON.parse(localStorage.getItem('cartCheckout')) : [],
     cart: JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : [],
@@ -8,12 +8,6 @@ const initState = {
 function reducer(state, action) {
 
     switch (action.type) {
-        case SELECT_PRODUCT_TO_CART_ADMIN: {
-            return {
-                ...state,
-                cartAdmin: action.payload
-            }
-        }
         case CHECK_OUT_CART: {
             let data_add_cart = action.payload
             let add_cart = JSON.parse(localStorage.getItem('cartCheckout')) ? JSON.parse(localStorage.getItem('cartCheckout')) : []
@@ -38,6 +32,17 @@ function reducer(state, action) {
                 }
                 console.log("Update")
             }
+            state = {
+                ...state,
+                cart: state.cart.filter(c => c.id !== data_add_cart.id),
+            }
+            localStorage.setItem('carts', JSON.stringify(state.cart));
+            localStorage.setItem('cartCheckout', JSON.stringify(state.cartCheckout));
+            return state
+            // return {
+            //     ...state,
+            //     cartCheckout: action.payload,
+            // }
         }
         case ADD_TO_CART: {
             // state = {
@@ -150,6 +155,12 @@ function reducer(state, action) {
             }
             localStorage.setItem('product_detail', JSON.stringify(state.product_view));
             return state;
+        }
+        case SELECT_PRODUCT_TO_CART_ADMIN: {
+            return {
+                ...state,
+                cartAdmin: action.payload
+            }
         }
         default:
             throw new Error('Invalid action!')
