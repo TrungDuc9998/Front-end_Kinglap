@@ -1,12 +1,19 @@
-import { ADD_TO_CART, CHECK_OUT_CART, CHANGE_CART_QTY, REMOVE_CART, VIEW_PRODUCT, ADD_TO_CART_BY_VIEW, REMOVE_CART_AFTER_CHECKOUT,REMOVE_CART_CHECKOUT, CHANGE_CART_CHECKOUT_QTY } from './constants'
+import { ADD_TO_CART, CHECK_OUT_CART, CHANGE_CART_QTY, REMOVE_CART, VIEW_PRODUCT, ADD_TO_CART_BY_VIEW, REMOVE_CART_AFTER_CHECKOUT, SELECT_PRODUCT_TO_CART_ADMIN,REMOVE_CART_CHECKOUT, CHANGE_CART_CHECKOUT_QTY } from './constants'
 const initState = {
     cartCheckout: JSON.parse(localStorage.getItem('cartCheckout')) ? JSON.parse(localStorage.getItem('cartCheckout')) : [],
     cart: JSON.parse(localStorage.getItem('carts')) ? JSON.parse(localStorage.getItem('carts')) : [],
-    product_view: {}
+    product_view: {},
+    cartAdmin: [],
 }
 function reducer(state, action) {
 
     switch (action.type) {
+        case SELECT_PRODUCT_TO_CART_ADMIN: {
+            return {
+                ...state,
+                cartAdmin: action.payload
+            }
+        }
         case CHECK_OUT_CART: {
             let data_add_cart = action.payload
             let add_cart = JSON.parse(localStorage.getItem('cartCheckout')) ? JSON.parse(localStorage.getItem('cartCheckout')) : []
@@ -31,12 +38,6 @@ function reducer(state, action) {
                 }
                 console.log("Update")
             }
-            localStorage.setItem('cartCheckout', JSON.stringify(state.cartCheckout));
-            return state
-            // return {
-            //     ...state,
-            //     cartCheckout: action.payload,
-            // }
         }
         case ADD_TO_CART: {
             // state = {
