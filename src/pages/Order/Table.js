@@ -6,14 +6,20 @@ import {
   Image,
   AutoComplete,
   Form,
+  Table,
+  Tabs,
+  Drawer,
+  Card
 } from "antd";
 import React, { useEffect, useState } from "react";
 import qs from "qs";
 import "./table.css";
 import "../Order/table.css";
 import { Modal } from "antd";
-import { DeleteOutlined, MenuFoldOutlined } from "@ant-design/icons";
+import { DeleteOutlined, MenuFoldOutlined, EyeOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
+import Meta from "antd/lib/card/Meta";
+import Prod from "../../components/layout/prod";
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -51,6 +57,169 @@ const toastError = (message) => {
 };
 
 function CreateOrderAdmin() {
+  const getDataProductById1 = (id) => {
+    fetch(`http://localhost:8080/api/products/${id}?`)
+      .then((res) => res.json())
+      .then((results) => {
+        setShowData(results)
+      });
+  };
+  const [dataProduct, setDataProduct] = useState([]);
+  const [dataSelect, setDataSelect] = useState([]);
+  const getRandomuserParams = (params) => ({
+    limit: params.pagination?.pageSize,
+    page: params.pagination?.current,
+    searchUsername: params.pagination?.search1,
+    searchStatus: params.pagination?.searchStatus,
+  });
+  const onClickNext = () => {
+    // console.log("click");
+    // setTableParamPro({
+    //     pagination: {
+    //         current: 2,
+    //         pageSize: 6,
+    //         search1: "",
+    //         search2: "",
+    //         searchStatus: "ACTIVE",
+    //     },
+    // })
+    // getData();
+  }
+  const getData = () => {
+    fetch(
+      `http://localhost:8080/api/products?${qs.stringify(
+        getRandomuserParams(tableParamPro)
+      )}`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        setDataProduct(results.data.data);
+      });
+  }
+  const formatCash = (str) => {
+    if (str.length > 1) {
+      return str
+        .split("")
+        .reverse()
+        .reduce((prev, next, index) => {
+          return (index % 3 ? next : next + ",") + prev;
+        });
+    } else {
+      return "";
+    }
+  };
+  const onChangeInputPN = (value) => {
+    console.log("input", value.target.value)
+
+  }
+  const [product, setShowData] = useState();
+  const onClickEye = (data) => {
+    getDataProductById1(data.id);
+    showDrawer();
+  }
+  const onClickCart = (data) => {
+    console.log("data click", data)
+    let a = true;
+    if (productAdd.length >= 1) {
+      productAdd.forEach(item => {
+        if (item.id == data.id) {
+          a = false;
+        }
+      })
+    }
+    if (a == true) {
+      setProductAdd([...productAdd, data])
+      toastSuccess("Đã thêm sản phẩm");
+    } else {
+      toastError("Sản phẩm này đã chọn rồi");
+    }
+
+  }
+  const [open1, setOpen1] = useState(false);
+  const showDrawer = () => {
+    setOpen1(true);
+  };
+  const onClose = () => {
+    setOpen1(false);
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const onclickDelete = (value) => {
+    setProductAdd(productAdd.filter((item) => item != value));
+  };
+  const [productAdd, setProductAdd] = useState([]);
+  const columns = [
+    {
+      title: "Hình ảnh",
+      dataIndex: "image",
+      width: "25%",
+      render: (id, data) => {
+        return (
+          <>
+            <img width={150} src={data?.images[0]?.name} />
+          </>
+        );
+      },
+    },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "name",
+      width: "45%",
+    },
+    {
+      title: "Giá",
+      dataIndex: "price",
+      width: "15%",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "",
+      render: (id, data) => {
+        return (
+          <>
+            {/* <EyeOutlined
+              style={{ fontSize: "18px", marginLeft: "20%" }}
+              onClick={() => {
+                onClickShow(data);
+              }}
+            /> */}
+            <DeleteOutlined
+              style={{ fontSize: "18px", marginLeft: "20%", color: "red" }}
+              onClick={() => {
+                onclickDelete(data);
+              }}
+            />
+          </>
+        );
+      },
+    },
+  ];
+  const [isModalOpen1, setIsModalOpen1] = useState(false);
+  const showModal1 = () => {
+    setIsModalOpen1(true);
+  };
+  const handleOk1 = () => {
+    console.log("add", productAdd);
+    setIsModalOpen1(false);
+  };
+  const handleCancel1 = () => {
+    setIsModalOpen1(false);
+  };
+
   const [show, setShow] = useState(false);
   const [value, setValue] = useState("");
   const [values, setValues] = useState();
@@ -234,11 +403,11 @@ function CreateOrderAdmin() {
         address:
           valueProvince !== undefined
             ? (addressDetail === undefined ? "" : addressDetail + ",") +
-              valueWard +
-              ", " +
-              valueDistrict +
-              ", " +
-              valueProvince
+            valueWard +
+            ", " +
+            valueDistrict +
+            ", " +
+            valueProvince
             : "TẠI CỬA HÀNG",
         note: note,
         customerName: valueUser === undefined ? fullNameForm : valueUser,
@@ -668,6 +837,7 @@ function CreateOrderAdmin() {
     loadInfo();
     setDisableCountry(true);
     loadDataUseLogin();
+    getData();
   }, [(total != undefined) | (ProvinceID != 1)]);
 
   const loadDataUseLogin = () => {
@@ -903,7 +1073,233 @@ function CreateOrderAdmin() {
           <div className="timk col-4 ">
             <div className="search-container">
               <div className="search-inner mb-2">
-                <AutoComplete
+
+                <Button type="primary" onClick={showModal1}>
+                  Chọn sản phẩm
+                </Button>
+                <Modal
+                  width={1000}
+                  title="Chọn sản phẩm"
+                  open={isModalOpen1}
+                  onOk={handleOk1}
+                  onCancel={handleCancel1}
+
+                >
+                  <Tabs
+                    defaultActiveKey="1"
+                    onChange={onChange}
+                    items={[
+                      {
+                        label: `Sản phẩm`,
+                        key: '1',
+                        children: <>
+                          <div className="row">
+                            <div className="col-3">
+                              <Input placeholder="Nhập mã sản phẩm" onChange={onChangeInputPN} />
+                            </div>
+                          </div>
+                          <div className="row">
+                            {dataProduct ? dataProduct.map(item => (
+                              <div className="col-4 mt-2">
+                                <Card
+                                  style={{ height: '325px' }}
+                                  cover={
+                                    <img
+                                      style={{ height: '179px' }}
+                                      alt="example"
+                                      src={item?.images[0]?.name ? item.images[0].name : ""}
+                                    />
+                                  }
+                                  actions={[
+                                    <EyeOutlined key="setting" style={{ fontSize: '20px', color: '#009999' }} onClick={() => onClickEye(item)} />,
+                                    <ShoppingCartOutlined key="edit" style={{ fontSize: '25px', color: '#08c' }} onClick={() => onClickCart(item)}></ShoppingCartOutlined>,
+                                  ]}
+                                >
+                                  <Meta
+                                    title={item.name}
+                                    description={item.price}
+                                  />
+                                </Card>
+                              </div>
+                            )) : ""}
+                            <div style={{ width: '100%' }} className="d-flex justify-content-evenly">
+                              <nav aria-label="Page navigation example">
+                                <ul class="pagination">
+                                  <li class="page-item">
+                                    <a class="page-link" aria-label="Previous">
+                                      <span aria-hidden="true">Previous</span>
+                                    </a>
+                                  </li>
+                                  <li class="page-item">
+                                    <a class="page-link" aria-label="Next" onClick={onClickNext}>
+                                      <span aria-hidden="true">Next</span>
+                                    </a>
+                                  </li>
+                                </ul>
+                              </nav>
+                            </div>
+                          </div>
+                          <Drawer title={product?.name}
+                            size="large"
+                            placement="right" onClose={onClose} open={open1}>
+                            <div className="card">
+                              <div className="card-header" style={{ textAlign: "left" }}>
+                                Thông tin hàng hóa
+                              </div>
+                              <div className="card-body row">
+                                <div className="col-6">
+                                  <li>Xuất xứ: {product?.origin.name}</li>
+                                  <li>Thương hiệu: {product?.manufacture.name} </li>
+                                </div>
+                                <div className="col-6">
+                                  <li>Thời điểm ra mắt:{product?.debut} </li>
+                                  <li>Hướng dẫn bảo quản: Để nơi khô ráo, nhẹ tay</li>
+                                </div>
+                              </div>
+                              <div className="card-header" style={{ textAlign: "left" }}>
+                                Thiết kế trọng lượng
+                              </div>
+                              <div className="card-body">
+                                <li>
+                                  Kích thước: {product?.width} x {product?.height} x{" "}
+                                  {product?.length}
+                                </li>
+                                <li>Trọng lượng sản phẩm: {product?.weight}kg</li>
+                                <li>Chất liệu: {product?.material}</li>
+                              </div>
+                              <div className="card-header" style={{ textAlign: "left" }}>
+                                Bộ xử lí
+                              </div>
+                              <div className="card-body row">
+                                <div className="col-6">
+                                  <li>Hãng CPU: {product?.processor?.cpuCompany}</li>
+                                  <li>
+                                    Công nghệ CPU: {product?.processor?.cpuTechnology}
+                                  </li>
+                                  <li>Tốc độ CPU: {product?.processor?.cpuSpeed}</li>
+                                  <li>Tốc độ tối đa CPU: {product?.processor?.maxSpeed}</li>
+                                </div>
+                                <div className="col-6">
+                                  <li>Loại CPU: {product?.processor?.cpuType}</li>
+                                  <li>Số nhân: {product?.processor?.multiplier}</li>
+                                  <li>Số luồng: {product?.processor?.numberOfThread}</li>
+                                  <li>Bộ nhớ đệm: {product?.processor?.caching}</li>
+                                </div>
+                              </div>
+                              <div className="card-header" style={{ textAlign: "left" }}>
+                                RAM
+                              </div>
+                              <div className="card-body row">
+                                <div className="col-6">
+                                  <li>Dung lượng RAM: {product?.ram?.ramCapacity}</li>
+                                  <li>Loại RAM: {product?.ram?.typeOfRam}</li>
+                                  <li>Tốc độ RAM: {product?.ram?.ramSpeed}</li>
+                                  <li>Số khe cắm rời: {product?.ram?.looseSlot}</li>
+                                </div>
+                                <div className="col-6">
+                                  <li>Số khe RAM còn lại: {product?.ram?.remainingSlot}</li>
+                                  <li>Số RAM onboard: {product?.ram?.onboardRam}</li>
+                                  <li>Hỗ trợ RAM tối đa: {product?.ram?.maxRamSupport}</li>
+                                </div>
+                              </div>
+                              <div className="card-header" style={{ textAlign: "left" }}>
+                                Màn Hình
+                              </div>
+                              <div className="card-body row">
+                                <div className="col-6">
+                                  <li>Kích thước màn hình: {product?.screen?.size}</li>
+                                  <li>
+                                    Công nghệ màn hình: {product?.screen?.screenTechnology}
+                                  </li>
+                                  <li>Độ phân giải: {product?.screen?.resolution}</li>
+                                  <li>Tần số quét: {product?.screen?.scanFrequency}</li>
+                                  <li>Tấm nền: {product?.screen?.backgroundPanel}</li>
+                                </div>
+                                <div className="col-6">
+                                  <li>Độ sáng: {product?.screen?.brightness}</li>
+                                  <li>Độ phủ màu: {product?.screen?.colorCoverage}</li>
+                                  <li>Tỷ lệ màn hình: {product?.screen?.resolution}</li>
+                                  <li>
+                                    Màn hình cảm ứng: {product?.screen?.backgroundPanel}
+                                  </li>
+                                  <li>Độ tương phản: {product?.screen?.contrast}</li>
+                                </div>
+                              </div>
+                              <div className="card-header" style={{ textAlign: "left" }}>
+                                Đồ họa
+                              </div>
+                              <div className="card-body row">
+                                <div className="col-6">
+                                  <li>
+                                    <span style={{ fontSize: "20px", fontWeight: "600" }}>
+                                      Card onboard
+                                    </span>
+                                  </li>
+                                  <li>Hãng: {product?.cardOnboard?.trandemark}</li>
+                                  <li>Model: {product?.cardOnboard?.model}</li>
+                                  <li>Bộ nhớ: {product?.cardOnboard?.memory}</li>
+                                </div>
+                                <div className="col-6">
+                                  <li>
+                                    <span style={{ fontSize: "20px", fontWeight: "600" }}>
+                                      Card rời
+                                    </span>
+                                  </li>
+                                  <li>Hãng: {product?.card?.trandemark}</li>
+                                  <li>Model: {product?.card?.model}</li>
+                                  <li>Bộ nhớ: {product?.card?.memory}</li>
+                                </div>
+                              </div>
+                              <div className="card-header" style={{ textAlign: "left" }}>
+                                Lưu trữ
+                              </div>
+                              <div className="card-body row">
+                                <div className="col-6">
+                                  <li>
+                                    Kiểu ổ cứng: {product?.storage?.storageDetail?.type}
+                                  </li>
+                                  <li>Số khe cắm: {product?.storage?.number}</li>
+                                  <li>
+                                    Loại SSD:
+                                    {product?.storage?.storageDetail.storageType.name}
+                                  </li>
+                                  <li>
+                                    Dung lượng: {product?.storage?.storageDetail.capacity}
+                                  </li>
+                                </div>
+                              </div>
+                              <div className="card-header" style={{ textAlign: "left" }}>
+                                Bảo mật
+                              </div>
+                              <div className="card-body row">
+                                <li>{product?.security}</li>
+                              </div>
+                              <div className="card-header" style={{ textAlign: "left" }}>
+                                Hệ điều hành
+                              </div>
+                              <div className="card-body row">
+                                <li>OS: {product?.win.name}</li>
+                                <li>Version: {product?.win.version}</li>
+                              </div>
+                            </div>
+                          </Drawer>
+                        </>
+                      },
+                      {
+                        label: `Sản phẩm đã chọn`,
+                        key: '2',
+                        children: <Table
+                          dataSource={productAdd}
+                          columns={columns}
+                        // pagination={{ position: ["none", "none"] }}
+                        />,
+                      },
+                    ]}
+                  />
+
+                </Modal>
+
+                {/* <AutoComplete
                   style={{
                     width: 700,
                   }}
@@ -917,7 +1313,7 @@ function CreateOrderAdmin() {
                       .toUpperCase()
                       .indexOf(inputValue.toUpperCase()) !== -1
                   }
-                />
+                /> */}
               </div>
             </div>
           </div>
@@ -1443,7 +1839,7 @@ function CreateOrderAdmin() {
                   onChange={(e) => setValueUser(e.target.value)}
                   value={valueUser}
                   placeholder="Tên khách hàng"
-                  // type="number"
+                // type="number"
                 />
               </div>
             </div>
